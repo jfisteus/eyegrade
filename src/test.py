@@ -15,6 +15,10 @@ def get_image():
     #convert Ipl image to PIL image
     return opencv.adaptors.Ipl2PIL(im) 
 
+def save_image():
+    im = highgui.cvQueryFrame(camera)
+    highgui.cvSaveImage("/tmp/test.png", im)
+
 fps = 30.0
 pygame.init()
 window = pygame.display.set_mode((640,480))
@@ -24,8 +28,10 @@ screen = pygame.display.get_surface()
 while True:
     events = pygame.event.get()
     for event in events:
-        if event.type == QUIT or event.type == KEYDOWN:
+        if event.type == QUIT:
             sys.exit(0)
+        elif event.type == KEYDOWN:
+            save_image()
     im = get_image()
     pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
     screen.blit(pg_img, (0,0))
