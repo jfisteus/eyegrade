@@ -6,17 +6,14 @@ import sys
 import opencv
 #this is important for capturing/displaying images
 from opencv import highgui 
+import imageproc
 
-camera = highgui.cvCreateCameraCapture(1)
+capturer = imageproc.Capturer(1)
+
 def get_image():
-    im = highgui.cvQueryFrame(camera)
-    # Add the line below if you need it (Ubuntu 8.04+)
-    #im = opencv.cvGetMat(im)
-    #convert Ipl image to PIL image
-    return opencv.adaptors.Ipl2PIL(im) 
+    return capturer.capture()
 
-def save_image():
-    im = highgui.cvQueryFrame(camera)
+def save_image(im):
     highgui.cvSaveImage("/tmp/test.png", im)
 
 fps = 30.0
@@ -26,13 +23,15 @@ pygame.display.set_caption("WebCam Demo")
 screen = pygame.display.get_surface()
 
 while True:
+    ipl_im = get_image()
+    im = imageproc.gray_ipl_to_rgb_pil(ipl_im)
+
     events = pygame.event.get()
     for event in events:
         if event.type == QUIT:
             sys.exit(0)
         elif event.type == KEYDOWN:
-            save_image()
-    im = get_image()
+            save_image(ipl_im)
     pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
     screen.blit(pg_img, (0,0))
     pygame.display.flip()
