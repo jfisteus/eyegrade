@@ -11,7 +11,9 @@ import imageproc
 capturer = imageproc.Capturer(1)
 
 def get_image():
-    return capturer.capture()
+    im_raw = capturer.capture()
+    im_proc = capturer.pre_process(im_raw)
+    return im_raw, im_proc
 
 def save_image(im):
     highgui.cvSaveImage("/tmp/test.png", im)
@@ -23,15 +25,18 @@ pygame.display.set_caption("WebCam Demo")
 screen = pygame.display.get_surface()
 
 while True:
-    ipl_im = get_image()
-    im = imageproc.gray_ipl_to_rgb_pil(ipl_im)
+    im_raw, im_proc = get_image()
+#    im = imageproc.gray_ipl_to_rgb_pil(im_proc)
+    imageproc.draw_lines(im_raw, im_proc)
+    imageproc.detect_lines(im_proc)
+    im = opencv.adaptors.Ipl2PIL(im_raw)
 
     events = pygame.event.get()
     for event in events:
         if event.type == QUIT:
             sys.exit(0)
         elif event.type == KEYDOWN:
-            save_image(ipl_im)
+            save_image(im_proc)
     pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
     screen.blit(pg_img, (0,0))
     pygame.display.flip()

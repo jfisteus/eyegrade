@@ -22,3 +22,9 @@ Loading and saving images
 
 im = highgui.cvLoadImage("test-001.png")
 highgui.cvSaveImage("/tmp/test3.png", bwt)
+
+****************************************************************************
+Other processing
+****************************************************************************
+
+im2 = opencv.cvCloneImage(im1)
