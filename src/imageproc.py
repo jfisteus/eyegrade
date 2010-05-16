@@ -6,8 +6,12 @@ class Capturer:
     def __init__(self, input_dev = 0):
         self.camera = highgui.cvCreateCameraCapture(input_dev)
 
-    def capture(self):
-        return opencv.cvCloneImage(highgui.cvQueryFrame(self.camera))
+    def capture(self, clone = False):
+        image = highgui.cvQueryFrame(self.camera)
+        if clone:
+            return opencv.cvCloneImage(image)
+        else:
+            return image
 
     def capture_pil(self):
         return gray_ipl_to_rgb_pil(self.capture())
@@ -54,13 +58,101 @@ def draw_tangent(image, rho, theta, color = (0, 0, 255, 0)):
         print "len(p_draw) ==", len(p_draw), "-", rho, theta
         print p_draw
 
+def draw_corner(image, x, y, color = (0, 0, 255, 0)):
+    opencv.cvCircle(image, (x, y), 5, color, opencv.CV_FILLED)
+
 def detect_lines(image):
     st = opencv.cvCreateMemStorage()
-    return opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
-                                1, 0.01, 300)
+    lines = opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
+                                 1, 0.01, 250)
+    return lines
 
-def draw_lines(image_raw, image_proc):
+def draw_lines(image_raw, image_proc, boxes_dim):
     lines = detect_lines(image_proc)
-    for line in lines:
+    axes = detect_boxes(lines, boxes_dim)
+    corner_matrixes = cell_corners(axes[1][1], axes[0][1], boxes_dim)
+    for line in axes[0][1] + axes[1][1]:
         draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
+    for corners in corner_matrixes:
+        for h in corners:
+            for c in h:
+                draw_corner(image_raw, c[0], c[1])
 
+def detect_directions(lines):
+    assert(lines.total >= 2)
+    threshold = 0.1
+    s_lines = sorted([(l[0], l[1]) for l in lines], key = lambda x: x[1])
+    axes = []
+    rho, theta = s_lines[0]
+    axes.append((theta, [(rho, theta)]))
+    for rho, theta in s_lines[1:]:
+        if abs(theta - axes[-1][0]) < 0.1:
+            axes[-1][1].append((rho, theta))
+        else:
+            axes.append((theta, [(rho, theta)]))
+    if abs(axes[0][0] - axes[-1][0] + math.pi) < 0.1:
+        axes[0][1].extend([(-rho, theta - math.pi) \
+                           for rho, theta in axes[-1][1]])
+        del axes[-1]
+    for i in range(0, len(axes)):
+        avg = sum([theta for rho, theta in axes[i][1]]) / len(axes[i][1])
+        axes[i] = (avg, axes[i][1])
+    return axes
+
+def detect_boxes(lines, boxes_dim):
+    expected_horiz = 1 + max([box[1] for box in boxes_dim])
+    expected_vert = 4 + sum([box[0] for box in boxes_dim])
+    axes = detect_directions(lines)
+    axes = [axis for axis in axes if len(axis[1]) >= 5]
+    if len(axes) == 2 and abs(axes[1][0] - axes[0][0] - math.pi / 2) < 0.1:
+        axes[0] = (axes[0][0], collapse_lines(axes[0][1]))
+        axes[1] = (axes[1][0], collapse_lines(axes[1][1]))
+        return axes
+    else:
+        return None
+
+def collapse_lines(lines):
+    coll = []
+    lines.sort()
+    first = 0
+    sum_rho = lines[0][0]
+    sum_theta = lines[0][1]
+    for i in range(1, len(lines)):
+        if lines[i][0] - lines[first][0] > 15:
+            coll.append((sum_rho / (i - first), sum_theta / (i - first)))
+            first = i
+            sum_rho = lines[i][0]
+            sum_theta = lines[i][1]
+        else:
+            sum_rho += lines[i][0]
+            sum_theta += lines[i][1]
+    coll.append((sum_rho / (len(lines) - first),
+                 sum_theta / (len(lines) - first)))
+    return coll
+
+def cell_corners(hlines, vlines, boxes_dim):
+    corner_matrixes = []
+    vini = 1
+    for box_dim in boxes_dim:
+        print vini
+        width, height = box_dim
+        corners = []
+        for i in range(0, height + 1):
+            cpart = []
+            corners.append(cpart)
+            for j in range(vini, vini + width + 1):
+                c = intersection(hlines[i], vlines[j])
+                print "******", i, j, c, i, j - vini
+                cpart.append(c)
+        corner_matrixes.append(corners)
+        vini += 2 + width
+    return corner_matrixes
+
+def intersection(hline, vline):
+    rho1, theta1 = hline
+    rho2, theta2 = vline
+    y = rho1 * (math.cos(theta2) - math.cos(theta1)) \
+        / (math.sin(theta1) * math.cos(theta2) \
+               + math.sin(theta2) * math.cos(theta1))
+    x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
+    return (int(x), int(y))
