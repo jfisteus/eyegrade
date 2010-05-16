@@ -2,6 +2,8 @@ import opencv
 from opencv import highgui 
 import math
 
+param_collapse_diff = 20
+
 class Capturer:
     def __init__(self, input_dev = 0):
         self.camera = highgui.cvCreateCameraCapture(input_dev)
@@ -74,8 +76,10 @@ def draw_lines(image_raw, image_proc, boxes_dim):
     axes = detect_boxes(lines, boxes_dim)
     if axes is not None:
         corner_matrixes = cell_corners(axes[1][1], axes[0][1], boxes_dim)
-        for line in axes[0][1] + axes[1][1]:
+        for line in axes[0][1]:
             draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
+        for line in axes[1][1]:
+            draw_tangent(image_raw, line[0], line[1], (255, 0, 255))
         for corners in corner_matrixes:
             for h in corners:
                 for c in h:
@@ -100,6 +104,9 @@ def detect_directions(lines):
     for i in range(0, len(axes)):
         avg = sum([theta for rho, theta in axes[i][1]]) / len(axes[i][1])
         axes[i] = (avg, axes[i][1])
+#    axes.sort()
+#    if abs(axes[-1][0] - math.pi) < abs(axes[0][0]):
+#        axes = axes[-1:] + axes[0:-1]
     return axes
 
 def detect_boxes(lines, boxes_dim):
@@ -120,7 +127,7 @@ def collapse_lines(lines):
     sum_rho = lines[0][0]
     sum_theta = lines[0][1]
     for i in range(1, len(lines)):
-        if lines[i][0] - lines[first][0] > 15:
+        if lines[i][0] - lines[first][0] > param_collapse_diff:
             coll.append((sum_rho / (i - first), sum_theta / (i - first)))
             first = i
             sum_rho = lines[i][0]
@@ -154,9 +161,9 @@ def cell_corners(hlines, vlines, boxes_dim):
 def intersection(hline, vline):
     rho1, theta1 = hline
     rho2, theta2 = vline
-    y = rho1 * (math.cos(theta2) - math.cos(theta1)) \
+    y = (rho1 * math.cos(theta2) - rho2 * math.cos(theta1)) \
         / (math.sin(theta1) * math.cos(theta2) \
-               + math.sin(theta2) * math.cos(theta1))
+               - math.sin(theta2) * math.cos(theta1))
     x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
     return (int(x), int(y))
 
