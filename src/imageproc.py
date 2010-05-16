@@ -64,19 +64,22 @@ def draw_corner(image, x, y, color = (0, 0, 255, 0)):
 def detect_lines(image):
     st = opencv.cvCreateMemStorage()
     lines = opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
-                                 1, 0.01, 250)
+                                 1, 0.01, 230)
     return lines
 
 def draw_lines(image_raw, image_proc, boxes_dim):
     lines = detect_lines(image_proc)
+    if lines.total < 2:
+        return
     axes = detect_boxes(lines, boxes_dim)
-    corner_matrixes = cell_corners(axes[1][1], axes[0][1], boxes_dim)
-    for line in axes[0][1] + axes[1][1]:
-        draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
-    for corners in corner_matrixes:
-        for h in corners:
-            for c in h:
-                draw_corner(image_raw, c[0], c[1])
+    if axes is not None:
+        corner_matrixes = cell_corners(axes[1][1], axes[0][1], boxes_dim)
+        for line in axes[0][1] + axes[1][1]:
+            draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
+        for corners in corner_matrixes:
+            for h in corners:
+                for c in h:
+                    draw_corner(image_raw, c[0], c[1])
 
 def detect_directions(lines):
     assert(lines.total >= 2)
@@ -108,8 +111,7 @@ def detect_boxes(lines, boxes_dim):
         axes[0] = (axes[0][0], collapse_lines(axes[0][1]))
         axes[1] = (axes[1][0], collapse_lines(axes[1][1]))
         return axes
-    else:
-        return None
+    return None
 
 def collapse_lines(lines):
     coll = []
@@ -131,10 +133,12 @@ def collapse_lines(lines):
     return coll
 
 def cell_corners(hlines, vlines, boxes_dim):
+    if len(hlines) != 1 + max([box[1] for box in boxes_dim]) \
+            or len(vlines) != 4 + sum([box[0] for box in boxes_dim]):
+        return []
     corner_matrixes = []
     vini = 1
     for box_dim in boxes_dim:
-        print vini
         width, height = box_dim
         corners = []
         for i in range(0, height + 1):
@@ -142,7 +146,6 @@ def cell_corners(hlines, vlines, boxes_dim):
             corners.append(cpart)
             for j in range(vini, vini + width + 1):
                 c = intersection(hlines[i], vlines[j])
-                print "******", i, j, c, i, j - vini
                 cpart.append(c)
         corner_matrixes.append(corners)
         vini += 2 + width
@@ -156,3 +159,9 @@ def intersection(hline, vline):
                + math.sin(theta2) * math.cos(theta1))
     x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
     return (int(x), int(y))
+
+def test_image(image_path):
+    imrgb = load_image(image_path)
+    im = load_image_grayscale(image_path)
+    draw_lines(imrgb, im, [[4,10],[4,10]])
+    highgui.cvSaveImage("/tmp/test-processed.png", imrgb)

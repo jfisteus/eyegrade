@@ -27,8 +27,8 @@ screen = pygame.display.get_surface()
 while True:
     im_raw, im_proc = get_image()
 #    im = imageproc.gray_ipl_to_rgb_pil(im_proc)
-#    imageproc.draw_lines(im_raw, im_proc)
-    imageproc.detect_lines(im_proc)
+    imageproc.draw_lines(im_raw, im_proc, [[4,10],[4,10]])
+#    imageproc.detect_lines(im_proc)
     im = opencv.adaptors.Ipl2PIL(im_raw)
 
     events = pygame.event.get()
