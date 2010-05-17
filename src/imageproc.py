@@ -2,9 +2,10 @@ import opencv
 from opencv import highgui 
 import math
 
-param_collapse_threshold = 20
+param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 200
+param_check_corners_tolerance_mul = 3
 
 class Capturer:
     def __init__(self, input_dev = 0):
@@ -131,12 +132,13 @@ def detect_boxes(lines, boxes_dim):
     return None
 
 def collapse_lines(lines, horizontal):
-    if horizontal:
+#    if horizontal:
 #        print "Angle:", lines[0][1]
-        threshold = max(param_collapse_threshold \
-            - abs(lines[0][1] - math.pi / 2) * 24, param_collapse_threshold / 2)
-    else:
-        threshold = param_collapse_threshold
+#        threshold = max(param_collapse_threshold \
+#            - abs(lines[0][1] - math.pi / 2) * 14, param_collapse_threshold / 2)
+#    else:
+#        threshold = param_collapse_threshold
+    threshold = param_collapse_threshold
 #    print "Threshold", threshold
     coll = []
     first = 0
@@ -177,7 +179,34 @@ def cell_corners(hlines, vlines, boxes_dim):
                 cpart.append(c)
         corner_matrixes.append(corners)
         vini += 2 + width
-    return corner_matrixes
+    if check_corners(corner_matrixes):
+        return corner_matrixes
+    else:
+        return []
+
+def check_corners(corner_matrixes):
+    # Check differences between horizontal lines:
+    corners = corner_matrixes[0]
+    ypoints = [row[-1][1] for row in corners]
+    difs = []
+    difs2 = []
+    for i in range(1, len(ypoints)):
+        difs.append(ypoints[i] - ypoints[i - 1])
+    for i in range(1, len(difs)):
+        difs2.append(difs[i] - difs[i - 1])
+    max_difs2 = float(max(difs) - min(difs)) / len(difs) \
+        * param_check_corners_tolerance_mul
+    if max(difs2) > max_difs2:
+        return False
+    # Check that no points are negative
+    for corners in corner_matrixes:
+        for row in corners:
+            for point in row:
+                if point[0] < 0 or point[1] < 0:
+                    print point
+                    return False
+    # Success if control reaches here
+    return True
 
 def intersection(hline, vline):
     rho1, theta1 = hline
