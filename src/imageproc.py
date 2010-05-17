@@ -3,7 +3,8 @@ from opencv import highgui
 import math
 
 param_collapse_threshold = 20
-param_directions_threshold = 0.2
+param_directions_threshold = 0.3
+param_hough_threshold = 200
 
 class Capturer:
     def __init__(self, input_dev = 0):
@@ -70,12 +71,17 @@ def draw_corner(image, x, y, color = (0, 0, 255, 0)):
 def detect_lines(image):
     st = opencv.cvCreateMemStorage()
     lines = opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
-                                 1, 0.01, 230)
-    return lines
+                                 1, 0.01, param_hough_threshold)
+    if lines.total > 500:
+        print "Too many lines in detect_directions:", lines.total
+        return []
+    s_lines = sorted([(float(l[0]), float(l[1])) for l in lines],
+                     key = lambda x: x[1])
+    return s_lines
 
 def draw_lines(image_raw, image_proc, boxes_dim):
     lines = detect_lines(image_proc)
-    if lines.total < 2:
+    if len(lines) < 2:
         return
     axes = detect_boxes(lines, boxes_dim)
     if axes is not None:
@@ -87,15 +93,14 @@ def draw_lines(image_raw, image_proc, boxes_dim):
         for corners in corner_matrixes:
             for h in corners:
                 for c in h:
-                    draw_corner(image_raw, c[0], c[1])
+                    draw_corner(image_raw, c[0], c[1], (0, 0, 255))
 
 def detect_directions(lines):
-    assert(lines.total >= 2)
-    s_lines = sorted([(l[0], l[1]) for l in lines], key = lambda x: x[1])
+    assert(len(lines) >= 2)
     axes = []
-    rho, theta = s_lines[0]
+    rho, theta = lines[0]
     axes.append((theta, [(rho, theta)]))
-    for rho, theta in s_lines[1:]:
+    for rho, theta in lines[1:]:
         if abs(theta - axes[-1][0]) < param_directions_threshold:
             axes[-1][1].append((rho, theta))
         else:
@@ -127,12 +132,12 @@ def detect_boxes(lines, boxes_dim):
 
 def collapse_lines(lines, horizontal):
     if horizontal:
-        print "Angle:", lines[0][1]
+#        print "Angle:", lines[0][1]
         threshold = max(param_collapse_threshold \
             - abs(lines[0][1] - math.pi / 2) * 24, param_collapse_threshold / 2)
     else:
         threshold = param_collapse_threshold
-    print "Threshold", threshold
+#    print "Threshold", threshold
     coll = []
     first = 0
     sum_rho = lines[0][0]
@@ -151,9 +156,14 @@ def collapse_lines(lines, horizontal):
     return coll
 
 def cell_corners(hlines, vlines, boxes_dim):
-    if len(hlines) != 1 + max([box[1] for box in boxes_dim]) \
-            or len(vlines) != 4 + sum([box[0] for box in boxes_dim]):
+    h_expected = 1 + max([box[1] for box in boxes_dim])
+    v_expected = 4 + sum([box[0] for box in boxes_dim])
+    if len(vlines) != v_expected:
         return []
+    if len(hlines) < h_expected:
+        return []
+    elif len(hlines) > h_expected:
+        hlines = hlines[-h_expected:]
     corner_matrixes = []
     vini = 1
     for box_dim in boxes_dim:
