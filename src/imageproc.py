@@ -119,7 +119,7 @@ def detect_directions(lines):
 
 def detect_boxes(lines, boxes_dim):
     expected_horiz = 1 + max([box[1] for box in boxes_dim])
-    expected_vert = 4 + sum([box[0] for box in boxes_dim])
+    expected_vert = len(boxes_dim) + sum([box[0] for box in boxes_dim])
     axes = detect_directions(lines)
     axes = [axis for axis in axes if len(axis[1]) >= 5]
     if len(axes) == 2:
@@ -159,7 +159,7 @@ def collapse_lines(lines, horizontal):
 
 def cell_corners(hlines, vlines, boxes_dim):
     h_expected = 1 + max([box[1] for box in boxes_dim])
-    v_expected = 4 + sum([box[0] for box in boxes_dim])
+    v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
     if len(vlines) != v_expected:
         return []
     if len(hlines) < h_expected:
@@ -167,7 +167,7 @@ def cell_corners(hlines, vlines, boxes_dim):
     elif len(hlines) > h_expected:
         hlines = hlines[-h_expected:]
     corner_matrixes = []
-    vini = 1
+    vini = 0
     for box_dim in boxes_dim:
         width, height = box_dim
         corners = []
@@ -178,7 +178,7 @@ def cell_corners(hlines, vlines, boxes_dim):
                 c = intersection(hlines[i], vlines[j])
                 cpart.append(c)
         corner_matrixes.append(corners)
-        vini += 2 + width
+        vini += 1 + width
     if check_corners(corner_matrixes):
         return corner_matrixes
     else:
