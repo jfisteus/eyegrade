@@ -6,6 +6,7 @@ param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 200
 param_check_corners_tolerance_mul = 3
+param_cross_mask_thickness = 8
 
 class Capturer:
     def __init__(self, input_dev = 0):
@@ -59,15 +60,16 @@ def draw_tangent(image, rho, theta, color = (0, 0, 255, 0)):
               and p[0] < image.width and p[1] < image.height]
     if len(p_draw) == 2:
         opencv.cvLine(image, p_draw[0], p_draw[1], color, 1)
-    else:
-        print "len(p_draw) ==", len(p_draw), "-", rho, theta
-        print p_draw
 
 def draw_corner(image, x, y, color = (0, 0, 255, 0)):
     if x >= 0 and x < image.width and y >= 0 and y < image.height:
         opencv.cvCircle(image, (x, y), 5, color, opencv.CV_FILLED)
     else:
         print "draw_corner: bad point (%d, %d)"%(x, y)
+
+def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
+    opencv.cvLine(image, plu, prd, color, param_cross_mask_thickness)
+    opencv.cvLine(image, pld, pru, color, param_cross_mask_thickness)
 
 def detect_lines(image):
     st = opencv.cvCreateMemStorage()
@@ -86,7 +88,8 @@ def draw_lines(image_raw, image_proc, boxes_dim):
         return
     axes = detect_boxes(lines, boxes_dim)
     if axes is not None:
-        corner_matrixes = cell_corners(axes[1][1], axes[0][1], boxes_dim)
+        corner_matrixes = cell_corners(axes[1][1], axes[0][1], image_raw.width,
+                                       image_raw.height, boxes_dim)
         for line in axes[0][1]:
             draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
         for line in axes[1][1]:
@@ -95,6 +98,10 @@ def draw_lines(image_raw, image_proc, boxes_dim):
             for h in corners:
                 for c in h:
                     draw_corner(image_raw, c[0], c[1], (0, 0, 255))
+        if len(corner_matrixes) > 0:
+            draw_cross_mask(image_raw, corner_matrixes[0][7][3],
+                            corner_matrixes[0][7][4], corner_matrixes[0][8][3],
+                            corner_matrixes[0][8][4], (255, 0, 0))
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -157,7 +164,7 @@ def collapse_lines(lines, horizontal):
                  sum_theta / (len(lines) - first)))
     return coll
 
-def cell_corners(hlines, vlines, boxes_dim):
+def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
     h_expected = 1 + max([box[1] for box in boxes_dim])
     v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
     if len(vlines) != v_expected:
@@ -179,12 +186,12 @@ def cell_corners(hlines, vlines, boxes_dim):
                 cpart.append(c)
         corner_matrixes.append(corners)
         vini += 1 + width
-    if check_corners(corner_matrixes):
+    if check_corners(corner_matrixes, iwidth, iheight):
         return corner_matrixes
     else:
         return []
 
-def check_corners(corner_matrixes):
+def check_corners(corner_matrixes, width, height):
     # Check differences between horizontal lines:
     corners = corner_matrixes[0]
     ypoints = [row[-1][1] for row in corners]
@@ -202,8 +209,8 @@ def check_corners(corner_matrixes):
     for corners in corner_matrixes:
         for row in corners:
             for point in row:
-                if point[0] < 0 or point[1] < 0:
-                    print point
+                if point[0] < 0 or point[0] >= width \
+                        or point[1] < 0 or point[1] >= height:
                     return False
     # Success if control reaches here
     return True
