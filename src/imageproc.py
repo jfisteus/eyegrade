@@ -8,8 +8,11 @@ param_hough_threshold = 200
 param_check_corners_tolerance_mul = 3
 param_cross_mask_thickness = 6
 
-# Number of pixels to go inside de cell for masking a cell with an X
-param_cell_mask_margin = 8
+# Number of pixels to go inside de cell for the mask cross
+param_cross_mask_margin = 8
+
+# Percentaje of points of the mask cross that must be active to decide a cross
+param_cross_mask_threshold = 0.25
 
 class Capturer:
     def __init__(self, input_dev = 0):
@@ -229,8 +232,8 @@ def check_corners(corner_matrixes, width, height):
 
 def decide_cell(image, plu, pru, pld, prd):
     dim = (image.width, image.height)
-    plu, prd = get_closer_points(plu, prd, param_cell_mask_margin)
-    pru, pld = get_closer_points(pru, pld, param_cell_mask_margin)
+    plu, prd = get_closer_points(plu, prd, param_cross_mask_margin)
+    pru, pld = get_closer_points(pru, pld, param_cross_mask_margin)
     mask = opencv.cvCreateImage(dim, 8, 1)
     masked = opencv.cvCreateImage(dim, 8, 1)
     opencv.cvSetZero(mask)
