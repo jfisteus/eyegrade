@@ -6,7 +6,10 @@ param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 200
 param_check_corners_tolerance_mul = 3
-param_cross_mask_thickness = 8
+param_cross_mask_thickness = 6
+
+# Number of pixels to go inside de cell for masking a cell with an X
+param_cell_mask_margin = 8
 
 class Capturer:
     def __init__(self, input_dev = 0):
@@ -102,6 +105,9 @@ def draw_lines(image_raw, image_proc, boxes_dim):
             draw_cross_mask(image_raw, corner_matrixes[0][7][3],
                             corner_matrixes[0][7][4], corner_matrixes[0][8][3],
                             corner_matrixes[0][8][4], (255, 0, 0))
+            decide_cell(image_proc, corner_matrixes[0][7][3],
+                        corner_matrixes[0][7][4], corner_matrixes[0][8][3],
+                        corner_matrixes[0][8][4])
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -201,9 +207,14 @@ def check_corners(corner_matrixes, width, height):
         difs.append(ypoints[i] - ypoints[i - 1])
     for i in range(1, len(difs)):
         difs2.append(difs[i] - difs[i - 1])
-    max_difs2 = float(max(difs) - min(difs)) / len(difs) \
+    max_difs2 = 1 + float(max(difs) - min(difs)) / len(difs) \
         * param_check_corners_tolerance_mul
     if max(difs2) > max_difs2:
+        print "Failure in differences"
+        print difs
+        print difs2
+        return False
+    if 0.5 * max(difs) > min(difs):
         return False
     # Check that no points are negative
     for corners in corner_matrixes:
@@ -211,9 +222,30 @@ def check_corners(corner_matrixes, width, height):
             for point in row:
                 if point[0] < 0 or point[0] >= width \
                         or point[1] < 0 or point[1] >= height:
+                    print "Failure at point", point
                     return False
     # Success if control reaches here
     return True
+
+def decide_cell(image, plu, pru, pld, prd):
+    dim = (image.width, image.height)
+    plu, prd = get_closer_points(plu, prd, param_cell_mask_margin)
+    pru, pld = get_closer_points(pru, pld, param_cell_mask_margin)
+    mask = opencv.cvCreateImage(dim, 8, 1)
+    masked = opencv.cvCreateImage(dim, 8, 1)
+    opencv.cvSetZero(mask)
+    draw_cross_mask(mask, plu, pru, pld, prd, (1))
+    opencv.cvMul(image, mask, masked)
+    draw_cross_mask(mask, plu, pru, pld, prd, (255))
+    highgui.cvSaveImage("/tmp/test-mask.png", mask)
+    highgui.cvSaveImage("/tmp/test-masked.png", masked)
+
+def get_closer_points(p1, p2, offset):
+    dx = p2[0] - p1[0]
+    dy = p2[1] - p1[1]
+    k = float(offset) / math.sqrt(dx * dx + dy * dy)
+    return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
+            (int(p2[0] - dx * k), int(p2[1] - dy * k)))
 
 def intersection(hline, vline):
     rho1, theta1 = hline
@@ -229,3 +261,4 @@ def test_image(image_path):
     im = load_image_grayscale(image_path)
     draw_lines(imrgb, im, [[4,10],[4,10]])
     highgui.cvSaveImage("/tmp/test-processed.png", imrgb)
+
