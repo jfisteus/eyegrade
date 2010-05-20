@@ -13,6 +13,9 @@ param_cross_mask_margin = 8
 
 # Percentaje of points of the mask cross that must be active to decide a cross
 param_cross_mask_threshold = 0.15
+param_bit_mask_threshold = 0.3
+
+font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
@@ -74,7 +77,7 @@ def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
     opencv.cvLine(image, pld, pru, color, param_cross_mask_thickness)
 
 def draw_cell_highlight(image, plu, pru, pld, prd, color = (255, 0, 0)):
-    center = ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)
+    center = cell_center(plu, pru, pld, prd)
     radius = int(math.sqrt((plu[0] - prd[0]) * (plu[0] - prd[0]) \
                            + (plu[1] - prd[1]) * (plu[1] - prd[1])) / 3.5)
     opencv.cvCircle(image, center, radius, color)
@@ -90,7 +93,6 @@ def draw_answers(image, corner_matrixes, decisions):
         base += len(corners) - 1
 
 def draw_text(image, text, color = (255, 0, 0)):
-    font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
     opencv.cvPutText(image, text, (10, 30), font, color)
 
 def detect_lines(image):
@@ -104,7 +106,7 @@ def detect_lines(image):
                      key = lambda x: x[1])
     return s_lines
 
-def draw_lines(image_raw, image_proc, boxes_dim):
+def draw_lines(image_raw, image_proc, boxes_dim, infobits = False):
     lines = detect_lines(image_proc)
     if len(lines) < 2:
         return
@@ -123,7 +125,10 @@ def draw_lines(image_raw, image_proc, boxes_dim):
         if len(corner_matrixes) > 0:
             decisions = decide_cells(image_proc, corner_matrixes)
             draw_answers(image_raw, corner_matrixes, decisions)
-        draw_text(image_raw, "Hello")
+            if infobits:
+                bits = read_infobits(image_proc, corner_matrixes)
+                bits_text = "".join(["1" if b[1] else "0" for b in bits])
+                draw_text(image_raw, bits_text)
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -270,6 +275,35 @@ def decide_cell(image, mask, masked, plu, pru, pld, prd):
 #    print masked_pixels, mask_pixels, float(masked_pixels) / mask_pixels
     return (masked_pixels >= param_cross_mask_threshold * mask_pixels)
 
+def read_infobits(image, corner_matrixes):
+    dim = (image.width, image.height)
+    mask = opencv.cvCreateImage(dim, 8, 1)
+    masked = opencv.cvCreateImage(dim, 8, 1)
+    bits = []
+    for corners in corner_matrixes:
+        for i in range(1, len(corners[0])):
+            dx = diff_points(corners[-1][i - 1], corners[-1][i])
+            dy = diff_points(corners[-1][i], corners[-2][i])
+            center = (int(corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.8),
+                      int(corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.8))
+            bits.append(decide_infobit(image, mask, masked, center, dy))
+    return bits
+
+def decide_infobit(image, mask, masked, center_up, dy):
+    center_down = add_points(center_up, dy)
+    radius = int(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1])) / 3
+    opencv.cvSetZero(mask)
+    opencv.cvCircle(mask, center_up, radius, (1), opencv.CV_FILLED)
+    mask_pixels = opencv.cvCountNonZero(mask)
+    opencv.cvMul(image, mask, masked)
+    masked_pixels_up = opencv.cvCountNonZero(masked)
+    opencv.cvSetZero(mask)
+    opencv.cvCircle(mask, center_down, radius, (1), opencv.CV_FILLED)
+    opencv.cvMul(image, mask, masked)
+    masked_pixels_down = opencv.cvCountNonZero(masked)
+    return (float(masked_pixels_up) / mask_pixels >= param_bit_mask_threshold,
+            float(masked_pixels_down) / mask_pixels >= param_bit_mask_threshold)
+
 def decide_answer(cell_decisions):
     marked = [i for i in range(0, len(cell_decisions)) if cell_decisions[i]]
     if len(marked) == 0:
@@ -279,12 +313,20 @@ def decide_answer(cell_decisions):
     else:
         return -1
 
+# Geometry utility functions
+#
 def get_closer_points(p1, p2, offset):
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
     k = float(offset) / math.sqrt(dx * dx + dy * dy)
     return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
             (int(p2[0] - dx * k), int(p2[1] - dy * k)))
+
+def diff_points(p1, p2):
+    return (p1[0] - p2[0], p1[1] - p2[1])
+
+def add_points(p1, p2):
+    return (p1[0] + p2[0], p1[1] + p2[1])
 
 def intersection(hline, vline):
     rho1, theta1 = hline
@@ -295,9 +337,12 @@ def intersection(hline, vline):
     x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
     return (int(x), int(y))
 
+def cell_center(plu, pru, pld, prd):
+    return ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)
+
 def test_image(image_path):
     imrgb = load_image(image_path)
     im = load_image_grayscale(image_path)
-    draw_lines(imrgb, im, [[4,10],[4,10]])
+    draw_lines(imrgb, im, [[4,10],[4,10]], True)
     highgui.cvSaveImage("/tmp/test-processed.png", imrgb)
 
