@@ -8,11 +8,11 @@ import opencv
 from opencv import highgui 
 import imageproc
 
-capturer = imageproc.Capturer(1)
+camera = imageproc.init_camera(1)
 
 def get_image():
-    im_raw = capturer.capture(True)
-    im_proc = capturer.pre_process(im_raw)
+    im_raw = imageproc.capture(camera, True)
+    im_proc = imageproc.pre_process(im_raw)
     return im_raw, im_proc
 
 def save_image(im):

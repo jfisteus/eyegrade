@@ -4,7 +4,7 @@ import math
 
 param_collapse_threshold = 18
 param_directions_threshold = 0.3
-param_hough_threshold = 200
+param_hough_threshold = 230
 param_check_corners_tolerance_mul = 3
 param_cross_mask_thickness = 6
 
@@ -12,29 +12,25 @@ param_cross_mask_thickness = 6
 param_cross_mask_margin = 8
 
 # Percentaje of points of the mask cross that must be active to decide a cross
-param_cross_mask_threshold = 0.25
+param_cross_mask_threshold = 0.15
 
-class Capturer:
-    def __init__(self, input_dev = 0):
-        self.camera = highgui.cvCreateCameraCapture(input_dev)
+def init_camera(input_dev = -1):
+    return highgui.cvCreateCameraCapture(input_dev)
 
-    def capture(self, clone = False):
-        image = highgui.cvQueryFrame(self.camera)
-        if clone:
-            return opencv.cvCloneImage(image)
-        else:
-            return image
+def capture(camera, clone = False):
+    image = highgui.cvQueryFrame(camera)
+    if clone:
+        return opencv.cvCloneImage(image)
+    else:
+        return image
 
-    def capture_pil(self):
-        return gray_ipl_to_rgb_pil(self.capture())
-
-    def pre_process(self, image):
-        gray = rgb_to_gray(image)
-        thr = opencv.cvCreateImage((image.width, image.height), image.depth, 1)
-        opencv.cvAdaptiveThreshold(gray, thr, 255,
-                                   opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                                   opencv.CV_THRESH_BINARY_INV, 17, 5)
-        return thr
+def pre_process(image):
+    gray = rgb_to_gray(image)
+    thr = opencv.cvCreateImage((image.width, image.height), image.depth, 1)
+    opencv.cvAdaptiveThreshold(gray, thr, 255,
+                               opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+                               opencv.CV_THRESH_BINARY_INV, 17, 5)
+    return thr
 
 def gray_ipl_to_rgb_pil(image):
     rgb = opencv.cvCreateImage((image.width, image.height), image.depth, 3)
@@ -77,6 +73,26 @@ def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
     opencv.cvLine(image, plu, prd, color, param_cross_mask_thickness)
     opencv.cvLine(image, pld, pru, color, param_cross_mask_thickness)
 
+def draw_cell_highlight(image, plu, pru, pld, prd, color = (255, 0, 0)):
+    center = ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)
+    radius = int(math.sqrt((plu[0] - prd[0]) * (plu[0] - prd[0]) \
+                           + (plu[1] - prd[1]) * (plu[1] - prd[1])) / 3.5)
+    opencv.cvCircle(image, center, radius, color)
+
+def draw_answers(image, corner_matrixes, decisions):
+    base = 0
+    for corners in corner_matrixes:
+        for i in range(0, len(corners) - 1):
+            d = decisions[base + i]
+            if d > 0:
+                draw_cell_highlight(image, corners[i][d - 1], corners[i][d],
+                                    corners[i + 1][d - 1], corners[i + 1][d])
+        base += len(corners) - 1
+
+def draw_text(image, text, color = (255, 0, 0)):
+    font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
+    opencv.cvPutText(image, text, (10, 30), font, color)
+
 def detect_lines(image):
     st = opencv.cvCreateMemStorage()
     lines = opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
@@ -105,12 +121,9 @@ def draw_lines(image_raw, image_proc, boxes_dim):
                 for c in h:
                     draw_corner(image_raw, c[0], c[1], (0, 0, 255))
         if len(corner_matrixes) > 0:
-            draw_cross_mask(image_raw, corner_matrixes[0][7][3],
-                            corner_matrixes[0][7][4], corner_matrixes[0][8][3],
-                            corner_matrixes[0][8][4], (255, 0, 0))
-            decide_cell(image_proc, corner_matrixes[0][7][3],
-                        corner_matrixes[0][7][4], corner_matrixes[0][8][3],
-                        corner_matrixes[0][8][4])
+            decisions = decide_cells(image_proc, corner_matrixes)
+            draw_answers(image_raw, corner_matrixes, decisions)
+        draw_text(image_raw, "Hello")
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -213,9 +226,9 @@ def check_corners(corner_matrixes, width, height):
     max_difs2 = 1 + float(max(difs) - min(difs)) / len(difs) \
         * param_check_corners_tolerance_mul
     if max(difs2) > max_difs2:
-        print "Failure in differences"
-        print difs
-        print difs2
+#        print "Failure in differences"
+#        print difs
+#        print difs2
         return False
     if 0.5 * max(difs) > min(difs):
         return False
@@ -225,23 +238,46 @@ def check_corners(corner_matrixes, width, height):
             for point in row:
                 if point[0] < 0 or point[0] >= width \
                         or point[1] < 0 or point[1] >= height:
-                    print "Failure at point", point
+#                    print "Failure at point", point
                     return False
     # Success if control reaches here
     return True
 
-def decide_cell(image, plu, pru, pld, prd):
+def decide_cells(image, corner_matrixes):
     dim = (image.width, image.height)
-    plu, prd = get_closer_points(plu, prd, param_cross_mask_margin)
-    pru, pld = get_closer_points(pru, pld, param_cross_mask_margin)
     mask = opencv.cvCreateImage(dim, 8, 1)
     masked = opencv.cvCreateImage(dim, 8, 1)
+    decisions = []
+    for corners in corner_matrixes:
+        for i in range(0, len(corners) - 1):
+            cell_decisions = []
+            for j in range(0, len(corners[0]) - 1):
+                cell_decisions.append(\
+                    decide_cell(image, mask, masked,
+                                corners[i][j], corners[i][j + 1],
+                                corners[i + 1][j], corners[i + 1][j + 1]))
+            decisions.append(decide_answer(cell_decisions))
+    return decisions
+
+def decide_cell(image, mask, masked, plu, pru, pld, prd):
+    plu, prd = get_closer_points(plu, prd, param_cross_mask_margin)
+    pru, pld = get_closer_points(pru, pld, param_cross_mask_margin)
     opencv.cvSetZero(mask)
     draw_cross_mask(mask, plu, pru, pld, prd, (1))
+    mask_pixels = opencv.cvCountNonZero(mask)
     opencv.cvMul(image, mask, masked)
-    draw_cross_mask(mask, plu, pru, pld, prd, (255))
-    highgui.cvSaveImage("/tmp/test-mask.png", mask)
-    highgui.cvSaveImage("/tmp/test-masked.png", masked)
+    masked_pixels = opencv.cvCountNonZero(masked)
+#    print masked_pixels, mask_pixels, float(masked_pixels) / mask_pixels
+    return (masked_pixels >= param_cross_mask_threshold * mask_pixels)
+
+def decide_answer(cell_decisions):
+    marked = [i for i in range(0, len(cell_decisions)) if cell_decisions[i]]
+    if len(marked) == 0:
+        return 0
+    elif len(marked) == 1:
+        return marked[0] + 1
+    else:
+        return -1
 
 def get_closer_points(p1, p2, offset):
     dx = p2[0] - p1[0]
