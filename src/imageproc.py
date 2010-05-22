@@ -12,7 +12,7 @@ param_cross_mask_thickness = 6
 param_cross_mask_margin = 8
 
 # Percentaje of points of the mask cross that must be active to decide a cross
-param_cross_mask_threshold = 0.15
+param_cross_mask_threshold = 0.2
 param_bit_mask_threshold = 0.3
 
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
@@ -34,6 +34,39 @@ def pre_process(image):
                                opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
                                opencv.CV_THRESH_BINARY_INV, 17, 5)
     return thr
+
+def detect(image_raw, image_proc, boxes_dim, infobits = False):
+    decisions = None
+    corner_matrixes = None
+    bits = None
+    success = False
+    lines = detect_lines(image_proc)
+    if len(lines) < 2:
+        return (False, None, None, None)
+    axes = detect_boxes(lines, boxes_dim)
+    if axes is not None:
+        corner_matrixes = cell_corners(axes[1][1], axes[0][1], image_raw.width,
+                                       image_raw.height, boxes_dim)
+        for line in axes[0][1]:
+            draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
+        for line in axes[1][1]:
+            draw_tangent(image_raw, line[0], line[1], (255, 0, 255))
+        for corners in corner_matrixes:
+            for h in corners:
+                for c in h:
+                    draw_corner(image_raw, c[0], c[1])
+        if len(corner_matrixes) > 0:
+            decisions = decide_cells(image_proc, corner_matrixes)
+#            draw_answers(image_raw, corner_matrixes, decisions)
+            if infobits:
+                bits = read_infobits(image_proc, corner_matrixes)
+                success = (bits is not None)
+#                bits_text = "".join(["1" if b[1] else "0" for b in bits])
+#                draw_text(image_raw, bits_text)
+            else:
+                success = True
+    draw_success_indicator(image_raw, success)
+    return (success, decisions, bits, corner_matrixes)
 
 def gray_ipl_to_rgb_pil(image):
     rgb = opencv.cvCreateImage((image.width, image.height), image.depth, 3)
@@ -66,7 +99,7 @@ def draw_tangent(image, rho, theta, color = (0, 0, 255, 0)):
     if len(p_draw) == 2:
         opencv.cvLine(image, p_draw[0], p_draw[1], color, 1)
 
-def draw_corner(image, x, y, color = (0, 0, 255, 0)):
+def draw_corner(image, x, y, color = (255, 0, 0, 0)):
     if x >= 0 and x < image.width and y >= 0 and y < image.height:
         opencv.cvCircle(image, (x, y), 5, color, opencv.CV_FILLED)
     else:
@@ -80,20 +113,31 @@ def draw_cell_highlight(image, plu, pru, pld, prd, color = (255, 0, 0)):
     center = cell_center(plu, pru, pld, prd)
     radius = int(math.sqrt((plu[0] - prd[0]) * (plu[0] - prd[0]) \
                            + (plu[1] - prd[1]) * (plu[1] - prd[1])) / 3.5)
-    opencv.cvCircle(image, center, radius, color)
+    opencv.cvCircle(image, center, radius, color, 2)
 
-def draw_answers(image, corner_matrixes, decisions):
+def draw_answers(image, corner_matrixes, decisions, correct = None):
     base = 0
+    color_good = (0, 164, 0)
+    color_bad = (0, 0, 255)
+    color = (255, 0, 0)
     for corners in corner_matrixes:
         for i in range(0, len(corners) - 1):
             d = decisions[base + i]
             if d > 0:
+                if correct is not None:
+                    color = color_good if correct[base + i] else color_bad
                 draw_cell_highlight(image, corners[i][d - 1], corners[i][d],
-                                    corners[i + 1][d - 1], corners[i + 1][d])
+                                    corners[i + 1][d - 1], corners[i + 1][d],
+                                    color)
         base += len(corners) - 1
 
-def draw_text(image, text, color = (255, 0, 0)):
-    opencv.cvPutText(image, text, (10, 30), font, color)
+def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
+    opencv.cvPutText(image, text, position, font, color)
+
+def draw_success_indicator(image, success):
+    position = (image.width - 15, 15)
+    color = (0, 192, 0) if success else (0, 0, 255)
+    opencv.cvCircle(image, position, 10, color, opencv.CV_FILLED)
 
 def detect_lines(image):
     st = opencv.cvCreateMemStorage()
@@ -105,30 +149,6 @@ def detect_lines(image):
     s_lines = sorted([(float(l[0]), float(l[1])) for l in lines],
                      key = lambda x: x[1])
     return s_lines
-
-def draw_lines(image_raw, image_proc, boxes_dim, infobits = False):
-    lines = detect_lines(image_proc)
-    if len(lines) < 2:
-        return
-    axes = detect_boxes(lines, boxes_dim)
-    if axes is not None:
-        corner_matrixes = cell_corners(axes[1][1], axes[0][1], image_raw.width,
-                                       image_raw.height, boxes_dim)
-        for line in axes[0][1]:
-            draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
-        for line in axes[1][1]:
-            draw_tangent(image_raw, line[0], line[1], (255, 0, 255))
-        for corners in corner_matrixes:
-            for h in corners:
-                for c in h:
-                    draw_corner(image_raw, c[0], c[1], (0, 0, 255))
-        if len(corner_matrixes) > 0:
-            decisions = decide_cells(image_proc, corner_matrixes)
-            draw_answers(image_raw, corner_matrixes, decisions)
-            if infobits:
-                bits = read_infobits(image_proc, corner_matrixes)
-                bits_text = "".join(["1" if b[1] else "0" for b in bits])
-                draw_text(image_raw, bits_text)
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -287,7 +307,11 @@ def read_infobits(image, corner_matrixes):
             center = (int(corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.8),
                       int(corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.8))
             bits.append(decide_infobit(image, mask, masked, center, dy))
-    return bits
+    # Check validity
+    if min([b[0] ^ b[1] for b in bits]) == True:
+        return [b[0] for b in bits]
+    else:
+        return None
 
 def decide_infobit(image, mask, masked, center_up, dy):
     center_down = add_points(center_up, dy)
