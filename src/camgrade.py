@@ -2,13 +2,17 @@ import pygame
 import Image
 from pygame.locals import *
 import sys
+import ConfigParser, os
 
 import opencv
 #this is important for capturing/displaying images
 from opencv import highgui 
 import imageproc
 
-camera = imageproc.init_camera(1)
+def init():
+    config = read_config()
+    camera = imageproc.init_camera(config.getint('default', 'camera-dev'))
+    return camera
 
 def get_image():
     im_raw = imageproc.capture(camera, True)
@@ -55,12 +59,19 @@ def grade(model, decisions):
             correct.append(False)
     return (good, bad, undet, correct)
 
+def read_config():
+    defaults = {'camera-dev': "-1"}
+    config = ConfigParser.SafeConfigParser(defaults)
+    config.read([os.path.expanduser('~/.camgrade.cfg')])
+    return config
+
 fps = 8.0
 pygame.init()
 window = pygame.display.set_mode((640,480))
 pygame.display.set_caption("WebCam Demo")
 screen = pygame.display.get_surface()
 
+camera = init()
 while True:
     im_raw, im_proc = get_image()
 #    im = imageproc.gray_ipl_to_rgb_pil(im_proc)
