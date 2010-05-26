@@ -1,5 +1,8 @@
 # Sample configuration file. Save it as ~/.camgrade.cfg
 [default]
+
+# Default camera device to use (int); -1 for automatic selection.
 camera-dev: 1
 
-
+# Filename pattern for saving captures
+save-filename-pattern: exam-%%03d.png

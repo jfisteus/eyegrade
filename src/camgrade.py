@@ -9,8 +9,7 @@ import opencv
 from opencv import highgui 
 import imageproc
 
-def init():
-    config = read_config()
+def init(config):
     camera = imageproc.init_camera(config.getint('default', 'camera-dev'))
     return camera
 
@@ -19,13 +18,13 @@ def get_image(camera):
     im_proc = imageproc.pre_process(im_raw)
     return im_raw, im_proc
 
-def save_image(im):
-    highgui.cvSaveImage("/tmp/test.png", im)
+def save_image(im, im_id, pattern):
+    highgui.cvSaveImage(pattern%im_id, im)
 
 def process_exam_data(filename):
     exam_data = ConfigParser.SafeConfigParser()
     exam_data.read([filename])
-    num_models = exam_data.getint("exam", "num_models")
+    num_models = exam_data.getint("exam", "num-models")
     solutions = []
     for i in range(0, num_models):
         key = "model-" + chr(65 + i)
@@ -88,21 +87,37 @@ def grade(model, decisions, solutions):
     return (good, bad, undet, correct)
 
 def read_config():
-    defaults = {'camera-dev': "-1"}
+    defaults = {"camera-dev": "-1",
+                "save-filename-pattern": "exam-%%03d.png"}
     config = ConfigParser.SafeConfigParser(defaults)
     config.read([os.path.expanduser('~/.camgrade.cfg')])
     return config
 
-def main():
+def read_cmd_options():
     parser = OptionParser("usage: %prog [options]")
     parser.add_option("-f", "--file", dest = "filename",
                       help = "read model data from FILENAME")
+    parser.add_option("-s", "--start-id", dest = "start_id", type = "int",
+                      help = "start at the given exam id",
+                      default = 0)
+    parser.add_option("-d", "--output-dir", dest = "output_dir",
+                      help = "stored captured images at the given directory")
     (options, args) = parser.parse_args()
+    return options
+
+def main():
+    options = read_cmd_options()
+    config = read_config()
+    save_pattern = config.get('default', 'save-filename-pattern')
+
     if options.filename is not None:
         solutions, dimensions = process_exam_data(options.filename)
     else:
         solutions = []
         dimensions = []
+    if options.output_dir is not None:
+        save_pattern = os.path.join(options.output_dir, save_pattern)
+    im_id = options.start_id
 
     fps = 8.0
     pygame.init()
@@ -110,7 +125,8 @@ def main():
     pygame.display.set_caption("WebCam Demo")
     screen = pygame.display.get_surface()
 
-    camera = init()
+    camera = init(config)
+    last_successful_im = None
     while True:
         im_raw, im_proc = get_image(camera)
     #    im = imageproc.gray_ipl_to_rgb_pil(im_proc)
@@ -126,11 +142,15 @@ def main():
                     text = text + " / " + str(undet)
                 else:
                     color = (255, 0, 0)
-                imageproc.draw_text(im_raw, text, color)
+                imageproc.draw_text(im_raw, text, color,
+                                    (10, im_raw.height - 20))
                 imageproc.draw_answers(im_raw, corners, decisions, correct)
+                last_successful_im = im_raw
             else:
                 success = False
         imageproc.draw_success_indicator(im_raw, success)
+        color = (255, 0, 0) if last_successful_im is not None else (0, 0, 255)
+        imageproc.draw_text(im_raw, str(im_id), color, (10, 65))
 
     #    imageproc.detect_lines(im_proc)
         im = opencv.adaptors.Ipl2PIL(im_raw)
@@ -139,7 +159,10 @@ def main():
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == KEYDOWN:
-                save_image(im_proc)
+                if last_successful_im is not None:
+                    save_image(last_successful_im, im_id, save_pattern)
+                    im_id += 1
+                    last_successful_im = None
         pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
         screen.blit(pg_img, (0,0))
         pygame.display.flip()

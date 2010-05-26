@@ -1,5 +1,5 @@
 [exam]
-num_models: 8
+num-models: 8
 dimensions: 4,10;4,10
 
 [solutions]
