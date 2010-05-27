@@ -47,14 +47,14 @@ def detect(image_raw, image_proc, boxes_dim, infobits = False):
     if axes is not None:
         corner_matrixes = cell_corners(axes[1][1], axes[0][1], image_raw.width,
                                        image_raw.height, boxes_dim)
-        for line in axes[0][1]:
-            draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
-        for line in axes[1][1]:
-            draw_tangent(image_raw, line[0], line[1], (255, 0, 255))
-        for corners in corner_matrixes:
-            for h in corners:
-                for c in h:
-                    draw_corner(image_raw, c[0], c[1])
+#        for line in axes[0][1]:
+#            draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
+#        for line in axes[1][1]:
+#            draw_tangent(image_raw, line[0], line[1], (255, 0, 255))
+#        for corners in corner_matrixes:
+#            for h in corners:
+#                for c in h:
+#                    draw_corner(image_raw, c[0], c[1])
         if len(corner_matrixes) > 0:
             decisions = decide_cells(image_proc, corner_matrixes)
 #            draw_answers(image_raw, corner_matrixes, decisions)
