@@ -95,8 +95,10 @@ def read_config():
 
 def read_cmd_options():
     parser = OptionParser("usage: %prog [options]")
-    parser.add_option("-f", "--file", dest = "filename",
+    parser.add_option("-e", "--exam-data-file", dest = "ex_data_filename",
                       help = "read model data from FILENAME")
+    parser.add_option("-a", "--answers-file", dest = "answers_filename",
+                      help = "write students' answers to FILENAME")
     parser.add_option("-s", "--start-id", dest = "start_id", type = "int",
                       help = "start at the given exam id",
                       default = 0)
@@ -105,16 +107,35 @@ def read_cmd_options():
     (options, args) = parser.parse_args()
     return options
 
+def save_answers(answers, answer_id, answers_file):
+    model, decisions, good, bad, undet = answers
+    sep = "\t"
+    f = open(answers_file, "a")
+    f.write(str(answer_id))
+    f.write(sep)
+    f.write(str(model))
+    f.write(sep)
+    f.write(str(good))
+    f.write(sep)
+    f.write(str(bad))
+    f.write(sep)
+    f.write(str(undet))
+    f.write(sep)
+    f.write("/".join([str(d) for d in decisions]))
+    f.write('\n')
+    f.close()
+
 def main():
     options = read_cmd_options()
     config = read_config()
     save_pattern = config.get('default', 'save-filename-pattern')
 
-    if options.filename is not None:
-        solutions, dimensions = process_exam_data(options.filename)
+    if options.ex_data_filename is not None:
+        solutions, dimensions = process_exam_data(options.ex_data_filename)
     else:
         solutions = []
         dimensions = []
+    answers_file = options.answers_filename
     if options.output_dir is not None:
         save_pattern = os.path.join(options.output_dir, save_pattern)
     im_id = options.start_id
@@ -146,6 +167,7 @@ def main():
                                     (10, im_raw.height - 20))
                 imageproc.draw_answers(im_raw, corners, decisions, correct)
                 last_successful_im = im_raw
+                last_answers = (model, decisions, good, bad, undet)
             else:
                 success = False
         imageproc.draw_success_indicator(im_raw, success)
@@ -161,8 +183,11 @@ def main():
             elif event.type == KEYDOWN:
                 if last_successful_im is not None:
                     save_image(last_successful_im, im_id, save_pattern)
+                    if answers_file is not None:
+                        save_answers(last_answers, im_id, answers_file)
                     im_id += 1
                     last_successful_im = None
+                    last_answers = None
         pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
         screen.blit(pg_img, (0,0))
         pygame.display.flip()
