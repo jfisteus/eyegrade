@@ -6,7 +6,7 @@ param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 230
 param_check_corners_tolerance_mul = 3
-param_cross_mask_thickness = 6
+param_cross_mask_thickness = 8
 
 # Number of pixels to go inside de cell for the mask cross
 param_cross_mask_margin = 8
@@ -115,7 +115,13 @@ def draw_cell_highlight(image, plu, pru, pld, prd, color = (255, 0, 0)):
                            + (plu[1] - prd[1]) * (plu[1] - prd[1])) / 3.5)
     opencv.cvCircle(image, center, radius, color, 2)
 
-def draw_answers(image, corner_matrixes, decisions, correct = None):
+def draw_cell_center(image, plu, pru, pld, prd, color = (255, 0, 0)):
+    center = cell_center(plu, pru, pld, prd)
+    radius = 5
+    opencv.cvCircle(image, center, radius, color, opencv.CV_FILLED)
+
+def draw_answers(image, corner_matrixes, decisions, correct = None,
+                 solutions = None):
     base = 0
     color_good = (0, 164, 0)
     color_bad = (0, 0, 255)
@@ -129,6 +135,11 @@ def draw_answers(image, corner_matrixes, decisions, correct = None):
                 draw_cell_highlight(image, corners[i][d - 1], corners[i][d],
                                     corners[i + 1][d - 1], corners[i + 1][d],
                                     color)
+            if solutions is not None and not correct[base + i]:
+                ans = solutions[base + i]
+                draw_cell_center(image, corners[i][ans - 1],
+                                 corners[i][ans], corners[i + 1][ans - 1],
+                                 corners[i + 1][ans], (color_bad))
         base += len(corners) - 1
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):

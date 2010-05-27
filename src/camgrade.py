@@ -127,6 +127,10 @@ def save_answers(answers, answer_id, student_id, answers_file):
     f.write('\n')
     f.close()
 
+def dump_camera_buffer(camera):
+    for i in range(0, 6):
+        get_image(camera)
+
 def main():
     options = read_cmd_options()
     config = read_config()
@@ -145,11 +149,10 @@ def main():
     fps = 8.0
     pygame.init()
     window = pygame.display.set_mode((640,480))
-    pygame.display.set_caption("WebCam Demo")
+    pygame.display.set_caption("camgrade")
     screen = pygame.display.get_surface()
 
     camera = init(config)
-    last_successful_im = None
     while True:
         im_raw, im_proc = get_image(camera)
     #    im = imageproc.gray_ipl_to_rgb_pil(im_proc)
@@ -167,33 +170,44 @@ def main():
                     color = (255, 0, 0)
                 imageproc.draw_text(im_raw, text, color,
                                     (10, im_raw.height - 20))
-                imageproc.draw_answers(im_raw, corners, decisions, correct)
-                last_successful_im = im_raw
-                last_answers = (model, decisions, good, bad, undet)
+                imageproc.draw_answers(im_raw, corners, decisions, correct,
+                                       solutions[model])
+                answers = (model, decisions, good, bad, undet)
             else:
                 success = False
         imageproc.draw_success_indicator(im_raw, success)
-        color = (255, 0, 0) if last_successful_im is not None else (0, 0, 255)
+        color = (255, 0, 0) if success else (0, 0, 255)
         imageproc.draw_text(im_raw, str(im_id), color, (10, 65))
 
     #    imageproc.detect_lines(im_proc)
         im = opencv.adaptors.Ipl2PIL(im_raw)
         events = pygame.event.get()
         for event in events:
-            if event.type == QUIT:
+            if event.type == QUIT or \
+                    (event.type == KEYDOWN and event.key == 27):
                 sys.exit(0)
-            elif event.type == KEYDOWN:
-                if last_successful_im is not None:
-                    save_image(last_successful_im, im_id, save_pattern)
-                    if answers_file is not None:
-                        save_answers(last_answers, im_id, -1, answers_file)
-                    im_id += 1
-                    last_successful_im = None
-                    last_answers = None
         pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
         screen.blit(pg_img, (0,0))
         pygame.display.flip()
-        pygame.time.delay(int(1000 * 1.0/fps))
-
+        if success:
+            continue_waiting = True
+            while continue_waiting:
+                event = pygame.event.wait()
+                if event.type == QUIT:
+                    sys.exit(0)
+                elif event.type == KEYDOWN:
+                    if event.key == 27:
+                        sys.exit(0)
+                    elif event.key == 8:
+                        continue_waiting = False
+                    elif event.key == 32:
+                        save_image(im_raw, im_id, save_pattern)
+                        if answers_file is not None:
+                            save_answers(answers, im_id, -1, answers_file)
+                        im_id += 1
+                        continue_waiting = False
+            dump_camera_buffer(camera)
+        else:
+            pygame.time.delay(int(1000 * 1.0/fps))
 if __name__ == "__main__":
     main()
