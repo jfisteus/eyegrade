@@ -107,11 +107,13 @@ def read_cmd_options():
     (options, args) = parser.parse_args()
     return options
 
-def save_answers(answers, answer_id, answers_file):
+def save_answers(answers, answer_id, student_id, answers_file):
     model, decisions, good, bad, undet = answers
     sep = "\t"
     f = open(answers_file, "a")
     f.write(str(answer_id))
+    f.write(sep)
+    f.write(str(student_id))
     f.write(sep)
     f.write(str(model))
     f.write(sep)
@@ -184,7 +186,7 @@ def main():
                 if last_successful_im is not None:
                     save_image(last_successful_im, im_id, save_pattern)
                     if answers_file is not None:
-                        save_answers(last_answers, im_id, answers_file)
+                        save_answers(last_answers, im_id, -1, answers_file)
                     im_id += 1
                     last_successful_im = None
                     last_answers = None
