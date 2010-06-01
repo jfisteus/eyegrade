@@ -17,6 +17,87 @@ param_bit_mask_threshold = 0.3
 
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
+class ExamCapture:
+    def __init__(self, camera, boxes_dim, infobits = False):
+        self.image_raw = capture(camera, True)
+        self.image_proc = pre_process(self.image_raw)
+        self.image_drawn = opencv.cvCloneImage(self.image_raw)
+        self.boxes_dim = boxes_dim
+        self.infobits = infobits
+        self.decisions = None
+        self.corner_matrixes = None
+        self.bits = None
+        self.success = False
+        self.solutions = None
+
+    def detect(self, debug = False):
+        lines = detect_lines(self.image_proc)
+        if len(lines) < 2:
+            return
+        axes = detect_boxes(lines, self.boxes_dim)
+        if axes is not None:
+            self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
+                                                self.image_raw.width,
+                                                self.image_raw.height,
+                                                self.boxes_dim)
+            if debug:
+                for line in axes[0][1]:
+                    draw_tangent(self.image_drawn, line[0], line[1],
+                                 (255, 0, 0))
+                for line in axes[1][1]:
+                    draw_tangent(self.image_drawn, line[0], line[1],
+                                 (255, 0, 255))
+                for corners in self.corner_matrixes:
+                    for h in corners:
+                        for c in h:
+                            draw_corner(self.image_drawn, c[0], c[1])
+            if len(self.corner_matrixes) > 0:
+                self.decisions = decide_cells(self.image_proc,
+                                              self.corner_matrixes)
+                if self.infobits:
+                    self.bits = read_infobits(self.image_proc,
+                                              self.corner_matrixes)
+                    self.success = (self.bits is not None)
+                else:
+                    self.success = True
+        draw_success_indicator(self.image_drawn, self.success)
+
+    def draw_answers(self, solutions, model,
+                     correct, good, bad, undet, im_id = None):
+        base = 0
+        color_good = (0, 164, 0)
+        color_bad = (0, 0, 255)
+        color = (255, 0, 0)
+        for corners in self.corner_matrixes:
+            for i in range(0, len(corners) - 1):
+                d = self.decisions[base + i]
+                if d > 0:
+                    if correct is not None:
+                        if correct[base + i]:
+                            color = color_good
+                        else:
+                            color = color_bad
+                    draw_cell_highlight(self.image_drawn, corners[i][d - 1],
+                                        corners[i][d], corners[i + 1][d - 1],
+                                        corners[i + 1][d], color)
+                if solutions is not None and not correct[base + i]:
+                    ans = solutions[base + i]
+                    draw_cell_center(self.image_drawn, corners[i][ans - 1],
+                                     corners[i][ans], corners[i + 1][ans - 1],
+                                     corners[i + 1][ans], (color_bad))
+            base += len(corners) - 1
+        text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
+        if undet > 0:
+            color = (0, 0, 255)
+            text = text + " / " + str(undet)
+        else:
+            color = (255, 0, 0)
+        draw_text(self.image_drawn, text, color,
+                  (10, self.image_drawn.height - 20))
+        if im_id is not None:
+            color = (255, 0, 0) if self.success else (0, 0, 255)
+            draw_text(self.image_drawn, str(im_id), color, (10, 65))
+
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
 
@@ -34,39 +115,6 @@ def pre_process(image):
                                opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
                                opencv.CV_THRESH_BINARY_INV, 17, 5)
     return thr
-
-def detect(image_raw, image_proc, boxes_dim, infobits = False):
-    decisions = None
-    corner_matrixes = None
-    bits = None
-    success = False
-    lines = detect_lines(image_proc)
-    if len(lines) < 2:
-        return (False, None, None, None)
-    axes = detect_boxes(lines, boxes_dim)
-    if axes is not None:
-        corner_matrixes = cell_corners(axes[1][1], axes[0][1], image_raw.width,
-                                       image_raw.height, boxes_dim)
-#        for line in axes[0][1]:
-#            draw_tangent(image_raw, line[0], line[1], (255, 0, 0))
-#        for line in axes[1][1]:
-#            draw_tangent(image_raw, line[0], line[1], (255, 0, 255))
-#        for corners in corner_matrixes:
-#            for h in corners:
-#                for c in h:
-#                    draw_corner(image_raw, c[0], c[1])
-        if len(corner_matrixes) > 0:
-            decisions = decide_cells(image_proc, corner_matrixes)
-#            draw_answers(image_raw, corner_matrixes, decisions)
-            if infobits:
-                bits = read_infobits(image_proc, corner_matrixes)
-                success = (bits is not None)
-#                bits_text = "".join(["1" if b[1] else "0" for b in bits])
-#                draw_text(image_raw, bits_text)
-            else:
-                success = True
-    draw_success_indicator(image_raw, success)
-    return (success, decisions, bits, corner_matrixes)
 
 def gray_ipl_to_rgb_pil(image):
     rgb = opencv.cvCreateImage((image.width, image.height), image.depth, 3)
@@ -119,28 +167,6 @@ def draw_cell_center(image, plu, pru, pld, prd, color = (255, 0, 0)):
     center = cell_center(plu, pru, pld, prd)
     radius = 5
     opencv.cvCircle(image, center, radius, color, opencv.CV_FILLED)
-
-def draw_answers(image, corner_matrixes, decisions, correct = None,
-                 solutions = None):
-    base = 0
-    color_good = (0, 164, 0)
-    color_bad = (0, 0, 255)
-    color = (255, 0, 0)
-    for corners in corner_matrixes:
-        for i in range(0, len(corners) - 1):
-            d = decisions[base + i]
-            if d > 0:
-                if correct is not None:
-                    color = color_good if correct[base + i] else color_bad
-                draw_cell_highlight(image, corners[i][d - 1], corners[i][d],
-                                    corners[i + 1][d - 1], corners[i + 1][d],
-                                    color)
-            if solutions is not None and not correct[base + i]:
-                ans = solutions[base + i]
-                draw_cell_center(image, corners[i][ans - 1],
-                                 corners[i][ans], corners[i + 1][ans - 1],
-                                 corners[i + 1][ans], (color_bad))
-        base += len(corners) - 1
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
     opencv.cvPutText(image, text, position, font, color)

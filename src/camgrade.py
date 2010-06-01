@@ -13,11 +13,6 @@ def init(config):
     camera = imageproc.init_camera(config.getint('default', 'camera-dev'))
     return camera
 
-def get_image(camera):
-    im_raw = imageproc.capture(camera, True)
-    im_proc = imageproc.pre_process(im_raw)
-    return im_raw, im_proc
-
 def save_image(im, im_id, pattern):
     highgui.cvSaveImage(pattern%im_id, im)
 
@@ -154,33 +149,21 @@ def main():
 
     camera = init(config)
     while True:
-        im_raw, im_proc = get_image(camera)
-    #    im = imageproc.gray_ipl_to_rgb_pil(im_proc)
-        success, decisions, bits, corners = \
-            imageproc.detect(im_raw, im_proc, dimensions, True)
+        image = imageproc.ExamCapture(camera, dimensions, True)
+        image.detect(True)
+        success = image.success
         if success:
-            model = decode_model_2x31(bits)
+            model = decode_model_2x31(image.bits)
             if model is not None:
-                good, bad, undet, correct = grade(model, decisions, solutions)
-                text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
-                if undet > 0:
-                    color = (0, 0, 255)
-                    text = text + " / " + str(undet)
-                else:
-                    color = (255, 0, 0)
-                imageproc.draw_text(im_raw, text, color,
-                                    (10, im_raw.height - 20))
-                imageproc.draw_answers(im_raw, corners, decisions, correct,
-                                       solutions[model])
-                answers = (model, decisions, good, bad, undet)
+                good, bad, undet, correct = grade(model, image.decisions,
+                                                  solutions)
+                image.draw_answers(solutions[model], model,
+                                   correct, good, bad, undet, im_id)
+                answers = (model, image.decisions, good, bad, undet)
             else:
                 success = False
-        imageproc.draw_success_indicator(im_raw, success)
-        color = (255, 0, 0) if success else (0, 0, 255)
-        imageproc.draw_text(im_raw, str(im_id), color, (10, 65))
 
-    #    imageproc.detect_lines(im_proc)
-        im = opencv.adaptors.Ipl2PIL(im_raw)
+        im = opencv.adaptors.Ipl2PIL(image.image_drawn)
         events = pygame.event.get()
         for event in events:
             if event.type == QUIT or \
@@ -201,7 +184,7 @@ def main():
                     elif event.key == 8:
                         continue_waiting = False
                     elif event.key == 32:
-                        save_image(im_raw, im_id, save_pattern)
+                        save_image(image.image_drawn, im_id, save_pattern)
                         if answers_file is not None:
                             save_answers(answers, im_id, -1, answers_file)
                         im_id += 1
