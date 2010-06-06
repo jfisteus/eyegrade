@@ -22,6 +22,8 @@ class ExamCapture:
         self.image_raw = capture(camera, True)
         self.image_proc = pre_process(self.image_raw)
         self.image_drawn = opencv.cvCloneImage(self.image_raw)
+        self.height = self.image_raw.height
+        self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
         self.infobits = infobits
         self.decisions = None
@@ -29,6 +31,8 @@ class ExamCapture:
         self.bits = None
         self.success = False
         self.solutions = None
+        self.centers = []
+        self.diagonals = []
 
     def detect(self, debug = False):
         lines = detect_lines(self.image_proc)
@@ -77,14 +81,13 @@ class ExamCapture:
                             color = color_good
                         else:
                             color = color_bad
-                    draw_cell_highlight(self.image_drawn, corners[i][d - 1],
-                                        corners[i][d], corners[i + 1][d - 1],
-                                        corners[i + 1][d], color)
+                    draw_cell_highlight(self.image_drawn,
+                                        self.centers[i][d - 1],
+                                        self.diagonals[i][d - 1], color)
                 if solutions is not None and not correct[base + i]:
                     ans = solutions[base + i]
-                    draw_cell_center(self.image_drawn, corners[i][ans - 1],
-                                     corners[i][ans], corners[i + 1][ans - 1],
-                                     corners[i + 1][ans], (color_bad))
+                    draw_cell_center(self.image_drawn, self.centers[i][d - 1],
+                                     color_bad)
             base += len(corners) - 1
         text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
         if undet > 0:
@@ -97,6 +100,22 @@ class ExamCapture:
         if im_id is not None:
             color = (255, 0, 0) if self.success else (0, 0, 255)
             draw_text(self.image_drawn, str(im_id), color, (10, 65))
+
+    def compute_cells_geometry(self):
+        self.centers = []
+        self.diagonals = []
+        for corners in corner_matrixes:
+            for i in range(0, len(corners) - 1):
+                row_centers = []
+                row_diagonals = []
+                for j in range(0, len(corners[0]) - 1):
+                    row_centers.append(\
+                        cell_center(corners[i][j], corners[i][j + 1],
+                                    corners[i + 1][j], corners[i + 1][j + 1]))
+                    row_diagonals.append(\
+                        distance(corners[i][j], corners[i + 1][j + 1]))
+                self.centers.append(row_centers)
+                self.diagonals.append(row_diagonals)
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
@@ -157,14 +176,11 @@ def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
     opencv.cvLine(image, plu, prd, color, param_cross_mask_thickness)
     opencv.cvLine(image, pld, pru, color, param_cross_mask_thickness)
 
-def draw_cell_highlight(image, plu, pru, pld, prd, color = (255, 0, 0)):
-    center = cell_center(plu, pru, pld, prd)
-    radius = int(math.sqrt((plu[0] - prd[0]) * (plu[0] - prd[0]) \
-                           + (plu[1] - prd[1]) * (plu[1] - prd[1])) / 3.5)
+def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
+    radius = int(diagonal / 3.5)
     opencv.cvCircle(image, center, radius, color, 2)
 
-def draw_cell_center(image, plu, pru, pld, prd, color = (255, 0, 0)):
-    center = cell_center(plu, pru, pld, prd)
+def draw_cell_center(image, center, color = (255, 0, 0)):
     radius = 5
     opencv.cvCircle(image, center, radius, color, opencv.CV_FILLED)
 
@@ -397,6 +413,10 @@ def intersection(hline, vline):
                - math.sin(theta2) * math.cos(theta1))
     x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
     return (int(x), int(y))
+
+def distance(p1, p2):
+    return math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) \
+                         + (p1[1] - p2[1]) * (p1[1] - p2[1]))
 
 def cell_center(plu, pru, pld, prd):
     return ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)

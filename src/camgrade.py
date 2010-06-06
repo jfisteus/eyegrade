@@ -122,6 +122,22 @@ def save_answers(answers, answer_id, student_id, answers_file):
     f.write('\n')
     f.close()
 
+def cell_clicked(image, point):
+    min_dst = None
+    row = None
+    col = None
+    for i, row in enumerate(image.centers):
+        for j, point in enumerate(row):
+            dst = imageproc.distance(point, image.centers[i][j])
+            if min_dst is None or dst < min_dst:
+                min_dst = dst
+                row = i
+                col = j
+    if min_dst <= image.diagonals[i][j]:
+        return (i, j)
+    else:
+        return None
+
 def dump_camera_buffer(camera):
     for i in range(0, 6):
         get_image(camera)
@@ -189,6 +205,10 @@ def main():
                             save_answers(answers, im_id, -1, answers_file)
                         im_id += 1
                         continue_waiting = False
+                elif event.type = MOUSEBUTTONDOWN:
+                    print "Button:", event.button
+                    cell = cell_clicked(image, event.pos)
+                    print "Clicked:", cell
             dump_camera_buffer(camera)
         else:
             pygame.time.delay(int(1000 * 1.0/fps))
