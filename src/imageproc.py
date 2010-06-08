@@ -73,6 +73,7 @@ class ExamCapture:
         base = 0
         color_good = (0, 164, 0)
         color_bad = (0, 0, 255)
+        color_dot = (255, 0, 0)
         color = (255, 0, 0)
         for corners in self.corner_matrixes:
             for i in range(0, len(corners) - 1):
@@ -89,7 +90,7 @@ class ExamCapture:
                 if solutions is not None and not correct[base + i]:
                     ans = solutions[base + i]
                     draw_cell_center(self.image_drawn,
-                                     self.centers[base + i][d - 1], color_bad)
+                                     self.centers[base + i][ans - 1], color_dot)
             base += len(corners) - 1
         text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
         if undet > 0:
@@ -102,6 +103,11 @@ class ExamCapture:
         if im_id is not None:
             color = (255, 0, 0) if self.success else (0, 0, 255)
             draw_text(self.image_drawn, str(im_id), color, (10, 65))
+
+    def clean_drawn_image(self, success_indicator = True):
+        self.image_drawn = opencv.cvCloneImage(self.image_raw)
+        if success_indicator:
+            draw_success_indicator(self.image_drawn, self.success)
 
     def compute_cells_geometry(self):
         self.centers = []
@@ -183,7 +189,7 @@ def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     opencv.cvCircle(image, center, radius, color, 2)
 
 def draw_cell_center(image, center, color = (255, 0, 0)):
-    radius = 5
+    radius = 4
     opencv.cvCircle(image, center, radius, color, opencv.CV_FILLED)
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):

@@ -9,12 +9,77 @@ import opencv
 from opencv import highgui 
 import imageproc
 
+class Exam:
+    def __init__(self, image, model, solutions, im_id = None):
+        self.image = image
+        self.model = model
+        self.solutions = solutions
+        self.decisions = self.image.decisions
+        self.im_id = im_id
+        self.correct = None
+        self.score = None
+        self.student_id = -1
+
+    def grade(self):
+        good = 0
+        bad = 0
+        undet = 0
+        self.correct = []
+        for i in range(0, len(self.decisions)):
+            if self.decisions[i] > 0:
+                if self.solutions[i] == self.decisions[i]:
+                    good += 1
+                    self.correct.append(True)
+                else:
+                    bad += 1
+                    self.correct.append(False)
+            elif self.decisions[i] < 0:
+                undet += 1
+                self.correct.append(False)
+            else:
+                self.correct.append(False)
+        self.score = (good, bad, undet)
+
+    def draw_answers(self):
+        good, bad, undet = self.score
+        self.image.draw_answers(self.solutions, self.model, self.correct,
+                                self.score[0], self.score[1], self.score[2],
+                                self.im_id)
+
+    def save_image(self, filename_pattern):
+        highgui.cvSaveImage(filename_pattern%self.im_id, self.image.image_drawn)
+
+    def save_answers(self, answers_file):
+        sep = "\t"
+        f = open(answers_file, "a")
+        f.write(str(self.im_id))
+        f.write(sep)
+        f.write(str(self.student_id))
+        f.write(sep)
+        f.write(str(self.model))
+        f.write(sep)
+        f.write(str(self.score[0]))
+        f.write(sep)
+        f.write(str(self.score[1]))
+        f.write(sep)
+        f.write(str(self.score[2]))
+        f.write(sep)
+        f.write("/".join([str(d) for d in self.decisions]))
+        f.write('\n')
+        f.close()
+
+    def toggle_answer(self, question, answer):
+        if self.decisions[question] == answer:
+            self.decisions[question] = 0
+        else:
+            self.decisions[question] = answer
+        self.grade()
+        self.image.clean_drawn_image(True)
+        self.draw_answers()
+
 def init(config):
     camera = imageproc.init_camera(config.getint('default', 'camera-dev'))
     return camera
-
-def save_image(im, im_id, pattern):
-    highgui.cvSaveImage(pattern%im_id, im)
 
 def process_exam_data(filename):
     exam_data = ConfigParser.SafeConfigParser()
@@ -54,33 +119,6 @@ def decode_model_2x31(bits):
     else:
         return None
 
-def grade(model, decisions, solutions):
-    if model < len(solutions):
-        sol = solutions[model]
-        good = 0
-        bad = 0
-        undet = 0
-        correct = []
-        for i in range(0, len(decisions)):
-            if decisions[i] > 0:
-                if sol[i] == decisions[i]:
-                    good += 1
-                    correct.append(True)
-                else:
-                    bad += 1
-                    correct.append(False)
-            elif decisions[i] < 0:
-                undet += 1
-                correct.append(False)
-            else:
-                correct.append(False)
-    else:
-        good = 0
-        bad = 0
-        undet = len(decisions)
-        correct = [false] * undet
-    return (good, bad, undet, correct)
-
 def read_config():
     defaults = {"camera-dev": "-1",
                 "save-filename-pattern": "exam-%%03d.png"}
@@ -102,26 +140,6 @@ def read_cmd_options():
     (options, args) = parser.parse_args()
     return options
 
-def save_answers(answers, answer_id, student_id, answers_file):
-    model, decisions, good, bad, undet = answers
-    sep = "\t"
-    f = open(answers_file, "a")
-    f.write(str(answer_id))
-    f.write(sep)
-    f.write(str(student_id))
-    f.write(sep)
-    f.write(str(model))
-    f.write(sep)
-    f.write(str(good))
-    f.write(sep)
-    f.write(str(bad))
-    f.write(sep)
-    f.write(str(undet))
-    f.write(sep)
-    f.write("/".join([str(d) for d in decisions]))
-    f.write('\n')
-    f.close()
-
 def cell_clicked(image, point):
     min_dst = None
     clicked_row = None
@@ -133,14 +151,20 @@ def cell_clicked(image, point):
                 min_dst = dst
                 clicked_row = i
                 clicked_col = j
-    if min_dst <= image.diagonals[i][j]:
-        return (clicked_row, clicked_col)
+    if min_dst <= image.diagonals[i][j] / 2:
+        return (clicked_row, clicked_col + 1)
     else:
         return None
 
 def dump_camera_buffer(camera):
     for i in range(0, 6):
-        get_image(camera)
+        imageproc.capture(camera, False)
+
+def show_image(image, screen):
+    im = opencv.adaptors.Ipl2PIL(image)
+    pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
+    screen.blit(pg_img, (0,0))
+    pygame.display.flip()
 
 def main():
     options = read_cmd_options()
@@ -166,28 +190,24 @@ def main():
     camera = init(config)
     while True:
         image = imageproc.ExamCapture(camera, dimensions, True)
-        image.detect(True)
+        image.detect(False)
         success = image.success
         if success:
             model = decode_model_2x31(image.bits)
             if model is not None:
-                good, bad, undet, correct = grade(model, image.decisions,
-                                                  solutions)
-                image.draw_answers(solutions[model], model,
-                                   correct, good, bad, undet, im_id)
-                answers = (model, image.decisions, good, bad, undet)
+                exam = Exam(image, model, solutions[model], im_id)
+                exam.grade()
+                exam.draw_answers()
             else:
                 success = False
 
-        im = opencv.adaptors.Ipl2PIL(image.image_drawn)
         events = pygame.event.get()
         for event in events:
             if event.type == QUIT or \
                     (event.type == KEYDOWN and event.key == 27):
                 sys.exit(0)
-        pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
-        screen.blit(pg_img, (0,0))
-        pygame.display.flip()
+
+        show_image(image.image_drawn, screen)
         if success:
             continue_waiting = True
             while continue_waiting:
@@ -200,15 +220,17 @@ def main():
                     elif event.key == 8:
                         continue_waiting = False
                     elif event.key == 32:
-                        save_image(image.image_drawn, im_id, save_pattern)
+                        exam.save_image(save_pattern)
                         if answers_file is not None:
-                            save_answers(answers, im_id, -1, answers_file)
+                            exam.save_answers(answers_file)
                         im_id += 1
                         continue_waiting = False
-                elif event.type == MOUSEBUTTONDOWN:
-                    print "Button:", event.button
-                    cell = cell_clicked(image, event.pos)
-                    print "Clicked:", cell
+                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    cell = cell_clicked(exam.image, event.pos)
+                    if cell is not None:
+                        question, answer = cell
+                        exam.toggle_answer(question, answer)
+                        show_image(exam.image.image_drawn, screen)
             dump_camera_buffer(camera)
         else:
             pygame.time.delay(int(1000 * 1.0/fps))
