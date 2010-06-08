@@ -124,17 +124,17 @@ def save_answers(answers, answer_id, student_id, answers_file):
 
 def cell_clicked(image, point):
     min_dst = None
-    row = None
-    col = None
+    clicked_row = None
+    clicked_col = None
     for i, row in enumerate(image.centers):
-        for j, point in enumerate(row):
-            dst = imageproc.distance(point, image.centers[i][j])
+        for j, center in enumerate(row):
+            dst = imageproc.distance(point, center)
             if min_dst is None or dst < min_dst:
                 min_dst = dst
-                row = i
-                col = j
+                clicked_row = i
+                clicked_col = j
     if min_dst <= image.diagonals[i][j]:
-        return (i, j)
+        return (clicked_row, clicked_col)
     else:
         return None
 
@@ -205,7 +205,7 @@ def main():
                             save_answers(answers, im_id, -1, answers_file)
                         im_id += 1
                         continue_waiting = False
-                elif event.type = MOUSEBUTTONDOWN:
+                elif event.type == MOUSEBUTTONDOWN:
                     print "Button:", event.button
                     cell = cell_clicked(image, event.pos)
                     print "Clicked:", cell

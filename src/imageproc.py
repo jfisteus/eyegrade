@@ -64,6 +64,8 @@ class ExamCapture:
                     self.success = (self.bits is not None)
                 else:
                     self.success = True
+        if self.success:
+            self.compute_cells_geometry()
         draw_success_indicator(self.image_drawn, self.success)
 
     def draw_answers(self, solutions, model,
@@ -82,12 +84,12 @@ class ExamCapture:
                         else:
                             color = color_bad
                     draw_cell_highlight(self.image_drawn,
-                                        self.centers[i][d - 1],
-                                        self.diagonals[i][d - 1], color)
+                                        self.centers[base + i][d - 1],
+                                        self.diagonals[base + i][d - 1], color)
                 if solutions is not None and not correct[base + i]:
                     ans = solutions[base + i]
-                    draw_cell_center(self.image_drawn, self.centers[i][d - 1],
-                                     color_bad)
+                    draw_cell_center(self.image_drawn,
+                                     self.centers[base + i][d - 1], color_bad)
             base += len(corners) - 1
         text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
         if undet > 0:
@@ -104,7 +106,7 @@ class ExamCapture:
     def compute_cells_geometry(self):
         self.centers = []
         self.diagonals = []
-        for corners in corner_matrixes:
+        for corners in self.corner_matrixes:
             for i in range(0, len(corners) - 1):
                 row_centers = []
                 row_diagonals = []
