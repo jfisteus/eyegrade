@@ -14,6 +14,7 @@ param_cross_mask_margin = 8
 # Percentaje of points of the mask cross that must be active to decide a cross
 param_cross_mask_threshold = 0.2
 param_bit_mask_threshold = 0.3
+param_cell_mask_threshold = 0.42
 
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
@@ -353,8 +354,13 @@ def decide_cell(image, mask, masked, plu, pru, pld, prd):
     mask_pixels = opencv.cvCountNonZero(mask)
     opencv.cvMul(image, mask, masked)
     masked_pixels = opencv.cvCountNonZero(masked)
-#    print masked_pixels, mask_pixels, float(masked_pixels) / mask_pixels
-    return (masked_pixels >= param_cross_mask_threshold * mask_pixels)
+    cell_marked = masked_pixels >= param_cross_mask_threshold * mask_pixels
+    # If the whole cell is marked, don't count the result:
+    if cell_marked:
+        pix_total, pix_set = count_pixels_in_cell(image, plu, pru, pld, prd)
+        cell_marked = pix_set < param_cell_mask_threshold * pix_total
+#        print float(pix_set) / pix_total
+    return cell_marked
 
 def read_infobits(image, corner_matrixes):
     dim = (image.width, image.height)
@@ -426,8 +432,56 @@ def distance(p1, p2):
     return math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) \
                          + (p1[1] - p2[1]) * (p1[1] - p2[1]))
 
+def slope(p1, p2):
+    return float(p2[0] - p1[0]) / (p2[1] - p1[1])
+
 def cell_center(plu, pru, pld, prd):
     return ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)
+
+def count_pixels_in_cell(image, plu, pru, pld, prd):
+    """
+        Count the number of pixels in a given quadrilateral.
+        Returns a tuple with the total number of pixels and the
+        number of non-zero pixels.
+    """
+    # Walk the quadrilateral in horizontal lines.
+    # First, decide which borders limit each step of horizontal lines.
+    points = sorted([plu, pru, pld, prd], key = lambda p: p[1])
+    slopes = [None, None, None, None]
+    if points[0][1] == points[1][1]:
+        if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
+            points = [points[1], points[0], points[2], points[3]]
+    else:
+        slopes[0] = slope(points[0], points[1])
+    if points[2][1] == points[3][1]:
+        if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
+            points = [points[0], points[1], points[3], points[2]]
+    else:
+        slopes[3] = slope(points[2], points[3])
+    slopes[1] = slope(points[0], points[2])
+    slopes[2] = slope(points[1], points[3])
+    pixels_total = 0
+    pixels_active = 0
+    c1 = count_pixels_horiz(image, points[0], slopes[0], points[0], slopes[1],
+                            points[0][1], points[1][1])
+    c2 = count_pixels_horiz(image, points[1], slopes[2], points[0], slopes[1],
+                            points[1][1], points[2][1])
+    c3 = count_pixels_horiz(image, points[1], slopes[2], points[2], slopes[3],
+                            points[2][1], points[3][1])
+    return (c1[0] + c2[0] + c3[0], c1[1] + c2[1] + c3[1])
+
+def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
+    pix_total = 0
+    pix_marked = 0
+    for y in range(yini, yend):
+        x1 = int(p0[0] + slope0 * (y - p0[1]))
+        x2 = int(p1[0] + slope1 * (y - p1[1]))
+        inc = 1 if x1 < x2 else -1
+        for x in range(x1, x2, inc):
+            pix_total += 1
+            if image[y, x] > 0:
+                pix_marked += 1
+    return (pix_total, pix_marked)
 
 def test_image(image_path):
     imrgb = load_image(image_path)
