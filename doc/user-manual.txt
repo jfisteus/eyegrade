@@ -8,3 +8,8 @@ Use the mouse to select/unselect student's answers when automatic detection fail
 Information Display:
 Up-left: exam id (starting in 0, autoincrement, see -s command line argument)
 Down-left: model: correct / incorrect / undecided (undecided = more than one option marked)
+
+Command line:
+
+$ cd src/
+$ python camgrade.py --help
