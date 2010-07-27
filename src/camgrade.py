@@ -8,32 +8,36 @@ import opencv
 #this is important for capturing/displaying images
 from opencv import highgui 
 import imageproc
+import time
+import copy
 
 class Exam:
-    def __init__(self, image, model, solutions, im_id = None):
+    def __init__(self, image, model, solutions, im_id = None,
+                 save_stats = False):
         self.image = image
         self.model = model
         self.solutions = solutions
-        self.decisions = self.image.decisions
         self.im_id = im_id
         self.correct = None
         self.score = None
         self.student_id = -1
+        self.original_decisions = copy.copy(self.image.decisions)
+        self.save_stats = save_stats
 
     def grade(self):
         good = 0
         bad = 0
         undet = 0
         self.correct = []
-        for i in range(0, len(self.decisions)):
-            if self.decisions[i] > 0:
-                if self.solutions[i] == self.decisions[i]:
+        for i in range(0, len(self.image.decisions)):
+            if self.image.decisions[i] > 0:
+                if self.solutions[i] == self.image.decisions[i]:
                     good += 1
                     self.correct.append(True)
                 else:
                     bad += 1
                     self.correct.append(False)
-            elif self.decisions[i] < 0:
+            elif self.image.decisions[i] < 0:
                 undet += 1
                 self.correct.append(False)
             else:
@@ -55,7 +59,7 @@ class Exam:
         highgui.cvSaveImage(raw_pattern%self.im_id, self.image.image_raw)
         highgui.cvSaveImage(proc_pattern%self.im_id, self.image.image_proc)
 
-    def save_answers(self, answers_file):
+    def save_answers(self, answers_file, stats = None):
         sep = "\t"
         f = open(answers_file, "a")
         f.write(str(self.im_id))
@@ -70,18 +74,43 @@ class Exam:
         f.write(sep)
         f.write(str(self.score[2]))
         f.write(sep)
-        f.write("/".join([str(d) for d in self.decisions]))
+        f.write("/".join([str(d) for d in self.image.decisions]))
+        if stats is not None and self.save_stats:
+            f.write(sep)
+            f.write(str(stats['time']))
+            f.write(sep)
+            f.write(str(stats['manual-changes']))
         f.write('\n')
         f.close()
 
     def toggle_answer(self, question, answer):
-        if self.decisions[question] == answer:
-            self.decisions[question] = 0
+        if self.image.decisions[question] == answer:
+            self.image.decisions[question] = 0
         else:
-            self.decisions[question] = answer
+            self.image.decisions[question] = answer
         self.grade()
         self.image.clean_drawn_image(True)
         self.draw_answers()
+
+    def num_manual_changes(self):
+        return len([d1 for (d1, d2) in \
+                        zip(self.original_decisions, self.image.decisions) \
+                        if d1 != d2])
+
+class PerformanceProfiler(object):
+    def __init__(self):
+        self.start()
+
+    def start(self):
+        self.time0 = time.time()
+
+    def finish_exam(self, exam):
+        time1 = time.time()
+        stats = {}
+        stats['time'] = time1 - self.time0
+        stats['manual-changes'] = exam.num_manual_changes()
+        self.time0 = time1
+        return stats
 
 def init(camera_dev):
     camera = imageproc.init_camera(camera_dev)
@@ -147,6 +176,9 @@ def read_cmd_options():
                       default = False, help = "activate debugging features")
     parser.add_option("-c", "--camera", type="int", dest = "camera_dev",
                       help = "camera device to be selected (-1 for default)")
+    parser.add_option("--stats", action="store_true", dest = "save_stats",
+                      default = False,
+                      help = "save performance stats to the answers file")
     (options, args) = parser.parse_args()
     return options
 
@@ -208,6 +240,7 @@ def main():
     screen = pygame.display.get_surface()
     camera = init(select_camera(options, config))
 
+    profiler = PerformanceProfiler()
     while True:
         image = imageproc.ExamCapture(camera, dimensions, True)
         image.detect(options.debug)
@@ -215,7 +248,8 @@ def main():
         if success:
             model = decode_model_2x31(image.bits)
             if model is not None:
-                exam = Exam(image, model, solutions[model], im_id)
+                exam = Exam(image, model, solutions[model], im_id,
+                            options.save_stats)
                 exam.grade()
                 exam.draw_answers()
             else:
@@ -240,9 +274,10 @@ def main():
                     elif event.key == 8:
                         continue_waiting = False
                     elif event.key == 32:
+                        stats = profiler.finish_exam(exam)
                         exam.save_image(save_pattern)
                         if answers_file is not None:
-                            exam.save_answers(answers_file)
+                            exam.save_answers(answers_file, stats)
                         if options.debug:
                             exam.save_debug_images(save_pattern)
                         im_id += 1
@@ -256,5 +291,6 @@ def main():
             dump_camera_buffer(camera)
         else:
             pygame.time.delay(int(1000 * 1.0/fps))
+
 if __name__ == "__main__":
     main()
