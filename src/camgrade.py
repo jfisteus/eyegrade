@@ -77,8 +77,8 @@ class Exam:
         self.image.clean_drawn_image(True)
         self.draw_answers()
 
-def init(config):
-    camera = imageproc.init_camera(config.getint('default', 'camera-dev'))
+def init(camera_dev):
+    camera = imageproc.init_camera(camera_dev)
     return camera
 
 def process_exam_data(filename):
@@ -135,8 +135,12 @@ def read_cmd_options():
     parser.add_option("-s", "--start-id", dest = "start_id", type = "int",
                       help = "start at the given exam id",
                       default = 0)
-    parser.add_option("-d", "--output-dir", dest = "output_dir",
-                      help = "stored captured images at the given directory")
+    parser.add_option("-o", "--output-dir", dest = "output_dir",
+                      help = "store captured images at the given directory")
+    parser.add_option("-d", "--debug", action="store_true", dest = "debug",
+                      default = False, help = "activate debugging features")
+    parser.add_option("-c", "--camera", type="int", dest = "camera_dev",
+                      help = "camera device to be selected (-1 for default)")
     (options, args) = parser.parse_args()
     return options
 
@@ -166,6 +170,16 @@ def show_image(image, screen):
     screen.blit(pg_img, (0,0))
     pygame.display.flip()
 
+def select_camera(options, config):
+    if options.camera_dev is None:
+        try:
+            camera = config.getint('default', 'camera-dev')
+        except:
+            camera = -1
+    else:
+        camera = options.camera_dev
+    return camera
+
 def main():
     options = read_cmd_options()
     config = read_config()
@@ -186,11 +200,11 @@ def main():
     window = pygame.display.set_mode((640,480))
     pygame.display.set_caption("camgrade")
     screen = pygame.display.get_surface()
+    camera = init(select_camera(options, config))
 
-    camera = init(config)
     while True:
         image = imageproc.ExamCapture(camera, dimensions, True)
-        image.detect(False)
+        image.detect(options.debug)
         success = image.success
         if success:
             model = decode_model_2x31(image.bits)
