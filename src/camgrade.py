@@ -49,6 +49,12 @@ class Exam:
     def save_image(self, filename_pattern):
         highgui.cvSaveImage(filename_pattern%self.im_id, self.image.image_drawn)
 
+    def save_debug_images(self, filename_pattern):
+        raw_pattern = filename_pattern + "-raw"
+        proc_pattern = filename_pattern + "-proc"
+        highgui.cvSaveImage(raw_pattern%self.im_id, self.image.image_raw)
+        highgui.cvSaveImage(proc_pattern%self.im_id, self.image.image_proc)
+
     def save_answers(self, answers_file):
         sep = "\t"
         f = open(answers_file, "a")
@@ -237,6 +243,8 @@ def main():
                         exam.save_image(save_pattern)
                         if answers_file is not None:
                             exam.save_answers(answers_file)
+                        if options.debug:
+                            exam.save_debug_images(save_pattern)
                         im_id += 1
                         continue_waiting = False
                 elif event.type == MOUSEBUTTONDOWN and event.button == 1:
