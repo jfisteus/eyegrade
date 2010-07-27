@@ -228,9 +228,14 @@ def main():
     else:
         solutions = []
         dimensions = []
-    answers_file = options.answers_filename
     if options.output_dir is not None:
         save_pattern = os.path.join(options.output_dir, save_pattern)
+    if options.answers_filename is not None:
+        answers_file = options.answers_filename
+    else:
+        answers_file = 'camgrade-answers.txt'
+        if options.output_dir is not None:
+            answers_file = os.path.join(options.output_dir, answers_file)
     im_id = options.start_id
 
     fps = 8.0
@@ -276,8 +281,7 @@ def main():
                     elif event.key == 32:
                         stats = profiler.finish_exam(exam)
                         exam.save_image(save_pattern)
-                        if answers_file is not None:
-                            exam.save_answers(answers_file, stats)
+                        exam.save_answers(answers_file, stats)
                         if options.debug:
                             exam.save_debug_images(save_pattern)
                         im_id += 1
