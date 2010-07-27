@@ -18,7 +18,7 @@ param_cell_mask_threshold = 0.45
 
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
-class ExamCapture:
+class ExamCapture(object):
     def __init__(self, camera, boxes_dim, infobits = False):
         self.image_raw = capture(camera, True)
         self.image_proc = pre_process(self.image_raw)

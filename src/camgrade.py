@@ -11,7 +11,7 @@ import imageproc
 import time
 import copy
 
-class Exam:
+class Exam(object):
     def __init__(self, image, model, solutions, im_id = None,
                  save_stats = False):
         self.image = image
