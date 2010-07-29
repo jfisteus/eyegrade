@@ -9,7 +9,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 18
 param_directions_threshold = 0.3
-param_hough_threshold = 230
+param_hough_threshold = 270
 param_check_corners_tolerance_mul = 3
 param_cross_mask_thickness = 8
 
@@ -21,13 +21,17 @@ param_cross_mask_threshold = 0.2
 param_bit_mask_threshold = 0.3
 param_cell_mask_threshold = 0.45
 
+# Parameters for id boxes detection
+param_id_boxes_match_threshold = 0.5
+
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
 
     default_options = [('infobits', False),
                        ('show-lines', False),
-                       ('show-image-proc', False)]
+                       ('show-image-proc', False),
+                       ('read-id', False)]
 
     def __init__(self, camera, boxes_dim, options = {}):
         self.set_options(options)
@@ -64,6 +68,8 @@ class ExamCapture(object):
                                                 self.image_raw.width,
                                                 self.image_raw.height,
                                                 self.boxes_dim)
+            self.id_hlines = id_horizontal_lines(axes[1][1], axes[0][1],
+                                                 self.boxes_dim)
             if self.options['show-lines']:
                 for line in axes[0][1]:
                     draw_tangent(self.image_drawn, line[0], line[1],
@@ -75,7 +81,12 @@ class ExamCapture(object):
                     for h in corners:
                         for c in h:
                             draw_corner(self.image_drawn, c[0], c[1])
-            if len(self.corner_matrixes) > 0:
+                if len(self.corner_matrixes) > 0 and self.options['read-id']:
+                    for line in self.id_hlines:
+                        draw_tangent(self.image_drawn, line[0], line[1],
+                                 (255, 255, 0))
+            if len(self.corner_matrixes) > 0 and \
+                    (not self.options['read-id'] or self.id_hlines != []):
                 self.decisions = decide_cells(self.image_proc,
                                               self.corner_matrixes)
                 if self.options['infobits']:
@@ -84,6 +95,18 @@ class ExamCapture(object):
                     self.success = (self.bits is not None)
                 else:
                     self.success = True
+                if self.success and self.options['read-id']:
+                    self.id_corners = \
+                        id_boxes_geometry(self.image_proc, self.id_hlines,
+                                          self.image_raw.width,
+                                          self.options['id-num-digits'])
+                    if self.id_corners == None:
+                        self.success = False
+                    if self.options['show-lines']:
+                        for c in self.id_corners[0]:
+                            draw_corner(self.image_drawn, c[0], c[1])
+                        for c in self.id_corners[1]:
+                            draw_corner(self.image_drawn, c[0], c[1])
         if self.success:
             self.compute_cells_geometry()
         draw_success_indicator(self.image_drawn, self.success)
@@ -201,7 +224,7 @@ def draw_tangent(image, rho, theta, color = (0, 0, 255, 0)):
 
 def draw_corner(image, x, y, color = (255, 0, 0, 0)):
     if x >= 0 and x < image.width and y >= 0 and y < image.height:
-        opencv.cvCircle(image, (x, y), 5, color, opencv.CV_FILLED)
+        opencv.cvCircle(image, (x, y), 2, color, opencv.CV_FILLED)
     else:
         print "draw_corner: bad point (%d, %d)"%(x, y)
 
@@ -324,6 +347,13 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
     else:
         return []
 
+def id_horizontal_lines(hlines, vlines, boxes_dim):
+    h_expected = 3 + max([box[1] for box in boxes_dim])
+    if len(hlines) < h_expected:
+        return []
+    else:
+        return hlines[-h_expected:-h_expected + 2]
+
 def check_corners(corner_matrixes, width, height):
     # Check differences between horizontal lines:
     corners = corner_matrixes[0]
@@ -428,6 +458,80 @@ def decide_answer(cell_decisions):
     else:
         return -1
 
+def id_boxes_geometry(image, hlines, iwidth, num_cells):
+    success = False
+    plu, pru = line_bounds(image, hlines[0], iwidth)
+    if plu is not None:
+        pld, prd = line_bounds(image, hlines[1], iwidth)
+    if plu is not None and pld is not None:
+        # adjust corners
+        outer_up = [plu, pru]
+        outer_down = [pld, prd]
+        success = id_boxes_adjust(image, outer_up, outer_down,
+                                  hlines[0], hlines[1], 7, iwidth)
+        if success:
+            corners_up = interpolate_line(outer_up[0], outer_up[1],
+                                          num_cells + 1)
+            corners_down = interpolate_line(outer_down[0], outer_down[1],
+                                            num_cells + 1)
+            success = id_boxes_adjust(image, corners_up, corners_down,
+                                      hlines[0], hlines[1], 3, iwidth)
+    if success:
+        return (corners_up, corners_down)
+    else:
+        return None
+
+def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
+                    x_var, iwidth):
+    for i in range(0, len(corners_up)):
+        up = corners_up[i]
+        down = corners_down[i]
+        selected = id_boxes_adjust_points(image, up, down,
+                                          line_up, line_down, x_var, iwidth)
+        if selected is not None:
+            corners_up[i] = selected[0]
+            corners_down[i] = selected[1]
+        else:
+            return False
+    return True
+
+def id_boxes_adjust_points(image, p_up, p_down, line_up, line_down,
+                           x_var, iwidth):
+    points_up = []
+    points_down = []
+    for x in range(p_up[0] - x_var, p_up[0] + x_var + 1):
+        p = line_point(line_up, x = x)
+        if p[0] >= 0 and p[0] < iwidth and p[1] >= 0:
+            points_up.append(p)
+    for x in range(p_down[0] - x_var, p_down[0] + x_var + 1):
+        p = line_point(line_down, x = x)
+        if p[0] >= 0 and p[0] < iwidth and p[1] >= 0:
+            points_down.append(p)
+    energies = [(id_boxes_match_level(image, u, v), u, v) \
+                    for u in points_up for v in points_down]
+    energies.sort(reverse = True)
+    if energies[0][0] > param_id_boxes_match_threshold:
+        lim = len(energies)
+        for i in range(1, lim):
+            if energies[i][0] < energies[0][0]:
+                lim = i
+                break
+        best = energies[:lim]
+        avgx_up = float(sum([u[0] for (e, u, v) in best])) / len(best)
+        avgx_down = float(sum([v[0] for (e, u, v) in best])) / len(best)
+        best = [(abs(avgx_up - u[0]) + abs(avgx_down - v[0]), u, v) \
+                    for (e, u, v) in best]
+        best.sort()
+        selected = best[0][1:]
+        return selected
+    else:
+        return None
+
+def id_boxes_match_level(image, p0, p1):
+    points = [(x, y) for (x, y) in walk_line(p0, p1)]
+    active = len([(x, y) for (x, y) in points if image[y, x] > 0])
+    return float(active) / len(points)
+
 # Geometry utility functions
 #
 def get_closer_points(p1, p2, offset):
@@ -457,10 +561,22 @@ def distance(p1, p2):
                          + (p1[1] - p2[1]) * (p1[1] - p2[1]))
 
 def slope(p1, p2):
+    return float(p2[1] - p1[1]) / (p2[0] - p1[0])
+
+def slope_inv(p1, p2):
     return float(p2[0] - p1[0]) / (p2[1] - p1[1])
 
 def cell_center(plu, pru, pld, prd):
     return ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)
+
+def line_point(line, x = None, y = None):
+    assert((x is None) ^ (y is None))
+    rho, theta = line
+    if y is None:
+        y = int((rho - x * math.cos(theta)) / math.sin(theta))
+    else:
+        x = int((rho - y * math.sin(theta)) / math.cos(theta))
+    return (int(x), int(y))
 
 def count_pixels_in_cell(image, plu, pru, pld, prd):
     """
@@ -476,14 +592,14 @@ def count_pixels_in_cell(image, plu, pru, pld, prd):
         if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
             points = [points[1], points[0], points[2], points[3]]
     else:
-        slopes[0] = slope(points[0], points[1])
+        slopes[0] = slope_inv(points[0], points[1])
     if points[2][1] == points[3][1]:
         if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
             points = [points[0], points[1], points[3], points[2]]
     else:
-        slopes[3] = slope(points[2], points[3])
-    slopes[1] = slope(points[0], points[2])
-    slopes[2] = slope(points[1], points[3])
+        slopes[3] = slope_inv(points[2], points[3])
+    slopes[1] = slope_inv(points[0], points[2])
+    slopes[2] = slope_inv(points[1], points[3])
     pixels_total = 0
     pixels_active = 0
     c1 = count_pixels_horiz(image, points[0], slopes[0], points[0], slopes[1],
@@ -506,6 +622,78 @@ def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
             if image[y, x] > 0:
                 pix_marked += 1
     return (pix_total, pix_marked)
+
+def line_bounds(image, line, iwidth):
+    # points of intersection with x = 0 and x = width - 1
+    p0 = line_point(line, x = 0)
+    if p0[1] < 0:
+        p0 = line_point(line, y = 0)
+    p1 = line_point(line, x = iwidth - 1)
+    if p1[1] < 0:
+        p1 = line_point(line, y = 0)
+
+    # get bounds
+    ini_found = False
+    ini = None
+    end = None
+    points = []
+    last = 0
+    count = 0
+    for x, y in walk_line(p0, p1):
+        value = 1 if image[y, x] > 0 else 0
+        if value == last:
+            count += 1
+        else:
+            last = value
+            count = 1
+        if not ini_found:
+            if last == 1:
+                if count == 1:
+                    ini = (x, y)
+                elif count == 3:
+                    ini_found = True
+        else:
+            if last == 1 and count > 2:
+                end = (x, y)
+    if ini is None or end is None:
+        ini = None
+        end = None
+    return ini, end
+
+def walk_line(p0, p1):
+    # Bresenham's algorithm as found in Wikipedia
+    x0, y0 = p0
+    x1, y1 = p1
+    steep = abs(y1 - y0) > abs(x1 - x0)
+    if steep:
+        # swap values:
+        x0, y0 = y0, x0
+        x1, y1 = y1, x1
+    if x0 > x1:
+        # swap values:
+        x0, x1 = x1, x0
+        y0, y1 = y1, y0
+    deltax = x1 - x0
+    deltay = abs(y1 - y0)
+    error = deltax / 2
+    y = y0
+    ystep = 1 if y0 < y1 else -1
+    for x in xrange(x0, x1 + 1):
+        yield (x, y) if not steep else (y, x)
+        error = error - deltay
+        if error < 0:
+            y = y + ystep
+            error = error + deltax
+
+def interpolate_line(p0, p1, num_points):
+    num_divisions = num_points - 1
+    dx = float(p1[0] - p0[0]) / num_divisions
+    dy = float(p1[1] - p0[1]) / num_divisions
+    points = [p0]
+    for i in range(1, num_divisions):
+        points.append((p0[0] + int(dx * i), p0[1] + int(dy * i)))
+    points.append(p1)
+    return points
 
 def test_image(image_path):
     imrgb = load_image(image_path)

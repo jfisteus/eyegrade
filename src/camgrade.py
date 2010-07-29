@@ -119,13 +119,20 @@ def init(camera_dev):
 def process_exam_data(filename):
     exam_data = ConfigParser.SafeConfigParser()
     exam_data.read([filename])
-    num_models = exam_data.getint("exam", "num-models")
+    try:
+        num_models = exam_data.getint("exam", "num-models")
+    except:
+        num_models = 1
+    try:
+        id_num_digits = exam_data.getint("exam", "id-num-digits")
+    except:
+        id_num_digits = 0
     solutions = []
     for i in range(0, num_models):
         key = "model-" + chr(65 + i)
         solutions.append(parse_solutions(exam_data.get("solutions", key)))
     dimensions = parse_dimensions(exam_data.get("exam", "dimensions"))
-    return solutions, dimensions
+    return solutions, dimensions, id_num_digits
 
 def parse_solutions(s):
     return [int(num) for num in s.split("/")]
@@ -224,7 +231,8 @@ def main():
     save_pattern = config.get('default', 'save-filename-pattern')
 
     if options.ex_data_filename is not None:
-        solutions, dimensions = process_exam_data(options.ex_data_filename)
+        solutions, dimensions, id_num_digits = \
+            process_exam_data(options.ex_data_filename)
     else:
         solutions = []
         dimensions = []
@@ -247,6 +255,9 @@ def main():
 
     profiler = PerformanceProfiler()
     imageproc_options = {'infobits': True}
+    if id_num_digits > 0:
+        imageproc_options['read-id'] = True
+        imageproc_options['id-num-digits'] = id_num_digits
     while True:
         image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
         image.detect()
