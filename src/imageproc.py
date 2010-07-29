@@ -2,6 +2,11 @@ import opencv
 from opencv import highgui 
 import math
 
+# Adaptive threshold algorithm
+param_adaptive_threshold_block_size = 45
+param_adaptive_threshold_offset = 0
+
+# Other detection parameters
 param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 230
@@ -19,6 +24,11 @@ param_cell_mask_threshold = 0.45
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
+
+    default_options = [('infobits', False),
+                       ('show-lines', False),
+                       ('show-image-proc', False)]
+
     def __init__(self, camera, boxes_dim, options = {}):
         self.set_options(options)
         self.image_raw = capture(camera, True)
@@ -39,12 +49,9 @@ class ExamCapture(object):
         self.diagonals = []
 
     def set_options(self, options):
-        if not 'infobits' in options:
-            options['infobits'] = False
-        if not 'show-lines' in options:
-            options['show-lines'] = False
-        if not 'show-image-proc' in options:
-            options['show-image-proc'] = False
+        for key, value in self.__class__.default_options:
+            if not key in options:
+                options[key] = value
         self.options = options
 
     def detect(self):
@@ -153,7 +160,9 @@ def pre_process(image):
     thr = opencv.cvCreateImage((image.width, image.height), image.depth, 1)
     opencv.cvAdaptiveThreshold(gray, thr, 255,
                                opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                               opencv.CV_THRESH_BINARY_INV, 45, 5)
+                               opencv.CV_THRESH_BINARY_INV,
+                               param_adaptive_threshold_block_size,
+                               param_adaptive_threshold_offset)
     return thr
 
 def gray_ipl_to_rgb(image):
