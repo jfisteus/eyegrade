@@ -19,14 +19,17 @@ param_cell_mask_threshold = 0.45
 font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
-    def __init__(self, camera, boxes_dim, infobits = False):
+    def __init__(self, camera, boxes_dim, options = {}):
+        self.set_options(options)
         self.image_raw = capture(camera, True)
         self.image_proc = pre_process(self.image_raw)
-        self.image_drawn = opencv.cvCloneImage(self.image_raw)
+        if not self.options['show-image-proc']:
+            self.image_drawn = opencv.cvCloneImage(self.image_raw)
+        else:
+            self.image_drawn = gray_ipl_to_rgb(self.image_proc)
         self.height = self.image_raw.height
         self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
-        self.infobits = infobits
         self.decisions = None
         self.corner_matrixes = None
         self.bits = None
@@ -35,7 +38,16 @@ class ExamCapture(object):
         self.centers = []
         self.diagonals = []
 
-    def detect(self, debug = False):
+    def set_options(self, options):
+        if not 'infobits' in options:
+            options['infobits'] = False
+        if not 'show-lines' in options:
+            options['show-lines'] = False
+        if not 'show-image-proc' in options:
+            options['show-image-proc'] = False
+        self.options = options
+
+    def detect(self):
         lines = detect_lines(self.image_proc)
         if len(lines) < 2:
             return
@@ -45,7 +57,7 @@ class ExamCapture(object):
                                                 self.image_raw.width,
                                                 self.image_raw.height,
                                                 self.boxes_dim)
-            if debug:
+            if self.options['show-lines']:
                 for line in axes[0][1]:
                     draw_tangent(self.image_drawn, line[0], line[1],
                                  (255, 0, 0))
@@ -59,7 +71,7 @@ class ExamCapture(object):
             if len(self.corner_matrixes) > 0:
                 self.decisions = decide_cells(self.image_proc,
                                               self.corner_matrixes)
-                if self.infobits:
+                if self.options['infobits']:
                     self.bits = read_infobits(self.image_proc,
                                               self.corner_matrixes)
                     self.success = (self.bits is not None)
@@ -144,10 +156,13 @@ def pre_process(image):
                                opencv.CV_THRESH_BINARY_INV, 17, 5)
     return thr
 
-def gray_ipl_to_rgb_pil(image):
+def gray_ipl_to_rgb(image):
     rgb = opencv.cvCreateImage((image.width, image.height), image.depth, 3)
     opencv.cvCvtColor(image, rgb, opencv.CV_GRAY2RGB)
-    return opencv.adaptors.Ipl2PIL(rgb)
+    return rgb
+
+def gray_ipl_to_rgb_pil(image):
+    return opencv.adaptors.Ipl2PIL(gray_ipl_to_rgb(image))
 
 def rgb_to_gray(image):
     gray = opencv.cvCreateImage((image.width, image.height), image.depth, 1)

@@ -246,9 +246,10 @@ def main():
     camera = init(select_camera(options, config))
 
     profiler = PerformanceProfiler()
+    imageproc_options = {'infobits': True}
     while True:
-        image = imageproc.ExamCapture(camera, dimensions, True)
-        image.detect(options.debug)
+        image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
+        image.detect()
         success = image.success
         if success:
             model = decode_model_2x31(image.bits)
@@ -265,6 +266,13 @@ def main():
             if event.type == QUIT or \
                     (event.type == KEYDOWN and event.key == 27):
                 sys.exit(0)
+            elif event.type == KEYDOWN:
+                if event.key == ord('p') and options.debug:
+                    imageproc_options['show-image-proc'] = \
+                        not imageproc_options['show-image-proc']
+                elif event.key == ord('l') and options.debug:
+                    imageproc_options['show-lines'] = \
+                        not imageproc_options['show-lines']
 
         show_image(image.image_drawn, screen)
         if success:
@@ -285,6 +293,14 @@ def main():
                         if options.debug:
                             exam.save_debug_images(save_pattern)
                         im_id += 1
+                        continue_waiting = False
+                    elif event.key == ord('p') and options.debug:
+                        imageproc_options['show-image-proc'] = \
+                            not imageproc_options['show-image-proc']
+                        continue_waiting = False
+                    elif event.key == ord('l') and options.debug:
+                        imageproc_options['show-lines'] = \
+                            not imageproc_options['show-lines']
                         continue_waiting = False
                 elif event.type == MOUSEBUTTONDOWN and event.button == 1:
                     cell = cell_clicked(exam.image, event.pos)
