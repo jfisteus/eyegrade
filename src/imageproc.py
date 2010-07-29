@@ -153,7 +153,7 @@ def pre_process(image):
     thr = opencv.cvCreateImage((image.width, image.height), image.depth, 1)
     opencv.cvAdaptiveThreshold(gray, thr, 255,
                                opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                               opencv.CV_THRESH_BINARY_INV, 17, 5)
+                               opencv.CV_THRESH_BINARY_INV, 45, 5)
     return thr
 
 def gray_ipl_to_rgb(image):
