@@ -18,8 +18,8 @@ param_cross_mask_margin = 8
 
 # Percentaje of points of the mask cross that must be active to decide a cross
 param_cross_mask_threshold = 0.2
-param_bit_mask_threshold = 0.3
-param_cell_mask_threshold = 0.45
+param_bit_mask_threshold = 0.5
+param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
 param_id_boxes_match_threshold = 0.5
