@@ -80,6 +80,8 @@ class Exam(object):
             f.write(str(stats['time']))
             f.write(sep)
             f.write(str(stats['manual-changes']))
+            f.write(sep)
+            f.write(str(stats['num-captures']))
         f.write('\n')
         f.close()
 
@@ -100,16 +102,22 @@ class Exam(object):
 class PerformanceProfiler(object):
     def __init__(self):
         self.start()
+        self.num_captures = 0
 
     def start(self):
         self.time0 = time.time()
+
+    def count_capture(self):
+        self.num_captures += 1
 
     def finish_exam(self, exam):
         time1 = time.time()
         stats = {}
         stats['time'] = time1 - self.time0
         stats['manual-changes'] = exam.num_manual_changes()
+        stats['num-captures'] = self.num_captures
         self.time0 = time1
+        self.num_captures = 0
         return stats
 
 def init(camera_dev):
@@ -259,6 +267,7 @@ def main():
         imageproc_options['read-id'] = True
         imageproc_options['id-num-digits'] = id_num_digits
     while True:
+        profiler.count_capture()
         image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
         image.detect()
         success = image.success
