@@ -10,7 +10,7 @@ param_adaptive_threshold_offset = 0
 param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 270
-param_check_corners_tolerance_mul = 3
+param_check_corners_tolerance_mul = 4
 param_cross_mask_thickness = 8
 
 # Number of pixels to go inside de cell for the mask cross
@@ -102,7 +102,7 @@ class ExamCapture(object):
                                           self.options['id-num-digits'])
                     if self.id_corners == None:
                         self.success = False
-                    if self.options['show-lines']:
+                    elif self.options['show-lines']:
                         for c in self.id_corners[0]:
                             draw_corner(self.image_drawn, c[0], c[1])
                         for c in self.id_corners[1]:
@@ -253,7 +253,6 @@ def detect_lines(image):
     lines = opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
                                  1, 0.01, param_hough_threshold)
     if lines.total > 500:
-        print "Too many lines in detect_directions:", lines.total
         return []
     s_lines = sorted([(float(l[0]), float(l[1])) for l in lines],
                      key = lambda x: x[1])
@@ -460,37 +459,52 @@ def decide_answer(cell_decisions):
 
 def id_boxes_geometry(image, hlines, iwidth, num_cells):
     success = False
-    plu, pru = line_bounds(image, hlines[0], iwidth)
+    plu, pru = line_bounds_adaptive(image, hlines[0], iwidth, 3)
     if plu is not None:
-        pld, prd = line_bounds(image, hlines[1], iwidth)
+        pld, prd = line_bounds_adaptive(image, hlines[1], iwidth, 3)
     if plu is not None and pld is not None:
         # adjust corners
         outer_up = [plu, pru]
         outer_down = [pld, prd]
         success = id_boxes_adjust(image, outer_up, outer_down,
-                                  hlines[0], hlines[1], 7, iwidth)
+                                  hlines[0], hlines[1], 7, 0, iwidth)
         if success:
             corners_up = interpolate_line(outer_up[0], outer_up[1],
                                           num_cells + 1)
             corners_down = interpolate_line(outer_down[0], outer_down[1],
                                             num_cells + 1)
             success = id_boxes_adjust(image, corners_up, corners_down,
-                                      hlines[0], hlines[1], 3, iwidth)
+                                      hlines[0], hlines[1], 3, 3, iwidth)
     if success:
         return (corners_up, corners_down)
     else:
         return None
 
 def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
-                    x_var, iwidth):
+                    x_var, rho_var, iwidth):
     for i in range(0, len(corners_up)):
         up = corners_up[i]
         down = corners_down[i]
-        selected = id_boxes_adjust_points(image, up, down,
-                                          line_up, line_down, x_var, iwidth)
+        selected = id_boxes_adjust_points(image, up, down, line_up, line_down,
+                                          x_var, iwidth)
         if selected is not None:
-            corners_up[i] = selected[0]
-            corners_down[i] = selected[1]
+            if rho_var > 0:
+                if i == 0:
+                    interval = (0, 2 * rho_var)
+                elif i == len(corners_up) - 1:
+                    interval = (- 2 * rho_var, 0)
+                else:
+                    interval = (- rho_var, rho_var)
+                corners_up[i] = \
+                    id_boxes_adjust_point_vertically(image, selected[0],
+                                                     line_up, interval, iwidth)
+                corners_down[i] = \
+                    id_boxes_adjust_point_vertically(image, selected[1],
+                                                     line_down, interval,
+                                                     iwidth)
+            else:
+                corners_up[i] = selected[0]
+                corners_down[i] = selected[1]
         else:
             return False
     return True
@@ -510,7 +524,7 @@ def id_boxes_adjust_points(image, p_up, p_down, line_up, line_down,
     energies = [(id_boxes_match_level(image, u, v), u, v) \
                     for u in points_up for v in points_down]
     energies.sort(reverse = True)
-    if energies[0][0] > param_id_boxes_match_threshold:
+    if len(energies) > 0 and energies[0][0] > param_id_boxes_match_threshold:
         lim = len(energies)
         for i in range(1, lim):
             if energies[i][0] < energies[0][0]:
@@ -526,6 +540,25 @@ def id_boxes_adjust_points(image, p_up, p_down, line_up, line_down,
         return selected
     else:
         return None
+
+def id_boxes_adjust_point_vertically(image, point, line, interval, iwidth):
+    rho, theta = line
+    lines = [line]
+    for i in range(interval[0], interval[1] + 1):
+        lines.append((rho + i, theta))
+        lines.append((rho - i, theta))
+    values = []
+    for l in lines:
+        match = 0
+        for xx in range(point[0] - 2, point[0] + 3):
+            x, y = line_point(l, x = xx)
+            if y >= 0 and x >= 0 and x < iwidth and image[y, x] > 0:
+                match += 1
+        p = line_point(l, x = point[0])
+        values.append((match, p[1], p))
+    values.sort(reverse = True)
+    best = [(m, p) for (m, y, p) in values if m == values[0][0]]
+    return best[len(best) // 2][1]
 
 def id_boxes_match_level(image, p0, p1):
     points = [(x, y) for (x, y) in walk_line(p0, p1)]
@@ -623,6 +656,23 @@ def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
                 pix_marked += 1
     return (pix_total, pix_marked)
 
+def line_bounds_adaptive(image, line, iwidth, rho_var):
+    rho, theta = line
+    lines = [line]
+    for i in range(1, rho_var + 1):
+        lines.append((rho + i, theta))
+        lines.append((rho - i, theta))
+    points = []
+    for l in lines:
+        pl, pr = line_bounds(image, l, iwidth)
+        if pl is not None:
+            points.append(pl)
+            points.append(pr)
+    if len(points) > 0:
+        return min(points), max(points)
+    else:
+        return None, None
+
 def line_bounds(image, line, iwidth):
     # points of intersection with x = 0 and x = width - 1
     p0 = line_point(line, x = 0)
@@ -636,7 +686,6 @@ def line_bounds(image, line, iwidth):
     ini_found = False
     ini = None
     end = None
-    points = []
     last = 0
     count = 0
     for x, y in walk_line(p0, p1):
