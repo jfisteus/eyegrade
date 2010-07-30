@@ -1,6 +1,7 @@
 import opencv
 from opencv import highgui 
 import math
+import copy
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
@@ -28,16 +29,32 @@ font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
 
-    default_options = [('infobits', False),
-                       ('show-lines', False),
-                       ('show-image-proc', False),
-                       ('read-id', False)]
+    default_options = {'infobits': False,
+                       'show-lines': False,
+                       'show-image-proc': False,
+                       'read-id': False,
+                       'capture-from-file': False,
+                       'capture-raw-file': None,
+                       'capture-proc-file': None}
+
+    @classmethod
+    def get_default_options(cls):
+        return copy.copy(cls.default_options)
 
     def __init__(self, camera, boxes_dim, options = {}):
-        self.set_options(options)
-        self.image_raw = capture(camera, True)
-        self.image_proc = pre_process(self.image_raw)
-        if not self.options['show-image-proc']:
+        self.options = options
+        if not options['capture-from-file']:
+            self.image_raw = capture(camera, True)
+            self.image_proc = pre_process(self.image_raw)
+        elif options['capture-raw-file'] is not None:
+            self.image_raw = load_image(options['capture-raw-file'])
+            self.image_proc = pre_process(self.image_raw)
+        elif options['capture-proc-file'] is not None:
+            self.image_raw = load_image(options['capture-proc-file'])
+            self.image_proc = rgb_to_gray(self.image_raw)
+        else:
+            raise Exception('Wrong capture options')
+        if not options['show-image-proc']:
             self.image_drawn = opencv.cvCloneImage(self.image_raw)
         else:
             self.image_drawn = gray_ipl_to_rgb(self.image_proc)
@@ -51,12 +68,6 @@ class ExamCapture(object):
         self.solutions = None
         self.centers = []
         self.diagonals = []
-
-    def set_options(self, options):
-        for key, value in self.__class__.default_options:
-            if not key in options:
-                options[key] = value
-        self.options = options
 
     def detect(self):
         lines = detect_lines(self.image_proc)

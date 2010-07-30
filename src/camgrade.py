@@ -194,7 +194,14 @@ def read_cmd_options():
     parser.add_option("--stats", action="store_true", dest = "save_stats",
                       default = False,
                       help = "save performance stats to the answers file")
+    parser.add_option("--capture-raw", dest = "raw_file", default = None,
+                      help = "capture from raw file")
+    parser.add_option("--capture-proc", dest = "proc_file", default = None,
+                      help = "capture from pre-processed file")
+
     (options, args) = parser.parse_args()
+    if options.raw_file is not None and options.proc_file is not None:
+        parser.error("--capture-raw and --capture-proc are mutually exclusive")
     return options
 
 def cell_clicked(image, point):
@@ -259,13 +266,28 @@ def main():
     window = pygame.display.set_mode((640,480))
     pygame.display.set_caption("camgrade")
     screen = pygame.display.get_surface()
-    camera = init(select_camera(options, config))
 
     profiler = PerformanceProfiler()
-    imageproc_options = {'infobits': True}
+
+    # Initialize options
+    imageproc_options = imageproc.ExamCapture.get_default_options()
+    imageproc_options['infobits'] = True
     if id_num_digits > 0:
         imageproc_options['read-id'] = True
         imageproc_options['id-num-digits'] = id_num_digits
+
+    # Initialize capture source
+    camera = None
+    if options.proc_file is not None:
+        imageproc_options['capture-from-file'] = True
+        imageproc_options['capture-proc-file'] = options.proc_file
+    elif options.raw_file is not None:
+        imageproc_options['capture-from-file'] = True
+        imageproc_options['capture-raw-file'] = options.raw_file
+    else:
+        camera = init(select_camera(options, config))
+
+    # Program main loop
     while True:
         profiler.count_capture()
         image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
