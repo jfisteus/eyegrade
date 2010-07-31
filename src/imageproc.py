@@ -3,6 +3,9 @@ from opencv import highgui
 import math
 import copy
 
+# Local imports
+from geometry import *
+
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
 param_adaptive_threshold_offset = 0
@@ -83,19 +86,16 @@ class ExamCapture(object):
                                                  self.boxes_dim)
             if self.options['show-lines']:
                 for line in axes[0][1]:
-                    draw_tangent(self.image_drawn, line[0], line[1],
-                                 (255, 0, 0))
+                    draw_line(self.image_drawn, line, (255, 0, 0))
                 for line in axes[1][1]:
-                    draw_tangent(self.image_drawn, line[0], line[1],
-                                 (255, 0, 255))
+                    draw_line(self.image_drawn, line, (255, 0, 255))
                 for corners in self.corner_matrixes:
                     for h in corners:
                         for c in h:
                             draw_corner(self.image_drawn, c[0], c[1])
                 if len(self.corner_matrixes) > 0 and self.options['read-id']:
                     for line in self.id_hlines:
-                        draw_tangent(self.image_drawn, line[0], line[1],
-                                 (255, 255, 0))
+                        draw_line(self.image_drawn, line, (255, 255, 0))
             if len(self.corner_matrixes) > 0 and \
                     (not self.options['read-id'] or self.id_hlines != []):
                 self.decisions = decide_cells(self.image_proc,
@@ -172,7 +172,7 @@ class ExamCapture(object):
                 row_diagonals = []
                 for j in range(0, len(corners[0]) - 1):
                     row_centers.append(\
-                        cell_center(corners[i][j], corners[i][j + 1],
+                        rect_center(corners[i][j], corners[i][j + 1],
                                     corners[i + 1][j], corners[i + 1][j + 1]))
                     row_diagonals.append(\
                         distance(corners[i][j], corners[i + 1][j + 1]))
@@ -218,16 +218,15 @@ def load_image_grayscale(filename):
 def load_image(filename):
     return highgui.cvLoadImage(filename)
 
-def draw_tangent(image, rho, theta, color = (0, 0, 255, 0)):
+def draw_line(image, line, color = (0, 0, 255, 0)):
+    theta = line[1]
     points = set()
-    if (math.sin(theta) != 0.0):
-        points.add((0, int(rho / math.sin(theta))))
-        points.add((image.width - 1, int((rho - (image.width - 1)
-                                     * math.cos(theta)) / math.sin(theta))))
-    if (math.cos(theta) != 0.0):
-        points.add((int(rho / math.cos(theta)), 0))
-        points.add((int((rho - (image.height - 1) * math.sin(theta))
-                        / math.cos(theta)), image.height - 1))
+    if math.sin(theta) != 0.0:
+        points.add(line_point(line, x = 0))
+        points.add(line_point(line, x = image.width - 1))
+    if math.cos(theta) != 0.0:
+        points.add(line_point(line, y = 0))
+        points.add(line_point(line, y = image.height - 1))
     p_draw = [p for p in points if p[0] >= 0 and p[1] >= 0
               and p[0] < image.width and p[1] < image.height]
     if len(p_draw) == 2:
@@ -244,7 +243,7 @@ def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
     opencv.cvLine(image, pld, pru, color, param_cross_mask_thickness)
 
 def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
-    radius = int(diagonal / 3.5)
+    radius = int(round(diagonal / 3.5))
     opencv.cvCircle(image, center, radius, color, 2)
 
 def draw_cell_center(image, center, color = (255, 0, 0)):
@@ -411,8 +410,8 @@ def decide_cells(image, corner_matrixes):
     return decisions
 
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
-    plu, prd = get_closer_points(plu, prd, param_cross_mask_margin)
-    pru, pld = get_closer_points(pru, pld, param_cross_mask_margin)
+    plu, prd = closer_points(plu, prd, param_cross_mask_margin)
+    pru, pld = closer_points(pru, pld, param_cross_mask_margin)
     opencv.cvSetZero(mask)
     draw_cross_mask(mask, plu, pru, pld, prd, (1))
     mask_pixels = opencv.cvCountNonZero(mask)
@@ -435,8 +434,8 @@ def read_infobits(image, corner_matrixes):
         for i in range(1, len(corners[0])):
             dx = diff_points(corners[-1][i - 1], corners[-1][i])
             dy = diff_points(corners[-1][i], corners[-2][i])
-            center = (int(corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.8),
-                      int(corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.8))
+            center = round_point((corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.8,
+                                  corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.8))
             bits.append(decide_infobit(image, mask, masked, center, dy))
     # Check validity
     if min([b[0] ^ b[1] for b in bits]) == True:
@@ -446,7 +445,7 @@ def read_infobits(image, corner_matrixes):
 
 def decide_infobit(image, mask, masked, center_up, dy):
     center_down = add_points(center_up, dy)
-    radius = int(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1])) / 3
+    radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) / 3))
     opencv.cvSetZero(mask)
     opencv.cvCircle(mask, center_up, radius, (1), opencv.CV_FILLED)
     mask_pixels = opencv.cvCountNonZero(mask)
@@ -576,52 +575,8 @@ def id_boxes_match_level(image, p0, p1):
     active = len([(x, y) for (x, y) in points if image[y, x] > 0])
     return float(active) / len(points)
 
-# Geometry utility functions
+# Utility functions
 #
-def get_closer_points(p1, p2, offset):
-    dx = p2[0] - p1[0]
-    dy = p2[1] - p1[1]
-    k = float(offset) / math.sqrt(dx * dx + dy * dy)
-    return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
-            (int(p2[0] - dx * k), int(p2[1] - dy * k)))
-
-def diff_points(p1, p2):
-    return (p1[0] - p2[0], p1[1] - p2[1])
-
-def add_points(p1, p2):
-    return (p1[0] + p2[0], p1[1] + p2[1])
-
-def intersection(hline, vline):
-    rho1, theta1 = hline
-    rho2, theta2 = vline
-    y = (rho1 * math.cos(theta2) - rho2 * math.cos(theta1)) \
-        / (math.sin(theta1) * math.cos(theta2) \
-               - math.sin(theta2) * math.cos(theta1))
-    x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
-    return (int(x), int(y))
-
-def distance(p1, p2):
-    return math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) \
-                         + (p1[1] - p2[1]) * (p1[1] - p2[1]))
-
-def slope(p1, p2):
-    return float(p2[1] - p1[1]) / (p2[0] - p1[0])
-
-def slope_inv(p1, p2):
-    return float(p2[0] - p1[0]) / (p2[1] - p1[1])
-
-def cell_center(plu, pru, pld, prd):
-    return ((plu[0] + prd[0]) / 2, (plu[1] + prd[1]) / 2)
-
-def line_point(line, x = None, y = None):
-    assert((x is None) ^ (y is None))
-    rho, theta = line
-    if y is None:
-        y = int((rho - x * math.cos(theta)) / math.sin(theta))
-    else:
-        x = int((rho - y * math.sin(theta)) / math.cos(theta))
-    return (int(x), int(y))
-
 def count_pixels_in_cell(image, plu, pru, pld, prd):
     """
         Count the number of pixels in a given quadrilateral.
@@ -658,8 +613,8 @@ def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
     pix_total = 0
     pix_marked = 0
     for y in range(yini, yend):
-        x1 = int(p0[0] + slope0 * (y - p0[1]))
-        x2 = int(p1[0] + slope1 * (y - p1[1]))
+        x1 = int(round(p0[0] + slope0 * (y - p0[1])))
+        x2 = int(round(p1[0] + slope1 * (y - p1[1])))
         inc = 1 if x1 < x2 else -1
         for x in range(x1, x2, inc):
             pix_total += 1
@@ -719,45 +674,3 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
-
-def walk_line(p0, p1):
-    # Bresenham's algorithm as found in Wikipedia
-    x0, y0 = p0
-    x1, y1 = p1
-    steep = abs(y1 - y0) > abs(x1 - x0)
-    if steep:
-        # swap values:
-        x0, y0 = y0, x0
-        x1, y1 = y1, x1
-    if x0 > x1:
-        # swap values:
-        x0, x1 = x1, x0
-        y0, y1 = y1, y0
-    deltax = x1 - x0
-    deltay = abs(y1 - y0)
-    error = deltax / 2
-    y = y0
-    ystep = 1 if y0 < y1 else -1
-    for x in xrange(x0, x1 + 1):
-        yield (x, y) if not steep else (y, x)
-        error = error - deltay
-        if error < 0:
-            y = y + ystep
-            error = error + deltax
-
-def interpolate_line(p0, p1, num_points):
-    num_divisions = num_points - 1
-    dx = float(p1[0] - p0[0]) / num_divisions
-    dy = float(p1[1] - p0[1]) / num_divisions
-    points = [p0]
-    for i in range(1, num_divisions):
-        points.append((p0[0] + int(dx * i), p0[1] + int(dy * i)))
-    points.append(p1)
-    return points
-
-def test_image(image_path):
-    imrgb = load_image(image_path)
-    im = load_image_grayscale(image_path)
-    draw_lines(imrgb, im, [[4,10],[4,10]], True)
-    highgui.cvSaveImage("/tmp/test-processed.png", imrgb)
-
