@@ -5,6 +5,7 @@ import copy
 
 # Local imports
 from geometry import *
+import ocr
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
@@ -71,6 +72,7 @@ class ExamCapture(object):
         self.solutions = None
         self.centers = []
         self.diagonals = []
+        self.id = None
 
     def detect(self):
         lines = detect_lines(self.image_proc)
@@ -113,11 +115,13 @@ class ExamCapture(object):
                                           self.options['id-num-digits'])
                     if self.id_corners == None:
                         self.success = False
-                    elif self.options['show-lines']:
-                        for c in self.id_corners[0]:
-                            draw_corner(self.image_drawn, c[0], c[1])
-                        for c in self.id_corners[1]:
-                            draw_corner(self.image_drawn, c[0], c[1])
+                    else:
+                        self.detect_id()
+                        if self.options['show-lines']:
+                            for c in self.id_corners[0]:
+                                draw_corner(self.image_drawn, c[0], c[1])
+                            for c in self.id_corners[1]:
+                                draw_corner(self.image_drawn, c[0], c[1])
         if self.success:
             self.compute_cells_geometry()
         draw_success_indicator(self.image_drawn, self.success)
@@ -178,6 +182,17 @@ class ExamCapture(object):
                         distance(corners[i][j], corners[i + 1][j + 1]))
                 self.centers.append(row_centers)
                 self.diagonals.append(row_diagonals)
+
+    def detect_id(self):
+        if self.id_corners is None:
+            self.id = None
+        corners_up, corners_down = self.id_corners
+        digits = []
+        for i in range(0, len(corners_up) - 1):
+            corners = (corners_up[i], corners_up[i + 1],
+                       corners_down[i], corners_down[i + 1])
+            print "***", i
+            digits.append(ocr.digit_ocr(self.image_proc, corners))
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
