@@ -47,7 +47,9 @@ def closer_points(p1, p2, offset):
 def walk_line(p0, p1):
     """Returns a generator of points in the line from p0 to p1 such
        that they are connected (in the way they would do to draw a
-       line."""
+       line. Order of points is not guaranteed: points may go p0->p1
+       or p1->p0. See walk_line_ordered if points must go from p0 to
+       p1."""
     # Bresenham's algorithm as found in Wikipedia
     x0, y0 = p0
     x1, y1 = p1
@@ -71,6 +73,19 @@ def walk_line(p0, p1):
         if error < 0:
             y = y + ystep
             error = error + deltax
+
+def walk_line_ordered(p0, p1):
+    """Wrapper for walk_line that guarantees that points go from p0 to p1."""
+    x0, y0 = p0
+    x1, y1 = p1
+    if abs(y1 - y0) > abs(x1 - x0):
+        reverse = y0 > y1
+    else:
+        reverse = x0 > x1
+    if not reverse:
+        return walk_line(p0, p1)
+    else:
+        return reversed([p for p in walk_line(p0, p1)])
 
 def interpolate_line(p0, p1, num_points):
     """Returns a list of num_points points in the line from p0 to p1.

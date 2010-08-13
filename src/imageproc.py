@@ -193,6 +193,7 @@ class ExamCapture(object):
                        corners_down[i], corners_down[i + 1])
             print "***", i
             digits.append(ocr.digit_ocr(self.image_proc, corners))
+        print digits
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
