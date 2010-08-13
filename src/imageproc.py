@@ -15,7 +15,7 @@ param_adaptive_threshold_offset = 0
 param_collapse_threshold = 18
 param_directions_threshold = 0.3
 param_hough_threshold = 270
-param_check_corners_tolerance_mul = 4
+param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
 
 # Number of pixels to go inside de cell for the mask cross
@@ -500,7 +500,7 @@ def id_boxes_geometry(image, hlines, iwidth, num_cells):
             corners_down = interpolate_line(outer_down[0], outer_down[1],
                                             num_cells + 1)
             success = id_boxes_adjust(image, corners_up, corners_down,
-                                      hlines[0], hlines[1], 3, 3, iwidth)
+                                      hlines[0], hlines[1], 5, 5, iwidth)
     if success:
         return (corners_up, corners_down)
     else:
