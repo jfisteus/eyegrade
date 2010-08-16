@@ -46,19 +46,22 @@ class ExamCapture(object):
         return copy.copy(cls.default_options)
 
     def __init__(self, camera, boxes_dim, options = {}):
-        self.options = options
-        if not options['capture-from-file']:
+        if options == {}:
+            self.options = self.__class__.get_default_options()
+        else:
+            self.options = options
+        if not self.options['capture-from-file']:
             self.image_raw = capture(camera, True)
             self.image_proc = pre_process(self.image_raw)
-        elif options['capture-raw-file'] is not None:
-            self.image_raw = load_image(options['capture-raw-file'])
+        elif self.options['capture-raw-file'] is not None:
+            self.image_raw = load_image(self.options['capture-raw-file'])
             self.image_proc = pre_process(self.image_raw)
-        elif options['capture-proc-file'] is not None:
-            self.image_raw = load_image(options['capture-proc-file'])
+        elif self.options['capture-proc-file'] is not None:
+            self.image_raw = load_image(self.options['capture-proc-file'])
             self.image_proc = rgb_to_gray(self.image_raw)
         else:
             raise Exception('Wrong capture options')
-        if not options['show-image-proc']:
+        if not self.options['show-image-proc']:
             self.image_drawn = opencv.cvCloneImage(self.image_raw)
         else:
             self.image_drawn = gray_ipl_to_rgb(self.image_proc)
