@@ -1,17 +1,66 @@
 # OCR for hand-written digits
 #
+import tre
 
 # Local imports
 from geometry import *
+import imageproc
 
 param_cross_num_lines = 13
 param_cell_margin = 2
+param_max_errors = 4
 
-def digit_ocr(image, cell_corners):
-    return digit_ocr_by_line_crossing(image, cell_corners)
+# Tre initializations
+tre_fz = tre.Fuzzyness(maxerr = param_max_errors)
+regexps = [(r'^1{0,2}222+1{0,2}$', # zero
+            r'^1{0,2}222+1{0,2}$'),
+           (r'^11{0,3}(22+1+|211+|111+)11+$', # one
+            r'^1+|1{0,2}22+11+$'),
+           (r'^11?2+111+2{0,2}11{0,2}$', # two
+            r'^1{0,3}2{0,2}(2|3)(2|3)(2|3)+11{0,2}$'),
+           (r'^1+2{0,2}11+2?11+2{0,2}1+$', # three
+            r'^1?22+33?(44?2+)?2{0,2}1{0,2}$'),
+           (r'^1{0,2}22+111+$', # four
+            r'^11?(22?1|11+)(22?|1+)1+$'),
+           (r'^111+2{0,2}11+2{0,2}1+$', # five
+            r'^1?2{0,2}333+2{0,2}1{0,2}$'),
+           (r'^1{0,2}2{0,3}111+2{0,2}3{0,2}22+1{0,2}$', # six
+            r'^1{0,2}2{0,2}333+2{0,2}1{0,2}$'),
+           (r'11?(22{0,2}|1+)2?1+2?11+', # seven
+            r'1+2(2|1)+11?'),
+           (r'^1{0,2}22+1+22+1{0,2}$', # eight
+            r'^1{0,2}2{0,2}333+2{0,2}1{0,2}$'),
+           (r'^1{0,2}22+111+$', # nine
+            r'^1{0,2}(2+3+2*|222+)1+$')]
+re_compiled = []
+for pair in regexps:
+    re_compiled.append((tre.compile(pair[0], tre.EXTENDED),
+                        tre.compile(pair[1], tre.EXTENDED)))
 
-def digit_ocr_by_line_crossing(image, cell_corners):
-    plu, pru, pld, prd = adjust_cell_corners(image, cell_corners)
+# limits: for each digit (min_len_num_hcrossings, min_len_num_vcrossings,
+#                         max_num_hcrossings, max_num_vcrossings,
+#                         min_num_hcrossings, min_num_vcrossings)
+limits = [(4, 4, 3, 3, 1, 1), # zero
+          (4, 1, 3, 3, 1, 1), # one
+          (4, 4, 3, 4, 1, 1), # two
+          (4, 4, 3, 4, 1, 1), # three
+          (4, 4, 2, 2, 1, 1), # four
+          (4, 4, 3, 4, 1, 1), # five
+          (4, 4, 3, 3, 1, 1), # six
+          (4, 3, 3, 3, 1, 1), # seven
+          (4, 4, 3, 3, 1, 1), # eight
+          (4, 3, 3, 3, 1, 1)] # nine
+
+def digit_ocr(image, cell_corners, debug = None, image_drawn = None):
+    assert(not debug or image_drawn is not None)
+    return digit_ocr_by_line_crossing(image, cell_corners, debug, image_drawn)
+
+def digit_ocr_by_line_crossing(image, cell_corners, debug, image_drawn):
+    points = adjust_cell_corners(image, cell_corners)
+    if debug:
+        for point in points:
+            imageproc.draw_point(image_drawn, point)
+    plu, pru, pld, prd = points
     points_left = interpolate_line(plu, pld, param_cross_num_lines)
     points_right = interpolate_line(pru, prd, param_cross_num_lines)
     points_up = interpolate_line(plu, pru, param_cross_num_lines)
@@ -19,32 +68,63 @@ def digit_ocr_by_line_crossing(image, cell_corners):
     hcrossings = []
     vcrossings = []
     for i in range(0, param_cross_num_lines):
-        hcrossings.append(crossings(image, points_left[i], points_right[i]))
-        vcrossings.append(crossings(image, points_up[i], points_down[i]))
-    print hcrossings
-    print vcrossings
-    return decide_digit(hcrossings, vcrossings)
+        hcrossings.append(crossings(image, points_left[i], points_right[i],
+                                    debug, image_drawn))
+        vcrossings.append(crossings(image, points_up[i], points_down[i],
+                                    debug, image_drawn))
+    if debug:
+        print hcrossings
+        print vcrossings
+    return decide_digit(hcrossings, vcrossings, debug)
 
-def decide_digit(hcrossings, vcrossings):
+def decide_digit(hcrossings, vcrossings, debug = False):
     decision = None
-    h = __trim_empty_lists(hcrossings)
-    v = __trim_empty_lists(vcrossings)
-    if len(h) > 0 and len(v) > 0:
-        p = [is_zero(h, v), is_one(h, v), is_two(h, v), is_three(h, v),
-             is_four(h, v), is_five(h, v), is_six(h, v), is_seven(h, v),
-             is_eight(h, v), is_nine(h, v)]
-        print p
-        m = max(p)
+    hcrossings = __trim_empty_lists(hcrossings)
+    vcrossings = __trim_empty_lists(vcrossings)
+    if len(hcrossings) > 0 and len(vcrossings) > 0:
+        num_hcrossings = [len(l) for l in hcrossings]
+        num_vcrossings = [len(l) for l in vcrossings]
+        if debug:
+            print num_hcrossings
+            print num_vcrossings
+        hstr = ''.join([str(v) for v in num_hcrossings])
+        vstr = ''.join([str(v) for v in num_vcrossings])
+        scores = []
+        for i in range(0, 10):
+            if min(num_hcrossings) < limits[i][4] \
+                    or min(num_vcrossings) < limits[i][5] \
+                    or max(num_hcrossings) > limits[i][2] \
+                    or max(num_vcrossings) > limits[i][3] \
+                    or len(num_hcrossings) < limits[i][0] \
+                    or len(num_vcrossings) < limits[i][1]:
+                p = 0.0
+            else:
+                hmatch = re_compiled[i][0].search(hstr, tre_fz)
+                vmatch = re_compiled[i][1].search(vstr, tre_fz)
+                hscore = max(1.0 - 0.3 * hmatch.cost, 0.0) if hmatch else 0.0
+                vscore = max(1.0 - 0.3 * vmatch.cost, 0.0) if vmatch else 0.0
+                if debug:
+                    print i, hscore, vscore
+                p = hscore * vscore
+            scores.append((p, i))
+        if debug:
+            print sorted(scores, reverse = True)
+        m = max(scores)
         if m[0] > 0.0:
             decision = m[1]
     return decision
 
-def crossings(image, p0, p1):
+def crossings(image, p0, p1, debug = False, image_drawn = None):
     pixels = []
     crossings = []
     for x, y in walk_line(p0, p1):
         pixels.append(image[y, x] > 0)
-#    print pixels
+        if debug:
+            if image[y, x] > 0:
+                color = (255, 255, 0, 0)
+            else:
+                color = (200, 200, 200, 0)
+            imageproc.draw_point(image_drawn, (x, y), color, 0)
     # Filter the value sequence
     for i in range(1, len(pixels) - 1):
         if not pixels[i - 1] and not pixels[i + 1]:
@@ -58,7 +138,7 @@ def crossings(image, p0, p1):
             if value:
                 begin = i
         else:
-            if not value:
+            if not value or i == len(pixels) - 1:
                 if i - begin > 1:
                     pos = float(begin + i - 1) * 50 / len(pixels)
                     length = float(i - begin) * 100 / len(pixels)
@@ -66,93 +146,8 @@ def crossings(image, p0, p1):
                 begin = None
     return crossings
 
-# Decision functions for the crossings method
-#
-def is_zero(hcrossings, vcrossings):
-    p = 1.0
-    negative = (0.0, 0)
-    num_hcrossings = [len(l) for l in hcrossings]
-    num_vcrossings = [len(l) for l in vcrossings]
-    if min(num_hcrossings) == 0 or min(num_vcrossings) == 0 \
-            or max(num_hcrossings) > 3 or max(num_vcrossings) > 3 \
-            or len(num_hcrossings) < 4 or len(num_vcrossings) < 4:
-        return negative
-    num_errors = len([n for n in num_hcrossings + num_vcrossings if n == 3])
-    p -= 0.25 * num_errors
-    if p <= 0.0:
-        return negative
-    num_errors = len([n for n in num_hcrossings[1:-1] + num_vcrossings[1:-1] \
-                          if n == 1])
-    p -= 0.25 * num_errors
-    if num_hcrossings[0] == 1 and num_hcrossings[1] == 1 \
-            and hcrossings[0][0][1] < hcrossings[1][0][1] \
-            and abs(hcrossings[0][0][0] - hcrossings[1][0][0]) < 0.15:
-        p += 0.2
-    if num_hcrossings[-1] == 1 and num_hcrossings[-2] == 1 \
-            and hcrossings[-1][0][1] < hcrossings[-2][0][1] \
-            and abs(hcrossings[-1][0][0] - hcrossings[-2][0][0]) < 0.15:
-        p += 0.2
-    if num_vcrossings[0] == 1 and num_vcrossings[1] == 1 \
-        and vcrossings[0][0][1] < vcrossings[1][0][1] \
-        and abs(vcrossings[0][0][0] - vcrossings[1][0][0]) < 0.15:
-        p += 0.2
-    if num_vcrossings[-1] == 1 and num_vcrossings[-2] == 1 \
-        and vcrossings[-1][0][1] < vcrossings[-2][0][1] \
-            and abs(vcrossings[-1][0][0] - vcrossings[1][0][0]) < 0.15:
-        p += 0.2
-    if p <= 0.0:
-        return negative
-    hmiddle = len(hcrossings) // 2
-    if num_hcrossings[hmiddle] == 1:
-        if num_hcrossings[hmiddle + 1] > 1:
-            hmiddle += 1
-        else:
-            hmiddle -= 1
-    vmiddle = len(vcrossings) // 2
-    if num_vcrossings[vmiddle] == 1:
-        if num_vcrossings[vmiddle + 1] > 1:
-            vmiddle += 1
-        else:
-            vmiddle -= 1
-    hdiff = hcrossings[hmiddle][-1][0] - hcrossings[hmiddle][0][0]
-    vdiff = vcrossings[vmiddle][-1][0] - vcrossings[vmiddle][0][0]
-    p -= max(0, (0.2 - hdiff) * 4)
-    p -= max(0, (0.2 - vdiff) * 4)
-    if p < 0.0:
-        return negative
-    else:
-        return (p, 0)
-
-def is_one(hcrossings, vcrossings):
-    return (0.0, 1)
-
-def is_two(hcrossings, vcrossings):
-    return (0.0, 2)
-
-def is_three(hcrossings, vcrossings):
-    return (0.0, 3)
-
-def is_four(hcrossings, vcrossings):
-    return (0.0, 4)
-
-def is_five(hcrossings, vcrossings):
-    return (0.0, 5)
-
-def is_six(hcrossings, vcrossings):
-    return (0.0, 6)
-
-def is_seven(hcrossings, vcrossings):
-    return (0.0, 7)
-
-def is_eight(hcrossings, vcrossings):
-    return (0.0, 8)
-
-def is_nine(hcrossings, vcrossings):
-    return (0.0, 9)
-
 # Other auxiliary functions
 #
-
 def __trim_empty_lists(lists):
     """Receives a list of lists. Returns a new list of lists without
        any empty lists at the beginning or end of it."""

@@ -94,7 +94,7 @@ class ExamCapture(object):
                 for corners in self.corner_matrixes:
                     for h in corners:
                         for c in h:
-                            draw_corner(self.image_drawn, c[0], c[1])
+                            draw_point(self.image_drawn, c)
                 if len(self.corner_matrixes) > 0 and self.options['read-id']:
                     for line in self.id_hlines:
                         draw_line(self.image_drawn, line, (255, 255, 0))
@@ -119,9 +119,9 @@ class ExamCapture(object):
                         self.detect_id()
                         if self.options['show-lines']:
                             for c in self.id_corners[0]:
-                                draw_corner(self.image_drawn, c[0], c[1])
+                                draw_point(self.image_drawn, c)
                             for c in self.id_corners[1]:
-                                draw_corner(self.image_drawn, c[0], c[1])
+                                draw_point(self.image_drawn, c)
         if self.success:
             self.compute_cells_geometry()
         draw_success_indicator(self.image_drawn, self.success)
@@ -192,7 +192,9 @@ class ExamCapture(object):
             corners = (corners_up[i], corners_up[i + 1],
                        corners_down[i], corners_down[i + 1])
             print "***", i
-            digits.append(ocr.digit_ocr(self.image_proc, corners))
+            digits.append(ocr.digit_ocr(self.image_proc, corners,
+                                        self.options['show-lines'],
+                                        self.image_drawn))
         print digits
 
 def init_camera(input_dev = -1):
@@ -248,11 +250,12 @@ def draw_line(image, line, color = (0, 0, 255, 0)):
     if len(p_draw) == 2:
         opencv.cvLine(image, p_draw[0], p_draw[1], color, 1)
 
-def draw_corner(image, x, y, color = (255, 0, 0, 0)):
+def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
+    x, y = point
     if x >= 0 and x < image.width and y >= 0 and y < image.height:
-        opencv.cvCircle(image, (x, y), 2, color, opencv.CV_FILLED)
+        opencv.cvCircle(image, point, radius, color, opencv.CV_FILLED)
     else:
-        print "draw_corner: bad point (%d, %d)"%(x, y)
+        print "draw_point: bad point (%d, %d)"%(x, y)
 
 def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
     opencv.cvLine(image, plu, prd, color, param_cross_mask_thickness)
