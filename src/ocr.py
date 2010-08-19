@@ -187,7 +187,12 @@ def crossings(image, p0, p1, h, debug = False, image_drawn = None):
 # Other auxiliary functions
 #
 def crossings_signatures(hcrossings, vcrossings):
-#    min_length_px = min([val[3] for val in hcrossings + vcrossings])
+    min_length_px = min([min([v[3] for v in c]) \
+                             for c in hcrossings + vcrossings \
+                             if len(c) > 0])
+    width_threshold = max(2.0 * min_length_px, 16.0)
+    if min_length_px < 8:
+        min_length_px = 8
     min_v = hcrossings[0][0][4]
     max_v = hcrossings[-1][0][4]
     min_h = vcrossings[0][0][4]
@@ -206,9 +211,15 @@ def crossings_signatures(hcrossings, vcrossings):
         for row in crossings:
             mark = [False, False, False]
             for c in row:
-                mark[0] = mark[0] or c[0] < limits[0]
-                mark[1] = mark[1] or (c[0] < limits[1] and c[1] >= limits[0])
-                mark[2] = mark[2] or c[1] >= limits[1]
+                m = [False, False, False]
+                m[0] = c[0] < limits[0]
+                m[1] = (c[0] < limits[1] and c[1] >= limits[0])
+                m[2] = c[1] >= limits[1]
+                if c[3] <= width_threshold \
+                        and (c[2] < limits[0] or c[2] >= limits[1]):
+                    m[1] = False
+                for i in range(3):
+                    mark[i] = mark[i] or m[i]
             particles.append(''.join(['X' if m else '_' for m in mark]))
         particles.append('')
         signatures.append('/'.join(particles))
