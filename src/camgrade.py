@@ -20,7 +20,7 @@ class Exam(object):
         self.im_id = im_id
         self.correct = None
         self.score = None
-        self.student_id = -1
+        self.student_id = self.image.id if self.image.id is not None else -1 
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
 
@@ -91,6 +91,12 @@ class Exam(object):
         else:
             self.image.decisions[question] = answer
         self.grade()
+        self.image.clean_drawn_image(True)
+        self.draw_answers()
+
+    def invalidate_id(self):
+        self.image.id = None
+        self.student_id = -1
         self.image.clean_drawn_image(True)
         self.draw_answers()
 
@@ -336,6 +342,9 @@ def main():
                             exam.save_debug_images(save_pattern)
                         im_id += 1
                         continue_waiting = False
+                    elif event.key == ord('i'):
+                        exam.invalidate_id()
+                        show_image(exam.image.image_drawn, screen)
                     elif event.key == ord('p') and options.debug:
                         imageproc_options['show-image-proc'] = \
                             not imageproc_options['show-image-proc']

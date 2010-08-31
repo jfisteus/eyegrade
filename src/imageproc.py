@@ -76,6 +76,7 @@ class ExamCapture(object):
         self.centers = []
         self.diagonals = []
         self.id = None
+        self.id_ocr_original = None
 
     def detect(self):
         lines = detect_lines(self.image_proc)
@@ -164,6 +165,8 @@ class ExamCapture(object):
         if im_id is not None:
             color = (255, 0, 0) if self.success else (0, 0, 255)
             draw_text(self.image_drawn, str(im_id), color, (10, 65))
+        if self.id is not None:
+            draw_text(self.image_drawn, str(self.id), color_dot, (10, 30))
 
     def clean_drawn_image(self, success_indicator = True):
         self.image_drawn = opencv.cvCloneImage(self.image_raw)
@@ -199,6 +202,11 @@ class ExamCapture(object):
                                         self.options['show-lines'],
                                         self.image_drawn))
         print digits
+        if not None in digits:
+            self.id = 0
+            for digit in digits:
+                self.id = self.id * 10 + digit
+            self.id_ocr_original = self.id
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
