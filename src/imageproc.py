@@ -77,6 +77,7 @@ class ExamCapture(object):
         self.diagonals = []
         self.id = None
         self.id_ocr_original = None
+        self.id_scores = None
 
     def detect(self):
         lines = detect_lines(self.image_proc)
@@ -166,7 +167,7 @@ class ExamCapture(object):
             color = (255, 0, 0) if self.success else (0, 0, 255)
             draw_text(self.image_drawn, str(im_id), color, (10, 65))
         if self.id is not None:
-            draw_text(self.image_drawn, str(self.id), color_dot, (10, 30))
+            draw_text(self.image_drawn, self.id, color_dot, (10, 30))
 
     def clean_drawn_image(self, success_indicator = True):
         self.image_drawn = opencv.cvCloneImage(self.image_raw)
@@ -194,18 +195,19 @@ class ExamCapture(object):
             self.id = None
         corners_up, corners_down = self.id_corners
         digits = []
+        self.id_scores = []
         for i in range(0, len(corners_up) - 1):
             corners = (corners_up[i], corners_up[i + 1],
                        corners_down[i], corners_down[i + 1])
             print "***", i
-            digits.append(ocr.digit_ocr(self.image_proc, corners,
-                                        self.options['show-lines'],
-                                        self.image_drawn))
+            digit, scores = (ocr.digit_ocr(self.image_proc, corners,
+                                           self.options['show-lines'],
+                                           self.image_drawn))
+            digits.append(digit)
+            self.id_scores.append(scores)
         print digits
         if not None in digits:
-            self.id = 0
-            for digit in digits:
-                self.id = self.id * 10 + digit
+            self.id = "".join([str(digit) for digit in digits])
             self.id_ocr_original = self.id
 
 def init_camera(input_dev = -1):

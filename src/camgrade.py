@@ -12,17 +12,17 @@ import time
 import copy
 
 class Exam(object):
-    def __init__(self, image, model, solutions, im_id = None,
-                 save_stats = False):
+    def __init__(self, image, model, solutions, valid_student_ids = None,
+                 im_id = None, save_stats = False):
         self.image = image
         self.model = model
         self.solutions = solutions
         self.im_id = im_id
         self.correct = None
         self.score = None
-        self.student_id = self.image.id if self.image.id is not None else -1 
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
+        self.student_id = self.decide_student_id(valid_student_ids)
 
     def grade(self):
         good = 0
@@ -64,7 +64,7 @@ class Exam(object):
         f = open(answers_file, "a")
         f.write(str(self.im_id))
         f.write(sep)
-        f.write(str(self.student_id))
+        f.write(self.student_id)
         f.write(sep)
         f.write(str(self.model))
         f.write(sep)
@@ -104,6 +104,27 @@ class Exam(object):
         return len([d1 for (d1, d2) in \
                         zip(self.original_decisions, self.image.decisions) \
                         if d1 != d2])
+
+    def decide_student_id(self, valid_student_ids):
+        student_id = '-1'
+        if self.image.id is not None:
+            if valid_student_ids is not None:
+                if self.image.id in valid_student_ids:
+                    student_id = self.image.id
+                else:
+                    ids_rank = [(self.id_rank(sid, self.image.id_scores), sid) \
+                                    for sid in valid_student_ids]
+                    student_id = max(ids_rank)[1]
+                    self.image.id = student_id
+            else:
+                student_id = self.image.id
+        return student_id
+
+    def id_rank(self, student_id, scores):
+        rank = 0.0
+        for i in range(len(student_id)):
+            rank += scores[i][int(student_id[i])]
+        return rank
 
 class PerformanceProfiler(object):
     def __init__(self):
@@ -200,6 +221,8 @@ def read_cmd_options():
     parser.add_option("--stats", action="store_true", dest = "save_stats",
                       default = False,
                       help = "save performance stats to the answers file")
+    parser.add_option("--id-list", dest = "ids_file", default = None,
+                      help = "file with the list of valid student ids")
     parser.add_option("--capture-raw", dest = "raw_file", default = None,
                       help = "capture from raw file")
     parser.add_option("--capture-proc", dest = "proc_file", default = None,
@@ -266,6 +289,11 @@ def main():
         if options.output_dir is not None:
             answers_file = os.path.join(options.output_dir, answers_file)
     im_id = options.start_id
+    valid_student_ids = None
+    if options.ids_file is not None:
+        ids_file = open(options.ids_file)
+        valid_student_ids = [line.strip() for line in ids_file]
+        ids_file.close()
 
     fps = 8.0
     pygame.init()
@@ -302,8 +330,8 @@ def main():
         if success:
             model = decode_model_2x31(image.bits)
             if model is not None:
-                exam = Exam(image, model, solutions[model], im_id,
-                            options.save_stats)
+                exam = Exam(image, model, solutions[model], valid_student_ids,
+                            im_id, options.save_stats)
                 exam.grade()
                 exam.draw_answers()
             else:

@@ -156,7 +156,9 @@ def decide_digit(hcrossings, vcrossings, debug = False):
         m = max(scores)
         if m[0] > 0.0:
             decision = m[1]
-    return decision
+    else:
+        scores = [(0.0, i) for i in range(10)]
+    return decision, [score[0] for score in scores]
 
 def crossings(image, p0, p1, h, debug = False, image_drawn = None):
     pixels = []
