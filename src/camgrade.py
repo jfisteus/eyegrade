@@ -113,16 +113,12 @@ class Exam(object):
         self.ids_rank = None
         if self.image.id is not None:
             if valid_student_ids is not None:
-                if self.image.id in valid_student_ids:
-                    student_id = self.image.id
-                else:
-                    ids_rank = [(self.__id_rank(sid, self.image.id_scores),
-                                 sid) \
-                                    for sid in valid_student_ids]
-                    self.ids_rank = sorted(ids_rank, reverse = True)
-                    student_id = self.ids_rank[0][1]
-                    self.image.id = student_id
-                    self.ids_rank_pos = 0
+                ids_rank = [(self.__id_rank(sid, self.image.id_scores), sid) \
+                                for sid in valid_student_ids]
+                self.ids_rank = sorted(ids_rank, reverse = True)
+                student_id = self.ids_rank[0][1]
+                self.image.id = student_id
+                self.ids_rank_pos = 0
             else:
                 student_id = self.image.id
         return student_id
