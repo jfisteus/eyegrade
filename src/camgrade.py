@@ -322,7 +322,7 @@ def main():
         solutions = []
         dimensions = []
         id_num_digits = 0
-    read_id = (id_num_digits == 0)
+    read_id = (id_num_digits > 0)
     if options.output_dir is not None:
         save_pattern = os.path.join(options.output_dir, save_pattern)
     if options.answers_filename is not None:
