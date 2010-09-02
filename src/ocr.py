@@ -121,7 +121,8 @@ def decide_digit(hcrossings, vcrossings, debug = False):
         hstr = ''.join([str(v) for v in num_hcrossings])
         vstr = ''.join([str(v) for v in num_vcrossings])
         signatures = crossings_signatures(hcrossings, vcrossings)
-        print signatures
+        if debug:
+            print signatures
         scores = []
         for i in range(0, 10):
             max_num_hcrossings = max(num_hcrossings)
@@ -216,7 +217,6 @@ def crossings_signatures(hcrossings, vcrossings):
         if region_width < 0.1:
             region_width = 0.1
         limits = (max_pos - 2 * region_width, max_pos - region_width)
-        print ">>>", min_pos, max_pos, region_width, limits, width_threshold
         particles = ['']
         for row in crossings:
             mark = [False, False, False]

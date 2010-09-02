@@ -199,13 +199,12 @@ class ExamCapture(object):
         for i in range(0, len(corners_up) - 1):
             corners = (corners_up[i], corners_up[i + 1],
                        corners_down[i], corners_down[i + 1])
-            print "***", i
             digit, scores = (ocr.digit_ocr(self.image_proc, corners,
                                            self.options['show-lines'],
                                            self.image_drawn))
             digits.append(digit)
             self.id_scores.append(scores)
-        print digits
+#        print digits
         if not None in digits:
             self.id = "".join([str(digit) for digit in digits])
             self.id_ocr_original = self.id
