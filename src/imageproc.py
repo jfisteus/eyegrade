@@ -205,9 +205,9 @@ class ExamCapture(object):
             digits.append(digit)
             self.id_scores.append(scores)
 #        print digits
-        if not None in digits:
-            self.id = "".join([str(digit) for digit in digits])
-            self.id_ocr_original = self.id
+        self.id = "".join([str(digit) if digit is not None else '0' \
+                               for digit in digits])
+        self.id_ocr_original = self.id
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)

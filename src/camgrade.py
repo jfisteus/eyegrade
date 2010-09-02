@@ -23,6 +23,7 @@ class Exam(object):
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
         self.student_id = self.decide_student_id(valid_student_ids)
+        self.student_id_filter = []
 
     def grade(self):
         good = 0
@@ -82,6 +83,8 @@ class Exam(object):
             f.write(str(stats['manual-changes']))
             f.write(sep)
             f.write(str(stats['num-captures']))
+            f.write(sep)
+            f.write(str(stats['num-student-id-changes']))
         f.write('\n')
         f.close()
 
@@ -95,10 +98,7 @@ class Exam(object):
         self.draw_answers()
 
     def invalidate_id(self):
-        self.image.id = None
-        self.student_id = '-1'
-        self.image.clean_drawn_image(True)
-        self.draw_answers()
+        self.__update_student_id(None)
 
     def num_manual_changes(self):
         return len([d1 for (d1, d2) in \
@@ -107,29 +107,66 @@ class Exam(object):
 
     def decide_student_id(self, valid_student_ids):
         student_id = '-1'
+        self.ids_rank = None
         if self.image.id is not None:
             if valid_student_ids is not None:
                 if self.image.id in valid_student_ids:
                     student_id = self.image.id
                 else:
-                    ids_rank = [(self.id_rank(sid, self.image.id_scores), sid) \
+                    ids_rank = [(self.__id_rank(sid, self.image.id_scores),
+                                 sid) \
                                     for sid in valid_student_ids]
-                    student_id = max(ids_rank)[1]
+                    self.ids_rank = sorted(ids_rank, reverse = True)
+                    student_id = self.ids_rank[0][1]
                     self.image.id = student_id
+                    self.ids_rank_pos = 0
             else:
                 student_id = self.image.id
         return student_id
 
-    def id_rank(self, student_id, scores):
+    def try_next_student_id(self):
+        if self.ids_rank is not None \
+                and self.ids_rank_pos < len(self.ids_rank) - 1:
+            self.ids_rank_pos += 1
+            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
+
+    def filter_student_id(self, digit):
+        self.student_id_filter.append(digit)
+        ids = [sid for sid in self.ids_rank \
+                   if ''.join(self.student_id_filter) in sid[1]]
+        if len(ids) > 0:
+            self.__update_student_id(ids[0][1])
+        else:
+            self.__update_student_id(None)
+            self.student_id_filter = []
+            self.ids_rank_pos = -1
+
+    def reset_student_id_editor(self):
+        self.student_id_filter = []
+        self.ids_rank_pos = 0
+        self.__update_student_id(self.ids_rank[0][1])
+
+    def __id_rank(self, student_id, scores):
         rank = 0.0
         for i in range(len(student_id)):
             rank += scores[i][int(student_id[i])]
         return rank
 
+    def __update_student_id(self, new_id):
+        if new_id is None or new_id == '-1':
+            self.image.id = None
+            self.student_id = '-1'
+        else:
+            self.image.id = new_id
+            self.student_id = new_id
+        self.image.clean_drawn_image(True)
+        self.draw_answers()
+
 class PerformanceProfiler(object):
     def __init__(self):
         self.start()
         self.num_captures = 0
+        self.num_student_id_changes = 0
 
     def start(self):
         self.time0 = time.time()
@@ -137,14 +174,19 @@ class PerformanceProfiler(object):
     def count_capture(self):
         self.num_captures += 1
 
+    def count_student_id_change(self):
+        self.num_student_id_changes += 1
+
     def finish_exam(self, exam):
         time1 = time.time()
         stats = {}
         stats['time'] = time1 - self.time0
         stats['manual-changes'] = exam.num_manual_changes()
         stats['num-captures'] = self.num_captures
+        stats['num-student-id-changes'] = self.num_student_id_changes
         self.time0 = time1
         self.num_captures = 0
+        self.num_student_id_changes = 0
         return stats
 
 def init(camera_dev):
@@ -372,6 +414,18 @@ def main():
                         continue_waiting = False
                     elif event.key == ord('i'):
                         exam.invalidate_id()
+                        show_image(exam.image.image_drawn, screen)
+                    elif event.key == 9 and options.ids_file is not None:
+                        if len(exam.student_id_filter) == 0:
+                            exam.try_next_student_id()
+                        else:
+                            exam.reset_student_id_editor()
+                        profiler.count_student_id_change()
+                        show_image(exam.image.image_drawn, screen)
+                    elif event.key >= ord('0') and event.key <= ord('9') \
+                             and options.ids_file is not None:
+                        exam.filter_student_id(chr(event.key))
+                        profiler.count_student_id_change()
                         show_image(exam.image.image_drawn, screen)
                     elif event.key == ord('p') and options.debug:
                         imageproc_options['show-image-proc'] = \
