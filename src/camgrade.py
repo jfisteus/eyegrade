@@ -22,8 +22,11 @@ class Exam(object):
         self.score = None
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
-        self.student_id = self.decide_student_id(valid_student_ids)
-        self.student_id_filter = []
+        if self.image.options['read-id']:
+            self.student_id = self.decide_student_id(valid_student_ids)
+            self.student_id_filter = []
+        else:
+            self.student_id = '-1'
 
     def grade(self):
         good = 0
@@ -322,6 +325,8 @@ def main():
     else:
         solutions = []
         dimensions = []
+        id_num_digits = 0
+    read_id = (id_num_digits == 0)
     if options.output_dir is not None:
         save_pattern = os.path.join(options.output_dir, save_pattern)
     if options.answers_filename is not None:
@@ -330,9 +335,10 @@ def main():
         answers_file = 'camgrade-answers.txt'
         if options.output_dir is not None:
             answers_file = os.path.join(options.output_dir, answers_file)
+
     im_id = options.start_id
     valid_student_ids = None
-    if options.ids_file is not None:
+    if read_id and options.ids_file is not None:
         ids_file = open(options.ids_file)
         valid_student_ids = [line.strip() for line in ids_file]
         ids_file.close()
@@ -348,7 +354,7 @@ def main():
     # Initialize options
     imageproc_options = imageproc.ExamCapture.get_default_options()
     imageproc_options['infobits'] = True
-    if id_num_digits > 0:
+    if read_id:
         imageproc_options['read-id'] = True
         imageproc_options['id-num-digits'] = id_num_digits
 
@@ -412,10 +418,11 @@ def main():
                             exam.save_debug_images(save_pattern)
                         im_id += 1
                         continue_waiting = False
-                    elif event.key == ord('i'):
+                    elif event.key == ord('i') and read_id:
                         exam.invalidate_id()
                         show_image(exam.image.image_drawn, screen)
-                    elif event.key == 9 and options.ids_file is not None:
+                    elif event.key == 9 and read_id \
+                            and options.ids_file is not None:
                         if len(exam.student_id_filter) == 0:
                             exam.try_next_student_id()
                         else:
@@ -423,7 +430,7 @@ def main():
                         profiler.count_student_id_change()
                         show_image(exam.image.image_drawn, screen)
                     elif event.key >= ord('0') and event.key <= ord('9') \
-                             and options.ids_file is not None:
+                             and read_id and options.ids_file is not None:
                         exam.filter_student_id(chr(event.key))
                         profiler.count_student_id_change()
                         show_image(exam.image.image_drawn, screen)
