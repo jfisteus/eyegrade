@@ -96,7 +96,7 @@ class Exam(object):
 
     def invalidate_id(self):
         self.image.id = None
-        self.student_id = -1
+        self.student_id = '-1'
         self.image.clean_drawn_image(True)
         self.draw_answers()
 
