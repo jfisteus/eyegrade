@@ -88,6 +88,10 @@ class Exam(object):
             f.write(str(stats['num-captures']))
             f.write(sep)
             f.write(str(stats['num-student-id-changes']))
+            f.write(sep)
+            f.write(str(stats['id-ocr-digits-total']))
+            f.write(sep)
+            f.write(str(stats['id-ocr-digits-error']))
         f.write('\n')
         f.close()
 
@@ -183,10 +187,23 @@ class PerformanceProfiler(object):
         stats['manual-changes'] = exam.num_manual_changes()
         stats['num-captures'] = self.num_captures
         stats['num-student-id-changes'] = self.num_student_id_changes
+        self.compute_ocr_stats(stats, exam)
         self.time0 = time1
         self.num_captures = 0
         self.num_student_id_changes = 0
         return stats
+
+    def compute_ocr_stats(self, stats, exam):
+        if exam.image.id is None:
+            digits_total = 0
+            digits_error = 0
+        else:
+            digits_total = len(exam.image.id)
+            digits_error = len([1 for a, b in zip(exam.image.id,
+                                                  exam.image.id_ocr_original) \
+                                    if a != b])
+        stats['id-ocr-digits-total'] = digits_total
+        stats['id-ocr-digits-error'] = digits_error
 
 def init(camera_dev):
     camera = imageproc.init_camera(camera_dev)
