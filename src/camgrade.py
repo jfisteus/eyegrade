@@ -1,12 +1,9 @@
 import pygame
-import Image
 from pygame.locals import *
 import sys
 import ConfigParser, os
 from optparse import OptionParser
-import opencv
-#this is important for capturing/displaying images
-from opencv import highgui 
+import cv
 import imageproc
 import time
 import copy
@@ -59,13 +56,13 @@ class Exam(object):
                                 self.im_id)
 
     def save_image(self, filename_pattern):
-        highgui.cvSaveImage(filename_pattern%self.im_id, self.image.image_drawn)
+        cv.SaveImage(filename_pattern%self.im_id, self.image.image_drawn)
 
     def save_debug_images(self, filename_pattern):
         raw_pattern = filename_pattern + "-raw"
         proc_pattern = filename_pattern + "-proc"
-        highgui.cvSaveImage(raw_pattern%self.im_id, self.image.image_raw)
-        highgui.cvSaveImage(proc_pattern%self.im_id, self.image.image_proc)
+        cv.SaveImage(raw_pattern%self.im_id, self.image.image_raw)
+        cv.SaveImage(proc_pattern%self.im_id, self.image.image_proc)
 
     def save_answers(self, answers_file, stats = None):
         sep = "\t"
@@ -313,11 +310,12 @@ def cell_clicked(image, point):
         return None
 
 def dump_camera_buffer(camera):
-    for i in range(0, 6):
-        imageproc.capture(camera, False)
+    if camera is not None:
+        for i in range(0, 6):
+            imageproc.capture(camera, False)
 
 def show_image(image, screen):
-    im = opencv.adaptors.Ipl2PIL(image)
+    im = imageproc.ipl_to_pil(image)
     pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
     screen.blit(pg_img, (0,0))
     pygame.display.flip()
