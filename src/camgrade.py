@@ -93,6 +93,8 @@ class Exam(object):
             f.write(str(stats['id-ocr-digits-total']))
             f.write(sep)
             f.write(str(stats['id-ocr-digits-error']))
+            f.write(sep)
+            f.write(stats['id-ocr-detected'])
         f.write('\n')
         f.close()
 
@@ -205,6 +207,10 @@ class PerformanceProfiler(object):
                                     if a != b])
         stats['id-ocr-digits-total'] = digits_total
         stats['id-ocr-digits-error'] = digits_error
+        if exam.image.id_ocr_original is not None:
+            stats['id-ocr-detected'] = exam.image.id_ocr_original
+        else:
+            stats['id-ocr-detected'] = '-1'
 
 def init(camera_dev):
     camera = imageproc.init_camera(camera_dev)

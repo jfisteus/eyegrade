@@ -207,7 +207,9 @@ class ExamCapture(object):
 #        print digits
         self.id = "".join([str(digit) if digit is not None else '0' \
                                for digit in digits])
-        self.id_ocr_original = self.id
+        self.id_ocr_original = "".join([str(digit) \
+                                            if digit is not None else '.' \
+                                            for digit in digits])
 
 def init_camera(input_dev = -1):
     return cv.CreateCameraCapture(input_dev)
