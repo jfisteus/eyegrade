@@ -11,6 +11,10 @@ import imageproc
 import time
 import copy
 
+program_name = 'camgrade'
+version = '0.1'
+version_status = 'alpha'
+
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids = None,
                  im_id = None, save_stats = False):
@@ -262,7 +266,8 @@ def read_config():
     return config
 
 def read_cmd_options():
-    parser = OptionParser("usage: %prog [options]")
+    parser = OptionParser(usage = "usage: %prog [options]",
+                          version = program_name + ' ' + version)
     parser.add_option("-e", "--exam-data-file", dest = "ex_data_filename",
                       help = "read model data from FILENAME")
     parser.add_option("-a", "--answers-file", dest = "answers_filename",
