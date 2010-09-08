@@ -127,6 +127,16 @@ def line_point(line, x = None, y = None):
         x = int((rho - y * math.sin(theta)) / math.cos(theta))
     return round_point((x, y))
 
+def point_is_valid(point, dimensions):
+    """Returns True if the coordinates of the point are within the bounds
+       of the image, False otherwise. Parameter dimensions is a tuple
+       (image_width, image_height)."""
+    if point[0] >= 0 and point[1] >= 0 \
+            and point[0] < dimensions[0] and point[1] < dimensions[1]:
+        return True
+    else:
+        return False
+
 # Functions on rectangles
 #
 def rect_center(plu, pru, pld, prd):

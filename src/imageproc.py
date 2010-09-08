@@ -716,6 +716,10 @@ def line_bounds(image, line, iwidth):
     if p1[1] < 0:
         p1 = line_point(line, y = 0)
 
+    if not point_is_valid(p0, (image.width, image.height)) \
+            or not point_is_valid(p1, (image.width, image.height)):
+        return None, None
+
     # get bounds
     ini_found = False
     ini = None
