@@ -14,7 +14,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 18
 param_directions_threshold = 0.3
-param_hough_threshold = 270
+param_hough_threshold = 220
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
 
@@ -23,7 +23,8 @@ param_cross_mask_margin = 8
 
 # Percentaje of points of the mask cross that must be active to decide a cross
 param_cross_mask_threshold = 0.2
-param_bit_mask_threshold = 0.5
+param_bit_mask_threshold = 0.35
+param_bit_mask_radius_multiplier = 0.25
 param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
@@ -502,8 +503,8 @@ def read_infobits(image, corner_matrixes):
         for i in range(1, len(corners[0])):
             dx = diff_points(corners[-1][i - 1], corners[-1][i])
             dy = diff_points(corners[-1][i], corners[-2][i])
-            center = round_point((corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.8,
-                                  corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.8))
+            center = round_point((corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.6,
+                                 corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.6))
             bits.append(decide_infobit(image, mask, masked, center, dy))
     # Check validity
     if min([b[0] ^ b[1] for b in bits]) == True:
@@ -513,7 +514,8 @@ def read_infobits(image, corner_matrixes):
 
 def decide_infobit(image, mask, masked, center_up, dy):
     center_down = add_points(center_up, dy)
-    radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) / 3))
+    radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) \
+                           * param_bit_mask_radius_multiplier))
     cv.SetZero(mask)
     cv.Circle(mask, center_up, radius, (1), cv.CV_FILLED)
     mask_pixels = cv.CountNonZero(mask)
