@@ -39,6 +39,7 @@ class ExamCapture(object):
                        'show-lines': False,
                        'show-image-proc': False,
                        'read-id': False,
+                       'show-status': False,
                        'capture-from-file': False,
                        'capture-raw-file': None,
                        'capture-proc-file': None}
@@ -80,19 +81,34 @@ class ExamCapture(object):
         self.id = None
         self.id_ocr_original = None
         self.id_scores = None
+        self.status = {'overall': False,
+                       'lines': False,
+                       'boxes': False,
+                       'cells': False,
+                       'infobits': False,
+                       'id-box-hlines': False,
+                       'id-box': False}
 
     def detect(self):
         lines = detect_lines(self.image_proc)
         if len(lines) < 2:
+            if self.options['show-status']:
+                self.draw_status_flags()
             return
+        self.status['lines'] = True
         axes = detect_boxes(lines, self.boxes_dim)
         if axes is not None:
+            self.status['boxes'] = True
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                                 self.image_raw.width,
                                                 self.image_raw.height,
                                                 self.boxes_dim)
+            if len(self.corner_matrixes) > 0:
+                self.status['cells'] = True
             self.id_hlines = id_horizontal_lines(axes[1][1], axes[0][1],
                                                  self.boxes_dim)
+            if self.id_hlines != []:
+                self.status['id-box-hlines'] = True
             if self.options['show-lines']:
                 for line in axes[0][1]:
                     draw_line(self.image_drawn, line, (255, 0, 0))
@@ -112,7 +128,11 @@ class ExamCapture(object):
                 if self.options['infobits']:
                     self.bits = read_infobits(self.image_proc,
                                               self.corner_matrixes)
-                    self.success = (self.bits is not None)
+                    if self.bits is not None:
+                        self.status['infobits'] = True
+                        self.success = True
+                    else:
+                        self.success = False
                 else:
                     self.success = True
                 if self.success and self.options['read-id']:
@@ -123,6 +143,7 @@ class ExamCapture(object):
                     if self.id_corners == None:
                         self.success = False
                     else:
+                        self.status['id-box'] = True
                         self.detect_id()
                         if self.options['show-lines']:
                             for c in self.id_corners[0]:
@@ -131,7 +152,9 @@ class ExamCapture(object):
                                 draw_point(self.image_drawn, c)
         if self.success:
             self.compute_cells_geometry()
-        draw_success_indicator(self.image_drawn, self.success)
+            self.status['overall'] = True
+        if self.options['show-status']:
+            self.draw_status_flags()
 
     def draw_answers(self, solutions, model,
                      correct, good, bad, undet, im_id = None):
@@ -212,6 +235,24 @@ class ExamCapture(object):
         self.id_ocr_original = "".join([str(digit) \
                                             if digit is not None else '.' \
                                             for digit in digits])
+
+    def draw_status_flags(self):
+        flags = []
+        flags.append(('L', self.status['lines']))
+        flags.append(('B', self.status['boxes']))
+        flags.append(('C', self.status['cells']))
+        flags.append(('M', self.status['infobits']))
+        flags.append(('H', self.status['id-box-hlines']))
+        flags.append(('N', self.status['id-box']))
+        color_good = (255, 0, 0)
+        color_bad = (0, 0, 255)
+        y = 25
+        width = 24
+        x = self.image_drawn.width - 5 - len(flags) * width
+        for letter, value in flags:
+            color = color_good if value else color_bad
+            draw_text(self.image_drawn, letter, color, (x, y))
+            x += width
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)

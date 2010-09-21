@@ -381,6 +381,8 @@ def main():
     if read_id:
         imageproc_options['read-id'] = True
         imageproc_options['id-num-digits'] = id_num_digits
+    if options.debug:
+        imageproc_options['show-status'] = True
 
     # Initialize capture source
     camera = None
