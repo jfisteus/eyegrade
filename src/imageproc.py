@@ -12,8 +12,8 @@ param_adaptive_threshold_block_size = 45
 param_adaptive_threshold_offset = 0
 
 # Other detection parameters
-param_collapse_threshold = 18
-param_directions_threshold = 0.3
+param_collapse_threshold = 16
+param_directions_threshold = 0.4
 param_hough_threshold = 220
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
