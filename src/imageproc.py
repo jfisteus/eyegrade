@@ -394,9 +394,12 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
 def id_horizontal_lines(hlines, vlines, boxes_dim):
     h_expected = 3 + max([box[1] for box in boxes_dim])
     if len(hlines) < h_expected:
-        return []
+        lines = []
     else:
-        return hlines[-h_expected:-h_expected + 2]
+        lines = hlines[-h_expected:-h_expected + 2]
+        if lines[1][0] - lines[0][0] < param_id_boxes_min_height:
+            lines = []
+    return lines
 
 def check_corners(corner_matrixes, width, height):
     # Check differences between horizontal lines:
@@ -505,23 +508,22 @@ def decide_answer(cell_decisions):
 
 def id_boxes_geometry(image, hlines, iwidth, num_cells):
     success = False
-    if hlines[1][0] - hlines[0][0] >= param_id_boxes_min_height:
-        plu, pru = line_bounds_adaptive(image, hlines[0], iwidth, 3)
-        if plu is not None:
-            pld, prd = line_bounds_adaptive(image, hlines[1], iwidth, 3)
-        if plu is not None and pld is not None:
-            # adjust corners
-            outer_up = [plu, pru]
-            outer_down = [pld, prd]
-            success = id_boxes_adjust(image, outer_up, outer_down,
-                                      hlines[0], hlines[1], 7, 0, iwidth)
-            if success:
-                corners_up = interpolate_line(outer_up[0], outer_up[1],
-                                              num_cells + 1)
-                corners_down = interpolate_line(outer_down[0], outer_down[1],
-                                                num_cells + 1)
-                success = id_boxes_adjust(image, corners_up, corners_down,
-                                          hlines[0], hlines[1], 5, 5, iwidth)
+    plu, pru = line_bounds_adaptive(image, hlines[0], iwidth, 3)
+    if plu is not None:
+        pld, prd = line_bounds_adaptive(image, hlines[1], iwidth, 3)
+    if plu is not None and pld is not None:
+        # adjust corners
+        outer_up = [plu, pru]
+        outer_down = [pld, prd]
+        success = id_boxes_adjust(image, outer_up, outer_down,
+                                  hlines[0], hlines[1], 7, 0, iwidth)
+        if success:
+            corners_up = interpolate_line(outer_up[0], outer_up[1],
+                                          num_cells + 1)
+            corners_down = interpolate_line(outer_down[0], outer_down[1],
+                                            num_cells + 1)
+            success = id_boxes_adjust(image, corners_up, corners_down,
+                                      hlines[0], hlines[1], 5, 5, iwidth)
     if success:
         return (corners_up, corners_down)
     else:
