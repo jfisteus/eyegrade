@@ -92,6 +92,7 @@ class ExamCapture(object):
     def detect(self):
         lines = detect_lines(self.image_proc)
         if len(lines) < 2:
+            self.draw_status_bar()
             if self.options['show-status']:
                 self.draw_status_flags()
             return
@@ -153,8 +154,10 @@ class ExamCapture(object):
         if self.success:
             self.compute_cells_geometry()
             self.status['overall'] = True
-        if self.options['show-status']:
-            self.draw_status_flags()
+        else:
+            self.draw_status_bar()
+            if self.options['show-status']:
+                self.draw_status_flags()
 
     def draw_answers(self, solutions, model,
                      correct, good, bad, undet, im_id = None):
@@ -246,13 +249,45 @@ class ExamCapture(object):
         flags.append(('N', self.status['id-box']))
         color_good = (255, 0, 0)
         color_bad = (0, 0, 255)
-        y = 25
+        y = 75
         width = 24
         x = self.image_drawn.width - 5 - len(flags) * width
         for letter, value in flags:
             color = color_good if value else color_bad
             draw_text(self.image_drawn, letter, color, (x, y))
             x += width
+
+    def draw_status_bar(self):
+        color = (255, 0, 0)
+        progress = 0
+        if self.status['lines']:
+            progress += 1
+        if self.status['boxes']:
+            progress += 1
+        if self.status['cells']:
+            progress += 1
+        if self.status['infobits']:
+            progress += 1
+        if self.status['id-box-hlines']:
+            progress += 1
+        if self.status['id-box']:
+            progress += 1
+        max_progress = 6
+        if not self.options['read-id']:
+            max_progress -= 2
+        if not self.options['infobits']:
+            max_progress -= 1
+        done_ratio = float(progress) / max_progress
+        x0 = self.image_drawn.width - 60
+        y0 = 10
+        width = 50
+        height = 20
+        point0 = (x0, y0)
+        point1 = (x0 + width, y0 + height)
+        opencv.cvRectangle(self.image_drawn, point0, point1, color)
+        point1 = round_point((x0 + done_ratio * width, y0 + height))
+        opencv.cvRectangle(self.image_drawn, point0, point1, color,
+                           opencv.CV_FILLED)
 
 def init_camera(input_dev = -1):
     return highgui.cvCreateCameraCapture(input_dev)
