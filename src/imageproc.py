@@ -286,10 +286,9 @@ class ExamCapture(object):
         height = 20
         point0 = (x0, y0)
         point1 = (x0 + width, y0 + height)
-        opencv.cvRectangle(self.image_drawn, point0, point1, color)
+        cv.Rectangle(self.image_drawn, point0, point1, color)
         point1 = round_point((x0 + done_ratio * width, y0 + height))
-        opencv.cvRectangle(self.image_drawn, point0, point1, color,
-                           opencv.CV_FILLED)
+        cv.Rectangle(self.image_drawn, point0, point1, color, cv.CV_FILLED)
 
 def init_camera(input_dev = -1):
     return cv.CreateCameraCapture(input_dev)
