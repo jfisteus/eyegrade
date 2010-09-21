@@ -1,7 +1,7 @@
-import cv
+import opencv
+from opencv import highgui 
 import math
 import copy
-import PIL.Image
 
 # Local imports
 from geometry import *
@@ -31,7 +31,7 @@ param_cell_mask_threshold = 0.6
 param_id_boxes_match_threshold = 0.5
 param_id_boxes_min_height = 15
 
-font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
+font = opencv.cvInitFont(opencv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
 
@@ -64,7 +64,7 @@ class ExamCapture(object):
         else:
             raise Exception('Wrong capture options')
         if not self.options['show-image-proc']:
-            self.image_drawn = cv.CloneImage(self.image_raw)
+            self.image_drawn = opencv.cvCloneImage(self.image_raw)
         else:
             self.image_drawn = gray_ipl_to_rgb(self.image_proc)
         self.height = self.image_raw.height
@@ -172,7 +172,7 @@ class ExamCapture(object):
             draw_text(self.image_drawn, self.id, color_dot, (10, 30))
 
     def clean_drawn_image(self, success_indicator = True):
-        self.image_drawn = cv.CloneImage(self.image_raw)
+        self.image_drawn = opencv.cvCloneImage(self.image_raw)
         if success_indicator:
             draw_success_indicator(self.image_drawn, self.success)
 
@@ -214,78 +214,43 @@ class ExamCapture(object):
                                             for digit in digits])
 
 def init_camera(input_dev = -1):
-    return cv.CreateCameraCapture(input_dev)
+    return highgui.cvCreateCameraCapture(input_dev)
 
 def capture(camera, clone = False):
-    image = cv.QueryFrame(camera)
+    image = highgui.cvQueryFrame(camera)
     if clone:
-        return cv.CloneImage(image)
+        return opencv.cvCloneImage(image)
     else:
         return image
 
 def pre_process(image):
     gray = rgb_to_gray(image)
-    thr = cv.CreateImage((image.width, image.height), image.depth, 1)
-    cv.AdaptiveThreshold(gray, thr, 255,
-                         cv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                         cv.CV_THRESH_BINARY_INV,
-                         param_adaptive_threshold_block_size,
-                         param_adaptive_threshold_offset)
+    thr = opencv.cvCreateImage((image.width, image.height), image.depth, 1)
+    opencv.cvAdaptiveThreshold(gray, thr, 255,
+                               opencv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+                               opencv.CV_THRESH_BINARY_INV,
+                               param_adaptive_threshold_block_size,
+                               param_adaptive_threshold_offset)
     return thr
 
 def gray_ipl_to_rgb(image):
-    rgb = cv.CreateImage((image.width, image.height), image.depth, 3)
-    cv.CvtColor(image, rgb, cv.CV_GRAY2RGB)
+    rgb = opencv.cvCreateImage((image.width, image.height), image.depth, 3)
+    opencv.cvCvtColor(image, rgb, opencv.CV_GRAY2RGB)
     return rgb
 
 def gray_ipl_to_rgb_pil(image):
     return opencv.adaptors.Ipl2PIL(gray_ipl_to_rgb(image))
 
 def rgb_to_gray(image):
-    gray = cv.CreateImage((image.width, image.height), image.depth, 1)
-    cv.CvtColor(image, gray, cv.CV_RGB2GRAY)
+    gray = opencv.cvCreateImage((image.width, image.height), image.depth, 1)
+    opencv.cvCvtColor(image, gray, opencv.CV_RGB2GRAY)
     return gray
 
 def load_image_grayscale(filename):
-    return rgb_to_gray(cv.LoadImage(filename))
+    return rgb_to_gray(highgui.cvLoadImage(filename))
 
 def load_image(filename):
-    return cv.LoadImage(filename)
-
-def ipl_to_pil(input):
-    """Converts an OpenCV/IPL image to PIL the Python Imaging Library.
-      Supported input image formats are
-         IPL_DEPTH_8U  x 1 channel
-         IPL_DEPTH_8U  x 3 channels
-         IPL_DEPTH_32F x 1 channel
-      Copied and adapted from opencv.adaptors.Ipl2PIL
-     """
-
-    if not isinstance(input, cv.iplimage):
-        raise TypeError, 'must be called with a cv.IplImage!'
-    # orientation
-    if input.origin == 0:
-        orientation = 1 # top left
-    elif input.origin == 1:
-        orientation = -1 # bottom left
-    else:
-        raise ValueError, 'origin must be 0 or 1!'
-    # mode dictionary:
-    # (channels, depth) : (source mode, dest mode, depth in byte)
-    mode_list = {(1, cv.IPL_DEPTH_8U)  : ("L", "L", 1),
-                 (3, cv.IPL_DEPTH_8U)  : ("BGR", "RGB", 3),
-                 (1, cv.IPL_DEPTH_32F) : ("F", "F", 4)}
-    key = (input.nChannels, input.depth)
-    if not mode_list.has_key(key):
-        raise ValueError, 'unknown or unsupported input mode'
-    modes = mode_list[key]
-    return PIL.Image.fromstring(modes[1], # mode
-                                (input.width, input.height),
-                                input.tostring(),
-                                "raw",
-                                modes[0], # raw mode
-                                0, # stride
-                                orientation)
+    return highgui.cvLoadImage(filename)
 
 def draw_line(image, line, color = (0, 0, 255, 0)):
     theta = line[1]
@@ -299,40 +264,40 @@ def draw_line(image, line, color = (0, 0, 255, 0)):
     p_draw = [p for p in points if p[0] >= 0 and p[1] >= 0
               and p[0] < image.width and p[1] < image.height]
     if len(p_draw) == 2:
-        cv.Line(image, p_draw[0], p_draw[1], color, 1)
+        opencv.cvLine(image, p_draw[0], p_draw[1], color, 1)
 
 def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
     x, y = point
     if x >= 0 and x < image.width and y >= 0 and y < image.height:
-        cv.Circle(image, point, radius, color, cv.CV_FILLED)
+        opencv.cvCircle(image, point, radius, color, opencv.CV_FILLED)
     else:
         print "draw_point: bad point (%d, %d)"%(x, y)
 
 def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
-    cv.Line(image, plu, prd, color, param_cross_mask_thickness)
-    cv.Line(image, pld, pru, color, param_cross_mask_thickness)
+    opencv.cvLine(image, plu, prd, color, param_cross_mask_thickness)
+    opencv.cvLine(image, pld, pru, color, param_cross_mask_thickness)
 
 def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
-    cv.Circle(image, center, radius, color, 2)
+    opencv.cvCircle(image, center, radius, color, 2)
 
 def draw_cell_center(image, center, color = (255, 0, 0)):
     radius = 4
-    cv.Circle(image, center, radius, color, cv.CV_FILLED)
+    opencv.cvCircle(image, center, radius, color, opencv.CV_FILLED)
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
-    cv.PutText(image, text, position, font, color)
+    opencv.cvPutText(image, text, position, font, color)
 
 def draw_success_indicator(image, success):
     position = (image.width - 15, 15)
     color = (0, 192, 0) if success else (0, 0, 255)
-    cv.Circle(image, position, 10, color, cv.CV_FILLED)
+    opencv.cvCircle(image, position, 10, color, opencv.CV_FILLED)
 
 def detect_lines(image):
-    st = cv.CreateMemStorage()
-    lines = cv.HoughLines2(image, st, cv.CV_HOUGH_STANDARD,
-                           1, 0.01, param_hough_threshold)
-    if len(lines) > 500:
+    st = opencv.cvCreateMemStorage()
+    lines = opencv.cvHoughLines2(image, st, opencv.CV_HOUGH_STANDARD,
+                                 1, 0.01, param_hough_threshold)
+    if lines.total > 500:
         return []
     s_lines = sorted([(float(l[0]), float(l[1])) for l in lines],
                      key = lambda x: x[1])
@@ -465,8 +430,8 @@ def check_corners(corner_matrixes, width, height):
 
 def decide_cells(image, corner_matrixes):
     dim = (image.width, image.height)
-    mask = cv.CreateImage(dim, 8, 1)
-    masked = cv.CreateImage(dim, 8, 1)
+    mask = opencv.cvCreateImage(dim, 8, 1)
+    masked = opencv.cvCreateImage(dim, 8, 1)
     decisions = []
     for corners in corner_matrixes:
         for i in range(0, len(corners) - 1):
@@ -482,11 +447,11 @@ def decide_cells(image, corner_matrixes):
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
     plu, prd = closer_points(plu, prd, param_cross_mask_margin)
     pru, pld = closer_points(pru, pld, param_cross_mask_margin)
-    cv.SetZero(mask)
+    opencv.cvSetZero(mask)
     draw_cross_mask(mask, plu, pru, pld, prd, (1))
-    mask_pixels = cv.CountNonZero(mask)
-    cv.Mul(image, mask, masked)
-    masked_pixels = cv.CountNonZero(masked)
+    mask_pixels = opencv.cvCountNonZero(mask)
+    opencv.cvMul(image, mask, masked)
+    masked_pixels = opencv.cvCountNonZero(masked)
     cell_marked = masked_pixels >= param_cross_mask_threshold * mask_pixels
     # If the whole cell is marked, don't count the result:
     if cell_marked:
@@ -497,8 +462,8 @@ def decide_cell(image, mask, masked, plu, pru, pld, prd):
 
 def read_infobits(image, corner_matrixes):
     dim = (image.width, image.height)
-    mask = cv.CreateImage(dim, 8, 1)
-    masked = cv.CreateImage(dim, 8, 1)
+    mask = opencv.cvCreateImage(dim, 8, 1)
+    masked = opencv.cvCreateImage(dim, 8, 1)
     bits = []
     for corners in corner_matrixes:
         for i in range(1, len(corners[0])):
@@ -517,15 +482,15 @@ def decide_infobit(image, mask, masked, center_up, dy):
     center_down = add_points(center_up, dy)
     radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) \
                            * param_bit_mask_radius_multiplier))
-    cv.SetZero(mask)
-    cv.Circle(mask, center_up, radius, (1), cv.CV_FILLED)
-    mask_pixels = cv.CountNonZero(mask)
-    cv.Mul(image, mask, masked)
-    masked_pixels_up = cv.CountNonZero(masked)
-    cv.SetZero(mask)
-    cv.Circle(mask, center_down, radius, (1), cv.CV_FILLED)
-    cv.Mul(image, mask, masked)
-    masked_pixels_down = cv.CountNonZero(masked)
+    opencv.cvSetZero(mask)
+    opencv.cvCircle(mask, center_up, radius, (1), opencv.CV_FILLED)
+    mask_pixels = opencv.cvCountNonZero(mask)
+    opencv.cvMul(image, mask, masked)
+    masked_pixels_up = opencv.cvCountNonZero(masked)
+    opencv.cvSetZero(mask)
+    opencv.cvCircle(mask, center_down, radius, (1), opencv.CV_FILLED)
+    opencv.cvMul(image, mask, masked)
+    masked_pixels_down = opencv.cvCountNonZero(masked)
     return (float(masked_pixels_up) / mask_pixels >= param_bit_mask_threshold,
             float(masked_pixels_down) / mask_pixels >= param_bit_mask_threshold)
 
