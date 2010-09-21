@@ -29,6 +29,7 @@ param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
 param_id_boxes_match_threshold = 0.5
+param_id_boxes_min_height = 15
 
 font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
@@ -539,22 +540,23 @@ def decide_answer(cell_decisions):
 
 def id_boxes_geometry(image, hlines, iwidth, num_cells):
     success = False
-    plu, pru = line_bounds_adaptive(image, hlines[0], iwidth, 3)
-    if plu is not None:
-        pld, prd = line_bounds_adaptive(image, hlines[1], iwidth, 3)
-    if plu is not None and pld is not None:
-        # adjust corners
-        outer_up = [plu, pru]
-        outer_down = [pld, prd]
-        success = id_boxes_adjust(image, outer_up, outer_down,
-                                  hlines[0], hlines[1], 7, 0, iwidth)
-        if success:
-            corners_up = interpolate_line(outer_up[0], outer_up[1],
-                                          num_cells + 1)
-            corners_down = interpolate_line(outer_down[0], outer_down[1],
-                                            num_cells + 1)
-            success = id_boxes_adjust(image, corners_up, corners_down,
-                                      hlines[0], hlines[1], 5, 5, iwidth)
+    if hlines[1][0] - hlines[0][0] >= param_id_boxes_min_height:
+        plu, pru = line_bounds_adaptive(image, hlines[0], iwidth, 3)
+        if plu is not None:
+            pld, prd = line_bounds_adaptive(image, hlines[1], iwidth, 3)
+        if plu is not None and pld is not None:
+            # adjust corners
+            outer_up = [plu, pru]
+            outer_down = [pld, prd]
+            success = id_boxes_adjust(image, outer_up, outer_down,
+                                      hlines[0], hlines[1], 7, 0, iwidth)
+            if success:
+                corners_up = interpolate_line(outer_up[0], outer_up[1],
+                                              num_cells + 1)
+                corners_down = interpolate_line(outer_down[0], outer_down[1],
+                                                num_cells + 1)
+                success = id_boxes_adjust(image, corners_up, corners_down,
+                                          hlines[0], hlines[1], 5, 5, iwidth)
     if success:
         return (corners_up, corners_down)
     else:
