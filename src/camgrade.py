@@ -107,7 +107,7 @@ class Exam(object):
         else:
             self.image.decisions[question] = answer
         self.grade()
-        self.image.clean_drawn_image(True)
+        self.image.clean_drawn_image()
         self.draw_answers()
 
     def invalidate_id(self):
@@ -168,7 +168,7 @@ class Exam(object):
         else:
             self.image.id = new_id
             self.student_id = new_id
-        self.image.clean_drawn_image(True)
+        self.image.clean_drawn_image()
         self.draw_answers()
 
 class PerformanceProfiler(object):

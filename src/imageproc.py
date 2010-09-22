@@ -197,10 +197,8 @@ class ExamCapture(object):
         if self.id is not None:
             draw_text(self.image_drawn, self.id, color_dot, (10, 30))
 
-    def clean_drawn_image(self, success_indicator = True):
+    def clean_drawn_image(self):
         self.image_drawn = opencv.cvCloneImage(self.image_raw)
-        if success_indicator:
-            draw_success_indicator(self.image_drawn, self.success)
 
     def compute_cells_geometry(self):
         self.centers = []
@@ -561,6 +559,8 @@ def decide_infobit(image, mask, masked, center_up, dy):
     center_down = add_points(center_up, dy)
     radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) \
                            * param_bit_mask_radius_multiplier))
+    if radius == 0:
+        radius = 1
     opencv.cvSetZero(mask)
     opencv.cvCircle(mask, center_up, radius, (1), opencv.CV_FILLED)
     mask_pixels = opencv.cvCountNonZero(mask)
@@ -570,6 +570,9 @@ def decide_infobit(image, mask, masked, center_up, dy):
     opencv.cvCircle(mask, center_down, radius, (1), opencv.CV_FILLED)
     opencv.cvMul(image, mask, masked)
     masked_pixels_down = opencv.cvCountNonZero(masked)
+    if mask_pixels < 1:
+        print "Radius:", radius, "/ Mask pixels:", mask_pixels
+        return (False, False)
     return (float(masked_pixels_up) / mask_pixels >= param_bit_mask_threshold,
             float(masked_pixels_down) / mask_pixels >= param_bit_mask_threshold)
 
