@@ -296,6 +296,9 @@ def read_cmd_options():
                       help = "capture from raw file")
     parser.add_option("--capture-proc", dest = "proc_file", default = None,
                       help = "capture from pre-processed file")
+    parser.add_option("-f", "--ajust-first", action="store_true",
+                      dest = "adjust", default = False,
+                      help = "don't lock on an exam until SPC is pressed")
 
     (options, args) = parser.parse_args()
     if options.raw_file is not None and options.proc_file is not None:
@@ -396,6 +399,7 @@ def main():
         camera = init(select_camera(options, config))
 
     # Program main loop
+    lock_mode = not options.adjust
     while True:
         profiler.count_capture()
         image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
@@ -423,9 +427,11 @@ def main():
                 elif event.key == ord('l') and options.debug:
                     imageproc_options['show-lines'] = \
                         not imageproc_options['show-lines']
+                elif event.key == 32:
+                    lock_mode = True
 
         show_image(image.image_drawn, screen)
-        if success:
+        if success and lock_mode:
             continue_waiting = True
             while continue_waiting:
                 event = pygame.event.wait()
