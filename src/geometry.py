@@ -137,6 +137,20 @@ def point_is_valid(point, dimensions):
     else:
         return False
 
+def project_point(point, from_line, to_line):
+    """Assuming that both lines are parallel, traces a perpendicular
+       line from from_line to to_line that contains the given point,
+       and returns the intersection point of that line with from_line.
+       In order to simplify computation, the function does not
+       consider the angle of to_line, i.e. it assumes the same angle
+       as from_line. The result is therefore only an approximation,
+       valid when angles are close enough."""
+    theta = from_line[1]
+    d = to_line[0] - from_line[0]
+    delta_x = d * math.cos(theta)
+    delta_y = d * math.sin(theta)
+    return (point[0] + delta_x, point[1] + delta_y)
+
 # Functions on rectangles
 #
 def rect_center(plu, pru, pld, prd):
