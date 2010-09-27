@@ -28,7 +28,9 @@ param_bit_mask_radius_multiplier = 0.25
 param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
-param_id_boxes_match_threshold = 0.5
+param_id_boxes_min_energy_threshold = 0.5
+param_id_boxes_mean_energy_threshold = 0.75
+param_id_boxes_energy_break = 0.99
 param_id_boxes_min_height = 15
 param_id_boxes_discard_distance = 20
 
@@ -592,13 +594,17 @@ def id_boxes_geometry(image, hlines, iwidth, num_cells):
     pairs_left, pairs_right = line_bounds_adaptive(image, hlines[0], hlines[1],
                                                    iwidth, 3)
     all_bounds = [(l[0], r[0], l[1], r[1]) \
-                       for l in pairs_left for r in pairs_right]
-    for bounds in all_bounds:
+                      for l in pairs_left for r in pairs_right]
+#    print "len(all_bounds):", len(all_bounds)
+#    i = 1
+    for bounds in all_bounds[:5]:
         corners = id_boxes_check_points(image, bounds, hlines,
                                         iwidth, num_cells)
         if corners is not None:
+#            print "success", i
             success = True
             break
+#        i += 1
     if success:
         return corners
     else:
@@ -609,14 +615,14 @@ def id_boxes_check_points(image, points, hlines, iwidth, num_cells):
     outer_up = [plu, pru]
     outer_down = [pld, prd]
     success = id_boxes_adjust(image, outer_up, outer_down,
-                              hlines[0], hlines[1], 5, 5, iwidth)
+                              hlines[0], hlines[1], 10, 5, iwidth)
     if success:
         corners_up = interpolate_line(outer_up[0], outer_up[1],
                                       num_cells + 1)
         corners_down = interpolate_line(outer_down[0], outer_down[1],
                                         num_cells + 1)
         success = id_boxes_adjust(image, corners_up, corners_down,
-                                  hlines[0], hlines[1], 5, 5, iwidth)
+                                  hlines[0], hlines[1], 10, 5, iwidth)
     if success:
         return (corners_up, corners_down)
     else:
@@ -624,11 +630,18 @@ def id_boxes_check_points(image, points, hlines, iwidth, num_cells):
 
 def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
                     x_var, rho_var, iwidth):
-    for i in range(0, len(corners_up)):
+    mean_energy = 0.0
+    num_corners = len(corners_up)
+    for i in range(0, num_corners):
         up = corners_up[i]
         down = corners_down[i]
-        selected = id_boxes_adjust_points(image, up, down, line_up, line_down,
-                                          x_var, iwidth)
+        selected, energy = id_boxes_adjust_points(image, up, down,
+                                                  line_up, line_down,
+                                                  x_var, iwidth)
+#        print "...", energy
+        mean_energy += energy / num_corners
+        if energy < param_id_boxes_min_energy_threshold:
+            return False
         if selected is not None:
             if rho_var > 0:
                 if i == 0:
@@ -649,7 +662,11 @@ def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
                 corners_down[i] = selected[1]
         else:
             return False
-    return True
+#    print mean_energy
+    if mean_energy > param_id_boxes_mean_energy_threshold:
+        return True
+    else:
+        return False
 
 def id_boxes_adjust_points(image, p_up, p_down, line_up, line_down,
                            x_var, iwidth):
@@ -663,25 +680,36 @@ def id_boxes_adjust_points(image, p_up, p_down, line_up, line_down,
         p = line_point(line_down, x = x)
         if p[0] >= 0 and p[0] < iwidth and p[1] >= 0:
             points_down.append(p)
-    energies = [(id_boxes_match_level(image, u, v), u, v) \
-                    for u in points_up for v in points_down]
-    energies.sort(reverse = True)
-    if len(energies) > 0 and energies[0][0] > param_id_boxes_match_threshold:
-        lim = len(energies)
-        for i in range(1, lim):
-            if energies[i][0] < energies[0][0]:
-                lim = i
-                break
-        best = energies[:lim]
-        avgx_up = float(sum([u[0] for (e, u, v) in best])) / len(best)
-        avgx_down = float(sum([v[0] for (e, u, v) in best])) / len(best)
-        best = [(abs(avgx_up - u[0]) + abs(avgx_down - v[0]), u, v) \
-                    for (e, u, v) in best]
-        best.sort()
-        selected = best[0][1:]
-        return selected
+    pairs = [(u, v) for u in points_up for v in points_down]
+    energies = []
+    best = None
+    for u, v in pairs:
+        energy = id_boxes_match_level(image, u, v)
+        if energy > param_id_boxes_energy_break:
+            best = ((u, v), energy)
+            break
+        else:
+            energies.append((energy, u, v))
+    if best is not None:
+        return best
     else:
-        return None
+        energies.sort(reverse = True)
+        if len(energies) > 0:
+            lim = len(energies)
+            for i in range(1, lim):
+                if energies[i][0] < energies[0][0]:
+                    lim = i
+                    break
+            best = energies[:lim]
+            avgx_up = float(sum([u[0] for (e, u, v) in best])) / len(best)
+            avgx_down = float(sum([v[0] for (e, u, v) in best])) / len(best)
+            best = [(abs(avgx_up - u[0]) + abs(avgx_down - v[0]), u, v) \
+                        for (e, u, v) in best]
+            best.sort()
+            selected = best[0][1:]
+            return selected, energies[0][0]
+        else:
+            return None, 0.0
 
 def id_boxes_adjust_point_vertically(image, point, line, interval, iwidth):
     rho, theta = line
