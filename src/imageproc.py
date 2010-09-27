@@ -38,6 +38,7 @@ class ExamCapture(object):
 
     default_options = {'infobits': False,
                        'show-lines': False,
+                       'debug-ocr': False,
                        'show-image-proc': False,
                        'read-id': False,
                        'show-status': False,
@@ -227,7 +228,7 @@ class ExamCapture(object):
             corners = (corners_up[i], corners_up[i + 1],
                        corners_down[i], corners_down[i + 1])
             digit, scores = (ocr.digit_ocr(self.image_proc, corners,
-                                           self.options['show-lines'],
+                                           self.options['debug-ocr'],
                                            self.image_drawn))
             digits.append(digit)
             self.id_scores.append(scores)
