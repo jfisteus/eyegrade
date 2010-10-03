@@ -103,7 +103,7 @@ def interpolate_line(p0, p1, num_points):
 # Functions on lines represented as rho, theta
 #
 def intersection(hline, vline):
-    """Returns the intersection point of a (neraly) horizontal line
+    """Returns the intersection point of a (nearly) horizontal line
        with a (nearly) vertical line. Results may be wrong in
        other cases."""
     rho1, theta1 = hline
@@ -150,6 +150,18 @@ def project_point(point, from_line, to_line):
     delta_x = d * math.cos(theta)
     delta_y = d * math.sin(theta)
     return (point[0] + delta_x, point[1] + delta_y)
+
+def min_rho_difference(lines):
+    """Being lines a list of lines (rho, theta) sorted according to rho,
+       from low to high, returns the minimum difference between two
+       consecutive lines. The size of the list must be at least two."""
+    assert(len(lines) >= 2)
+    min_diff = lines[1][0] - lines[0][0]
+    for i in range(2, len(lines)):
+        diff = lines[i][0] - lines[i - 1][0]
+        if diff < min_diff:
+            min_diff = diff
+    return min_diff
 
 # Functions on rectangles
 #

@@ -411,20 +411,15 @@ def detect_boxes(lines, boxes_dim):
         perpendicular = abs(axes[1][0] - axes[0][0] - math.pi / 2) < 0.1 \
             or abs(axes[1][0] - axes[0][0] + math.pi / 2) < 0.1
         if perpendicular:
-            axes[0] = (axes[0][0], collapse_lines(axes[0][1], False))
-            axes[1] = (axes[1][0], collapse_lines(axes[1][1], True))
+            axes[0] = (axes[0][0], collapse_lines(axes[0][1]))
+            axes[1] = (axes[1][0], collapse_lines(axes[1][1]))
             return axes
     return None
 
-def collapse_lines(lines, horizontal):
-#    if horizontal:
-#        print "Angle:", lines[0][1]
-#        threshold = max(param_collapse_threshold \
-#            - abs(lines[0][1] - math.pi / 2) * 14, param_collapse_threshold / 2)
-#    else:
-#        threshold = param_collapse_threshold
-    threshold = param_collapse_threshold
-#    print "Threshold", threshold
+def collapse_lines(lines):
+    return collapse_lines_threshold(lines, param_collapse_threshold)
+
+def collapse_lines_threshold(lines, threshold):
     coll = []
     first = 0
     sum_rho = lines[0][0]
@@ -470,13 +465,16 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
         return []
 
 def id_horizontal_lines(hlines, vlines, boxes_dim):
-    h_expected = 3 + max([box[1] for box in boxes_dim])
-    if len(hlines) < h_expected:
+    discard = 1 + max([box[1] for box in boxes_dim])
+    lines = hlines[:-discard]
+    if len(lines) < 2:
+        return []
+    if len(lines) > 2:
+        threshold = float(min_rho_difference(hlines[-discard:])) / 2.5
+        lines = collapse_lines_threshold(lines, threshold)
+    lines = lines[-2:]
+    if lines[1][0] - lines[0][0] < param_id_boxes_min_height:
         lines = []
-    else:
-        lines = hlines[-h_expected:-h_expected + 2]
-        if lines[1][0] - lines[0][0] < param_id_boxes_min_height:
-            lines = []
     return lines
 
 def check_corners(corner_matrixes, width, height):
