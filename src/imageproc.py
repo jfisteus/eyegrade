@@ -608,7 +608,6 @@ def decide_infobit(image, mask, masked, center_up, dy):
     cv.Mul(image, mask, masked)
     masked_pixels_down = cv.CountNonZero(masked)
     if mask_pixels < 1:
-        print "Radius:", radius, "/ Mask pixels:", mask_pixels
         return (False, False)
     return (float(masked_pixels_up) / mask_pixels >= param_bit_mask_threshold,
             float(masked_pixels_down) / mask_pixels >= param_bit_mask_threshold)
