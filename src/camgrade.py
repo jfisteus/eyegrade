@@ -9,7 +9,7 @@ import time
 import copy
 
 program_name = 'camgrade'
-version = '0.1.1'
+version = '0.1.3'
 version_status = 'alpha'
 
 class Exam(object):
