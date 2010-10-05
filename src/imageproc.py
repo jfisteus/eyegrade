@@ -75,7 +75,8 @@ class ExamCapture(object):
         self.height = self.image_raw.height
         self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
-        self.decisions = None
+        num_questions = sum([b[1] for b in boxes_dim])
+        self.decisions = [-1] * num_questions
         self.corner_matrixes = None
         self.bits = None
         self.success = False
@@ -126,8 +127,7 @@ class ExamCapture(object):
                 if len(self.corner_matrixes) > 0 and self.options['read-id']:
                     for line in self.id_hlines:
                         draw_line(self.image_drawn, line, (255, 255, 0))
-            if len(self.corner_matrixes) > 0 and \
-                    (not self.options['read-id'] or self.id_hlines != []):
+            if len(self.corner_matrixes) > 0:
                 self.decisions = decide_cells(self.image_proc,
                                               self.corner_matrixes)
                 if self.options['infobits']:
@@ -141,21 +141,24 @@ class ExamCapture(object):
                 else:
                     self.success = True
                 if self.success and self.options['read-id']:
-                    self.id_corners = \
-                        id_boxes_geometry(self.image_proc, self.id_hlines,
-                                          self.image_raw.width,
-                                          self.options['id-num-digits'])
-                    if self.id_corners == None:
-                        self.success = False
+                    if self.id_hlines != []:
+                        self.id_corners = \
+                            id_boxes_geometry(self.image_proc, self.id_hlines,
+                                              self.image_raw.width,
+                                              self.options['id-num-digits'])
+                        if self.id_corners == None:
+                            self.success = False
+                        else:
+                            self.status['id-box'] = True
+                            self.detect_id()
+                            if self.options['show-lines']:
+                                for c in self.id_corners[0]:
+                                    draw_point(self.image_drawn, c)
+                                for c in self.id_corners[1]:
+                                    draw_point(self.image_drawn, c)
                     else:
-                        self.status['id-box'] = True
-                        self.detect_id()
-                        if self.options['show-lines']:
-                            for c in self.id_corners[0]:
-                                draw_point(self.image_drawn, c)
-                            for c in self.id_corners[1]:
-                                draw_point(self.image_drawn, c)
-        if self.success:
+                        self.success = False
+        if self.status['cells']:
             self.compute_cells_geometry()
             self.status['overall'] = True
         else:
@@ -170,24 +173,29 @@ class ExamCapture(object):
         color_bad = (0, 0, 255)
         color_dot = (255, 0, 0)
         color = (255, 0, 0)
-        for corners in self.corner_matrixes:
-            for i in range(0, len(corners) - 1):
-                d = self.decisions[base + i]
-                if d > 0:
-                    if correct is not None:
-                        if correct[base + i]:
-                            color = color_good
-                        else:
-                            color = color_bad
-                    draw_cell_highlight(self.image_drawn,
-                                        self.centers[base + i][d - 1],
-                                        self.diagonals[base + i][d - 1], color)
-                if solutions is not None and not correct[base + i]:
-                    ans = solutions[base + i]
-                    draw_cell_center(self.image_drawn,
+        if self.status['cells']:
+            for corners in self.corner_matrixes:
+                for i in range(0, len(corners) - 1):
+                    d = self.decisions[base + i]
+                    if d > 0:
+                        if correct is not None:
+                            if correct[base + i]:
+                                color = color_good
+                            else:
+                                color = color_bad
+                        draw_cell_highlight(self.image_drawn,
+                                            self.centers[base + i][d - 1],
+                                            self.diagonals[base + i][d - 1],
+                                            color)
+                    if solutions is not None and not correct[base + i]:
+                        ans = solutions[base + i]
+                        draw_cell_center(self.image_drawn,
                                      self.centers[base + i][ans - 1], color_dot)
-            base += len(corners) - 1
-        text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
+                base += len(corners) - 1
+        if model is not None:
+            text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
+        else:
+            text = "Model ?: %d / %d"%(good, bad)
         if undet > 0:
             color = (0, 0, 255)
             text = text + " / " + str(undet)

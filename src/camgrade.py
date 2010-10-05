@@ -26,6 +26,7 @@ class Exam(object):
         if self.image.options['read-id']:
             self.student_id = self.decide_student_id(valid_student_ids)
             self.student_id_filter = []
+            self.student_id_manual = []
         else:
             self.student_id = '-1'
 
@@ -35,7 +36,7 @@ class Exam(object):
         undet = 0
         self.correct = []
         for i in range(0, len(self.image.decisions)):
-            if self.image.decisions[i] > 0:
+            if self.solutions is not None and self.image.decisions[i] > 0:
                 if self.solutions[i] == self.image.decisions[i]:
                     good += 1
                     self.correct.append(True)
@@ -71,7 +72,10 @@ class Exam(object):
         f.write(sep)
         f.write(self.student_id)
         f.write(sep)
-        f.write(str(self.model))
+        if self.model is not None:
+            f.write(str(self.model))
+        else:
+            f.write('?')
         f.write(sep)
         f.write(str(self.score[0]))
         f.write(sep)
@@ -147,10 +151,19 @@ class Exam(object):
             self.student_id_filter = []
             self.ids_rank_pos = -1
 
-    def reset_student_id_editor(self):
+    def reset_student_id_filter(self):
         self.student_id_filter = []
         self.ids_rank_pos = 0
         self.__update_student_id(self.ids_rank[0][1])
+
+    def student_id_editor(self, digit):
+        self.student_id_manual.append(digit)
+        sid = ''.join(self.student_id_manual)
+        self.__update_student_id(sid)
+
+    def reset_student_id_editor(self):
+        self.student_id_manual = []
+        self.__update_student_id(None)
 
     def __id_rank(self, student_id, scores):
         rank = 0.0
@@ -197,7 +210,7 @@ class PerformanceProfiler(object):
         return stats
 
     def compute_ocr_stats(self, stats, exam):
-        if exam.image.id is None:
+        if exam.image.id is None or exam.image.id_ocr_original is None:
             digits_total = 0
             digits_error = 0
         else:
@@ -399,11 +412,13 @@ def main():
     # Program main loop
     lock_mode = not options.adjust
     while True:
+        override_id_mode = False
+        model = None
         profiler.count_capture()
         image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
         image.detect()
         success = image.success
-        if success:
+        if image.status['infobits']:
             model = decode_model_2x31(image.bits)
             if model is not None:
                 exam = Exam(image, model, solutions[model], valid_student_ids,
@@ -425,6 +440,16 @@ def main():
                 elif event.key == ord('l') and options.debug:
                     imageproc_options['show-lines'] = \
                         not imageproc_options['show-lines']
+                elif event.key == ord('i'):
+                    sols = solutions[model] if model is not None else None
+                    exam = Exam(image, model, sols,
+                                valid_student_ids, im_id, options.save_stats)
+                    success = True
+                    exam.grade()
+                    if read_id:
+                        exam.reset_student_id_editor()
+                        override_id_mode = True
+                    exam.draw_answers()
                 elif event.key == 32:
                     lock_mode = True
 
@@ -449,19 +474,24 @@ def main():
                         im_id += 1
                         continue_waiting = False
                     elif event.key == ord('i') and read_id:
-                        exam.invalidate_id()
+                        override_id_mode = True
+                        exam.reset_student_id_editor()
                         show_image(exam.image.image_drawn, screen)
-                    elif event.key == 9 and read_id \
-                            and options.ids_file is not None:
-                        if len(exam.student_id_filter) == 0:
-                            exam.try_next_student_id()
-                        else:
-                            exam.reset_student_id_editor()
-                        profiler.count_student_id_change()
-                        show_image(exam.image.image_drawn, screen)
+                    elif event.key == 9 and read_id:
+                        if not override_id_mode \
+                                and options.ids_file is not None:
+                            if len(exam.student_id_filter) == 0:
+                                exam.try_next_student_id()
+                            else:
+                                exam.reset_student_id_filter()
+                            profiler.count_student_id_change()
+                            show_image(exam.image.image_drawn, screen)
                     elif event.key >= ord('0') and event.key <= ord('9') \
-                             and read_id and options.ids_file is not None:
-                        exam.filter_student_id(chr(event.key))
+                             and read_id:
+                        if override_id_mode:
+                            exam.student_id_editor(chr(event.key))
+                        elif options.ids_file is not None:
+                            exam.filter_student_id(chr(event.key))
                         profiler.count_student_id_change()
                         show_image(exam.image.image_drawn, screen)
                     elif event.key == ord('p') and options.debug:
