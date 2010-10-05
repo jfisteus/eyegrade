@@ -109,8 +109,7 @@ def intersection(hline, vline):
     rho1, theta1 = hline
     rho2, theta2 = vline
     y = (rho1 * math.cos(theta2) - rho2 * math.cos(theta1)) \
-        / (math.sin(theta1) * math.cos(theta2) \
-               - math.sin(theta2) * math.cos(theta1))
+        / math.sin(theta1 - theta2)
     x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
     return round_point((x, y))
 
