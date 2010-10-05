@@ -12,6 +12,8 @@ program_name = 'camgrade'
 version = '0.1.3'
 version_status = 'alpha'
 
+param_max_wait_time = 0.15 # seconds
+
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids = None,
                  im_id = None, save_stats = False):
@@ -390,7 +392,6 @@ def main():
         valid_student_ids = [line.strip() for line in ids_file]
         ids_file.close()
 
-    fps = 8.0
     pygame.init()
     window = pygame.display.set_mode((640,480))
     pygame.display.set_caption("camgrade")
@@ -420,6 +421,7 @@ def main():
 
     # Program main loop
     lock_mode = not options.adjust
+    last_time = time.time()
     while True:
         override_id_mode = False
         exam = None
@@ -531,7 +533,13 @@ def main():
             else:
                 image.draw_status()
             show_image(image.image_drawn, screen)
-            pygame.time.delay(int(1000 * 1.0/fps))
+            current_time = time.time()
+            diff = current_time - last_time
+            if current_time > last_time and diff < param_max_wait_time:
+                pygame.time.delay(int(1000 * (param_max_wait_time - diff)))
+                last_time += 1
+            else:
+                last_time = current_time
 
 if __name__ == "__main__":
     main()
