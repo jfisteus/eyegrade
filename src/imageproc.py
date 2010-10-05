@@ -203,7 +203,10 @@ class ExamCapture(object):
                   (10, self.image_drawn.height - 20))
         if frozen:
             if im_id is not None:
-                color = (255, 0, 0) if self.success else (0, 0, 255)
+                if self.status['infobits'] and model is not None:
+                    color = (255, 0, 0)
+                else:
+                    color = (0, 0, 255)
                 draw_text(self.image_drawn, str(im_id), color, (10, 65))
             if self.id is not None:
                 draw_text(self.image_drawn, self.id, color_dot, (10, 30))
