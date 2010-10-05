@@ -97,9 +97,6 @@ class ExamCapture(object):
     def detect(self):
         lines = detect_lines(self.image_proc)
         if len(lines) < 2:
-            self.draw_status_bar()
-            if self.options['show-status']:
-                self.draw_status_flags()
             return
         self.status['lines'] = True
         axes = detect_boxes(lines, self.boxes_dim)
@@ -161,12 +158,13 @@ class ExamCapture(object):
         if self.status['cells']:
             self.compute_cells_geometry()
             self.status['overall'] = True
-        else:
-            self.draw_status_bar()
-            if self.options['show-status']:
-                self.draw_status_flags()
 
-    def draw_answers(self, solutions, model,
+    def draw_status(self):
+        self.draw_status_bar()
+        if self.options['show-status']:
+            self.draw_status_flags()
+
+    def draw_answers(self, frozen, solutions, model,
                      correct, good, bad, undet, im_id = None):
         base = 0
         color_good = (0, 164, 0)
@@ -203,11 +201,16 @@ class ExamCapture(object):
             color = (255, 0, 0)
         draw_text(self.image_drawn, text, color,
                   (10, self.image_drawn.height - 20))
-        if im_id is not None:
-            color = (255, 0, 0) if self.success else (0, 0, 255)
-            draw_text(self.image_drawn, str(im_id), color, (10, 65))
-        if self.id is not None:
-            draw_text(self.image_drawn, self.id, color_dot, (10, 30))
+        if frozen:
+            if im_id is not None:
+                color = (255, 0, 0) if self.success else (0, 0, 255)
+                draw_text(self.image_drawn, str(im_id), color, (10, 65))
+            if self.id is not None:
+                draw_text(self.image_drawn, self.id, color_dot, (10, 30))
+        else:
+            self.draw_status_bar()
+        if self.options['show-status']:
+            self.draw_status_flags()
 
     def clean_drawn_image(self):
         self.image_drawn = cv.CloneImage(self.image_raw)

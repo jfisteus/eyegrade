@@ -29,6 +29,7 @@ class Exam(object):
             self.student_id_manual = []
         else:
             self.student_id = '-1'
+        self.locked = False
 
     def grade(self):
         good = 0
@@ -52,9 +53,9 @@ class Exam(object):
 
     def draw_answers(self):
         good, bad, undet = self.score
-        self.image.draw_answers(self.solutions, self.model, self.correct,
-                                self.score[0], self.score[1], self.score[2],
-                                self.im_id)
+        self.image.draw_answers(self.locked, self.solutions, self.model,
+                                self.correct, self.score[0], self.score[1],
+                                self.score[2], self.im_id)
 
     def save_image(self, filename_pattern):
         cv.SaveImage(filename_pattern%self.im_id, self.image.image_drawn)
@@ -132,6 +133,8 @@ class Exam(object):
                 self.ids_rank_pos = 0
             else:
                 student_id = self.image.id
+        elif valid_student_ids is not None:
+            self.ids_rank = [(0.0, sid) for sid in valid_student_ids]
         return student_id
 
     def try_next_student_id(self):
@@ -151,10 +154,14 @@ class Exam(object):
             self.student_id_filter = []
             self.ids_rank_pos = -1
 
-    def reset_student_id_filter(self):
+    def reset_student_id_filter(self, show_first = True):
         self.student_id_filter = []
-        self.ids_rank_pos = 0
-        self.__update_student_id(self.ids_rank[0][1])
+        if show_first:
+            self.ids_rank_pos = 0
+            self.__update_student_id(self.ids_rank[0][1])
+        else:
+            self.ids_rank_pos = -1
+            self.__update_student_id(None)
 
     def student_id_editor(self, digit):
         self.student_id_manual.append(digit)
@@ -164,6 +171,9 @@ class Exam(object):
     def reset_student_id_editor(self):
         self.student_id_manual = []
         self.__update_student_id(None)
+
+    def lock_capture(self):
+        self.locked = True
 
     def __id_rank(self, student_id, scores):
         rank = 0.0
@@ -179,7 +189,6 @@ class Exam(object):
             self.image.id = new_id
             self.student_id = new_id
         self.image.clean_drawn_image()
-        self.draw_answers()
 
 class PerformanceProfiler(object):
     def __init__(self):
@@ -413,6 +422,7 @@ def main():
     lock_mode = not options.adjust
     while True:
         override_id_mode = False
+        exam = None
         model = None
         profiler.count_capture()
         image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
@@ -424,7 +434,6 @@ def main():
                 exam = Exam(image, model, solutions[model], valid_student_ids,
                             im_id, options.save_stats)
                 exam.grade()
-                exam.draw_answers()
             else:
                 success = False
 
@@ -440,22 +449,26 @@ def main():
                 elif event.key == ord('l') and options.debug:
                     imageproc_options['show-lines'] = \
                         not imageproc_options['show-lines']
-                elif event.key == ord('i'):
+                elif event.key == ord('s'):
                     sols = solutions[model] if model is not None else None
                     exam = Exam(image, model, sols,
                                 valid_student_ids, im_id, options.save_stats)
                     success = True
                     exam.grade()
                     if read_id:
-                        exam.reset_student_id_editor()
-                        override_id_mode = True
-                    exam.draw_answers()
+                        if options.ids_file is not None:
+                            exam.reset_student_id_filter(False)
+                        else:
+                            exam.reset_student_id_editor()
+                            override_id_mode = True
                 elif event.key == 32:
                     lock_mode = True
 
-        show_image(image.image_drawn, screen)
         if success and lock_mode:
             continue_waiting = True
+            exam.lock_capture()
+            exam.draw_answers()
+            show_image(image.image_drawn, screen)
             while continue_waiting:
                 event = pygame.event.wait()
                 if event.type == QUIT:
@@ -476,6 +489,7 @@ def main():
                     elif event.key == ord('i') and read_id:
                         override_id_mode = True
                         exam.reset_student_id_editor()
+                        exam.draw_answers()
                         show_image(exam.image.image_drawn, screen)
                     elif event.key == 9 and read_id:
                         if not override_id_mode \
@@ -485,6 +499,7 @@ def main():
                             else:
                                 exam.reset_student_id_filter()
                             profiler.count_student_id_change()
+                            exam.draw_answers()
                             show_image(exam.image.image_drawn, screen)
                     elif event.key >= ord('0') and event.key <= ord('9') \
                              and read_id:
@@ -493,6 +508,7 @@ def main():
                         elif options.ids_file is not None:
                             exam.filter_student_id(chr(event.key))
                         profiler.count_student_id_change()
+                        exam.draw_answers()
                         show_image(exam.image.image_drawn, screen)
                     elif event.key == ord('p') and options.debug:
                         imageproc_options['show-image-proc'] = \
@@ -510,6 +526,11 @@ def main():
                         show_image(exam.image.image_drawn, screen)
             dump_camera_buffer(camera)
         else:
+            if exam is not None:
+                exam.draw_answers()
+            else:
+                image.draw_status()
+            show_image(image.image_drawn, screen)
             pygame.time.delay(int(1000 * 1.0/fps))
 
 if __name__ == "__main__":
