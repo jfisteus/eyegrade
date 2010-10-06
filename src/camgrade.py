@@ -3,10 +3,18 @@ from pygame.locals import *
 import sys
 import ConfigParser, os
 from optparse import OptionParser
-import cv
 import imageproc
 import time
 import copy
+
+# Import the cv module. If new style bindings not found, use the old ones:
+try:
+    import cv
+    cv_new_style = True
+except ImportError:
+    import cvwrapper
+    cv = cvwrapper.CVWrapperObject()
+    cv_new_style = False
 
 program_name = 'camgrade'
 version = '0.1.3'

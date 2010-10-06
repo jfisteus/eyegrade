@@ -1,4 +1,3 @@
-import cv
 import math
 import copy
 import PIL.Image
@@ -6,6 +5,15 @@ import PIL.Image
 # Local imports
 from geometry import *
 import ocr
+
+# Import the cv module. If new style bindings not found, use the old ones:
+try:
+    import cv
+    cv_new_style = True
+except ImportError:
+    import cvwrapper
+    cv = cvwrapper.CVWrapperObject()
+    cv_new_style = False
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
@@ -329,9 +337,6 @@ def gray_ipl_to_rgb(image):
     cv.CvtColor(image, rgb, cv.CV_GRAY2RGB)
     return rgb
 
-def gray_ipl_to_rgb_pil(image):
-    return opencv.adaptors.Ipl2PIL(gray_ipl_to_rgb(image))
-
 def rgb_to_gray(image):
     gray = cv.CreateImage((image.width, image.height), image.depth, 1)
     cv.CvtColor(image, gray, cv.CV_RGB2GRAY)
@@ -352,6 +357,11 @@ def ipl_to_pil(input):
       Copied and adapted from opencv.adaptors.Ipl2PIL
      """
 
+    # If wrapping old-style bindings, call its implementation instead:
+    if not cv_new_style:
+        return cv.ipl_to_pil(input)
+
+    # Continue here only for new-style bindings:
     if not isinstance(input, cv.iplimage):
         raise TypeError, 'must be called with a cv.IplImage!'
     # orientation
@@ -423,8 +433,12 @@ def detect_lines(image):
     st = cv.CreateMemStorage()
     lines = cv.HoughLines2(image, st, cv.CV_HOUGH_STANDARD,
                            1, 0.01, param_hough_threshold)
-    if len(lines) > 500:
+
+    # Trick to use both new and old style bindings
+    len_lines = len(lines) if cv_new_style else lines.total
+    if len_lines > 500:
         return []
+
     s_lines = sorted([(float(l[0]), float(l[1])) for l in lines],
                      key = lambda x: x[1])
     return s_lines
