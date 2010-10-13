@@ -1,0 +1,37 @@
+* Camgrade TODO list
+
+** Important bugs
+
+None reported.
+
+** Normal bugs
+
+None reported.
+
+** Important features
+
+*** TODO [#C] Configurable separator character in output file :easy:
+
+*** TODO [#C] Write model letter instead of number in output file :easy:
+
+*** TODO [#B] Lower cross detection threshold
+
+*** TODO [#A] Name saved capture with ID number + sequence number :easy:
+
+*** TODO [#B] Flexible ID list format :easy:
+    The csv module auto-detects input format.
+
+*** TODO [#B] Statistical analysis of results
+
+*** TODO [#A] Adaption results to the specific order of student lists :@abel:
+    Abel has a first version of such a script.
+
+** Wishlist
+
+*** TODO [#C] Evaluate having also students' name in the view of the camera
+
+*** TODO [#C] Clearing areas of the image capture :hard:
+
+*** TODO [#C] Line interpolation for answer tables :hard:
+
+*** TODO [#C] Manually marking answer table geometry :hard:
