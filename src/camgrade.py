@@ -364,7 +364,7 @@ def show_image(image, screen):
 def select_camera(options, config):
     if options.camera_dev is None:
         try:
-            camera = config.getint('default', 'camera-dev')
+            camera = config.getint('DEFAULT', 'camera-dev')
         except:
             camera = -1
     else:
@@ -374,7 +374,7 @@ def select_camera(options, config):
 def main():
     options = read_cmd_options()
     config = read_config()
-    save_pattern = config.get('default', 'save-filename-pattern')
+    save_pattern = config.get('DEFAULT', 'save-filename-pattern')
 
     if options.ex_data_filename is not None:
         solutions, dimensions, id_num_digits = \
