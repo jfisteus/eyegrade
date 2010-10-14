@@ -1,8 +1,12 @@
-# Sample configuration file. Save it as ~/.camgrade.cfg
+## Sample configuration file. Save it as ~/.camgrade.cfg
 [default]
 
-# Default camera device to use (int); -1 for automatic selection.
-camera-dev: 1
+## Default camera device to use (int); -1 for automatic selection.
+camera-dev: 0
 
-# Filename pattern for saving captures
+## Filename pattern for saving captures
 save-filename-pattern: exam-%%03d.png
+
+## Format of the output CSV file with results:
+## 'excel' (default; separator: comma) or 'tabs' (separator: tabs)
+# csv-dialect: tabs

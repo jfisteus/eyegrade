@@ -6,8 +6,10 @@ None reported.
 *** DONE [#C] Handle the situation in which no config file exists      :easy:
     CLOSED: [2010-10-14 jue 19:42]
 ** Important features
-*** TODO [#C] Configurable separator character in output file :easy:
-*** TODO [#C] Write model letter instead of number in output file :easy:
+*** DONE [#C] Configurable separator character in output file	       :easy:
+    CLOSED: [2010-10-15 vie 00:40]
+*** DONE [#C] Write model letter instead of number in output file      :easy:
+    CLOSED: [2010-10-15 vie 00:40]
 *** TODO [#B] Lower cross detection threshold
 *** TODO [#A] Name saved capture with ID number + sequence number :easy:
 *** DONE [#B] Flexible ID list format				       :easy:
@@ -21,3 +23,4 @@ None reported.
 *** TODO [#C] Clearing areas of the image capture :hard:
 *** TODO [#C] Line interpolation for answer tables :hard:
 *** TODO [#C] Manually marking answer table geometry :hard:
+*** TODO [#A] Installation in Windows

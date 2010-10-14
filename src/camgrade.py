@@ -77,41 +77,25 @@ class Exam(object):
         cv.SaveImage(raw_pattern%self.im_id, self.image.image_raw)
         cv.SaveImage(proc_pattern%self.im_id, self.image.image_proc)
 
-    def save_answers(self, answers_file, stats = None):
-        sep = "\t"
-        f = open(answers_file, "a")
-        f.write(str(self.im_id))
-        f.write(sep)
-        f.write(self.student_id)
-        f.write(sep)
-        if self.model is not None:
-            f.write(str(self.model))
-        else:
-            f.write('?')
-        f.write(sep)
-        f.write(str(self.score[0]))
-        f.write(sep)
-        f.write(str(self.score[1]))
-        f.write(sep)
-        f.write(str(self.score[2]))
-        f.write(sep)
-        f.write("/".join([str(d) for d in self.image.decisions]))
+    def save_answers(self, answers_file, csv_dialect, stats = None):
+        f = open(answers_file, "ab")
+        writer = csv.writer(f, dialect = csv_dialect)
+        data = [self.im_id,
+                self.student_id,
+                chr(65 + self.model) if self.model is not None else '?',
+                self.score[0],
+                self.score[1],
+                self.score[2],
+                "/".join([str(d) for d in self.image.decisions])]
         if stats is not None and self.save_stats:
-            f.write(sep)
-            f.write(str(stats['time']))
-            f.write(sep)
-            f.write(str(stats['manual-changes']))
-            f.write(sep)
-            f.write(str(stats['num-captures']))
-            f.write(sep)
-            f.write(str(stats['num-student-id-changes']))
-            f.write(sep)
-            f.write(str(stats['id-ocr-digits-total']))
-            f.write(sep)
-            f.write(str(stats['id-ocr-digits-error']))
-            f.write(sep)
-            f.write(stats['id-ocr-detected'])
-        f.write('\n')
+            data.extend([stats['time'],
+                         stats['manual-changes'],
+                         stats['num-captures'],
+                         stats['num-student-id-changes'],
+                         stats['id-ocr-digits-total'],
+                         stats['id-ocr-digits-error'],
+                         stats['id-ocr-detected']])
+        writer.writerow(data)
         f.close()
 
     def toggle_answer(self, question, answer):
@@ -245,6 +229,9 @@ class PerformanceProfiler(object):
         else:
             stats['id-ocr-detected'] = '-1'
 
+def init_csv_module():
+    csv.register_dialect('tabs', delimiter = '\t')
+
 def init(camera_dev):
     camera = imageproc.init_camera(camera_dev)
     return camera
@@ -295,10 +282,17 @@ def decode_model_2x31(bits):
         return None
 
 def read_config():
-    defaults = {"camera-dev": "-1",
-                "save-filename-pattern": "exam-%%03d.png"}
-    config = ConfigParser.SafeConfigParser(defaults)
-    config.read([os.path.expanduser('~/.camgrade.cfg')])
+    config = {'camera-dev': '-1',
+              'save-filename-pattern': 'exam-%%03d.png',
+              'csv-dialect': 'excel'}
+    parser = ConfigParser.SafeConfigParser()
+    parser.read([os.path.expanduser('~/.camgrade.cfg')])
+    if 'default' in parser.sections():
+        for option in parser.options('default'):
+            config[option] = parser.get('default', option)
+    if not config['csv-dialect'] in csv.list_dialects():
+        config['csv-dialect'] = 'excel'
+    config['camera-dev'] = int(config['camera-dev'])
     return config
 
 def read_cmd_options():
@@ -364,10 +358,7 @@ def show_image(image, screen):
 
 def select_camera(options, config):
     if options.camera_dev is None:
-        try:
-            camera = config.getint('DEFAULT', 'camera-dev')
-        except:
-            camera = -1
+        camera = config['camera-dev']
     else:
         camera = options.camera_dev
     return camera
@@ -391,9 +382,10 @@ def read_student_ids(filename):
     return student_ids
 
 def main():
+    init_csv_module()
     options = read_cmd_options()
     config = read_config()
-    save_pattern = config.get('DEFAULT', 'save-filename-pattern')
+    save_pattern = config['save-filename-pattern']
 
     if options.ex_data_filename is not None:
         solutions, dimensions, id_num_digits = \
@@ -508,7 +500,8 @@ def main():
                     elif event.key == 32:
                         stats = profiler.finish_exam(exam)
                         exam.save_image(save_pattern)
-                        exam.save_answers(answers_file, stats)
+                        exam.save_answers(answers_file, config['csv-dialect'],
+                                          stats)
                         if options.debug:
                             exam.save_debug_images(save_pattern)
                         im_id += 1
