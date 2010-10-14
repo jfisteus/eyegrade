@@ -10,7 +10,8 @@ None reported.
 *** TODO [#C] Write model letter instead of number in output file :easy:
 *** TODO [#B] Lower cross detection threshold
 *** TODO [#A] Name saved capture with ID number + sequence number :easy:
-*** TODO [#B] Flexible ID list format :easy:
+*** DONE [#B] Flexible ID list format				       :easy:
+    CLOSED: [2010-10-14 jue 20:46]
     The csv module auto-detects input format.
 *** TODO [#B] Statistical analysis of results
 *** TODO [#A] Adaption results to the specific order of student lists :@abel:

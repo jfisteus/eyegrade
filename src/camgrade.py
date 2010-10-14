@@ -6,6 +6,7 @@ from optparse import OptionParser
 import imageproc
 import time
 import copy
+import csv
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -371,6 +372,24 @@ def select_camera(options, config):
         camera = options.camera_dev
     return camera
 
+def read_student_ids(filename):
+    csvfile = open(filename, 'rb')
+    try:
+        dialect = csv.Sniffer().sniff(csvfile.read(1024))
+    except:
+        # Sniff complains about plain files with only one column (unquoted ID)
+        csvfile.seek(0)
+        if csvfile.readline().strip().isdigit():
+            csv.register_dialect('student-id', delimiter=',')
+            dialect = csv.get_dialect('student-id')
+        else:
+            raise Exception('Error while processing the students ID list')
+    csvfile.seek(0)
+    reader = csv.reader(csvfile, dialect)
+    student_ids = [row[0] for row in reader]
+    csvfile.close()
+    return student_ids
+
 def main():
     options = read_cmd_options()
     config = read_config()
@@ -396,9 +415,7 @@ def main():
     im_id = options.start_id
     valid_student_ids = None
     if read_id and options.ids_file is not None:
-        ids_file = open(options.ids_file)
-        valid_student_ids = [line.strip() for line in ids_file]
-        ids_file.close()
+        valid_student_ids = read_student_ids(options.ids_file)
 
     pygame.init()
     window = pygame.display.set_mode((640,480))
