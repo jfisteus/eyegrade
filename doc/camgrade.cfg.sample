@@ -4,8 +4,10 @@
 ## Default camera device to use (int); -1 for automatic selection.
 camera-dev: 0
 
-## Filename pattern for saving captures
-save-filename-pattern: exam-%%03d.png
+## Filename pattern for saving captures. Use {student-id} or {seq-number}
+## in places you wish those pieces of data to appear. Example:
+## exam-{student-id}-{seq-number}.png
+save-filename-pattern: exam-{student-id}-{seq-number}.png
 
 ## Format of the output CSV file with results:
 ## 'excel' (default; separator: comma) or 'tabs' (separator: tabs)

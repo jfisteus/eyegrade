@@ -7,6 +7,7 @@ import imageproc
 import time
 import copy
 import csv
+import re
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -22,6 +23,11 @@ version = '0.1.4'
 version_status = 'alpha'
 
 param_max_wait_time = 0.15 # seconds
+
+# Other initializations:
+csv.register_dialect('tabs', delimiter = '\t')
+regexp_id = re.compile('\{student-id\}')
+regexp_seqnum = re.compile('\{seq-number\}')
 
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids = None,
@@ -69,7 +75,13 @@ class Exam(object):
                                 self.score[2], self.im_id)
 
     def save_image(self, filename_pattern):
-        cv.SaveImage(filename_pattern%self.im_id, self.image.image_drawn)
+        if self.image.options['read-id'] and self.student_id != '-1':
+            sid = self.student_id
+        else:
+            sid = 'noid'
+        filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
+        filename = regexp_id.sub(sid, filename)
+        cv.SaveImage(filename, self.image.image_drawn)
 
     def save_debug_images(self, filename_pattern):
         raw_pattern = filename_pattern + "-raw"
@@ -229,9 +241,6 @@ class PerformanceProfiler(object):
         else:
             stats['id-ocr-detected'] = '-1'
 
-def init_csv_module():
-    csv.register_dialect('tabs', delimiter = '\t')
-
 def init(camera_dev):
     camera = imageproc.init_camera(camera_dev)
     return camera
@@ -283,7 +292,7 @@ def decode_model_2x31(bits):
 
 def read_config():
     config = {'camera-dev': '-1',
-              'save-filename-pattern': 'exam-%%03d.png',
+              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
               'csv-dialect': 'excel'}
     parser = ConfigParser.SafeConfigParser()
     parser.read([os.path.expanduser('~/.camgrade.cfg')])
@@ -382,7 +391,6 @@ def read_student_ids(filename):
     return student_ids
 
 def main():
-    init_csv_module()
     options = read_cmd_options()
     config = read_config()
     save_pattern = config['save-filename-pattern']
