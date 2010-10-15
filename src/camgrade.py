@@ -400,7 +400,7 @@ def main():
     if options.answers_filename is not None:
         answers_file = options.answers_filename
     else:
-        answers_file = 'camgrade-answers.txt'
+        answers_file = 'camgrade-answers.csv'
         if options.output_dir is not None:
             answers_file = os.path.join(options.output_dir, answers_file)
 
