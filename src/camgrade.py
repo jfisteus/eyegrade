@@ -1,13 +1,17 @@
 import pygame
 from pygame.locals import *
 import sys
-import ConfigParser, os
+import os
+import ConfigParser
 from optparse import OptionParser
 import imageproc
 import time
 import copy
 import csv
 import re
+
+# Local imports
+import utils
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -245,35 +249,6 @@ def init(camera_dev):
     camera = imageproc.init_camera(camera_dev)
     return camera
 
-def process_exam_data(filename):
-    exam_data = ConfigParser.SafeConfigParser()
-    exam_data.read([filename])
-    try:
-        num_models = exam_data.getint("exam", "num-models")
-    except:
-        num_models = 1
-    try:
-        id_num_digits = exam_data.getint("exam", "id-num-digits")
-    except:
-        id_num_digits = 0
-    solutions = []
-    for i in range(0, num_models):
-        key = "model-" + chr(65 + i)
-        solutions.append(parse_solutions(exam_data.get("solutions", key)))
-    dimensions = parse_dimensions(exam_data.get("exam", "dimensions"))
-    return solutions, dimensions, id_num_digits
-
-def parse_solutions(s):
-    return [int(num) for num in s.split("/")]
-
-def parse_dimensions(s):
-    dimensions = []
-    boxes = s.split(";")
-    for box in boxes:
-        dims = box.split(",")
-        dimensions.append((int(dims[0]), int(dims[1])))
-    return dimensions
-
 def decode_model_2x31(bits):
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7
     valid = False
@@ -395,13 +370,10 @@ def main():
     config = read_config()
     save_pattern = config['save-filename-pattern']
 
-    if options.ex_data_filename is not None:
-        solutions, dimensions, id_num_digits = \
-            process_exam_data(options.ex_data_filename)
-    else:
-        solutions = []
-        dimensions = []
-        id_num_digits = 0
+    exam_data = utils.ExamConfig(options.ex_data_filename)
+    solutions = exam_data.solutions
+    dimensions = exam_data.dimensions
+    id_num_digits = exam_data.id_num_digits
     read_id = (id_num_digits > 0)
     if options.output_dir is not None:
         save_pattern = os.path.join(options.output_dir, save_pattern)
