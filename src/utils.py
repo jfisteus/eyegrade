@@ -1,17 +1,26 @@
 import ConfigParser
 
 class ExamConfig(object):
+    """Class for representing exam configuration. Once an instance has
+       been created and data loaded, access directly to the attributes
+       to get the data. The constructor reads data from a file. See
+       doc/exam-data.sample for an example of such a file."""
+
     def __init__(self, filename = None):
+        """Loads data from file if 'filename' is not None. Otherwise,
+           default values are assigned to the attributes."""
         if filename is not None:
             self.read_config(filename)
         else:
             self.num_models = 0
+            self.num_questions = 0
             self.solutions = None
             self.id_num_digits = 0
             self.dimensions = []
             self.permutations = []
 
     def read_config(self, filename):
+        """Reads exam configuration from the file named 'filename'."""
         exam_data = ConfigParser.SafeConfigParser()
         exam_data.read([filename])
         try:
