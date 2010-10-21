@@ -23,7 +23,7 @@ except ImportError:
     cv_new_style = False
 
 program_name = 'camgrade'
-version = '0.1.4'
+version = '0.1.5'
 version_status = 'alpha'
 
 param_max_wait_time = 0.15 # seconds
