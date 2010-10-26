@@ -537,6 +537,8 @@ def main():
                 pygame.time.delay(int(1000 * (param_max_wait_time - diff)))
                 last_time += 1
             else:
+                if diff > 3 * param_max_wait_time:
+                    dump_camera_buffer(camera)
                 last_time = current_time
 
 if __name__ == "__main__":

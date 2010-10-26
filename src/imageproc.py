@@ -22,7 +22,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 16
 param_directions_threshold = 0.4
-param_hough_threshold = 220
+param_hough_thresholds = [280, 240, 210]
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
 
@@ -103,11 +103,16 @@ class ExamCapture(object):
                        'id-box': False}
 
     def detect(self):
-        lines = detect_lines(self.image_proc)
-        if len(lines) < 2:
-            return
-        self.status['lines'] = True
-        axes = detect_boxes(lines, self.boxes_dim)
+        axes = None
+        for hough_threshold in param_hough_thresholds:
+            lines = detect_lines(self.image_proc, hough_threshold)
+            if len(lines) >= 2:
+                self.status['lines'] = True
+                axes = detect_boxes(lines, self.boxes_dim)
+                if axes is not None:
+                    break
+#        for line in lines:
+#            draw_line(self.image_drawn, line, (0, 0, 255))
         if axes is not None:
             self.status['boxes'] = True
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
@@ -429,10 +434,10 @@ def draw_success_indicator(image, success):
     color = (0, 192, 0) if success else (0, 0, 255)
     cv.Circle(image, position, 10, color, cv.CV_FILLED)
 
-def detect_lines(image):
+def detect_lines(image, hough_threshold):
     st = cv.CreateMemStorage()
     lines = cv.HoughLines2(image, st, cv.CV_HOUGH_STANDARD,
-                           1, 0.01, param_hough_threshold)
+                           1, 0.01, hough_threshold)
 
     # Trick to use both new and old style bindings
     len_lines = len(lines) if cv_new_style else lines.total
