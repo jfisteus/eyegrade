@@ -12,4 +12,4 @@ Down-left: model: correct / incorrect / undecided (undecided = more than one opt
 Command line:
 
 $ cd src/
-$ python camgrade.py --help
+$ python eyegrade.py --help

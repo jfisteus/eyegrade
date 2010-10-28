@@ -1,4 +1,4 @@
-## Sample configuration file. Save it as ~/.camgrade.cfg
+## Sample configuration file. Save it as ~/.eyegrade.cfg
 [default]
 
 ## Default camera device to use (int); -1 for automatic selection.

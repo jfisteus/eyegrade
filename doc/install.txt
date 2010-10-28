@@ -1,5 +1,5 @@
 # Clonar el repositorio
-git clone <user>@varpa.it.uc3m.es:~jaf/lib/www/camgrade/git
+git clone <user>@varpa.it.uc3m.es:~jaf/lib/www/eyegrade/git
 
 # Installar paquetes requeridos
 sudo aptitude install python-pygame
@@ -8,11 +8,11 @@ sudo aptitude install libcv4
 sudo aptitude install libavformat52
 
 
-# Fichero de configuraci??n
-# camera-dev: 0 si es la primera c??mara
+# Fichero de configuración
+# camera-dev: 0 si es la primera cámara
 # si el ordenador tiene ya una integrada, camera-dev: 1
 cp <camgrade-DIR>/git/doc/camgrade.cfg.sample ~/.camgrade.cfg
 
 cd <camgrade-DIR>/git/src
-python camgrade.py
+python eyegrade.py
 

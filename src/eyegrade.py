@@ -22,7 +22,7 @@ except ImportError:
     cv = cvwrapper.CVWrapperObject()
     cv_new_style = False
 
-program_name = 'camgrade'
+program_name = 'eyegrade'
 version = '0.1.5'
 version_status = 'alpha'
 
@@ -270,7 +270,8 @@ def read_config():
               'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
               'csv-dialect': 'excel'}
     parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser('~/.camgrade.cfg')])
+    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
+                 os.path.expanduser('~/.camgrade.cfg')])
     if 'default' in parser.sections():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
@@ -380,7 +381,7 @@ def main():
     if options.answers_filename is not None:
         answers_file = options.answers_filename
     else:
-        answers_file = 'camgrade-answers.csv'
+        answers_file = 'eyegrade-answers.csv'
         if options.output_dir is not None:
             answers_file = os.path.join(options.output_dir, answers_file)
 
@@ -391,7 +392,7 @@ def main():
 
     pygame.init()
     window = pygame.display.set_mode((640,480))
-    pygame.display.set_caption("camgrade")
+    pygame.display.set_caption("eyegrade")
     screen = pygame.display.get_surface()
 
     profiler = PerformanceProfiler()
