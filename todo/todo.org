@@ -16,12 +16,18 @@ None reported.
 *** DONE [#B] Flexible ID list format				       :easy:
     CLOSED: [2010-10-14 jue 20:46]
     The csv module auto-detects input format.
-*** TODO [#B] Statistical analysis of results
 *** TODO [#A] Adaption results to the specific order of student lists :@abel:
     Abel has a first version of such a script.
+*** DONE [#A] Rename to 'eyegrade'
+    CLOSED: [2010-10-28 jue 16:28]
 ** Wishlist
-*** TODO [#C] Evaluate having also students' name in the view of the camera
-*** TODO [#C] Clearing areas of the image capture :hard:
-*** TODO [#C] Line interpolation for answer tables :hard:
-*** TODO [#C] Manually marking answer table geometry :hard:
-*** TODO [#A] Installation in Windows
+*** Core
+**** TODO [#C] Evaluate having also students' name in the view of the camera
+**** TODO [#C] Clearing areas of the image capture 		       :hard:
+**** TODO [#C] Line interpolation for answer tables 		       :hard:
+**** TODO [#C] Manually marking answer table geometry 		       :hard:
+**** TODO [#A] Installation in Windows
+**** TODO [#B] Computing the Hough threshold from exam config
+*** Analysis module
+**** TODO [#B] Checking the output file to detect incosistencies
+     For example: duplicate ID numbers, ungraded exams, etc.
