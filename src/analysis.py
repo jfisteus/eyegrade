@@ -4,6 +4,10 @@
 import csv
 import sys
 
+# For plots
+import numpy as np
+import matplotlib.pyplot as plt
+
 # Local imports
 import utils
 
@@ -82,6 +86,26 @@ def print_stats_by_question(stats):
         percentage = float(answers[0]) * 100 / count
         print '  - Not answered: %d (%.1f%%)'%(answers[0], percentage)
 
+def plot_stats_by_question(stats):
+    colors = 'bgrcmy'
+    numq = len(stats)
+    xvals = np.arange(numq)
+    max_len = max([len(s) for s in stats])
+    width = 0.35
+    base = np.zeros(numq)
+    for i in range(1, max_len):
+        yvals = np.array([(s[i] if len(s) > i else 0) for s in stats])
+        plt.bar(xvals, yvals, width, base, colors[(i - 1)%len(colors)],
+                label = 'Opt. ' + chr(64 + i))
+        base += yvals
+    plt.ylabel('Number of answers')
+    plt.xlabel('Question number')
+    plt.title('Answers per question')
+    plt.xticks(xvals + width / 2.0, range(1, numq + 1))
+    plt.legend(bbox_to_anchor = (0.0, 1.02, 1.0, 0.102), loc = 3,
+               ncol = max_len, mode = "expand", borderaxespad = 0.0)
+    plt.show()
+
 def print_stats_by_model(stats):
     for i, data in enumerate(stats):
         num_questions = sum(data)
@@ -101,12 +125,13 @@ def analyze(results_filename, exam_cfg_filename):
     exam_data = utils.ExamConfig(exam_cfg_filename)
     results = read_results(results_filename)
     process_results(results, exam_data.permutations)
-    stats = stats_by_question(results, exam_data.num_questions)
-    print_stats_by_question(stats)
+    stats_q = stats_by_question(results, exam_data.num_questions)
+    print_stats_by_question(stats_q)
     print
-    stats = stats_by_model(results, exam_data.num_questions,
-                           exam_data.num_models)
-    print_stats_by_model(stats)
+    stats_m = stats_by_model(results, exam_data.num_questions,
+                             exam_data.num_models)
+    print_stats_by_model(stats_m)
+    plot_stats_by_question(stats_q)
     return results
 
 def __permute_answers(answers, permutation):
