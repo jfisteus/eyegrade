@@ -79,19 +79,13 @@ class Exam(object):
                                 self.score[2], self.im_id)
 
     def save_image(self, filename_pattern):
-        if self.image.options['read-id'] and self.student_id != '-1':
-            sid = self.student_id
-        else:
-            sid = 'noid'
-        filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
-        filename = regexp_id.sub(sid, filename)
+        filename = self.__saved_image_name(filename_pattern)
         cv.SaveImage(filename, self.image.image_drawn)
 
     def save_debug_images(self, filename_pattern):
-        raw_pattern = filename_pattern + "-raw"
-        proc_pattern = filename_pattern + "-proc"
-        cv.SaveImage(raw_pattern%self.im_id, self.image.image_raw)
-        cv.SaveImage(proc_pattern%self.im_id, self.image.image_proc)
+        filename = self.__saved_image_name(filename_pattern)
+        cv.SaveImage(filename + '-raw', self.image.image_raw)
+        cv.SaveImage(filename + '-proc', self.image.image_proc)
 
     def save_answers(self, answers_file, csv_dialect, stats = None):
         f = open(answers_file, "ab")
@@ -200,6 +194,15 @@ class Exam(object):
             self.image.id = new_id
             self.student_id = new_id
         self.image.clean_drawn_image()
+
+    def __saved_image_name(self, filename_pattern):
+        if self.image.options['read-id'] and self.student_id != '-1':
+            sid = self.student_id
+        else:
+            sid = 'noid'
+        filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
+        filename = regexp_id.sub(sid, filename)
+        return filename
 
 class PerformanceProfiler(object):
     def __init__(self):
