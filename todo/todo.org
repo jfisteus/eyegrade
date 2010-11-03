@@ -20,6 +20,7 @@ None reported.
     Abel has a first version of such a script.
 *** DONE [#A] Rename to 'eyegrade'
     CLOSED: [2010-10-28 jue 16:28]
+*** TODO [#A] Adjust the variable Hough threshold mechanism
 ** Wishlist
 *** Core
 **** TODO [#C] Evaluate having also students' name in the view of the camera
@@ -27,6 +28,8 @@ None reported.
 **** TODO [#C] Line interpolation for answer tables 		       :hard:
 **** TODO [#C] Manually marking answer table geometry 		       :hard:
 **** TODO [#A] Installation in Windows
+     - [2010-11-04 jue] Using OpenCV compiled with Visual C++ 2008 works.
+       Only libtre missing.
 **** TODO [#B] Computing the Hough threshold from exam config
 *** Analysis module
 **** TODO [#B] Checking the output file to detect incosistencies
