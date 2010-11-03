@@ -318,7 +318,7 @@ class ExamCapture(object):
         cv.Rectangle(self.image_drawn, point0, point1, color, cv.CV_FILLED)
 
 def init_camera(input_dev = -1):
-    return cv.CreateCameraCapture(input_dev)
+    return cv.CaptureFromCAM(input_dev)
 
 def capture(camera, clone = False):
     image = cv.QueryFrame(camera)
