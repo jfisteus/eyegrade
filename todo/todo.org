@@ -31,6 +31,7 @@ None reported.
      - [2010-11-04 jue] Using OpenCV compiled with Visual C++ 2008 works.
        Only libtre missing.
 **** TODO [#B] Computing the Hough threshold from exam config
+**** TODO [#C] Adapt to Python style conventions (PEP 8 and PEP 257)
 *** Analysis module
 **** TODO [#B] Checking the output file to detect incosistencies
      For example: duplicate ID numbers, ungraded exams, etc.
