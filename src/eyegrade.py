@@ -408,6 +408,7 @@ def main():
         imageproc_options['id-num-digits'] = id_num_digits
     if options.debug:
         imageproc_options['show-status'] = True
+    imageproc_context = imageproc.ExamCaptureContext()
 
     # Initialize capture source
     camera = None
@@ -428,7 +429,8 @@ def main():
         exam = None
         model = None
         profiler.count_capture()
-        image = imageproc.ExamCapture(camera, dimensions, imageproc_options)
+        image = imageproc.ExamCapture(camera, dimensions, imageproc_options,
+                                      imageproc_context)
         image.detect()
         success = image.success
         if image.status['infobits']:

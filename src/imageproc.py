@@ -22,7 +22,8 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 16
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 240, 210]
+param_hough_thresholds = [280, 240, 210, 180]
+param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
 
@@ -60,11 +61,15 @@ class ExamCapture(object):
     def get_default_options(cls):
         return copy.copy(cls.default_options)
 
-    def __init__(self, camera, boxes_dim, options = {}):
-        if options == {}:
-            self.options = self.__class__.get_default_options()
-        else:
+    def __init__(self, camera, boxes_dim, options=None, context=None):
+        if options is not None:
             self.options = options
+        else:
+            self.options = self.__class__.get_default_options()
+        if context is not None:
+            self.context = context
+        else:
+            context = ExamCaptureContext()
         if not self.options['capture-from-file']:
             self.image_raw = capture(camera, True)
             self.image_proc = pre_process(self.image_raw)
@@ -104,16 +109,16 @@ class ExamCapture(object):
 
     def detect(self):
         axes = None
-        for hough_threshold in param_hough_thresholds:
-            lines = detect_lines(self.image_proc, hough_threshold)
-            if len(lines) >= 2:
-                self.status['lines'] = True
-                axes = detect_boxes(lines, self.boxes_dim)
-                if axes is not None:
-                    break
+        lines = detect_lines(self.image_proc,
+                             self.context.get_hough_threshold())
+        if len(lines) >= 2:
+            self.status['lines'] = True
+            axes = detect_boxes(lines, self.boxes_dim)
 #        for line in lines:
 #            draw_line(self.image_drawn, line, (0, 0, 255))
-        if axes is not None:
+        if axes is None:
+            self.context.next_hough_threshold()
+        else:
             self.status['boxes'] = True
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                                 self.image_raw.width,
@@ -168,6 +173,10 @@ class ExamCapture(object):
                                     draw_point(self.image_drawn, c)
                     else:
                         self.success = False
+            if self.success:
+                self.context.notify_success()
+            else:
+                self.context.notify_failure()
         if self.status['cells']:
             self.compute_cells_geometry()
             self.status['overall'] = True
@@ -316,6 +325,32 @@ class ExamCapture(object):
         cv.Rectangle(self.image_drawn, point0, point1, color)
         point1 = round_point((x0 + done_ratio * width, y0 + height))
         cv.Rectangle(self.image_drawn, point0, point1, color, cv.CV_FILLED)
+
+class ExamCaptureContext:
+    """ Class intended for persistency of data accross several
+        ExamCapture objects.
+
+    """
+    def __init__(self):
+        self.hough_thresholds = param_hough_thresholds
+        self.hough_thresholds_idx = 0
+        self.failures_in_a_row = 0
+
+    def get_hough_threshold(self):
+        return self.hough_thresholds[self.hough_thresholds_idx]
+
+    def next_hough_threshold(self):
+        self.hough_thresholds_idx = (self.hough_thresholds_idx + 1) % \
+            len(self.hough_thresholds)
+        self.failures_in_a_row = 0
+
+    def notify_failure(self):
+        self.failures_in_a_row += 1
+        if self.failures_in_a_row > param_failures_threshold:
+            self.next_hough_threshold()
+
+    def notify_success(self):
+        self.failures_in_a_row = 0
 
 def init_camera(input_dev = -1):
     return cv.CaptureFromCAM(input_dev)
