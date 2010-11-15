@@ -419,7 +419,10 @@ def main():
         imageproc_options['capture-from-file'] = True
         imageproc_options['capture-raw-file'] = options.raw_file
     else:
-        camera = init(select_camera(options, config))
+        imageproc_context.init_camera(select_camera(options, config))
+        if imageproc_context.camera is None:
+            print >> sys.stderr, 'ERROR: No camera found!'
+            sys.exit(1)
 
     # Program main loop
     lock_mode = not options.adjust
@@ -429,8 +432,8 @@ def main():
         exam = None
         model = None
         profiler.count_capture()
-        image = imageproc.ExamCapture(camera, dimensions, imageproc_options,
-                                      imageproc_context)
+        image = imageproc.ExamCapture(dimensions, imageproc_context,
+                                      imageproc_options)
         image.detect()
         success = image.success
         if image.status['infobits']:
@@ -468,7 +471,6 @@ def main():
                             override_id_mode = True
                 elif event.key == 32:
                     lock_mode = True
-
         if success and lock_mode:
             continue_waiting = True
             exam.lock_capture()

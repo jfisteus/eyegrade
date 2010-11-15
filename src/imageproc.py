@@ -61,17 +61,14 @@ class ExamCapture(object):
     def get_default_options(cls):
         return copy.copy(cls.default_options)
 
-    def __init__(self, camera, boxes_dim, options=None, context=None):
+    def __init__(self, boxes_dim, context, options=None):
         if options is not None:
             self.options = options
         else:
             self.options = self.__class__.get_default_options()
-        if context is not None:
-            self.context = context
-        else:
-            context = ExamCaptureContext()
+        self.context = context
         if not self.options['capture-from-file']:
-            self.image_raw = capture(camera, True)
+            self.image_raw = capture(self.context.camera, True)
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-raw-file'] is not None:
             self.image_raw = load_image(self.options['capture-raw-file'])
@@ -336,6 +333,38 @@ class ExamCaptureContext:
         self.hough_thresholds_idx = 0
         self.failures_in_a_row = 0
 
+    def init_camera(self, camera_id):
+        """Initializes the camera device.
+
+           If the given camera_id is -1, camera ids are tested one by
+           until one works.
+
+        """
+        self.camera = None
+        if camera_id != -1:
+            self.camera = self.__try_camera(camera_id)
+            self.camera_id = camera_id
+        if self.camera is None:
+            self.camera, self.camera_id = self.__try_next_camera(-1)
+        return self.camera is not None
+
+    def next_camera(self):
+        """Selects the next camera available.
+
+           Note that changing camera does not seem to work currently
+           in OpenCV, at least in Linux.
+
+        """
+
+        if self.camera is not None:
+            del self.camera
+        camera, camera_id = self.__try_next_camera(self.camera_id)
+        if camera is not None:
+            self.camera, self.camera_id = camera, camera_id
+            return True
+        else:
+            return False
+
     def get_hough_threshold(self):
         return self.hough_thresholds[self.hough_thresholds_idx]
 
@@ -351,6 +380,25 @@ class ExamCaptureContext:
 
     def notify_success(self):
         self.failures_in_a_row = 0
+
+    def __try_next_camera(self, cur_camera_id):
+        camera = None
+        camera_id = -1
+        for i in range(cur_camera_id + 1, 10) + range(0, cur_camera_id + 1):
+            print "Trying camera", i
+            camera = self.__try_camera(i)
+            if camera is not None:
+                camera_id = i
+                break
+        return (camera, camera_id)
+
+    def __try_camera(self, camera_id):
+        cam = cv.CaptureFromCAM(camera_id)
+        image = cv.QueryFrame(cam)
+        if image is not None:
+            return cam
+        else:
+            return None
 
 def init_camera(input_dev = -1):
     return cv.CaptureFromCAM(input_dev)
