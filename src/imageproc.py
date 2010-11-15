@@ -182,6 +182,7 @@ class ExamCapture(object):
         self.draw_status_bar()
         if self.options['show-status']:
             self.draw_status_flags()
+            self.draw_hough_threshold()
 
     def draw_answers(self, frozen, solutions, model,
                      correct, good, bad, undet, im_id = None):
@@ -233,6 +234,7 @@ class ExamCapture(object):
             self.draw_status_bar()
         if self.options['show-status']:
             self.draw_status_flags()
+            self.draw_hough_threshold()
 
     def clean_drawn_image(self):
         self.image_drawn = cv.CloneImage(self.image_raw)
@@ -291,6 +293,11 @@ class ExamCapture(object):
             color = color_good if value else color_bad
             draw_text(self.image_drawn, letter, color, (x, y))
             x += width
+
+    def draw_hough_threshold(self):
+        pos = (self.image_drawn.width - 77, 110)
+        draw_text(self.image_drawn, str(self.context.get_hough_threshold()),
+                  position=pos)
 
     def draw_status_bar(self):
         color = (255, 0, 0)
