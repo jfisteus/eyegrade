@@ -248,10 +248,6 @@ class PerformanceProfiler(object):
         else:
             stats['id-ocr-detected'] = '-1'
 
-def init(camera_dev):
-    camera = imageproc.init_camera(camera_dev)
-    return camera
-
 def decode_model_2x31(bits):
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7
     valid = False
@@ -411,7 +407,6 @@ def main():
     imageproc_context = imageproc.ExamCaptureContext()
 
     # Initialize capture source
-    camera = None
     if options.proc_file is not None:
         imageproc_options['capture-from-file'] = True
         imageproc_options['capture-proc-file'] = options.proc_file
@@ -532,7 +527,7 @@ def main():
                         question, answer = cell
                         exam.toggle_answer(question, answer)
                         show_image(exam.image.image_drawn, screen)
-            dump_camera_buffer(camera)
+            dump_camera_buffer(imageproc_context.camera)
         else:
             if exam is not None:
                 exam.draw_answers()
@@ -546,7 +541,7 @@ def main():
                 last_time += 1
             else:
                 if diff > 3 * param_max_wait_time:
-                    dump_camera_buffer(camera)
+                    dump_camera_buffer(imageproc_context.camera)
                 last_time = current_time
 
 if __name__ == "__main__":
