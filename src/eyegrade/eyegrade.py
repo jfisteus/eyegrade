@@ -280,7 +280,7 @@ def read_config():
     return config
 
 def read_cmd_options():
-    parser = OptionParser(usage = "usage: %prog [options]",
+    parser = OptionParser(usage = "usage: %prog [options] EXAM_CONFIG_FILE",
                           version = program_name + ' ' + version)
     parser.add_option("-e", "--exam-data-file", dest = "ex_data_filename",
                       help = "read model data from FILENAME")
@@ -309,6 +309,12 @@ def read_cmd_options():
                       help = "don't lock on an exam until SPC is pressed")
 
     (options, args) = parser.parse_args()
+    if len(args) == 1:
+        options.ex_data_filename = args[0]
+    elif len(args) == 0:
+        parser.error("Exam configuration file required")
+    elif len(args) > 1:
+        parser.error("Too many input command-line parameters")
     if options.raw_file is not None and options.proc_file is not None:
         parser.error("--capture-raw and --capture-proc are mutually exclusive")
     return options
