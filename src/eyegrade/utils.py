@@ -1,4 +1,50 @@
 import ConfigParser
+import csv
+
+keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
+
+def read_results(filename, permutations = []):
+    """Parses an eyegrade results file.
+
+       Results are returned as a list of dictionaries with the keys
+       stored in the 'keys' variable. If 'permutations' is provided,
+       answers are un-shuffled.
+
+    """
+    results = __read_results_file(filename)
+    for result in results:
+        if result['model'].isdigit():
+            result['model'] = int(result['model'])
+        else:
+            result['model'] = ord(result['model']) - ord('A')
+        result['good'] = int(result['good'])
+        result['bad'] = int(result['bad'])
+        result['unknown'] = int(result['unknown'])
+        answers = [int(n) for n in result['answers'].split('/')]
+        if permutations != []:
+            answers = __permute_answers(answers, permutations[result['model']])
+        result['answers'] = answers
+    return results
+
+def __read_results_file(filename):
+    csvfile = open(filename, 'rb')
+    dialect = csv.Sniffer().sniff(csvfile.read(1024))
+    csvfile.seek(0)
+    reader = csv.DictReader(csvfile, fieldnames = keys, dialect = dialect)
+    entries = [entry for entry in reader]
+    csvfile.close()
+    return entries
+
+def __permute_answers(answers, permutation):
+    assert(len(answers) == len(permutation))
+    permutted = [0] * len(answers)
+    for i, option in enumerate(answers):
+        if option == 0:
+            resolved_option = 0
+        else:
+            resolved_option = permutation[i][1][option - 1]
+        permutted[permutation[i][0] - 1] = resolved_option
+    return permutted
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has

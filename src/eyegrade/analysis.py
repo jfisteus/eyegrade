@@ -11,31 +11,6 @@ import matplotlib.pyplot as plt
 # Local imports
 import utils
 
-keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
-
-def read_results(filename):
-    csvfile = open(filename, 'rb')
-    dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    csvfile.seek(0)
-    reader = csv.DictReader(csvfile, fieldnames = keys, dialect = dialect)
-    entries = [entry for entry in reader]
-    csvfile.close()
-    return entries
-
-def process_results(results, permutations = []):
-    for result in results:
-        if result['model'].isdigit():
-            result['model'] = int(result['model'])
-        else:
-            result['model'] = ord(result['model']) - ord('A')
-        result['good'] = int(result['good'])
-        result['bad'] = int(result['bad'])
-        result['unknown'] = int(result['unknown'])
-        answers = [int(n) for n in result['answers'].split('/')]
-        if permutations != []:
-            answers = __permute_answers(answers, permutations[result['model']])
-        result['answers'] = answers
-
 def stats_for_question(results, question, num_options = None):
     """Returns a tuple with the count of answers (blank, opt1,
        opt2,...) for the specified question number. Use 0 for the
@@ -123,8 +98,7 @@ def print_stats_by_model(stats):
 
 def analyze(results_filename, exam_cfg_filename):
     exam_data = utils.ExamConfig(exam_cfg_filename)
-    results = read_results(results_filename)
-    process_results(results, exam_data.permutations)
+    results = utils.read_results(results_filename, exam_data.permutations)
     stats_q = stats_by_question(results, exam_data.num_questions)
     print_stats_by_question(stats_q)
     print
@@ -133,17 +107,6 @@ def analyze(results_filename, exam_cfg_filename):
     print_stats_by_model(stats_m)
     plot_stats_by_question(stats_q)
     return results
-
-def __permute_answers(answers, permutation):
-    assert(len(answers) == len(permutation))
-    permutted = [0] * len(answers)
-    for i, option in enumerate(answers):
-        if option == 0:
-            resolved_option = 0
-        else:
-            resolved_option = permutation[i][1][option - 1]
-        permutted[permutation[i][0] - 1] = resolved_option
-    return permutted
 
 def main():
     analyze(sys.argv[1], sys.argv[2])
