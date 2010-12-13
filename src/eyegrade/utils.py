@@ -1,5 +1,12 @@
 import ConfigParser
 import csv
+import os
+
+program_name = 'eyegrade'
+version = '0.1.5'
+version_status = 'alpha'
+
+csv.register_dialect('tabs', delimiter = '\t')
 
 keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
 
@@ -25,6 +32,93 @@ def read_results(filename, permutations = []):
             answers = __permute_answers(answers, permutations[result['model']])
         result['answers'] = answers
     return results
+
+def read_student_ids(filename):
+    """Reads the list of student IDs from a CSV-formatted file.
+
+       The format of the file is flexible: separators can be either
+       tabs or commas. Student ids must be in the first column.
+
+    """
+    csvfile = open(filename, 'rb')
+    try:
+        dialect = csv.Sniffer().sniff(csvfile.read(1024))
+    except:
+        # Sniff complains about plain files with only one column (unquoted ID)
+        csvfile.seek(0)
+        if csvfile.readline().strip().isdigit():
+            csv.register_dialect('student-id', delimiter=',')
+            dialect = csv.get_dialect('student-id')
+        else:
+            raise Exception('Error while processing the students ID list')
+    csvfile.seek(0)
+    reader = csv.reader(csvfile, dialect)
+    student_ids = [row[0] for row in reader]
+    csvfile.close()
+    return student_ids
+
+def mix_results(results_filename, student_list_filename, dump_missing):
+    """Returns a list of tuples student_id, good_answers, bad_answers.
+
+       Receives the names of the files with results and student list.
+       If 'dump_missing' is True, grades of students not in the
+       student list are dumped at the end of the list.
+
+    """
+    mixed_grades = []
+    results = results_by_id(read_results(results_filename))
+    ids = read_student_ids(student_list_filename)
+    for student_id in ids:
+        if student_id in results:
+            mixed_grades.append((student_id, results[student_id][0],
+                                 results[student_id][1]))
+        else:
+            mixed_grades.append((student_id, '', ''))
+    if dump_missing:
+        for student_id in results:
+            if not student_id in ids:
+                mixed_grades.append((student_id, results[student_id][0],
+                                     results[student_id][1]))
+    return mixed_grades
+
+def write_grades(grades, file_, csv_dialect):
+    """Writes the given grades to a file.
+
+       Results are a list of tuples student_id, good_answers, bad_answers.
+
+    """
+    writer = csv.writer(file_, dialect = csv_dialect)
+    for grade in grades:
+        writer.writerow(grade)
+
+def results_by_id(results):
+    """Returns a dictionary student_id -> (num_good_answers, num_bad_answers).
+
+       Results must be formatted as returned by read_results().
+
+    """
+    id_dict = {}
+    for r in results:
+        id_dict[r['student-id']] = (r['good'], r['bad'])
+    return id_dict
+
+def read_config():
+    """Reads the general config file and returns the resulting config object.
+
+    """
+    config = {'camera-dev': '-1',
+              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
+              'csv-dialect': 'excel'}
+    parser = ConfigParser.SafeConfigParser()
+    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
+                 os.path.expanduser('~/.camgrade.cfg')])
+    if 'default' in parser.sections():
+        for option in parser.options('default'):
+            config[option] = parser.get('default', option)
+    if not config['csv-dialect'] in csv.list_dialects():
+        config['csv-dialect'] = 'excel'
+    config['camera-dev'] = int(config['camera-dev'])
+    return config
 
 def __read_results_file(filename):
     csvfile = open(filename, 'rb')

@@ -22,14 +22,9 @@ except ImportError:
     cv = cvwrapper.CVWrapperObject()
     cv_new_style = False
 
-program_name = 'eyegrade'
-version = '0.1.5'
-version_status = 'alpha'
-
 param_max_wait_time = 0.15 # seconds
 
 # Other initializations:
-csv.register_dialect('tabs', delimiter = '\t')
 regexp_id = re.compile('\{student-id\}')
 regexp_seqnum = re.compile('\{seq-number\}')
 
@@ -264,24 +259,9 @@ def decode_model_2x31(bits):
     else:
         return None
 
-def read_config():
-    config = {'camera-dev': '-1',
-              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
-              'csv-dialect': 'excel'}
-    parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
-                 os.path.expanduser('~/.camgrade.cfg')])
-    if 'default' in parser.sections():
-        for option in parser.options('default'):
-            config[option] = parser.get('default', option)
-    if not config['csv-dialect'] in csv.list_dialects():
-        config['csv-dialect'] = 'excel'
-    config['camera-dev'] = int(config['camera-dev'])
-    return config
-
 def read_cmd_options():
     parser = OptionParser(usage = "usage: %prog [options] EXAM_CONFIG_FILE",
-                          version = program_name + ' ' + version)
+                          version = utils.program_name + ' ' + utils.version)
     parser.add_option("-e", "--exam-data-file", dest = "ex_data_filename",
                       help = "read model data from FILENAME")
     parser.add_option("-a", "--answers-file", dest = "answers_filename",
@@ -353,27 +333,9 @@ def select_camera(options, config):
         camera = options.camera_dev
     return camera
 
-def read_student_ids(filename):
-    csvfile = open(filename, 'rb')
-    try:
-        dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    except:
-        # Sniff complains about plain files with only one column (unquoted ID)
-        csvfile.seek(0)
-        if csvfile.readline().strip().isdigit():
-            csv.register_dialect('student-id', delimiter=',')
-            dialect = csv.get_dialect('student-id')
-        else:
-            raise Exception('Error while processing the students ID list')
-    csvfile.seek(0)
-    reader = csv.reader(csvfile, dialect)
-    student_ids = [row[0] for row in reader]
-    csvfile.close()
-    return student_ids
-
 def main():
     options = read_cmd_options()
-    config = read_config()
+    config = utils.read_config()
     save_pattern = config['save-filename-pattern']
 
     exam_data = utils.ExamConfig(options.ex_data_filename)
@@ -393,7 +355,7 @@ def main():
     im_id = options.start_id
     valid_student_ids = None
     if read_id and options.ids_file is not None:
-        valid_student_ids = read_student_ids(options.ids_file)
+        valid_student_ids = utils.read_student_ids(options.ids_file)
 
     pygame.init()
     window = pygame.display.set_mode((640,480))
