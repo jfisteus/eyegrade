@@ -338,6 +338,7 @@ class ExamCaptureContext:
         self.hough_thresholds = param_hough_thresholds
         self.hough_thresholds_idx = 0
         self.failures_in_a_row = 0
+        self.camera = None
 
     def init_camera(self, camera_id):
         """Initializes the camera device.
