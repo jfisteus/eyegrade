@@ -29,9 +29,8 @@ def create_answer_table(num_questions, num_answers, model, num_tables = 0):
     tables, question_numbers = __table_geometry(num_questions, num_answers,
                                                 num_tables)
     rows = __table_top(num_tables, num_answers)
-    hline = __horizontal_line(tables[0])
     for i, row_geometry in enumerate(tables):
-        rows.append(hline)
+        rows.append(__horizontal_line(row_geometry, num_answers))
         rows.append(__build_row(i, row_geometry, question_numbers,
                                 num_answers, bits_rows))
     rows.append('\\end{tabular}')
@@ -78,13 +77,14 @@ def __table_geometry(num_questions, num_answers, num_tables):
     tables.append((num_tables - diff) * [-2] + diff * [0])
     return tables, question_numbers
 
-def __horizontal_line(row_geometry):
+def __horizontal_line(row_geometry, num_answers):
     parts = []
     first = 2
-    for i, num_questions in enumerate(row_geometry):
-        if num_questions > 0:
-            parts.append('\\cline{%d-%d}'%(first, first + num_questions - 1))
-            first += 2 + num_questions
+    for i, geometry in enumerate(row_geometry):
+        if geometry > 0 or geometry == -1:
+            parts.append('\\cline{%d-%d}'%(first, first + num_answers - 1))
+        first += 2 + num_answers
+    print row_geometry, parts
     return ' '.join(parts)
 
 def __table_top(num_tables, num_answers):
