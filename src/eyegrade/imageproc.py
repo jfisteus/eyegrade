@@ -187,10 +187,9 @@ class ExamCapture(object):
     def draw_answers(self, frozen, solutions, model,
                      correct, good, bad, undet, im_id = None):
         base = 0
-        color_good = (0, 164, 0)
+        color_good = (0, 210, 0)
         color_bad = (0, 0, 255)
-        color_dot = (255, 0, 0)
-        color = (255, 0, 0)
+        color_dot = (200, 50, 0)
         if self.status['cells']:
             for corners in self.corner_matrixes:
                 for i in range(0, len(corners) - 1):
@@ -215,18 +214,18 @@ class ExamCapture(object):
         else:
             text = "Model ?: %d / %d"%(good, bad)
         if undet > 0:
-            color = (0, 0, 255)
+            color = color_bad
             text = text + " / " + str(undet)
         else:
-            color = (255, 0, 0)
+            color = color_dot
         draw_text(self.image_drawn, text, color,
                   (10, self.image_drawn.height - 20))
         if frozen:
             if im_id is not None:
                 if self.status['infobits'] and model is not None:
-                    color = (255, 0, 0)
+                    color = color_dot
                 else:
-                    color = (0, 0, 255)
+                    color = color_bad
                 draw_text(self.image_drawn, str(im_id), color, (10, 65))
             if self.id is not None:
                 draw_text(self.image_drawn, self.id, color_dot, (10, 30))
