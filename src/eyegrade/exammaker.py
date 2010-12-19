@@ -13,10 +13,12 @@ def create_answer_sheet(template_file, output_file, variables,
         replacements[re.compile('{{' + var + '}}')] = variables[var]
     answer_table = create_answer_table(num_questions, num_answers,
                                        model, num_tables)
+    id_box = create_id_box
     replacements[re.compile('{{answer-table}}')] = answer_table
     replacements[re.compile('{{tabla-respuestas}}')] = answer_table
     replacements[re.compile('{{model}}')] = model
     replacements[re.compile('{{modelo}}')] = model
+    replacements[re.compile(r'{{id-box\(([0-9]+),(.*)\)}}')] = __id_box_replacer
     exam_text = utils.read_file(template_file)
     for exp in replacements:
         exam_text = exp.sub(replacements[exp], exam_text)
@@ -58,6 +60,28 @@ def create_answer_table(num_questions, num_answers, model, num_tables = 0):
     rows.append('\\end{tabular}')
     rows.append('\\end{center}')
     return '\n'.join(rows)
+
+
+def create_id_box(label, num_digits):
+    """Creates the ID box given a label to show and number of digits.
+
+    """
+    parts = ['\\begin{center}', '\Large']
+    parts.append('\\begin{tabular}{l|' + num_digits * 'p{3mm}|' + '}')
+    parts.append('\\cline{2-%d}'%(1 + num_digits))
+    parts.append('\\textbf{%s}: '%label + num_digits * '& ' + '\\\\')
+    parts.append('\\cline{2-%d}'%(1 + num_digits))
+    parts.append('\\end{tabular}')
+    parts.append('\\end{center}')
+    return '\n'.join(parts)
+
+def __id_box_replacer(match):
+    """Takes a re.match object and returns the id box.
+
+       Two groups expected: (1) number of digits; (2) label to show.
+
+    """
+    return create_id_box(match.group(2), int(match.group(1)))
 
 def __choose_num_tables(num_questions):
     """Returns a good number of tables for the given number of questions."""
