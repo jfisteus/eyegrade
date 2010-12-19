@@ -1,0 +1,114 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[spanish,activeacute]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[dvipdfm]{graphicx}
+\usepackage{amssymb,amsmath}
+\usepackage{fancyvrb}
+\usepackage{enumerate}
+%\usepackage{pseudocodees}
+\usepackage{indentfirst}
+\usepackage{multirow}
+\usepackage{color}
+
+\usepackage[a4paper, margin=2.5cm, top=2cm, bottom=3cm]{geometry}
+
+\pagestyle{empty}
+
+\definecolor{lightgray}{rgb}{1, 1, 1}
+\newcommand{\light}[1]{\textcolor{lightgray}{#1}}
+\definecolor{hidden}{rgb}{1, 1, 1}
+\newcommand{\hidden}[1]{\textcolor{hidden}{#1}}
+
+\begin{document}
+
+
+\begin{center}
+\begin{tabular}{p{5.2cm}r}
+\multirow{5}{*}[0.35cm]{\scalebox{0.5}{\includegraphics{logo-uc3m.eps}}} &
+\Large  \textbf{{{subject}}} \\
+& \textbf{{{degree}}} \\
+& \\
+Leganés, {{date}}
+      & Neither books nor other materials are allowed. \\
+Duration: {{duration}}
+      & Score: 5 points out of 10 total points for the exam. \\
+
+\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+
+\emph{There is only one correct answer for each multiple choice question.
+Each correct answer adds $\frac{1}{4}$ points. 
+Each incorrect answer has a penalty of $\frac{1}{12}$ points.
+If no answer no score is awarded, neither positive nor negative.}
+
+\vspace{0.5cm}
+
+\begin{center}
+\begin{tabular}{|p{0.8\textwidth}|}
+\hline
+\begin{itemize}
+\item Mark out your answers with an ``X''.
+\item If more than one answer or no answer are selected, the question is considered to be not answered (no score is awarded, neither positive nor negative).
+\item Fill in \textbf{all the fields} of the following form.
+% \item Be especially careful with the \textbf{model of exam}: if you write
+%   a wrong model identifier, your score will be random.
+%   If you don't write the model identifier, your score will be 0.
+\end{itemize}
+\\
+
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+
+
+\begin{center}
+(1) Write your personal data clearly. 
+\end{center}
+
+\begin{center}
+\large
+
+\begin{tabular}{|l|p{12cm}|}
+\hline
+Last name:   &  \\
+\hline
+First name: &    \\
+\hline
+Group:   &  \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+
+\begin{center}
+(2) Write down your NIA and cross out your answers with an ``X'' mark:
+\end{center}
+
+\begin{center}
+\large
+\textbf{Model:} {{model}}
+\end{center}
+
+\begin{center}
+\Large
+\begin{tabular}{l|p{0.3cm}|p{0.3cm}|p{0.3cm}|p{0.3cm}|p{0.3cm}|p{0.3cm}|p{0.3cm}|p{0.3cm}|p{0.3cm}|}
+\cline{2-10}
+\textbf{NIA:} & & & & & & & & & \\
+\cline{2-10}
+\end{tabular}
+\end{center}
+
+{{answer-table}}
+
+\clearpage
+
+{{questions}}
+
+\end{document}

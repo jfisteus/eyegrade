@@ -1,9 +1,31 @@
 import utils
+import re
 
 param_min_num_questions = 4
 
 # Numbers of questions in which the number of tables is changed
 param_table_limits = [8, 24, 48]
+
+def create_answer_sheet(template_file, output_file, variables,
+                        num_questions, num_answers, model, num_tables = 0):
+    replacements = {}
+    for var in variables:
+        replacements[re.compile('{{' + var + '}}')] = variables[var]
+    answer_table = create_answer_table(num_questions, num_answers,
+                                       model, num_tables)
+    replacements[re.compile('{{answer-table}}')] = answer_table
+    replacements[re.compile('{{tabla-respuestas}}')] = answer_table
+    replacements[re.compile('{{model}}')] = model
+    replacements[re.compile('{{modelo}}')] = model
+    exam_text = utils.read_file(template_file)
+    for exp in replacements:
+        exam_text = exp.sub(replacements[exp], exam_text)
+    if isinstance(output_file, file):
+        output_file.write(exam_text)
+    else:
+        file_ = open(output_file)
+        file_.write(exam_text)
+        file.close()
 
 def create_answer_table(num_questions, num_answers, model, num_tables = 0):
     """Returns a string with the answer tables of the asnwer sheet.
@@ -34,6 +56,7 @@ def create_answer_table(num_questions, num_answers, model, num_tables = 0):
         rows.append(__build_row(i, row_geometry, question_numbers,
                                 num_answers, bits_rows))
     rows.append('\\end{tabular}')
+    rows.append('\\end{center}')
     return '\n'.join(rows)
 
 def __choose_num_tables(num_questions):
@@ -84,20 +107,21 @@ def __horizontal_line(row_geometry, num_answers):
         if geometry > 0 or geometry == -1:
             parts.append('\\cline{%d-%d}'%(first, first + num_answers - 1))
         first += 2 + num_answers
-    print row_geometry, parts
     return ' '.join(parts)
 
 def __table_top(num_tables, num_answers):
     l = 'p{3mm}'.join(num_tables
                       * ['|'.join(['r'] + num_answers * ['c'] + [''])])
-    l = '\\begin{tabular}{' + l + '}'
-    lines = [l]
+    l = '\\\\begin{tabular}{' + l + '}'
+    lines = ['\\\\begin{center}', '\\large', l]
     parts = []
     for i in range(0, num_tables):
-        parts.append('\\multicolumn{1}{c}{}')
+        parts_internal = []
+        parts_internal.append('\\multicolumn{1}{c}{}')
         for j in range(0, num_answers):
-            parts.append('\\multicolumn{1}{c}{%s}'%chr(65 + j))
-    lines.append(' & '.join(parts) + ' \\\\')
+            parts_internal.append('\\multicolumn{1}{c}{%s}'%chr(65 + j))
+        parts.append(' & '.join(parts_internal))
+    lines.append(' & & '.join(parts) + ' \\\\\\\\')
     return lines
 
 def __build_row(num_row, row_geometry, question_numbers, num_answers,
@@ -117,7 +141,7 @@ def __build_row(num_row, row_geometry, question_numbers, num_answers,
     row = ' & & '.join(parts)
     if skip_cells > 0:
         row += ' & \\multicolumn{%d}{c}{}'%skip_cells
-    return row + ' \\\\'
+    return row + ' \\\\\\\\'
 
 def __build_question_cell(num_question, num_answers):
     parts = [str(num_question)]
@@ -126,7 +150,7 @@ def __build_question_cell(num_question, num_answers):
     return ' & '.join(parts)
 
 def __create_infobits(bits, num_tables, num_answers):
-    column_active = '\\multicolumn{1}{c}{$\\blacksquare$}'
+    column_active = '\\multicolumn{1}{c}{$\\\\blacksquare$}'
     column_inactive = '\\multicolumn{1}{c}{}'
     parts = [[], []]
     for i in range(0, num_tables):

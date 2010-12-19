@@ -186,6 +186,15 @@ def __int_to_bin(n, num_digits, reverse = False):
     else:
         return bin[::-1]
 
+def read_file(file_name):
+    """Returns the contest of a file as a string.
+
+    """
+    file_ = open(file_name, 'r')
+    data = file_.read()
+    file_.close()
+    return data
+
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
        been created and data loaded, access directly to the attributes
