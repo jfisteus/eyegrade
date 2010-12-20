@@ -122,7 +122,7 @@ def __table_geometry(num_questions, num_answers, num_tables):
                 acc += 1
             question_numbers[i] += acc
     if diff == 0:
-        diff = 3
+        diff = num_tables
     tables.append(diff * [-1] + (num_tables - diff) * [-2])
     tables.append(diff * [-2] + (num_tables - diff) * [-0])
     return tables, question_numbers

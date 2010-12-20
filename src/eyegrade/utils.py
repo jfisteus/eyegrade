@@ -160,7 +160,7 @@ def encode_model(model, num_tables, num_answers):
     bit_list[0] = not bit_list[0]
     bit_list.append(reduce(lambda x, y: x ^ y, bit_list))
     bit_list[0] = not bit_list[0]
-    return num_tables * bit_list
+    return (num_tables * bit_list)[:num_tables * num_answers]
 
 def __int_to_bin(n, num_digits, reverse = False):
     """Returns the binary representation of a number as a list of booleans.
