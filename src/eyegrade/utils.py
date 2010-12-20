@@ -3,7 +3,7 @@ import csv
 import os
 
 program_name = 'eyegrade'
-version = '0.1.5'
+version = '0.1.6'
 version_status = 'alpha'
 
 csv.register_dialect('tabs', delimiter = '\t')
