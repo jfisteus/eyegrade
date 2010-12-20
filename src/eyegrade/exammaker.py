@@ -4,7 +4,7 @@ import re
 param_min_num_questions = 4
 
 # Numbers of questions in which the number of tables is changed
-param_table_limits = [8, 24, 48]
+param_table_limits = [8, 24, 55]
 
 def create_answer_sheet(template_file, output_file, variables,
                         num_questions, num_answers, model, num_tables = 0):
@@ -48,15 +48,16 @@ def create_answer_table(num_questions, num_answers, model, num_tables = 0):
         num_tables = __choose_num_tables(num_questions)
     elif num_tables * 2 > num_questions:
         raise Exception('Too many tables for the given number of questions')
+    compact = (num_tables > 2)
     bits = utils.encode_model(model, num_tables, num_answers)
     bits_rows = __create_infobits(bits, num_tables, num_answers)
     tables, question_numbers = __table_geometry(num_questions, num_answers,
                                                 num_tables)
-    rows = __table_top(num_tables, num_answers)
+    rows = __table_top(num_tables, num_answers, compact)
     for i, row_geometry in enumerate(tables):
-        rows.append(__horizontal_line(row_geometry, num_answers))
+        rows.append(__horizontal_line(row_geometry, num_answers, compact))
         rows.append(__build_row(i, row_geometry, question_numbers,
-                                num_answers, bits_rows))
+                                num_answers, bits_rows, compact))
     rows.append('\\end{tabular}')
     rows.append('\\end{center}')
     return '\n'.join(rows)
@@ -120,22 +121,27 @@ def __table_geometry(num_questions, num_answers, num_tables):
             if i <= diff:
                 acc += 1
             question_numbers[i] += acc
-    tables.append((num_tables - diff) * [-1] + diff * [-2])
-    tables.append((num_tables - diff) * [-2] + diff * [0])
+    if diff == 0:
+        diff = 3
+    tables.append(diff * [-1] + (num_tables - diff) * [-2])
+    tables.append(diff * [-2] + (num_tables - diff) * [-0])
     return tables, question_numbers
 
-def __horizontal_line(row_geometry, num_answers):
+def __horizontal_line(row_geometry, num_answers, compact):
     parts = []
+    num_empty_columns = 1 if not compact else 0
     first = 2
     for i, geometry in enumerate(row_geometry):
         if geometry > 0 or geometry == -1:
             parts.append('\\cline{%d-%d}'%(first, first + num_answers - 1))
-        first += 2 + num_answers
+        first += 1 + num_empty_columns + num_answers
     return ' '.join(parts)
 
-def __table_top(num_tables, num_answers):
-    l = 'p{3mm}'.join(num_tables
-                      * ['|'.join(['r'] + num_answers * ['c'] + [''])])
+def __table_top(num_tables, num_answers, compact):
+    middle_sep_format = 'p{3mm}' if not compact else ''
+    middle_sep_header = ' & & ' if not compact else ' & '
+    l = middle_sep_format.join(num_tables
+                               * ['|'.join(['r'] + num_answers * ['c'] + [''])])
     l = '\\\\begin{tabular}{' + l + '}'
     lines = ['\\\\begin{center}', '\\large', l]
     parts = []
@@ -145,12 +151,13 @@ def __table_top(num_tables, num_answers):
         for j in range(0, num_answers):
             parts_internal.append('\\multicolumn{1}{c}{%s}'%chr(65 + j))
         parts.append(' & '.join(parts_internal))
-    lines.append(' & & '.join(parts) + ' \\\\\\\\')
+    lines.append(middle_sep_header.join(parts) + ' \\\\\\\\')
     return lines
 
 def __build_row(num_row, row_geometry, question_numbers, num_answers,
-                infobits_row):
+                infobits_row, compact):
     parts = []
+    num_empty_columns = 1 if not compact else 0
     skip_cells = 0
     for i, geometry in enumerate(row_geometry):
         if geometry > 0:
@@ -161,8 +168,8 @@ def __build_row(num_row, row_geometry, question_numbers, num_answers,
         elif geometry == -2:
             parts.append(infobits_row[1][i])
         else:
-            skip_cells += 2 + num_answers
-    row = ' & & '.join(parts)
+            skip_cells += 1 + num_empty_columns + num_answers
+    row = ' & & '.join(parts) if not compact else ' & '.join(parts)
     if skip_cells > 0:
         row += ' & \\multicolumn{%d}{c}{}'%skip_cells
     return row + ' \\\\\\\\'
