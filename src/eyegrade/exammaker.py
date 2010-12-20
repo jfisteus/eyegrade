@@ -25,9 +25,9 @@ def create_answer_sheet(template_file, output_file, variables,
     if isinstance(output_file, file):
         output_file.write(exam_text)
     else:
-        file_ = open(output_file)
+        file_ = open(output_file, 'w')
         file_.write(exam_text)
-        file.close()
+        file_.close()
 
 def create_answer_table(num_questions, num_answers, model, num_tables = 0):
     """Returns a string with the answer tables of the asnwer sheet.
@@ -113,7 +113,7 @@ def __table_geometry(num_questions, num_answers, num_tables):
         question_numbers.append(1 + i * rows_per_table)
     diff = num_questions - num_tables * rows_per_table
     if diff > 0:
-        last_row = (num_tables - diff) * [num_answers] + diff * [-1]
+        last_row = diff * [num_answers] + (num_tables - diff) * [-1]
         tables.append(last_row)
         acc = 0
         for i in range(1, num_tables):
