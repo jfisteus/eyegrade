@@ -3,7 +3,7 @@ import csv
 import os
 
 program_name = 'eyegrade'
-version = '0.1.6'
+version = '0.1.6.1'
 version_status = 'alpha'
 
 csv.register_dialect('tabs', delimiter = '\t')
@@ -157,9 +157,9 @@ def encode_model(model, num_tables, num_answers):
     if model_num >= 2 ** (num_answers - 1):
         raise Exception('Model number too big given the number of answers')
     bit_list = __int_to_bin(model_num, 3, True)
-    bit_list[0] = not bit_list[0]
+    bit_list[2] = not bit_list[2]
     bit_list.append(reduce(lambda x, y: x ^ y, bit_list))
-    bit_list[0] = not bit_list[0]
+    bit_list[2] = not bit_list[2]
     return (num_tables * bit_list)[:num_tables * num_answers]
 
 def __int_to_bin(n, num_digits, reverse = False):
