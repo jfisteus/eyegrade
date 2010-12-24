@@ -2,7 +2,6 @@ import pygame
 from pygame.locals import *
 import sys
 import os
-import ConfigParser
 from optparse import OptionParser
 import imageproc
 import time
@@ -269,7 +268,7 @@ def read_cmd_options():
     parser.add_option("-s", "--start-id", dest = "start_id", type = "int",
                       help = "start at the given exam id",
                       default = 0)
-    parser.add_option("-o", "--output-dir", dest = "output_dir",
+    parser.add_option("-o", "--output-dir", dest = "output_dir", default = '.',
                       help = "store captured images at the given directory")
     parser.add_option("-d", "--debug", action="store_true", dest = "debug",
                       default = False, help = "activate debugging features")
@@ -343,14 +342,12 @@ def main():
     dimensions = exam_data.dimensions
     id_num_digits = exam_data.id_num_digits
     read_id = (id_num_digits > 0)
-    if options.output_dir is not None:
-        save_pattern = os.path.join(options.output_dir, save_pattern)
+    save_pattern = os.path.join(options.output_dir, save_pattern)
     if options.answers_filename is not None:
         answers_file = options.answers_filename
     else:
         answers_file = 'eyegrade-answers.csv'
-        if options.output_dir is not None:
-            answers_file = os.path.join(options.output_dir, answers_file)
+        answers_file = os.path.join(options.output_dir, answers_file)
 
     im_id = options.start_id
     valid_student_ids = None
@@ -367,11 +364,15 @@ def main():
     # Initialize options
     imageproc_options = imageproc.ExamCapture.get_default_options()
     imageproc_options['infobits'] = True
+    imageproc_options['logging-dir'] = options.output_dir
     if read_id:
         imageproc_options['read-id'] = True
         imageproc_options['id-num-digits'] = id_num_digits
     if options.debug:
         imageproc_options['show-status'] = True
+        imageproc_options['error-logging'] = True
+    if config['error-logging']:
+        imageproc_options['error-logging'] = True
     imageproc_context = imageproc.ExamCaptureContext()
 
     # Initialize capture source
@@ -397,7 +398,7 @@ def main():
         profiler.count_capture()
         image = imageproc.ExamCapture(dimensions, imageproc_context,
                                       imageproc_options)
-        image.detect()
+        image.detect_safe()
         success = image.success
         if image.status['infobits']:
             model = decode_model_2x31(image.bits)
@@ -496,6 +497,8 @@ def main():
                         exam.toggle_answer(question, answer)
                         show_image(exam.image.image_drawn, screen)
             dump_camera_buffer(imageproc_context.camera)
+            if imageproc_options['capture-from-file']:
+                sys.exit(0)
         else:
             if exam is not None:
                 exam.draw_answers()
@@ -511,6 +514,11 @@ def main():
                 if diff > 3 * param_max_wait_time:
                     dump_camera_buffer(imageproc_context.camera)
                 last_time = current_time
+            if imageproc_options['capture-from-file']:
+                event = pygame.event.wait()
+                while event.type != QUIT and event.type != KEYDOWN:
+                    event = pygame.event.wait()
+                sys.exit(1)
 
 if __name__ == "__main__":
     main()

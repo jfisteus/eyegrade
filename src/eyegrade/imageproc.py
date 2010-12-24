@@ -1,5 +1,6 @@
 import math
 import copy
+import sys
 import PIL.Image
 
 # Local imports
@@ -43,6 +44,10 @@ param_id_boxes_energy_break = 0.99
 param_id_boxes_min_height = 15
 param_id_boxes_discard_distance = 20
 
+# Other parameters
+param_error_log = 'eyegrade-errors.log'
+param_error_image_pattern = 'error-%s.png'
+
 font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
@@ -55,7 +60,9 @@ class ExamCapture(object):
                        'show-status': False,
                        'capture-from-file': False,
                        'capture-raw-file': None,
-                       'capture-proc-file': None}
+                       'capture-proc-file': None,
+                       'error-logging': False,
+                       'logging-dir': '.'}
 
     @classmethod
     def get_default_options(cls):
@@ -103,6 +110,17 @@ class ExamCapture(object):
                        'infobits': False,
                        'id-box-hlines': False,
                        'id-box': False}
+
+    def detect_safe(self):
+        try:
+            self.detect()
+        except Exception:
+            self.success = False
+            self.context.notify_failure()
+            if self.options['error-logging']:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                self.write_error_trace(exc_type, exc_value, exc_traceback)
+            # else... silence the exception, and try with the next capture
 
     def detect(self):
         axes = None
@@ -177,6 +195,27 @@ class ExamCapture(object):
         if self.status['cells']:
             self.compute_cells_geometry()
             self.status['overall'] = True
+
+    def write_error_trace(self, exc_type, exc_value, exc_traceback):
+        import datetime
+        import re
+        import traceback
+        import os
+        if not self.options['capture-from-file']:
+            print 'Exception catched! Storing trace into a log file...'
+            date = str(datetime.datetime.now())
+            logname = os.path.join(self.options['logging-dir'], param_error_log)
+            file_ = open(logname, 'a')
+            file_.write('-'*60 + '\n')
+            file_.write(date + '\n')
+            traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                      file=file_)
+            file_.close()
+            im_file = param_error_image_pattern%re.sub(r'[-\ \.:]', '_', date)
+            cv.SaveImage(os.path.join(self.options['logging-dir'], im_file),
+                         self.image_raw)
+        else:
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
 
     def draw_status(self):
         self.draw_status_bar()

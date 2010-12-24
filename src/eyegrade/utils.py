@@ -117,6 +117,10 @@ def read_config():
             config[option] = parser.get('default', option)
     if not config['csv-dialect'] in csv.list_dialects():
         config['csv-dialect'] = 'excel'
+    if 'error-logging' in config and config['error-logging'] == 'yes':
+        config['error-logging'] = True
+    else:
+        config['error-logging'] = False
     config['camera-dev'] = int(config['camera-dev'])
     return config
 
