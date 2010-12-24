@@ -680,7 +680,7 @@ def id_horizontal_lines(hlines, vlines, boxes_dim):
 
 def check_corners(corner_matrixes, width, height):
     # Check differences between horizontal lines:
-    corners = corner_matrixes[0]
+    corners = corner_matrixes[(len(corner_matrixes) - 1) // 2]
     ypoints = [row[-1][1] for row in corners]
     difs = []
     difs2 = []
@@ -705,6 +705,18 @@ def check_corners(corner_matrixes, width, height):
                         or point[1] < 0 or point[1] >= height:
 #                    print "Failure at point", point
                     return False
+
+    # Check that the sequence of points is coherent
+    for corners in corner_matrixes:
+        for i in range(0, len(corners) - 1):
+            for j in range(0, len(corners[0]) - 1):
+                if corners[i][j][1] >= corners[i + 1][j][1] or \
+                        corners[i][j + 1][1] >= corners[i + 1][j + 1][1] or \
+                        corners[i][j][0] >= corners[i][j + 1][0] or \
+                        corners[i + 1][j][0] >= corners[i + 1][j + 1][0]:
+                    print "Bad point"
+                    return False
+
     # Success if control reaches here
     return True
 
