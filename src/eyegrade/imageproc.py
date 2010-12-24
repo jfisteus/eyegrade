@@ -23,7 +23,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 16
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 240, 210, 180]
+param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
@@ -208,6 +208,8 @@ class ExamCapture(object):
             file_ = open(logname, 'a')
             file_.write('-'*60 + '\n')
             file_.write(date + '\n')
+            file_.write('Hough threshold: %d\n'\
+                            %self.context.get_hough_threshold())
             traceback.print_exception(exc_type, exc_value, exc_traceback,
                                       file=file_)
             file_.close()
@@ -373,8 +375,11 @@ class ExamCaptureContext:
         ExamCapture objects.
 
     """
-    def __init__(self):
-        self.hough_thresholds = param_hough_thresholds
+    def __init__(self, fixed_hough_threshold=None):
+        if not fixed_hough_threshold:
+            self.hough_thresholds = param_hough_thresholds
+        else:
+            self.hough_thresholds = [fixed_hough_threshold]
         self.hough_thresholds_idx = 0
         self.failures_in_a_row = 0
         self.camera = None

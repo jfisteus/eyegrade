@@ -283,6 +283,8 @@ def read_cmd_options():
                       help = "capture from raw file")
     parser.add_option("--capture-proc", dest = "proc_file", default = None,
                       help = "capture from pre-processed file")
+    parser.add_option("--fixed-hough", dest = "fixed_hough", default = None,
+                      type = "int", help = "fixed Hough transform threshold")
     parser.add_option("-f", "--ajust-first", action="store_true",
                       dest = "adjust", default = False,
                       help = "don't lock on an exam until SPC is pressed")
@@ -373,7 +375,10 @@ def main():
         imageproc_options['error-logging'] = True
     if config['error-logging']:
         imageproc_options['error-logging'] = True
-    imageproc_context = imageproc.ExamCaptureContext()
+    if not options.fixed_hough:
+        imageproc_context = imageproc.ExamCaptureContext()
+    else:
+        imageproc_context = imageproc.ExamCaptureContext(options.fixed_hough)
 
     # Initialize capture source
     if options.proc_file is not None:
