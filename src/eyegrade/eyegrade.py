@@ -27,6 +27,8 @@ param_max_wait_time = 0.15 # seconds
 regexp_id = re.compile('\{student-id\}')
 regexp_seqnum = re.compile('\{seq-number\}')
 
+pygame.init()
+
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids = None,
                  im_id = None, save_stats = False):
@@ -329,6 +331,17 @@ def show_image(image, screen):
     screen.blit(pg_img, (0,0))
     pygame.display.flip()
 
+bottom_surface = pygame.Surface((640, 40))
+bottom_surface.fill((0, 0, 0))
+font = pygame.font.SysFont('arial', 16)
+
+def update_text(text, screen):
+    screen.blit(bottom_surface, (0, 480))
+    surface = font.render(text, True, pygame.Color(255, 255, 255),
+                          pygame.Color(0, 0, 0))
+    screen.blit(surface, (10, 490))
+    pygame.display.flip()
+
 def select_camera(options, config):
     if options.camera_dev is None:
         camera = config['camera-dev']
@@ -358,8 +371,8 @@ def main():
     if read_id and options.ids_file is not None:
         valid_student_ids = utils.read_student_ids(options.ids_file)
 
-    pygame.init()
-    window = pygame.display.set_mode((640, 480))
+#    pygame.init()
+    window = pygame.display.set_mode((640, 520))
     pygame.display.set_caption("eyegrade")
     screen = pygame.display.get_surface()
 
@@ -398,6 +411,7 @@ def main():
     # Program main loop
     lock_mode = not options.adjust
     last_time = time.time()
+    update_text('Searching...', screen)
     while True:
         override_id_mode = False
         exam = None
@@ -447,6 +461,7 @@ def main():
             exam.lock_capture()
             exam.draw_answers()
             show_image(image.image_drawn, screen)
+            update_text(exam.student_id, screen)
             while continue_waiting:
                 event = pygame.event.wait()
                 if event.type == QUIT:
@@ -504,6 +519,7 @@ def main():
                         exam.toggle_answer(question, answer)
                         show_image(exam.image.image_drawn, screen)
             dump_camera_buffer(imageproc_context.camera)
+            update_text('Searching...', screen)
             if imageproc_options['capture-from-file']:
                 sys.exit(0)
         else:
