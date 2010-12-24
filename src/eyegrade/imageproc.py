@@ -1,7 +1,6 @@
 import math
 import copy
 import sys
-import PIL.Image
 
 # Local imports
 from geometry import *
@@ -486,46 +485,6 @@ def load_image_grayscale(filename):
 
 def load_image(filename):
     return cv.LoadImage(filename)
-
-def ipl_to_pil(input):
-    """Converts an OpenCV/IPL image to PIL the Python Imaging Library.
-      Supported input image formats are
-         IPL_DEPTH_8U  x 1 channel
-         IPL_DEPTH_8U  x 3 channels
-         IPL_DEPTH_32F x 1 channel
-      Copied and adapted from opencv.adaptors.Ipl2PIL
-     """
-
-    # If wrapping old-style bindings, call its implementation instead:
-    if not cv_new_style:
-        return cv.ipl_to_pil(input)
-
-    # Continue here only for new-style bindings:
-    if not isinstance(input, cv.iplimage):
-        raise TypeError, 'must be called with a cv.IplImage!'
-    # orientation
-    if input.origin == 0:
-        orientation = 1 # top left
-    elif input.origin == 1:
-        orientation = -1 # bottom left
-    else:
-        raise ValueError, 'origin must be 0 or 1!'
-    # mode dictionary:
-    # (channels, depth) : (source mode, dest mode, depth in byte)
-    mode_list = {(1, cv.IPL_DEPTH_8U)  : ("L", "L", 1),
-                 (3, cv.IPL_DEPTH_8U)  : ("BGR", "RGB", 3),
-                 (1, cv.IPL_DEPTH_32F) : ("F", "F", 4)}
-    key = (input.nChannels, input.depth)
-    if not mode_list.has_key(key):
-        raise ValueError, 'unknown or unsupported input mode'
-    modes = mode_list[key]
-    return PIL.Image.fromstring(modes[1], # mode
-                                (input.width, input.height),
-                                input.tostring(),
-                                "raw",
-                                modes[0], # raw mode
-                                0, # stride
-                                orientation)
 
 def draw_line(image, line, color = (0, 0, 255, 0)):
     theta = line[1]

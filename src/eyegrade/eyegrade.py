@@ -322,8 +322,10 @@ def dump_camera_buffer(camera):
             imageproc.capture(camera, False)
 
 def show_image(image, screen):
-    im = imageproc.ipl_to_pil(image)
-    pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
+    image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
+    cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
+    pg_img = pygame.image.frombuffer(image_rgb.tostring(),
+                                     cv.GetSize(image_rgb), "RGB")
     screen.blit(pg_img, (0,0))
     pygame.display.flip()
 
@@ -357,7 +359,7 @@ def main():
         valid_student_ids = utils.read_student_ids(options.ids_file)
 
     pygame.init()
-    window = pygame.display.set_mode((640,480))
+    window = pygame.display.set_mode((640, 480))
     pygame.display.set_caption("eyegrade")
     screen = pygame.display.get_surface()
 
