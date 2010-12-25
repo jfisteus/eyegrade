@@ -1,5 +1,3 @@
-import pygame
-from pygame.locals import *
 import sys
 import os
 from optparse import OptionParser
@@ -11,6 +9,7 @@ import re
 
 # Local imports
 import utils
+import gui
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -26,8 +25,6 @@ param_max_wait_time = 0.15 # seconds
 # Other initializations:
 regexp_id = re.compile('\{student-id\}')
 regexp_seqnum = re.compile('\{seq-number\}')
-
-pygame.init()
 
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids = None,
@@ -323,25 +320,6 @@ def dump_camera_buffer(camera):
         for i in range(0, 6):
             imageproc.capture(camera, False)
 
-def show_image(image, screen):
-    image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
-    cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
-    pg_img = pygame.image.frombuffer(image_rgb.tostring(),
-                                     cv.GetSize(image_rgb), "RGB")
-    screen.blit(pg_img, (0,0))
-    pygame.display.flip()
-
-bottom_surface = pygame.Surface((640, 40))
-bottom_surface.fill((0, 0, 0))
-font = pygame.font.SysFont('arial', 16)
-
-def update_text(text, screen):
-    screen.blit(bottom_surface, (0, 480))
-    surface = font.render(text, True, pygame.Color(255, 255, 255),
-                          pygame.Color(0, 0, 0))
-    screen.blit(surface, (10, 490))
-    pygame.display.flip()
-
 def select_camera(options, config):
     if options.camera_dev is None:
         camera = config['camera-dev']
@@ -371,10 +349,7 @@ def main():
     if read_id and options.ids_file is not None:
         valid_student_ids = utils.read_student_ids(options.ids_file)
 
-#    pygame.init()
-    window = pygame.display.set_mode((640, 520))
-    pygame.display.set_caption("eyegrade")
-    screen = pygame.display.get_surface()
+    interface = gui.PygameInterface((640, 480))
 
     profiler = PerformanceProfiler()
 
@@ -411,7 +386,7 @@ def main():
     # Program main loop
     lock_mode = not options.adjust
     last_time = time.time()
-    update_text('Searching...', screen)
+    interface.update_text('Searching...')
     while True:
         override_id_mode = False
         exam = None
@@ -430,96 +405,92 @@ def main():
             else:
                 success = False
 
-        events = pygame.event.get()
-        for event in events:
-            if event.type == QUIT or \
-                    (event.type == KEYDOWN and event.key == 27):
+        events = interface.events_search_mode()
+        for event, event_info in events:
+            if event == gui.event_quit:
                 sys.exit(0)
-            elif event.type == KEYDOWN:
-                if event.key == ord('p') and options.debug:
-                    imageproc_options['show-image-proc'] = \
-                        not imageproc_options['show-image-proc']
-                elif event.key == ord('l') and options.debug:
-                    imageproc_options['show-lines'] = \
-                        not imageproc_options['show-lines']
-                elif event.key == ord('s'):
-                    sols = solutions[model] if model is not None else None
-                    exam = Exam(image, model, sols,
-                                valid_student_ids, im_id, options.save_stats)
-                    success = True
-                    exam.grade()
-                    if read_id:
-                        if options.ids_file is not None:
-                            exam.reset_student_id_filter(False)
-                        else:
-                            exam.reset_student_id_editor()
-                            override_id_mode = True
-                elif event.key == 32:
-                    lock_mode = True
+            elif event == gui.event_debug_proc and options.debug:
+                imageproc_options['show-image-proc'] = \
+                    not imageproc_options['show-image-proc']
+            elif event == gui.event_debug_lines and options.debug:
+                imageproc_options['show-lines'] = \
+                    not imageproc_options['show-lines']
+            elif event == gui.event_snapshot:
+                sols = solutions[model] if model is not None else None
+                exam = Exam(image, model, sols, valid_student_ids, im_id,
+                            options.save_stats)
+                success = True
+                exam.grade()
+                if read_id:
+                    if options.ids_file is not None:
+                        exam.reset_student_id_filter(False)
+                    else:
+                        exam.reset_student_id_editor()
+                        override_id_mode = True
+            elif event == gui.event_lock:
+                lock_mode = True
+
+        # Enter review mode if the capture was succesfully read or the
+        # image was locked by the user
         if success and lock_mode:
             continue_waiting = True
             exam.lock_capture()
             exam.draw_answers()
-            show_image(image.image_drawn, screen)
-            update_text(exam.student_id, screen)
+            interface.show_capture(image.image_drawn)
+            interface.update_text(exam.student_id)
             while continue_waiting:
-                event = pygame.event.wait()
-                if event.type == QUIT:
+                event, event_info = interface.wait_event_review_mode()
+                if event == gui.event_quit:
                     sys.exit(0)
-                elif event.type == KEYDOWN:
-                    if event.key == 27:
-                        sys.exit(0)
-                    elif event.key == 8:
-                        continue_waiting = False
-                    elif event.key == 32:
-                        stats = profiler.finish_exam(exam)
-                        exam.save_image(save_pattern)
-                        exam.save_answers(answers_file, config['csv-dialect'],
-                                          stats)
-                        if options.debug:
-                            exam.save_debug_images(save_pattern)
-                        im_id += 1
-                        continue_waiting = False
-                    elif event.key == ord('i') and read_id:
-                        override_id_mode = True
-                        exam.reset_student_id_editor()
-                        exam.draw_answers()
-                        show_image(exam.image.image_drawn, screen)
-                    elif event.key == 9 and read_id:
-                        if not override_id_mode \
-                                and options.ids_file is not None:
-                            if len(exam.student_id_filter) == 0:
-                                exam.try_next_student_id()
-                            else:
-                                exam.reset_student_id_filter()
-                            profiler.count_student_id_change()
-                            exam.draw_answers()
-                            show_image(exam.image.image_drawn, screen)
-                    elif event.key >= ord('0') and event.key <= ord('9') \
-                             and read_id:
-                        if override_id_mode:
-                            exam.student_id_editor(chr(event.key))
-                        elif options.ids_file is not None:
-                            exam.filter_student_id(chr(event.key))
+                elif event == gui.event_cancel_frame:
+                    continue_waiting = False
+                elif event == gui.event_save:
+                    stats = profiler.finish_exam(exam)
+                    exam.save_image(save_pattern)
+                    exam.save_answers(answers_file, config['csv-dialect'],
+                                      stats)
+                    if options.debug:
+                        exam.save_debug_images(save_pattern)
+                    im_id += 1
+                    continue_waiting = False
+                elif event == gui.event_manual_id and read_id:
+                    override_id_mode = True
+                    exam.reset_student_id_editor()
+                    exam.draw_answers()
+                    interface.show_capture(exam.image.image_drawn)
+                elif event == gui.event_next_id and read_id:
+                    if not override_id_mode and options.ids_file is not None:
+                        if len(exam.student_id_filter) == 0:
+                            exam.try_next_student_id()
+                        else:
+                            exam.reset_student_id_filter()
                         profiler.count_student_id_change()
                         exam.draw_answers()
-                        show_image(exam.image.image_drawn, screen)
-                    elif event.key == ord('p') and options.debug:
-                        imageproc_options['show-image-proc'] = \
-                            not imageproc_options['show-image-proc']
-                        continue_waiting = False
-                    elif event.key == ord('l') and options.debug:
-                        imageproc_options['show-lines'] = \
-                            not imageproc_options['show-lines']
-                        continue_waiting = False
-                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
-                    cell = cell_clicked(exam.image, event.pos)
+                        interface.show_capture(exam.image.image_drawn)
+                elif event == gui.event_id_digit and read_id:
+                    if override_id_mode:
+                        exam.student_id_editor(event_info)
+                    elif options.ids_file is not None:
+                        exam.filter_student_id(event_info)
+                    profiler.count_student_id_change()
+                    exam.draw_answers()
+                    interface.show_capture(exam.image.image_drawn)
+                elif event == gui.event_debug_proc and options.debug:
+                    imageproc_options['show-image-proc'] = \
+                        not imageproc_options['show-image-proc']
+                    continue_waiting = False
+                elif event == gui.event_debug_lines and options.debug:
+                    imageproc_options['show-lines'] = \
+                        not imageproc_options['show-lines']
+                    continue_waiting = False
+                elif event == gui.event_click:
+                    cell = cell_clicked(exam.image, event_info)
                     if cell is not None:
                         question, answer = cell
                         exam.toggle_answer(question, answer)
-                        show_image(exam.image.image_drawn, screen)
+                        interface.show_capture(exam.image.image_drawn)
             dump_camera_buffer(imageproc_context.camera)
-            update_text('Searching...', screen)
+            interface.update_text('Searching...')
             if imageproc_options['capture-from-file']:
                 sys.exit(0)
         else:
@@ -527,20 +498,18 @@ def main():
                 exam.draw_answers()
             else:
                 image.draw_status()
-            show_image(image.image_drawn, screen)
+            interface.show_capture(image.image_drawn)
             current_time = time.time()
             diff = current_time - last_time
             if current_time > last_time and diff < param_max_wait_time:
-                pygame.time.delay(int(1000 * (param_max_wait_time - diff)))
+                interface.delay(param_max_wait_time - diff)
                 last_time += 1
             else:
                 if diff > 3 * param_max_wait_time:
                     dump_camera_buffer(imageproc_context.camera)
                 last_time = current_time
             if imageproc_options['capture-from-file']:
-                event = pygame.event.wait()
-                while event.type != QUIT and event.type != KEYDOWN:
-                    event = pygame.event.wait()
+                interface.wait_key()
                 sys.exit(1)
 
 if __name__ == "__main__":

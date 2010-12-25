@@ -1,6 +1,7 @@
 import math
 import copy
 import sys
+import pygame
 
 # Local imports
 from geometry import *
@@ -1027,3 +1028,9 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
+
+def cvimage_to_pygame(image):
+    image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
+    cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
+    return pygame.image.frombuffer(image_rgb.tostring(),
+                                   cv.GetSize(image_rgb), 'RGB')
