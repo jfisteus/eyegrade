@@ -1,6 +1,7 @@
 import ConfigParser
 import csv
 import os
+import locale
 
 program_name = 'eyegrade'
 version = '0.1.6.1'
@@ -33,27 +34,34 @@ def read_results(filename, permutations = []):
         result['answers'] = answers
     return results
 
-def read_student_ids(filename):
+def read_student_ids(filename, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file.
 
        The format of the file is flexible: separators can be either
-       tabs or commas. Student ids must be in the first column.
+       tabs or commas. Student ids must be in the first column. The
+       second columns, if present, must be the name of the student.
 
     """
     csvfile = open(filename, 'rb')
-    try:
-        dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    except:
-        # Sniff complains about plain files with only one column (unquoted ID)
-        csvfile.seek(0)
-        if csvfile.readline().strip().isdigit():
-            csv.register_dialect('student-id', delimiter=',')
-            dialect = csv.get_dialect('student-id')
-        else:
+    if csvfile.readline().strip().isdigit():
+        csv.register_dialect('student-id', delimiter=',')
+        dialect = csv.get_dialect('student-id')
+    else:
+        try:
+            csvfile.seek(0)
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+        except:
             raise Exception('Error while processing the students ID list')
     csvfile.seek(0)
     reader = csv.reader(csvfile, dialect)
-    student_ids = [row[0] for row in reader]
+    if not with_names:
+        student_ids = [row[0] for row in reader]
+    else:
+        student_ids = {}
+        for row in reader:
+            sid = row[0]
+            name = row[1] if len(row) > 1 else None
+            student_ids[sid] = unicode(name, locale.getpreferredencoding())
     csvfile.close()
     return student_ids
 

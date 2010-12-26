@@ -45,9 +45,10 @@ class PygameInterface(object):
 
     def update_text(self, text):
         self.screen.blit(self.surface_bottom, (0, self.capture_size[1]))
-        surface = self.normal_font.render(text, True, param_font_color,
-                                          param_background_color)
-        self.screen.blit(surface, (10, 10 + self.capture_size[1]))
+        if text is not None:
+            surface = self.normal_font.render(text, True, param_font_color,
+                                              param_background_color)
+            self.screen.blit(surface, (10, 10 + self.capture_size[1]))
         pygame.display.flip()
 
     def wait_event_review_mode(self):

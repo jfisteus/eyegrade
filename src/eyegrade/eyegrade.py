@@ -38,6 +38,7 @@ class Exam(object):
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
         if self.image.options['read-id']:
+            self.student_names = valid_student_ids
             self.student_id = self.decide_student_id(valid_student_ids)
             self.student_id_filter = []
             self.student_id_manual = []
@@ -172,6 +173,12 @@ class Exam(object):
 
     def lock_capture(self):
         self.locked = True
+
+    def get_student_name(self):
+        if self.student_id != '-1' and self.student_id in self.student_names:
+            return self.student_names[self.student_id]
+        else:
+            return None
 
     def __id_rank(self, student_id, scores):
         rank = 0.0
@@ -347,7 +354,7 @@ def main():
     im_id = options.start_id
     valid_student_ids = None
     if read_id and options.ids_file is not None:
-        valid_student_ids = utils.read_student_ids(options.ids_file)
+        valid_student_ids = utils.read_student_ids(options.ids_file, True)
 
     interface = gui.PygameInterface((640, 480))
 
@@ -437,7 +444,7 @@ def main():
             exam.lock_capture()
             exam.draw_answers()
             interface.show_capture(image.image_drawn)
-            interface.update_text(exam.student_id)
+            interface.update_text(exam.get_student_name())
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
                 if event == gui.event_quit:
@@ -458,6 +465,7 @@ def main():
                     exam.reset_student_id_editor()
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn)
+                    interface.update_text(exam.get_student_name())
                 elif event == gui.event_next_id and read_id:
                     if not override_id_mode and options.ids_file is not None:
                         if len(exam.student_id_filter) == 0:
@@ -467,6 +475,7 @@ def main():
                         profiler.count_student_id_change()
                         exam.draw_answers()
                         interface.show_capture(exam.image.image_drawn)
+                        interface.update_text(exam.get_student_name())
                 elif event == gui.event_id_digit and read_id:
                     if override_id_mode:
                         exam.student_id_editor(event_info)
@@ -475,6 +484,7 @@ def main():
                     profiler.count_student_id_change()
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn)
+                    interface.update_text(exam.get_student_name())
                 elif event == gui.event_debug_proc and options.debug:
                     imageproc_options['show-image-proc'] = \
                         not imageproc_options['show-image-proc']
