@@ -396,6 +396,7 @@ def main():
     last_time = time.time()
     interface.update_text('Searching...')
     interface.set_search_toolbar()
+    latest_graded_exam = None
     while True:
         override_id_mode = False
         exam = None
@@ -411,6 +412,7 @@ def main():
                 exam = Exam(image, model, solutions[model], valid_student_ids,
                             im_id, options.save_stats)
                 exam.grade()
+                latest_graded_exam = exam
             else:
                 success = False
 
@@ -425,11 +427,13 @@ def main():
                 imageproc_options['show-lines'] = \
                     not imageproc_options['show-lines']
             elif event == gui.event_snapshot:
-                sols = solutions[model] if model is not None else None
-                exam = Exam(image, model, sols, valid_student_ids, im_id,
-                            options.save_stats)
+                if latest_graded_exam is None:
+                    exam = Exam(image, model, None, valid_student_ids, im_id,
+                                options.save_stats)
+                    exam.grade()
+                else:
+                    exam = latest_graded_exam
                 success = True
-                exam.grade()
                 if read_id:
                     if options.ids_file is not None:
                         exam.reset_student_id_filter(False)
@@ -445,7 +449,7 @@ def main():
             continue_waiting = True
             exam.lock_capture()
             exam.draw_answers()
-            interface.show_capture(image.image_drawn)
+            interface.show_capture(exam.image.image_drawn)
             interface.update_text(exam.get_student_name())
             interface.set_review_toolbar()
             while continue_waiting:
@@ -505,6 +509,7 @@ def main():
             dump_camera_buffer(imageproc_context.camera)
             interface.update_text('Searching...')
             interface.set_search_toolbar()
+            latest_graded_exam = None
             if imageproc_options['capture-from-file']:
                 sys.exit(0)
         else:
