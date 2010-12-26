@@ -175,7 +175,8 @@ class Exam(object):
         self.locked = True
 
     def get_student_name(self):
-        if self.student_id != '-1' and self.student_id in self.student_names:
+        if self.student_id != '-1' and self.student_names is not None and \
+                self.student_id in self.student_names:
             return self.student_names[self.student_id]
         else:
             return None
@@ -356,7 +357,7 @@ def main():
     if read_id and options.ids_file is not None:
         valid_student_ids = utils.read_student_ids(options.ids_file, True)
 
-    interface = gui.PygameInterface((640, 480))
+    interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
 
     profiler = PerformanceProfiler()
 
@@ -394,6 +395,7 @@ def main():
     lock_mode = not options.adjust
     last_time = time.time()
     interface.update_text('Searching...')
+    interface.set_search_toolbar()
     while True:
         override_id_mode = False
         exam = None
@@ -445,6 +447,7 @@ def main():
             exam.draw_answers()
             interface.show_capture(image.image_drawn)
             interface.update_text(exam.get_student_name())
+            interface.set_review_toolbar()
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
                 if event == gui.event_quit:
@@ -501,6 +504,7 @@ def main():
                         interface.show_capture(exam.image.image_drawn)
             dump_camera_buffer(imageproc_context.camera)
             interface.update_text('Searching...')
+            interface.set_search_toolbar()
             if imageproc_options['capture-from-file']:
                 sys.exit(0)
         else:

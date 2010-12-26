@@ -11,6 +11,21 @@ csv.register_dialect('tabs', delimiter = '\t')
 
 keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
 
+def guess_data_dir():
+    path = os.path.split(os.path.realpath(__file__))[0]
+    paths_to_try = [os.path.join(path, 'data'),
+                    os.path.join(path, '..', 'data'),
+                    os.path.join(path, '..', '..', 'data')]
+    for p in paths_to_try:
+        if os.path.isdir(p):
+            return os.path.abspath(p)
+    raise Exception('Data path not found!')
+
+data_dir = guess_data_dir()
+
+def resource_path(file_name):
+    return os.path.join(data_dir, file_name)
+
 def read_results(filename, permutations = []):
     """Parses an eyegrade results file.
 
