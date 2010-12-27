@@ -92,8 +92,8 @@ class ExamCapture(object):
         self.height = self.image_raw.height
         self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
-        num_questions = sum([b[1] for b in boxes_dim])
-        self.decisions = [-1] * num_questions
+        self.num_questions = sum([b[1] for b in boxes_dim])
+        self.decisions = [-1] * self.num_questions
         self.corner_matrixes = None
         self.bits = None
         self.success = False

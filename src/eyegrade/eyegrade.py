@@ -49,6 +49,7 @@ class Exam(object):
     def grade(self):
         good = 0
         bad = 0
+        blank = 0
         undet = 0
         self.correct = []
         for i in range(0, len(self.image.decisions)):
@@ -64,13 +65,14 @@ class Exam(object):
                 self.correct.append(False)
             else:
                 self.correct.append(False)
-        self.score = (good, bad, undet)
+        blank = self.image.num_questions - good - bad
+        self.score = (good, bad, blank, undet)
 
     def draw_answers(self):
-        good, bad, undet = self.score
+#        good, bad, blank, undet = self.score
         self.image.draw_answers(self.locked, self.solutions, self.model,
                                 self.correct, self.score[0], self.score[1],
-                                self.score[2], self.im_id)
+                                self.score[3], self.im_id)
 
     def save_image(self, filename_pattern):
         filename = self.__saved_image_name(filename_pattern)
@@ -89,7 +91,7 @@ class Exam(object):
                 chr(65 + self.model) if self.model is not None else '?',
                 self.score[0],
                 self.score[1],
-                self.score[2],
+                self.score[3],
                 "/".join([str(d) for d in self.image.decisions])]
         if stats is not None and self.save_stats:
             data.extend([stats['time'],
@@ -394,8 +396,8 @@ def main():
     # Program main loop
     lock_mode = not options.adjust
     last_time = time.time()
-    interface.update_text('Searching...')
-    interface.set_search_toolbar()
+    interface.update_text('Searching...', False)
+    interface.set_search_toolbar(True)
     latest_graded_exam = None
     while True:
         override_id_mode = False
@@ -449,9 +451,11 @@ def main():
             continue_waiting = True
             exam.lock_capture()
             exam.draw_answers()
-            interface.show_capture(exam.image.image_drawn)
-            interface.update_text(exam.get_student_name())
-            interface.set_review_toolbar()
+            interface.show_capture(exam.image.image_drawn, False)
+            interface.update_text(exam.get_student_name(), False)
+            if exam.score is not None:
+                interface.update_status(exam.score[:3], False)
+            interface.set_review_toolbar(True)
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
                 if event == gui.event_quit:
@@ -471,7 +475,7 @@ def main():
                     override_id_mode = True
                     exam.reset_student_id_editor()
                     exam.draw_answers()
-                    interface.show_capture(exam.image.image_drawn)
+                    interface.show_capture(exam.image.image_drawn, False)
                     interface.update_text(exam.get_student_name())
                 elif event == gui.event_next_id and read_id:
                     if not override_id_mode and options.ids_file is not None:
@@ -481,7 +485,7 @@ def main():
                             exam.reset_student_id_filter()
                         profiler.count_student_id_change()
                         exam.draw_answers()
-                        interface.show_capture(exam.image.image_drawn)
+                        interface.show_capture(exam.image.image_drawn, False)
                         interface.update_text(exam.get_student_name())
                 elif event == gui.event_id_digit and read_id:
                     if override_id_mode:
@@ -490,7 +494,7 @@ def main():
                         exam.filter_student_id(event_info)
                     profiler.count_student_id_change()
                     exam.draw_answers()
-                    interface.show_capture(exam.image.image_drawn)
+                    interface.show_capture(exam.image.image_drawn, False)
                     interface.update_text(exam.get_student_name())
                 elif event == gui.event_debug_proc and options.debug:
                     imageproc_options['show-image-proc'] = \
@@ -505,10 +509,12 @@ def main():
                     if cell is not None:
                         question, answer = cell
                         exam.toggle_answer(question, answer)
-                        interface.show_capture(exam.image.image_drawn)
+                        interface.show_capture(exam.image.image_drawn, False)
+                        interface.update_status(exam.score[:3])
             dump_camera_buffer(imageproc_context.camera)
-            interface.update_text('Searching...')
-            interface.set_search_toolbar()
+            interface.update_text('Searching...', False)
+            interface.update_status(None, False)
+            interface.set_search_toolbar(True)
             latest_graded_exam = None
             if imageproc_options['capture-from-file']:
                 sys.exit(0)

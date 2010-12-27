@@ -36,9 +36,12 @@ snapshot_icon_normal = pygame.image.load(utils.resource_path('snapshot.png'))
 snapshot_icon_high = pygame.image.load(utils.resource_path('snapshot_high.png'))
 exit_icon_normal = pygame.image.load(utils.resource_path('exit.png'))
 exit_icon_high = pygame.image.load(utils.resource_path('exit_high.png'))
+correct_icon = pygame.image.load(utils.resource_path('correct.png'))
+incorrect_icon = pygame.image.load(utils.resource_path('incorrect.png'))
+unanswered_icon = pygame.image.load(utils.resource_path('unanswered.png'))
 
 icon_size = save_icon_normal.get_size()
-toolbar_pos = (5, 10)
+toolbar_pos = (8, 10)
 toolbar_sep = 10
 
 # Vertical position of tools in the toolbar
@@ -51,15 +54,15 @@ class PygameInterface(object):
 
     def __init__(self, capture_size, id_enabled, id_list_enabled):
         self.capture_size = capture_size
-        self.size = (capture_size[0] + 40, capture_size[1] + 48)
+        self.size = (capture_size[0] + 48, capture_size[1] + 64)
         pygame.display.set_mode(self.size)
         pygame.display.set_caption('eyegrade')
         self.screen = pygame.display.get_surface()
-        self.surface_bottom = pygame.Surface((capture_size[0],
-                                              self.size[1] - capture_size[1]))
+        self.surface_bottom_1 = pygame.Surface((capture_size[0], 32))
+        self.surface_bottom_2 = pygame.Surface((capture_size[0], 32))
         self.surface_toolbar = pygame.Surface((self.size[0] - capture_size[0],
                                                self.size[1]))
-        self.surface_bottom.fill(param_background_color)
+        self.surface_bottom_1.fill(param_background_color)
         self.surface_toolbar.fill(param_background_color)
         self.normal_font = pygame.font.SysFont(param_font_name,
                                                param_font_size)
@@ -68,20 +71,34 @@ class PygameInterface(object):
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
 
-    def show_capture(self, image):
+    def show_capture(self, image, flip=True):
         pg_img = imageproc.cvimage_to_pygame(image)
         self.screen.blit(pg_img, (0,0))
-        pygame.display.flip()
+        if flip:
+            pygame.display.flip()
 
-    def update_text(self, text):
-        self.screen.blit(self.surface_bottom, (0, self.capture_size[1]))
+    def update_text(self, text, flip=True):
+        self.screen.blit(self.surface_bottom_1, (0, self.capture_size[1]))
         if text is not None:
-            surface = self.normal_font.render(text, True, param_font_color,
-                                              param_background_color)
-            self.screen.blit(surface, (10, 10 + self.capture_size[1]))
-        pygame.display.flip()
+            self.__render_text(text, (8, 8 + self.capture_size[1]))
+        if flip:
+            pygame.display.flip()
 
-    def set_search_toolbar(self):
+    def update_status(self, results, flip=True):
+        self.screen.blit(self.surface_bottom_2, (0, self.capture_size[1] + 32))
+        if results is not None and len(results) == 3:
+            vpos = self.capture_size[1] + 40
+            self.screen.blit(correct_icon, (8, vpos))
+            self.screen.blit(incorrect_icon, (72, vpos))
+            self.screen.blit(unanswered_icon, (136, vpos))
+            vpos = self.capture_size[1] + 60 - self.normal_font.get_height()
+            self.__render_text(str(results[0]), (36, vpos))
+            self.__render_text(str(results[1]), (100, vpos))
+            self.__render_text(str(results[2]), (164, vpos))
+        if flip:
+            pygame.display.flip()
+
+    def set_search_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((snapshot_icon_normal, snapshot_icon_high),
@@ -89,9 +106,9 @@ class PygameInterface(object):
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
                              event_quit))
-        self.draw_toolbar()
+        self.draw_toolbar(flip)
 
-    def set_review_toolbar(self):
+    def set_review_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((save_icon_normal, save_icon_high,
@@ -107,13 +124,17 @@ class PygameInterface(object):
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
                              event_quit))
-        self.draw_toolbar()
+        self.draw_toolbar(flip)
 
-    def draw_toolbar(self):
+    def draw_toolbar(self, flip):
         self.screen.blit(self.surface_toolbar, (self.capture_size[0], 0))
         for i, tool in enumerate(self.toolbar):
             if tool[0] is not None:
                 self.draw_icon(tool[0][0], i, False)
+        if flip:
+            pygame.display.flip()
+
+    def flip_display(self):
         pygame.display.flip()
 
     def wait_event_review_mode(self):
@@ -136,6 +157,12 @@ class PygameInterface(object):
         self.screen.blit(icon, pos)
         if flip:
             pygame.display.flip()
+
+    def __render_text(self, text, pos):
+        surface = self.normal_font.render(text, True, param_font_color,
+                                          param_background_color)
+        self.screen.blit(surface, pos)
+
 
     def __parse_event_search_mode(self, event):
         if event.type == pygame.QUIT:
