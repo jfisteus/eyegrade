@@ -27,8 +27,8 @@ regexp_id = re.compile('\{student-id\}')
 regexp_seqnum = re.compile('\{seq-number\}')
 
 class Exam(object):
-    def __init__(self, image, model, solutions, valid_student_ids = None,
-                 im_id = None, save_stats = False):
+    def __init__(self, image, model, solutions, valid_student_ids,
+                 im_id, save_stats, score_weights):
         self.image = image
         self.model = model
         self.solutions = solutions
@@ -45,11 +45,11 @@ class Exam(object):
         else:
             self.student_id = '-1'
         self.locked = False
+        self.score_weights = score_weights
 
     def grade(self):
         good = 0
         bad = 0
-        blank = 0
         undet = 0
         self.correct = []
         for i in range(0, len(self.image.decisions)):
@@ -66,7 +66,14 @@ class Exam(object):
             else:
                 self.correct.append(False)
         blank = self.image.num_questions - good - bad
-        self.score = (good, bad, blank, undet)
+        if self.score_weights is not None:
+            score = good * self.score_weights[0] - \
+                bad * self.score_weights[1] - blank * self.score_weights[2]
+            max_score = self.image.num_questions * self.score_weights[0]
+        else:
+            score = None
+            max_score = None
+        self.score = (good, bad, blank, undet, score, max_score)
 
     def draw_answers(self):
 #        good, bad, blank, undet = self.score
@@ -412,7 +419,7 @@ def main():
             model = decode_model_2x31(image.bits)
             if model is not None:
                 exam = Exam(image, model, solutions[model], valid_student_ids,
-                            im_id, options.save_stats)
+                            im_id, options.save_stats, exam_data.score_weights)
                 exam.grade()
                 latest_graded_exam = exam
             else:
@@ -431,7 +438,7 @@ def main():
             elif event == gui.event_snapshot:
                 if latest_graded_exam is None:
                     exam = Exam(image, model, None, valid_student_ids, im_id,
-                                options.save_stats)
+                                options.save_stats, exam_data.score_weights)
                     exam.grade()
                 else:
                     exam = latest_graded_exam
@@ -454,7 +461,7 @@ def main():
             interface.show_capture(exam.image.image_drawn, False)
             interface.update_text(exam.get_student_name(), False)
             if exam.score is not None:
-                interface.update_status(exam.score[:3], False)
+                interface.update_status(exam.score, False)
             interface.set_review_toolbar(True)
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
@@ -510,7 +517,7 @@ def main():
                         question, answer = cell
                         exam.toggle_answer(question, answer)
                         interface.show_capture(exam.image.image_drawn, False)
-                        interface.update_status(exam.score[:3])
+                        interface.update_status(exam.score)
             dump_camera_buffer(imageproc_context.camera)
             interface.update_text('Searching...', False)
             interface.update_status(None, False)

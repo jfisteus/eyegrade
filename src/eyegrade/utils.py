@@ -240,6 +240,7 @@ class ExamConfig(object):
             self.id_num_digits = 0
             self.dimensions = []
             self.permutations = []
+            self.score_weights = None
 
     def read_config(self, filename):
         """Reads exam configuration from the file named 'filename'."""
@@ -264,6 +265,22 @@ class ExamConfig(object):
             if has_permutations:
                 key = 'permutations-' + chr(65 + i)
                 self.__parse_permutations(exam_data.get('permutations', key))
+        has_correct_weight = exam_data.has_option('exam', 'correct-weight')
+        has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
+        has_blank_weight = exam_data.has_option('exam', 'blank-weight')
+        if has_correct_weight and has_incorrect_weight:
+            cw = self.__parse_score(exam_data.get('exam', 'correct-weight'))
+            iw = self.__parse_score(exam_data.get('exam', 'incorrect-weight'))
+            if has_blank_weight:
+                bw = self.__parse_score(exam_data.get('exam', 'blank-weight'))
+            else:
+                bw = 0.0
+            self.score_weights = (cw, iw, bw)
+        elif not has_correct_weight and not has_incorrect_weight:
+            self.score_weights = None
+        else:
+           raise Exception('Exam config must contain correct and incorrect '
+                           'weight or none')
 
     def __parse_solutions(self, s):
         pieces = s.split('/')
@@ -293,3 +310,14 @@ class ExamConfig(object):
                 raise Exception('Wrong number of options in permutation')
             permutation.append((num_question, options))
         self.permutations.append(permutation)
+
+    def __parse_score(self, score):
+        if score.find('-') != -1:
+            raise Exception('Scores in exam config must be positive'%score)
+        parts = score.split('/')
+        if len(parts) == 1:
+            return float(parts[0])
+        elif len(parts) == 2:
+            return float(parts[0]) / float(parts[1])
+        else:
+            raise Exception('Bad score value: "%s"'%score)

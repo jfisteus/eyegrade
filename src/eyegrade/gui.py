@@ -84,17 +84,23 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
-    def update_status(self, results, flip=True):
+    def update_status(self, score, flip=True):
         self.screen.blit(self.surface_bottom_2, (0, self.capture_size[1] + 32))
-        if results is not None and len(results) == 3:
-            vpos = self.capture_size[1] + 40
-            self.screen.blit(correct_icon, (8, vpos))
-            self.screen.blit(incorrect_icon, (72, vpos))
-            self.screen.blit(unanswered_icon, (136, vpos))
-            vpos = self.capture_size[1] + 60 - self.normal_font.get_height()
-            self.__render_text(str(results[0]), (36, vpos))
-            self.__render_text(str(results[1]), (100, vpos))
-            self.__render_text(str(results[2]), (164, vpos))
+        if score is not None:
+            correct, incorrect, blank, indet, score, max_score = score
+            if correct is not None and incorrect is not None and \
+                    blank is not None:
+                vpos = self.capture_size[1] + 40
+                self.screen.blit(correct_icon, (8, vpos))
+                self.screen.blit(incorrect_icon, (72, vpos))
+                self.screen.blit(unanswered_icon, (136, vpos))
+                vpos = self.capture_size[1] + 60 - self.normal_font.get_height()
+                self.__render_text(str(correct), (36, vpos))
+                self.__render_text(str(incorrect), (100, vpos))
+                self.__render_text(str(blank), (164, vpos))
+                if score is not None and max_score is not None:
+                    text = 'Score: %.2f / %.2f'%(score, max_score)
+                    self.__render_text(text, (210, vpos))
         if flip:
             pygame.display.flip()
 
