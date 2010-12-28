@@ -206,7 +206,7 @@ class ExamCapture(object):
             date = str(datetime.datetime.now())
             logname = os.path.join(self.options['logging-dir'], param_error_log)
             file_ = open(logname, 'a')
-            file_.write('-'*60 + '\n')
+            file_.write('-' * 60 + '\n')
             file_.write(date + '\n')
             file_.write('Hough threshold: %d\n'\
                             %self.context.get_hough_threshold())
@@ -231,6 +231,7 @@ class ExamCapture(object):
         color_good = (0, 210, 0)
         color_bad = (0, 0, 255)
         color_dot = (200, 50, 0)
+        color_blank = (0, 155, 265)
         if self.status['cells']:
             for corners in self.corner_matrixes:
                 for i in range(0, len(corners) - 1):
@@ -246,9 +247,12 @@ class ExamCapture(object):
                                             self.diagonals[base + i][d - 1],
                                             color)
                     if solutions is not None and not correct[base + i]:
+                        color = color_blank if d == 0 else color_dot
+                        radius = 5 if d == 0 else 3
                         ans = solutions[base + i]
                         draw_cell_center(self.image_drawn,
-                                     self.centers[base + i][ans - 1], color_dot)
+                                         self.centers[base + i][ans - 1],
+                                         color, radius)
                 base += len(corners) - 1
         if model is not None:
             text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
@@ -516,8 +520,7 @@ def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
     cv.Circle(image, center, radius, color, 2)
 
-def draw_cell_center(image, center, color = (255, 0, 0)):
-    radius = 4
+def draw_cell_center(image, center, color=(255, 0, 0), radius=4):
     cv.Circle(image, center, radius, color, cv.CV_FILLED)
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
