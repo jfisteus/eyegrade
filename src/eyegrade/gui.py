@@ -25,7 +25,8 @@ event_id_digit = 10
 event_click = 11
 
 statusbar_event_id = pygame.USEREVENT + 1
-statusbar_display_time = 4000
+statusbar_display_time = 6000
+statusbar_tooltip_delay = 2000
 
 save_icon_normal = pygame.image.load(utils.resource_path('save.png'))
 save_icon_high = pygame.image.load(utils.resource_path('save_high.png'))
@@ -46,7 +47,7 @@ unanswered_icon = pygame.image.load(utils.resource_path('unanswered.png'))
 snapshot_help = 'Capture the current exam, when the ' + \
     'system does not recognise it'
 exit_help = 'Exit the system'
-save_help = 'Save current exam and looks for the next one'
+save_help = 'Save current exam and look for the next one'
 next_id_help = 'Try another student ID'
 edit_id_help = 'Insert the student ID manually using the keyboard'
 discard_help = 'Discard this capture and try again'
@@ -100,6 +101,7 @@ class PygameInterface(object):
     def update_status(self, score, flip=True):
         self.last_score = score
         self.__stop_statusbar_timer()
+        self.statusbar_active = False
         self.screen.blit(self.surface_bottom_2, (0, self.capture_size[1] + 32))
         if score is not None:
             correct, incorrect, blank, indet, score, max_score = score
@@ -132,6 +134,8 @@ class PygameInterface(object):
         if self.statusbar_active:
             self.update_status(self.last_score, flip)
             self.statusbar_active = False
+        else:
+            self.__stop_statusbar_timer()
 
     def set_search_toolbar(self, flip=True):
         self.toolbar = []
@@ -193,8 +197,10 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
-    def __start_statusbar_timer(self):
-        pygame.time.set_timer(statusbar_event_id, statusbar_display_time)
+    def __start_statusbar_timer(self, time=None):
+        if time is None:
+            time = statusbar_display_time
+        pygame.time.set_timer(statusbar_event_id, time)
 
     def __stop_statusbar_timer(self):
         pygame.time.set_timer(statusbar_event_id, 0)
@@ -224,7 +230,7 @@ class PygameInterface(object):
         elif event.type == pygame.MOUSEMOTION:
             self.__process_mouse_motion(event)
         elif event.type == statusbar_event_id:
-            self.cancel_statusbar_message()
+            self.__process_statusbar_timer()
         return (None, None)
 
     def __parse_event_review_mode(self, event):
@@ -252,8 +258,18 @@ class PygameInterface(object):
         elif event.type == pygame.MOUSEMOTION:
             self.__process_mouse_motion(event)
         elif event.type == statusbar_event_id:
-            self.cancel_statusbar_message()
+            self.__process_statusbar_timer()
         return (None, None)
+
+    def __process_statusbar_timer(self):
+        if self.statusbar_active:
+            self.cancel_statusbar_message()
+        else:
+            tool_pos = self.__tool_at_position(pygame.mouse.get_pos())
+            if tool_pos is not None:
+                self.set_statusbar_message(self.toolbar[tool_pos][2])
+            else:
+                self.__stop_statusbar_timer()
 
     def __process_mouse_motion(self, event):
         tool_pos = self.__tool_at_position(event.pos)
@@ -262,7 +278,8 @@ class PygameInterface(object):
             self.draw_icon(self.toolbar[self.tool_over][0][0], self.tool_over)
             self.tool_over = None
         if self.tool_over is None and tool_pos is not None:
-            self.set_statusbar_message(self.toolbar[tool_pos][2], False)
+            self.cancel_statusbar_message(False)
+            self.__start_statusbar_timer(statusbar_tooltip_delay)
             self.draw_icon(self.toolbar[tool_pos][0][1], tool_pos)
             self.tool_over = tool_pos
 
