@@ -24,6 +24,9 @@ event_next_id = 9
 event_id_digit = 10
 event_click = 11
 
+statusbar_event_id = pygame.USEREVENT + 1
+statusbar_display_time = 4000
+
 save_icon_normal = pygame.image.load(utils.resource_path('save.png'))
 save_icon_high = pygame.image.load(utils.resource_path('save_high.png'))
 next_id_icon_normal = pygame.image.load(utils.resource_path('next_id.png'))
@@ -39,6 +42,14 @@ exit_icon_high = pygame.image.load(utils.resource_path('exit_high.png'))
 correct_icon = pygame.image.load(utils.resource_path('correct.png'))
 incorrect_icon = pygame.image.load(utils.resource_path('incorrect.png'))
 unanswered_icon = pygame.image.load(utils.resource_path('unanswered.png'))
+
+snapshot_help = 'Capture the current exam, when the ' + \
+    'system does not recognise it'
+exit_help = 'Exit the system'
+save_help = 'Save current exam and looks for the next one'
+next_id_help = 'Try another student ID'
+edit_id_help = 'Insert the student ID manually using the keyboard'
+discard_help = 'Discard this capture and try again'
 
 icon_size = save_icon_normal.get_size()
 toolbar_pos = (8, 10)
@@ -70,6 +81,8 @@ class PygameInterface(object):
         self.tool_over = None
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
+        self.last_score = None
+        self.statusbar_active = None
 
     def show_capture(self, image, flip=True):
         pg_img = imageproc.cvimage_to_pygame(image)
@@ -85,6 +98,8 @@ class PygameInterface(object):
             pygame.display.flip()
 
     def update_status(self, score, flip=True):
+        self.last_score = score
+        self.__stop_statusbar_timer()
         self.screen.blit(self.surface_bottom_2, (0, self.capture_size[1] + 32))
         if score is not None:
             correct, incorrect, blank, indet, score, max_score = score
@@ -104,32 +119,46 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
+    def set_statusbar_message(self, text, flip=True):
+        self.screen.blit(self.surface_bottom_2, (0, self.capture_size[1] + 32))
+        self.__render_text(text, (8, self.capture_size[1] + 60 - \
+                                      self.normal_font.get_height()))
+        if flip:
+            pygame.display.flip()
+        self.__start_statusbar_timer()
+        self.statusbar_active = True
+
+    def cancel_statusbar_message(self, flip=True):
+        if self.statusbar_active:
+            self.update_status(self.last_score, flip)
+            self.statusbar_active = False
+
     def set_search_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((snapshot_icon_normal, snapshot_icon_high),
-                             event_snapshot))
+                             event_snapshot, snapshot_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit))
+                             event_quit, exit_help))
         self.draw_toolbar(flip)
 
     def set_review_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
-        self.toolbar.append(((save_icon_normal, save_icon_high,
-                              save_icon_normal), event_save))
+        self.toolbar.append(((save_icon_normal, save_icon_high),
+                             event_save, save_help))
         if self.id_enabled:
             if self.id_list_enabled:
                 self.toolbar.append(((next_id_icon_normal, next_id_icon_high),
-                                     event_next_id))
+                                     event_next_id, next_id_help))
             self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
-                                 event_manual_id))
+                                 event_manual_id, edit_id_help))
         self.toolbar.append(((discard_icon_normal, discard_icon_high),
-                             event_cancel_frame))
+                             event_cancel_frame, discard_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit))
+                             event_quit, exit_help))
         self.draw_toolbar(flip)
 
     def draw_toolbar(self, flip):
@@ -164,6 +193,12 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
+    def __start_statusbar_timer(self):
+        pygame.time.set_timer(statusbar_event_id, statusbar_display_time)
+
+    def __stop_statusbar_timer(self):
+        pygame.time.set_timer(statusbar_event_id, 0)
+
     def __render_text(self, text, pos):
         surface = self.normal_font.render(text, True, param_font_color,
                                           param_background_color)
@@ -188,6 +223,8 @@ class PygameInterface(object):
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:
             self.__process_mouse_motion(event)
+        elif event.type == statusbar_event_id:
+            self.cancel_statusbar_message()
         return (None, None)
 
     def __parse_event_review_mode(self, event):
@@ -214,14 +251,18 @@ class PygameInterface(object):
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:
             self.__process_mouse_motion(event)
+        elif event.type == statusbar_event_id:
+            self.cancel_statusbar_message()
         return (None, None)
 
     def __process_mouse_motion(self, event):
         tool_pos = self.__tool_at_position(event.pos)
         if self.tool_over is not None and tool_pos != self.tool_over:
+            self.cancel_statusbar_message(False)
             self.draw_icon(self.toolbar[self.tool_over][0][0], self.tool_over)
             self.tool_over = None
         if self.tool_over is None and tool_pos is not None:
+            self.set_statusbar_message(self.toolbar[tool_pos][2], False)
             self.draw_icon(self.toolbar[tool_pos][0][1], tool_pos)
             self.tool_over = tool_pos
 

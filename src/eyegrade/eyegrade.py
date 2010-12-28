@@ -404,6 +404,7 @@ def main():
     lock_mode = not options.adjust
     last_time = time.time()
     interface.update_text('Searching...', False)
+    interface.set_statusbar_message(utils.program_name + ' ' + utils.version)
     interface.set_search_toolbar(True)
     latest_graded_exam = None
     while True:
