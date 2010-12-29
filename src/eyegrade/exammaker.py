@@ -1,33 +1,57 @@
 import utils
 import re
+import copy
 
 param_min_num_questions = 4
 
 # Numbers of questions in which the number of tables is changed
 param_table_limits = [8, 24, 55]
+re_id_box = r'{{id-box\(([0-9]+),(.*)\)}}'
+re_id_box_full = '.*' + re_id_box + '.*'
+re_id_box_comp = re.compile(re_id_box)
+re_id_box_full_comp = re.compile(re_id_box_full, re.DOTALL)
 
-def create_answer_sheet(template_file, output_file, variables,
-                        num_questions, num_answers, model, num_tables = 0):
-    replacements = {}
-    for var in variables:
-        replacements[re.compile('{{' + var + '}}')] = variables[var]
-    answer_table = create_answer_table(num_questions, num_answers,
-                                       model, num_tables)
-    id_box = create_id_box
-    replacements[re.compile('{{answer-table}}')] = answer_table
-    replacements[re.compile('{{tabla-respuestas}}')] = answer_table
-    replacements[re.compile('{{model}}')] = model
-    replacements[re.compile('{{modelo}}')] = model
-    replacements[re.compile(r'{{id-box\(([0-9]+),(.*)\)}}')] = __id_box_replacer
-    exam_text = utils.read_file(template_file)
-    for exp in replacements:
-        exam_text = exp.sub(replacements[exp], exam_text)
-    if isinstance(output_file, file):
-        output_file.write(exam_text)
-    else:
-        file_ = open(output_file, 'w')
-        file_.write(exam_text)
-        file_.close()
+class ExamMaker(object):
+    def __init__(self, num_questions, num_answers, template_filename,
+                 output_file, variables, num_tables=0):
+        self.num_questions = num_questions
+        self.num_answers = num_answers
+        self.num_tables = num_tables
+        self.template = utils.read_file(template_filename)
+        self.output_file = output_file
+        self.variables = variables
+        self.questions = None
+        id_label, self.id_num_digits = id_num_digits(self.template)
+        self.__load_replacements(id_label)
+
+    def __load_replacements(self, id_label):
+        self.replacements = {}
+        for var in self.variables:
+            self.replacements[re.compile('{{' + var + '}}')] = \
+                self.variables[var]
+        self.replacements[re_id_box_comp] = create_id_box(id_label,
+                                                          self.id_num_digits)
+
+    def create_exam(self, model):
+        if model is None or len(model) != 1 or ord(model) < 65 or \
+                ord(model) > 90:
+            raise Exception('Incorrect model value')
+        answer_table = create_answer_table(self.num_questions, self.num_answers,
+                                           model, self.num_tables)
+        replacements = copy.copy(self.replacements)
+        replacements[re.compile('{{answer-table}}')] = answer_table
+        replacements[re.compile('{{tabla-respuestas}}')] = answer_table
+        replacements[re.compile('{{model}}')] = model
+        replacements[re.compile('{{modelo}}')] = model
+        exam_text = self.template
+        for exp in replacements:
+            exam_text = exp.sub(replacements[exp], exam_text)
+        if isinstance(self.output_file, file):
+            self.output_file.write(exam_text)
+        else:
+            file_ = open(self.output_file%model, 'w')
+            file_.write(exam_text)
+            file_.close()
 
 def create_answer_table(num_questions, num_answers, model, num_tables = 0):
     """Returns a string with the answer tables of the asnwer sheet.
@@ -67,22 +91,32 @@ def create_id_box(label, num_digits):
     """Creates the ID box given a label to show and number of digits.
 
     """
-    parts = ['\\begin{center}', '\Large']
-    parts.append('\\begin{tabular}{l|' + num_digits * 'p{3mm}|' + '}')
+    parts = ['\\\\begin{center}', '\Large']
+    parts.append('\\\\begin{tabular}{l|' + num_digits * 'p{3mm}|' + '}')
     parts.append('\\cline{2-%d}'%(1 + num_digits))
-    parts.append('\\textbf{%s}: '%label + num_digits * '& ' + '\\\\')
+    parts.append('\\\\textbf{%s}: '%label + num_digits * '& ' + '\\\\\\\\')
     parts.append('\\cline{2-%d}'%(1 + num_digits))
     parts.append('\\end{tabular}')
     parts.append('\\end{center}')
     return '\n'.join(parts)
 
-def __id_box_replacer(match):
-    """Takes a re.match object and returns the id box.
+def id_num_digits(template):
+    """Returns the tuple (label, number of digits) for the ID box.
 
-       Two groups expected: (1) number of digits; (2) label to show.
+       Receives the text of the template for the exam, which may
+       contain a key like '{{id-box(9,NIA)}}', in which NIA is the
+       label and 9 the number of digits. If the key does not exist in
+       the template, returns (0, None).
 
     """
-    return create_id_box(match.group(2), int(match.group(1)))
+    if re_id_box_full_comp.match(template):
+        data = re_id_box_full_comp.sub(r'\1/\2', template).split('/')
+        num_digits = int(data[0])
+        label = data[1]
+    else:
+        num_digits = 0
+        label = None
+    return label, num_digits
 
 def __choose_num_tables(num_questions):
     """Returns a good number of tables for the given number of questions."""
@@ -196,3 +230,11 @@ def __create_infobits(bits, num_tables, num_answers):
                     components.append(column_inactive)
             parts[j].append(' & '.join(components))
     return parts
+
+def re_id_box_replacer(match):
+    """Takes a re.match object and returns the id box.
+
+    Two groups expected: (1) number of digits; (2) label to show.
+
+    """
+    return create_id_box(match.group(2), int(match.group(1)))
