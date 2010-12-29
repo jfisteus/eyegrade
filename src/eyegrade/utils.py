@@ -1,6 +1,7 @@
 import ConfigParser
 import csv
 import os
+import locale
 
 program_name = 'eyegrade'
 version = '0.1.6.1'
@@ -9,6 +10,21 @@ version_status = 'alpha'
 csv.register_dialect('tabs', delimiter = '\t')
 
 keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
+
+def guess_data_dir():
+    path = os.path.split(os.path.realpath(__file__))[0]
+    paths_to_try = [os.path.join(path, 'data'),
+                    os.path.join(path, '..', 'data'),
+                    os.path.join(path, '..', '..', 'data')]
+    for p in paths_to_try:
+        if os.path.isdir(p):
+            return os.path.abspath(p)
+    raise Exception('Data path not found!')
+
+data_dir = guess_data_dir()
+
+def resource_path(file_name):
+    return os.path.join(data_dir, file_name)
 
 def read_results(filename, permutations = []):
     """Parses an eyegrade results file.
@@ -33,27 +49,34 @@ def read_results(filename, permutations = []):
         result['answers'] = answers
     return results
 
-def read_student_ids(filename):
+def read_student_ids(filename, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file.
 
        The format of the file is flexible: separators can be either
-       tabs or commas. Student ids must be in the first column.
+       tabs or commas. Student ids must be in the first column. The
+       second columns, if present, must be the name of the student.
 
     """
     csvfile = open(filename, 'rb')
-    try:
-        dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    except:
-        # Sniff complains about plain files with only one column (unquoted ID)
-        csvfile.seek(0)
-        if csvfile.readline().strip().isdigit():
-            csv.register_dialect('student-id', delimiter=',')
-            dialect = csv.get_dialect('student-id')
-        else:
+    if csvfile.readline().strip().isdigit():
+        csv.register_dialect('student-id', delimiter=',')
+        dialect = csv.get_dialect('student-id')
+    else:
+        try:
+            csvfile.seek(0)
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+        except:
             raise Exception('Error while processing the students ID list')
     csvfile.seek(0)
     reader = csv.reader(csvfile, dialect)
-    student_ids = [row[0] for row in reader]
+    if not with_names:
+        student_ids = [row[0] for row in reader]
+    else:
+        student_ids = {}
+        for row in reader:
+            sid = row[0]
+            name = row[1] if len(row) > 1 else None
+            student_ids[sid] = unicode(name, locale.getpreferredencoding())
     csvfile.close()
     return student_ids
 
@@ -217,6 +240,7 @@ class ExamConfig(object):
             self.id_num_digits = 0
             self.dimensions = []
             self.permutations = []
+            self.score_weights = None
 
     def read_config(self, filename):
         """Reads exam configuration from the file named 'filename'."""
@@ -241,6 +265,22 @@ class ExamConfig(object):
             if has_permutations:
                 key = 'permutations-' + chr(65 + i)
                 self.__parse_permutations(exam_data.get('permutations', key))
+        has_correct_weight = exam_data.has_option('exam', 'correct-weight')
+        has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
+        has_blank_weight = exam_data.has_option('exam', 'blank-weight')
+        if has_correct_weight and has_incorrect_weight:
+            cw = self.__parse_score(exam_data.get('exam', 'correct-weight'))
+            iw = self.__parse_score(exam_data.get('exam', 'incorrect-weight'))
+            if has_blank_weight:
+                bw = self.__parse_score(exam_data.get('exam', 'blank-weight'))
+            else:
+                bw = 0.0
+            self.score_weights = (cw, iw, bw)
+        elif not has_correct_weight and not has_incorrect_weight:
+            self.score_weights = None
+        else:
+           raise Exception('Exam config must contain correct and incorrect '
+                           'weight or none')
 
     def __parse_solutions(self, s):
         pieces = s.split('/')
@@ -270,3 +310,14 @@ class ExamConfig(object):
                 raise Exception('Wrong number of options in permutation')
             permutation.append((num_question, options))
         self.permutations.append(permutation)
+
+    def __parse_score(self, score):
+        if score.find('-') != -1:
+            raise Exception('Scores in exam config must be positive'%score)
+        parts = score.split('/')
+        if len(parts) == 1:
+            return float(parts[0])
+        elif len(parts) == 2:
+            return float(parts[0]) / float(parts[1])
+        else:
+            raise Exception('Bad score value: "%s"'%score)

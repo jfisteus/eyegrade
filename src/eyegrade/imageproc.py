@@ -1,6 +1,7 @@
 import math
 import copy
 import sys
+import pygame
 
 # Local imports
 from geometry import *
@@ -91,8 +92,8 @@ class ExamCapture(object):
         self.height = self.image_raw.height
         self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
-        num_questions = sum([b[1] for b in boxes_dim])
-        self.decisions = [-1] * num_questions
+        self.num_questions = sum([b[1] for b in boxes_dim])
+        self.decisions = [-1] * self.num_questions
         self.corner_matrixes = None
         self.bits = None
         self.success = False
@@ -205,7 +206,7 @@ class ExamCapture(object):
             date = str(datetime.datetime.now())
             logname = os.path.join(self.options['logging-dir'], param_error_log)
             file_ = open(logname, 'a')
-            file_.write('-'*60 + '\n')
+            file_.write('-' * 60 + '\n')
             file_.write(date + '\n')
             file_.write('Hough threshold: %d\n'\
                             %self.context.get_hough_threshold())
@@ -229,7 +230,8 @@ class ExamCapture(object):
         base = 0
         color_good = (0, 210, 0)
         color_bad = (0, 0, 255)
-        color_dot = (200, 50, 0)
+        color_dot = (255, 0, 0)
+        color_blank = (192, 0, 192)
         if self.status['cells']:
             for corners in self.corner_matrixes:
                 for i in range(0, len(corners) - 1):
@@ -245,9 +247,12 @@ class ExamCapture(object):
                                             self.diagonals[base + i][d - 1],
                                             color)
                     if solutions is not None and not correct[base + i]:
+                        color = color_blank if d == 0 else color_dot
+                        radius = 5 if d == 0 else 3
                         ans = solutions[base + i]
                         draw_cell_center(self.image_drawn,
-                                     self.centers[base + i][ans - 1], color_dot)
+                                         self.centers[base + i][ans - 1],
+                                         color, radius)
                 base += len(corners) - 1
         if model is not None:
             text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
@@ -268,7 +273,7 @@ class ExamCapture(object):
                     color = color_bad
                 draw_text(self.image_drawn, str(im_id), color, (10, 65))
             if self.id is not None:
-                draw_text(self.image_drawn, self.id, color_dot, (10, 30))
+                draw_text(self.image_drawn, self.id, color, (10, 30))
         else:
             self.draw_status_bar()
         if self.options['show-status']:
@@ -515,8 +520,7 @@ def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
     cv.Circle(image, center, radius, color, 2)
 
-def draw_cell_center(image, center, color = (255, 0, 0)):
-    radius = 4
+def draw_cell_center(image, center, color=(255, 0, 0), radius=4):
     cv.Circle(image, center, radius, color, cv.CV_FILLED)
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
@@ -1027,3 +1031,9 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
+
+def cvimage_to_pygame(image):
+    image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
+    cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
+    return pygame.image.frombuffer(image_rgb.tostring(),
+                                   cv.GetSize(image_rgb), 'RGB')
