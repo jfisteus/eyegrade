@@ -230,8 +230,8 @@ class ExamCapture(object):
         base = 0
         color_good = (0, 210, 0)
         color_bad = (0, 0, 255)
-        color_dot = (200, 50, 0)
-        color_blank = (0, 155, 265)
+        color_dot = (255, 0, 0)
+        color_blank = (192, 0, 192)
         if self.status['cells']:
             for corners in self.corner_matrixes:
                 for i in range(0, len(corners) - 1):
@@ -273,7 +273,7 @@ class ExamCapture(object):
                     color = color_bad
                 draw_text(self.image_drawn, str(im_id), color, (10, 65))
             if self.id is not None:
-                draw_text(self.image_drawn, self.id, color_dot, (10, 30))
+                draw_text(self.image_drawn, self.id, color, (10, 30))
         else:
             self.draw_status_bar()
         if self.options['show-status']:
