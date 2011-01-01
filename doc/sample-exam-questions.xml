@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf8"?>
+
+<exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+  <subject>Computers and More</subject>
+  <degree>An Awesome Degree</degree>
+  <date>January 1st, 2011</date>
+  <duration>10 min.</duration>
+
+  <question>
+    <text>
+      What is Python?
+    </text>
+    <choices>
+      <correct>A programming language</correct>
+      <incorrect>A computer manufacturer</incorrect>
+      <incorrect>A kind of tree</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      What is a webcam?
+    </text>
+    <choices>
+      <correct>A video camera intended to be used in from a computer</correct>
+      <incorrect>A video camera intended to spy on spiders</incorrect>
+      <incorrect>A kind of fish</incorrect>
+    </choices>
+  </question>
+
+</exam>

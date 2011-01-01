@@ -321,3 +321,47 @@ class ExamConfig(object):
             return float(parts[0]) / float(parts[1])
         else:
             raise Exception('Bad score value: "%s"'%score)
+
+def read_exam_questions(exam_filename):
+    import xml.dom.minidom
+    import examparser
+    dom_tree = xml.dom.minidom.parse(exam_filename)
+    # By now, only one parser exists. In the future multiple parser can
+    # be called from here, to allow multiple data formats.
+    return examparser.parse_exam(dom_tree)
+
+class ExamQuestions(object):
+    def __init__(self):
+        self.questions = []
+        self.subject = None
+        self.degree = None
+        self.date = None
+        self.duration = None
+
+    def num_questions(self):
+        """Returns the number of questions of the exam."""
+        return len(self.questions)
+
+    def num_choices(self):
+        """Returns the number of choices of the questions.
+
+           If all the questions have the same number of choices, returns
+           that number. If not, returns None.
+
+        """
+        num = [len(q.correct_choices) + len(q.incorrect_choices) \
+                   for q in self.questions]
+        for n in num[1:]:
+            if num[0] != n:
+                return None
+        return num[0]
+
+class Question(object):
+    def __init__(self):
+        self.text = None
+        self.correct_choices = []
+        self.incorrect_choices = []
+        self.code = None
+        self.code_width = None
+        self.figure = None
+        self.figure_width = None
