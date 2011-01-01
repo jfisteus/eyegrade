@@ -2,6 +2,8 @@ import ConfigParser
 import csv
 import os
 import locale
+import codecs
+import sys
 
 program_name = 'eyegrade'
 version = '0.1.6.1'
@@ -214,13 +216,28 @@ def __int_to_bin(n, num_digits, reverse = False):
         return bin[::-1]
 
 def read_file(file_name):
-    """Returns the contest of a file as a string.
+    """Returns contents of a file as a Unicode string using terminal locale.
 
     """
-    file_ = open(file_name, 'r')
+    file_ = codecs.open(file_name, 'r', locale.getpreferredencoding())
     data = file_.read()
     file_.close()
     return data
+
+def write_file(file_name, unicode_text):
+    """Writes a Unicode string in a file using terminal locale.
+
+    """
+    file_ = codecs.open(file_name, 'w', locale.getpreferredencoding())
+    file_.write(unicode_text)
+    file_.close()
+
+def write_to_stdout(unicode_text):
+    """Writes a Unicode string in sys.stdout using terminal locale.
+
+    """
+    writer = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
+    writer.write(unicode_text)
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has

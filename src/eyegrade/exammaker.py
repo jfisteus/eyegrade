@@ -1,6 +1,9 @@
-import utils
 import re
 import copy
+import sys
+
+# Local imports
+import utils
 
 param_min_num_questions = 1
 
@@ -49,12 +52,10 @@ class ExamMaker(object):
         exam_text = self.template
         for exp in replacements:
             exam_text = exp.sub(replacements[exp], exam_text)
-        if isinstance(self.output_file, file):
-            self.output_file.write(exam_text)
+        if self.output_file == sys.stdout:
+            utils.write_to_stdout(exam_text)
         else:
-            file_ = open(self.output_file%model, 'w')
-            file_.write(exam_text)
-            file_.close()
+            utils.write_file(self.output_file%model, exam_text)
 
 def create_answer_table(num_questions, num_choices, model, num_tables = 0):
     """Returns a string with the answer tables of the asnwer sheet.
