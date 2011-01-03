@@ -75,8 +75,12 @@ def read_student_ids(filename, with_names=False):
         student_ids = {}
         for row in reader:
             sid = row[0]
-            name = row[1] if len(row) > 1 else None
-            student_ids[sid] = unicode(name, locale.getpreferredencoding())
+            if len(row) > 1:
+                name = row[1]
+                student_ids[sid] = unicode(name, locale.getpreferredencoding())
+            else:
+                name = None
+                student_ids[sid] = None
     csvfile.close()
     return student_ids
 
