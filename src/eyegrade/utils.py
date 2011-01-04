@@ -2,6 +2,9 @@ import ConfigParser
 import csv
 import os
 import locale
+import codecs
+import sys
+import random
 
 program_name = 'eyegrade'
 version = '0.1.6.1'
@@ -218,13 +221,28 @@ def __int_to_bin(n, num_digits, reverse = False):
         return bin[::-1]
 
 def read_file(file_name):
-    """Returns the contest of a file as a string.
+    """Returns contents of a file as a Unicode string using terminal locale.
 
     """
-    file_ = open(file_name, 'r')
+    file_ = codecs.open(file_name, 'r', locale.getpreferredencoding())
     data = file_.read()
     file_.close()
     return data
+
+def write_file(file_name, unicode_text):
+    """Writes a Unicode string in a file using terminal locale.
+
+    """
+    file_ = codecs.open(file_name, 'w', locale.getpreferredencoding())
+    file_.write(unicode_text)
+    file_.close()
+
+def write_to_stdout(unicode_text):
+    """Writes a Unicode string in sys.stdout using terminal locale.
+
+    """
+    writer = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
+    writer.write(unicode_text)
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
@@ -325,3 +343,80 @@ class ExamConfig(object):
             return float(parts[0]) / float(parts[1])
         else:
             raise Exception('Bad score value: "%s"'%score)
+
+def read_exam_questions(exam_filename):
+    import xml.dom.minidom
+    import examparser
+    dom_tree = xml.dom.minidom.parse(exam_filename)
+    # By now, only one parser exists. In the future multiple parser can
+    # be called from here, to allow multiple data formats.
+    return examparser.parse_exam(dom_tree)
+
+class ExamQuestions(object):
+    def __init__(self):
+        self.questions = []
+        self.subject = None
+        self.degree = None
+        self.date = None
+        self.duration = None
+        self.shuffled_questions = {}
+        self.permutations = {}
+
+    def num_questions(self):
+        """Returns the number of questions of the exam."""
+        return len(self.questions)
+
+    def num_choices(self):
+        """Returns the number of choices of the questions.
+
+           If all the questions have the same number of choices, returns
+           that number. If not, returns None.
+
+        """
+        num = [len(q.correct_choices) + len(q.incorrect_choices) \
+                   for q in self.questions]
+        for n in num[1:]:
+            if num[0] != n:
+                return None
+        return num[0]
+
+    def shuffle(self, model):
+        shuffled, permutations = shuffle(self.questions)
+        self.shuffled_questions[model] = shuffled
+        self.permutations[model] = permutations
+        for question in self.questions:
+            question.shuffle(model)
+
+class Question(object):
+    def __init__(self):
+        self.text = None
+        self.correct_choices = []
+        self.incorrect_choices = []
+        self.code = None
+        self.figure = None
+        self.annex_width = None
+        self.annex_pos = None
+        self.shuffled_choices = {}
+        self.permutations = {}
+
+    def shuffle(self, model):
+        shuffled, permutations = \
+            shuffle(self.correct_choices + self.incorrect_choices)
+        self.shuffled_choices[model] = shuffled
+        self.permutations[model] = permutations
+
+def shuffle(data):
+    """Returns a tuple (list, permutations) with data shuffled.
+
+       Permutations is another list with the original position of each
+       term. That is, shuffled[i] was in the original list in
+       permutations[i] position.
+
+    """
+    to_sort = [(random.random(), item, pos) for pos, item in enumerate(data)]
+    shuffled_data = []
+    permutations = []
+    for val, item, pos in sorted(to_sort):
+        shuffled_data.append(item)
+        permutations.append(pos)
+    return shuffled_data, permutations

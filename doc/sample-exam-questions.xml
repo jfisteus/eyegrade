@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf8"?>
+
+<exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
+      xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+  <subject>Computers and More</subject>
+  <degree>An Awesome Degree</degree>
+  <date>January 1st, 2011</date>
+  <duration>10 min.</duration>
+
+  <question>
+    <text>
+      What is Python?
+    </text>
+    <choices>
+      <correct>A programming language</correct>
+      <incorrect>A computer manufacturer</incorrect>
+      <incorrect>A kind of tree</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      What is a webcam?
+    </text>
+    <choices>
+      <correct>A video camera intended to be used in from a computer</correct>
+      <incorrect>A video camera intended to spy on spiders</incorrect>
+      <incorrect>A kind of fish</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      What is the thing at the right?
+    </text>
+    <code eye:position="right" eye:width="0.4">for letter in ['a', 'b', 'c']:
+    print letter</code>
+    <choices>
+      <correct>A computer program</correct>
+      <incorrect>A recipe</incorrect>
+      <incorrect>A tree</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      Is the thing in the right a logo?
+    </text>
+    <figure eye:width="0.16" eye:position="right">sample-logo.eps</figure>
+    <choices>
+      <correct>Well, it tries to be a logo, to be honest.</correct>
+      <incorrect>No, it's a tree.</incorrect>
+      <incorrect>No, it's a perfect square.</incorrect>
+    </choices>
+  </question>
+
+</exam>
