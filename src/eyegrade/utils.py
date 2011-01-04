@@ -4,6 +4,7 @@ import os
 import locale
 import codecs
 import sys
+import random
 
 program_name = 'eyegrade'
 version = '0.1.6.1'
@@ -354,6 +355,8 @@ class ExamQuestions(object):
         self.degree = None
         self.date = None
         self.duration = None
+        self.shuffled_questions = {}
+        self.permutations = {}
 
     def num_questions(self):
         """Returns the number of questions of the exam."""
@@ -373,12 +376,42 @@ class ExamQuestions(object):
                 return None
         return num[0]
 
+    def shuffle(self, model):
+        shuffled, permutations = shuffle(self.questions)
+        self.shuffled_questions[model] = shuffled
+        self.permutations[model] = permutations
+        for question in self.questions:
+            question.shuffle(model)
+
 class Question(object):
     def __init__(self):
         self.text = None
         self.correct_choices = []
         self.incorrect_choices = []
         self.code = None
-        self.code_width = None
         self.figure = None
-        self.figure_width = None
+        self.annex_width = None
+        self.shuffled_choices = {}
+        self.permutations = {}
+
+    def shuffle(self, model):
+        shuffled, permutations = \
+            shuffle(self.correct_choices + self.incorrect_choices)
+        self.shuffled_choices[model] = shuffled
+        self.permutations[model] = permutations
+
+def shuffle(data):
+    """Returns a tuple (list, permutations) with data shuffled.
+
+       Permutations is another list with the original position of each
+       term. That is, shuffled[i] was in the original list in
+       permutations[i] position.
+
+    """
+    to_sort = [(random.random(), item, pos) for pos, item in enumerate(data)]
+    shuffled_data = []
+    permutations = []
+    for val, item, pos in sorted(to_sort):
+        shuffled_data.append(item)
+        permutations.append(pos)
+    return shuffled_data, permutations

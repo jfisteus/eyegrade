@@ -25,11 +25,17 @@ def parse_exam(dom_tree):
 def parse_question(question_node):
     question = utils.Question()
     question.text = get_element_content(question_node, namespace, 'text')
-    question.code, question.code_width = \
+    question.code, code_width = \
         get_element_content_with_attr(question_node, namespace, 'code', 'width')
-    question.figure, question.figure_width = \
+    question.figure, figure_width = \
         get_element_content_with_attr(question_node, namespace,
                                       'figure', 'width')
+    if question.code is not None and question.figure is not None:
+        raise Exception('A question cannot have both figure and code')
+    if question.code is not None:
+        question.annex_width = float(code_width)
+    elif question.figure is not None:
+        question.annex_width = float(figure_width)
     choices_list = question_node.getElementsByTagNameNS(namespace, 'choices')
     if len(choices_list) != 1:
         raise Exception('Expected exacly one choices element')
@@ -55,7 +61,9 @@ def get_element_content_node(element_node):
 def get_element_content_with_attr(parent, namespace, local_name, attr_name):
     node_list = parent.getElementsByTagNameNS(namespace, local_name)
     if len(node_list) == 1:
-        return get_text(node_list[0]), get_attribute_text(node_list[0], 'width')
+        normalize = True if local_name != 'code' else False
+        return (get_text(node_list[0].childNodes, normalize),
+                get_attribute_text(node_list[0], 'width'))
     elif len(node_list) == 0:
         return None, None
     elif len(node_list) > 1:
@@ -68,14 +76,17 @@ def get_attribute_text(element, attribute_name):
     else:
         return None
 
-def get_text(node_list):
+def get_text(node_list, normalize = True):
     data = []
     for node in node_list:
         if node.nodeType == node.TEXT_NODE:
             data.append(node.data)
     if len(data) > 0:
         text = ''.join(data)
-        return text_norm_re.sub(' ', text.strip())
+        if normalize:
+            return text_norm_re.sub(' ', text.strip())
+        else:
+            return text
     else:
         return None
 

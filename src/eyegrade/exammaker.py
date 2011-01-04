@@ -7,6 +7,10 @@ import utils
 
 param_min_num_questions = 1
 
+# For formatting questions
+param_table_sep = 0.05
+param_table_margin = 0.1
+
 # Numbers of questions in which the number of tables is changed
 param_table_limits = [8, 24, 55]
 re_split_template = re.compile('{{([^{}]+)}}')
@@ -20,22 +24,26 @@ class ExamMaker(object):
         template = utils.read_file(template_filename)
         self.parts = re_split_template.split(template)
         self.output_file = output_file
-        self.questions = None
+        self.exam_questions = None
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
 
-    def set_questions(self, questions):
-        if len(questions) != self.num_questions:
+    def set_exam_questions(self, exam):
+        if exam.num_questions() != self.num_questions:
             raise Exception('Incorrect number of questions')
-        self.questions = questions
+        self.exam_questions = exam
 
     def create_exam(self, model):
         if model is None or len(model) != 1 or ord(model) < 65 or \
                 ord(model) > 90:
             raise Exception('Incorrect model value')
+        replacements = copy.copy(self.replacements)
+        if self.exam_questions is not None:
+            self.exam_questions.shuffle(model)
+            replacements['questions'] = format_questions(self.exam_questions,
+                                                         model)
         answer_table = create_answer_table(self.num_questions, self.num_choices,
                                            model, self.num_tables)
-        replacements = copy.copy(self.replacements)
         replacements['answer-table'] = answer_table
         replacements['model'] = model
         # Replacement keys are in odd positions of self.parts
@@ -239,6 +247,56 @@ def __create_infobits(bits, num_tables, num_choices):
                     components.append(column_inactive)
             parts[j].append(' & '.join(components))
     return parts
+
+def format_questions(exam, model):
+    """Returns the questions of 'exam' formatted in LaTeX, as a string.
+
+       'exam' is a utils.ExamQuestions object. Writtes the questions
+       in their 'shuffled' order.
+
+    """
+    data = []
+    if exam.num_questions() > 0:
+        data.append('\\begin{enumerate}[1.-]\n')
+        for question in exam.shuffled_questions[model]:
+            data.append('\\vspace{2mm}\n')
+            data.extend(format_question(question, model, False))
+            data.append('\n')
+        data.append('\\end{enumerate}\n')
+    return ''.join(data)
+
+def format_question(question, model, as_string = True):
+    """Returns a latex formatted question, as a string or list of strings.
+
+       If 'as_string' is True, returns just one string. It it is
+       False, returns a list of strings to be joined later.
+
+    """
+    data = []
+    if question.figure is not None or question.code is not None:
+        width_right = question.annex_width + param_table_sep
+        width_left = 1 - width_right - param_table_margin
+        data.append('\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}'
+                    'p{%f\\textwidth}}\n'%(width_left, width_right))
+    data.append(r'\item ')
+    data.append(question.text)
+    data.append('\n  \\begin{enumerate}[(a)]\n')
+    for choice in question.shuffled_choices[model]:
+        data.append(r'    \item ')
+        data.append(choice)
+        data.append('\n')
+    data.append('\n  \\end{enumerate}\n')
+    if question.figure is not None:
+        data.append('&\n\\begin{center}\n')
+        data.append('\\includegraphics[width=%f\\textwidth]{%s}\n'%\
+                        (question.annex_width * 0.9, question.figure))
+        data.append('\\end{center}\n\\\\\n\\end{tabular}\n')
+    elif question.code is not None:
+        data.append('&\n\\vspace{0.1cm}\n\\begin{center}\n'
+                    '\\begin{verbatim}\n')
+        data.append(question.code + '\n')
+        data.append('\\end{verbatim}\n\\end{center}\\\\\n\\end{tabular}\n')
+    return data
 
 def re_id_box_replacer(match):
     """Takes a re.match object and returns the id box.

@@ -53,13 +53,12 @@ def main():
         variables['degree'] = exam.degree
         variables['date'] = exam.date
         variables['duration'] = exam.duration
-        questions = exam.questions
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if num_choices is None:
             raise Exception('All the questions in the exam must have the '
                             'same number of choices')
-        for q in questions:
+        for q in exam.questions:
             if len(q.correct_choices) != 1:
                 raise Exception('Questions must have exactly 1 correct choice')
     else:
@@ -82,8 +81,8 @@ def main():
         output_file = options.output_file_prefix + '-%s.tex'
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, options.num_tables)
-    if questions is not None:
-        maker.set_questions(questions)
+    if exam is not None:
+        maker.set_exam_questions(exam)
     for model in options.models:
         maker.create_exam(model)
 
