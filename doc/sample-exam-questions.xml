@@ -34,10 +34,8 @@
     <text>
       What is the thing at the right?
     </text>
-    <code eye:width='0.5'>
-for letter in ['a', 'b', 'c']:
-    print letter
-    </code>
+    <code eye:position="right" eye:width="0.4">for letter in ['a', 'b', 'c']:
+    print letter</code>
     <choices>
       <correct>A computer program</correct>
       <incorrect>A recipe</incorrect>
@@ -49,7 +47,7 @@ for letter in ['a', 'b', 'c']:
     <text>
       Is the thing in the right a logo?
     </text>
-    <figure eye:width="0.16">sample-logo.eps</figure>
+    <figure eye:width="0.16" eye:position="right">sample-logo.eps</figure>
     <choices>
       <correct>Well, it tries to be a logo, to be honest.</correct>
       <incorrect>No, it's a tree.</incorrect>

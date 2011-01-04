@@ -391,6 +391,7 @@ class Question(object):
         self.code = None
         self.figure = None
         self.annex_width = None
+        self.annex_pos = None
         self.shuffled_choices = {}
         self.permutations = {}
 

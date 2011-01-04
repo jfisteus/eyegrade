@@ -25,17 +25,36 @@ def parse_exam(dom_tree):
 def parse_question(question_node):
     question = utils.Question()
     question.text = get_element_content(question_node, namespace, 'text')
-    question.code, code_width = \
-        get_element_content_with_attr(question_node, namespace, 'code', 'width')
-    question.figure, figure_width = \
-        get_element_content_with_attr(question_node, namespace,
-                                      'figure', 'width')
+    question.code, code_atts = \
+        get_element_content_with_attrs(question_node, namespace, 'code',
+                                       ['width', 'position'])
+    question.figure, figure_atts = \
+        get_element_content_with_attrs(question_node, namespace, 'figure',
+                                       ['width', 'position'])
     if question.code is not None and question.figure is not None:
         raise Exception('A question cannot have both figure and code')
-    if question.code is not None:
-        question.annex_width = float(code_width)
+    elif question.code is not None:
+        if code_atts[1] is None:
+            code_atts[1] = 'center'
+        elif code_atts[1] != 'center' and code_atts[1] != 'right':
+            raise Exception('Incorrect value for attribute "position"')
+        if code_atts[0] is None and code_atts[1] == 'right':
+            raise Exception('Attribute "width" is mandatory for code '
+                            'positioned at the right')
+        if code_atts[0] is not None:
+            question.annex_width = float(code_atts[0])
+        else:
+            question.annex_width = None
+        question.annex_pos = code_atts[1]
     elif question.figure is not None:
-        question.annex_width = float(figure_width)
+        if figure_atts[1] is None:
+            figure_atts[1] = 'center'
+        elif figure_atts[1] != 'center' and figure_atts[1] != 'right':
+            raise Exception('Incorrect value for attribute "position"')
+        if figure_atts[0] is None:
+            raise Exception('Attribute "width" is mandatory for figures')
+        question.annex_width = float(figure_atts[0])
+        question.annex_pos = figure_atts[1]
     choices_list = question_node.getElementsByTagNameNS(namespace, 'choices')
     if len(choices_list) != 1:
         raise Exception('Expected exacly one choices element')
@@ -58,12 +77,14 @@ def get_element_content(parent, namespace, local_name):
 def get_element_content_node(element_node):
     return get_text(element_node.childNodes)
 
-def get_element_content_with_attr(parent, namespace, local_name, attr_name):
+def get_element_content_with_attrs(parent, namespace, local_name, attr_names):
     node_list = parent.getElementsByTagNameNS(namespace, local_name)
     if len(node_list) == 1:
         normalize = True if local_name != 'code' else False
-        return (get_text(node_list[0].childNodes, normalize),
-                get_attribute_text(node_list[0], 'width'))
+        att_vals = []
+        for att in attr_names:
+            att_vals.append(get_attribute_text(node_list[0], att))
+        return (get_text(node_list[0].childNodes, normalize), att_vals)
     elif len(node_list) == 0:
         return None, None
     elif len(node_list) > 1:

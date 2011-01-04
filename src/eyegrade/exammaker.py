@@ -273,31 +273,50 @@ def format_question(question, model, as_string = True):
 
     """
     data = []
-    if question.figure is not None or question.code is not None:
+    if (question.figure is not None or question.code is not None) and \
+            question.annex_pos == 'right':
         width_right = question.annex_width + param_table_sep
         width_left = 1 - width_right - param_table_margin
         data.append('\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}'
                     'p{%f\\textwidth}}\n'%(width_left, width_right))
     data.append(r'\item ')
     data.append(question.text)
+    if question.figure is not None and question.annex_pos == 'center':
+        data.extend(write_figure(question.figure, question.annex_width))
+    elif question.code is not None and question.annex_pos == 'center':
+        data.extend(write_code(question.code))
     data.append('\n  \\begin{enumerate}[(a)]\n')
     for choice in question.shuffled_choices[model]:
         data.append(r'    \item ')
         data.append(choice)
         data.append('\n')
     data.append('\n  \\end{enumerate}\n')
-    if question.figure is not None:
-        data.append('&\n\\begin{center}\n')
-        data.append('\\includegraphics[width=%f\\textwidth]{%s}\n'%\
-                        (question.annex_width * 0.9, question.figure))
-        data.append('\\end{center}\n\\\\\n\\end{tabular}\n')
-    elif question.code is not None:
-        data.append('&\n\\vspace{0.1cm}\n\\begin{center}\n'
-                    '\\begin{verbatim}\n')
-        data.append(question.code + '\n')
-        data.append('\\end{verbatim}\n\\end{center}\\\\\n\\end{tabular}\n')
+    if (question.figure is not None or question.code is not None) and \
+            question.annex_pos == 'right':
+        data.append('&\n')
+        if question.figure is not None:
+            data.extend(write_figure(question.figure, question.annex_width))
+        elif question.code is not None:
+            data.extend(write_code(question.code))
+        data.append('\\\\\n\\end{tabular}\n')
     return data
 
+def write_figure(figure, width):
+    data = []
+    data.append('\\begin{center}\n')
+    data.append('\\includegraphics[width=%f\\textwidth]{%s}\n'%\
+                    (width * 0.9, figure))
+    data.append('\\end{center}\n')
+    return data
+
+def write_code(code):
+    data = []
+    data.append('\\begin{center}\n'
+                '\\begin{verbatim}\n')
+    data.append(code + '\n')
+    data.append('\\end{verbatim}\n'
+                '\\end{center}')
+    return data
 def re_id_box_replacer(match):
     """Takes a re.match object and returns the id box.
 
