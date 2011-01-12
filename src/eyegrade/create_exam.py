@@ -62,7 +62,7 @@ def main():
             if len(q.correct_choices) != 1:
                 raise Exception('Questions must have exactly 1 correct choice')
     else:
-        questions = None
+        exam = None
         num_questions = options.num_questions
         num_choices = options.num_choices
 
@@ -77,14 +77,19 @@ def main():
         variables['duration'] = options.duration
     if options.output_file_prefix is None:
         output_file = sys.stdout
+        config_filename = None
     else:
         output_file = options.output_file_prefix + '-%s.tex'
+        config_filename = options.output_file_prefix + '.eye'
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
-                                output_file, variables, options.num_tables)
+                                output_file, variables, config_filename,
+                                options.num_tables)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:
         maker.create_exam(model)
+    if config_filename is not None:
+        maker.save_exam_config()
 
 if __name__ == '__main__':
     main()

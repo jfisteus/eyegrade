@@ -53,7 +53,7 @@ class Exam(object):
         undet = 0
         self.correct = []
         for i in range(0, len(self.image.decisions)):
-            if self.solutions is not None and self.image.decisions[i] > 0:
+            if len(self.solutions) > 0 and self.image.decisions[i] > 0:
                 if self.solutions[i] == self.image.decisions[i]:
                     good += 1
                     self.correct.append(True)
@@ -95,7 +95,7 @@ class Exam(object):
         writer = csv.writer(f, dialect = csv_dialect)
         data = [self.im_id,
                 self.student_id,
-                chr(65 + self.model) if self.model is not None else '?',
+                self.model if self.model is not None else '?',
                 self.score[0],
                 self.score[1],
                 self.score[3],
@@ -258,22 +258,6 @@ class PerformanceProfiler(object):
         else:
             stats['id-ocr-detected'] = '-1'
 
-def decode_model_2x31(bits):
-    # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7
-    valid = False
-    if len(bits) == 3:
-        valid = True
-    elif len(bits) >= 4:
-        if (bits[3] == bits[0] ^ bits[1] ^ (not bits[2])):
-            if len(bits) < 8:
-                valid = True
-            else:
-                valid = (bits[0:4] == bits[4:8])
-    if valid:
-        return bits[0] | bits[1] << 1 | bits[2] << 2
-    else:
-        return None
-
 def read_cmd_options():
     parser = OptionParser(usage = "usage: %prog [options] EXAM_CONFIG_FILE",
                           version = utils.program_name + ' ' + utils.version)
@@ -417,8 +401,8 @@ def main():
         image.detect_safe()
         success = image.success
         if image.status['infobits']:
-            model = decode_model_2x31(image.bits)
-            if model is not None:
+            model = utils.decode_model(image.bits)
+            if model is not None and model in solutions:
                 exam = Exam(image, model, solutions[model], valid_student_ids,
                             im_id, options.save_stats, exam_data.score_weights)
                 exam.grade()

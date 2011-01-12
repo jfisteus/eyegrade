@@ -17,7 +17,8 @@ re_split_template = re.compile('{{([^{}]+)}}')
 
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
-                 output_file, variables, num_tables=0):
+                 output_file, variables, exam_config_filename,
+                 num_tables=0):
         self.num_questions = num_questions
         self.num_choices = num_choices
         self.num_tables = num_tables
@@ -27,6 +28,11 @@ class ExamMaker(object):
         self.exam_questions = None
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
+        self.exam_config_filename = exam_config_filename
+        if self.exam_config_filename is not None:
+            self.__load_exam_config()
+        else:
+            self.exam_config = None
 
     def set_exam_questions(self, exam):
         if exam.num_questions() != self.num_questions:
@@ -38,12 +44,22 @@ class ExamMaker(object):
                 ord(model) > 90:
             raise Exception('Incorrect model value')
         replacements = copy.copy(self.replacements)
+        answer_table, dimensions = create_answer_table(self.num_questions,
+                                                       self.num_choices,
+                                                       model, self.num_tables)
+        if self.exam_config is not None:
+            self.exam_config.dimensions = dimensions
+            if not model in self.exam_config.models:
+                self.exam_config.models.append(model)
         if self.exam_questions is not None:
             self.exam_questions.shuffle(model)
             replacements['questions'] = format_questions(self.exam_questions,
                                                          model)
-        answer_table = create_answer_table(self.num_questions, self.num_choices,
-                                           model, self.num_tables)
+            if self.exam_config is not None:
+                solutions, permutations = \
+                    self.exam_questions.get_solutions_and_permutations(model)
+                self.exam_config.solutions[model] = solutions
+                self.exam_config.permutations[model] = permutations
         replacements['answer-table'] = answer_table
         replacements['model'] = model
         # Replacement keys are in odd positions of self.parts
@@ -56,6 +72,23 @@ class ExamMaker(object):
             utils.write_to_stdout(exam_text)
         else:
             utils.write_file(self.output_file%model, exam_text)
+
+    def save_exam_config(self):
+        if self.exam_config is not None:
+            self.exam_config.save(self.exam_config_filename)
+
+    def __load_exam_config(self):
+        if self.exam_config_filename is not None:
+            try:
+                self.exam_config = utils.ExamConfig(self.exam_config_filename)
+                if self.num_questions != self.exam_config.num_questions:
+                    raise Exception('Incoherent number of questions')
+                if self.id_num_digits != self.exam_config.id_num_digits:
+                    raise Exception('Incoherent configuration of id box')
+            except IOError:
+                self.exam_config = utils.ExamConfig()
+                self.exam_config.num_questions = self.num_questions
+                self.exam_config.id_num_digits = self.id_num_digits
 
     def __load_replacements(self, variables, id_label):
         self.replacements = copy.copy(variables)
@@ -102,7 +135,12 @@ def create_answer_table(num_questions, num_choices, model, num_tables = 0):
                                 num_choices, bits_rows, compact))
     rows.append(r'\end{tabular}')
     rows.append(r'\end{center}')
-    return '\n'.join(rows)
+    geometry = []
+    for i in range(0, len(question_numbers) - 1):
+        geometry.append((num_choices,
+                         question_numbers[i + 1] - question_numbers[i]))
+    geometry.append((num_choices, num_questions - question_numbers[-1] + 1))
+    return '\n'.join(rows), geometry
 
 
 def create_id_box(label, num_digits):
@@ -153,9 +191,9 @@ def __table_geometry(num_questions, num_choices, num_tables):
        represents the number of answers for the question in 'row' /
        'column'. If 0, the question does not exist. If -1, a first row
        of infobits should be placed there; if -2, a second row.
-       - 'question_numbers' is a list with the number of question of
-       the first row of each table. The first question is numbered as
-       1.
+       - 'question_numbers' is a list with the sequence number of the
+       question in the first row of each table. The first question is
+       numbered as 1.
 
     """
     rows_per_table = num_questions // num_tables
@@ -263,6 +301,10 @@ def format_questions(exam, model):
             data.extend(format_question(question, model, False))
             data.append('\n')
         data.append('\\end{enumerate}\n')
+        data.append('\n\n% solutions: ')
+        solutions, permutations = exam.get_solutions_and_permutations(model)
+        data.append(' '.join([str(n) for n in solutions]))
+        data.append('\n')
     return ''.join(data)
 
 def format_question(question, model, as_string = True):
@@ -317,6 +359,7 @@ def write_code(code):
     data.append('\\end{verbatim}\n'
                 '\\end{center}')
     return data
+
 def re_id_box_replacer(match):
     """Takes a re.match object and returns the id box.
 

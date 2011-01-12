@@ -24,7 +24,8 @@
       What is a webcam?
     </text>
     <choices>
-      <correct>A video camera intended to be used in from a computer</correct>
+      <correct>A video camera whose output may be viewed in real
+         time over a network, especially over the Internet.</correct>
       <incorrect>A video camera intended to spy on spiders</incorrect>
       <incorrect>A kind of fish</incorrect>
     </choices>

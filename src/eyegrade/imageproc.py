@@ -246,7 +246,7 @@ class ExamCapture(object):
                                             self.centers[base + i][d - 1],
                                             self.diagonals[base + i][d - 1],
                                             color)
-                    if solutions is not None and not correct[base + i]:
+                    if len(solutions) > 0 and not correct[base + i]:
                         color = color_blank if d == 0 else color_dot
                         radius = 5 if d == 0 else 3
                         ans = solutions[base + i]
@@ -255,7 +255,7 @@ class ExamCapture(object):
                                          color, radius)
                 base += len(corners) - 1
         if model is not None:
-            text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
+            text = "Model %s: %d / %d"%(model, good, bad)
         else:
             text = "Model ?: %d / %d"%(good, bad)
         if undet > 0:

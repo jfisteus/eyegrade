@@ -5,10 +5,13 @@ import locale
 import codecs
 import sys
 import random
+import re
 
 program_name = 'eyegrade'
 version = '0.1.6.1'
 version_status = 'alpha'
+
+re_model_letter = re.compile('[a-zA-Z]')
 
 csv.register_dialect('tabs', delimiter = '\t')
 
@@ -29,7 +32,7 @@ data_dir = guess_data_dir()
 def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 
-def read_results(filename, permutations = []):
+def read_results(filename, permutations = {}):
     """Parses an eyegrade results file.
 
        Results are returned as a list of dictionaries with the keys
@@ -40,17 +43,23 @@ def read_results(filename, permutations = []):
     results = __read_results_file(filename)
     for result in results:
         if result['model'].isdigit():
-            result['model'] = int(result['model'])
+            result['model'] = ord(65 + int(result['model']))
         else:
-            result['model'] = ord(result['model']) - ord('A')
+            result['model'] = check_model_letter(result['model'])
         result['good'] = int(result['good'])
         result['bad'] = int(result['bad'])
         result['unknown'] = int(result['unknown'])
         answers = [int(n) for n in result['answers'].split('/')]
-        if permutations != []:
+        if len(permutations) > 0:
             answers = __permute_answers(answers, permutations[result['model']])
         result['answers'] = answers
     return results
+
+def check_model_letter(model):
+    if re_model_letter.match(model):
+        return model.upper()
+    else:
+        raise Exception('Incorrect model letter: ' + model)
 
 def read_student_ids(filename, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file.
@@ -187,6 +196,8 @@ def encode_model(model, num_tables, num_answers):
     """
     if len(model) != 1 or model < 'A' or model > 'Z':
         raise Exception('Incorrect model letter')
+    if model > 'H':
+        raise Exception('Model is currently limited to A - H')
     model_num = ord(model) - 65
     if model_num >= 2 ** (num_answers - 1):
         raise Exception('Model number too big given the number of answers')
@@ -195,6 +206,29 @@ def encode_model(model, num_tables, num_answers):
     bit_list.append(reduce(lambda x, y: x ^ y, bit_list))
     bit_list[2] = not bit_list[2]
     return (num_tables * bit_list)[:num_tables * num_answers]
+
+def decode_model(bit_list):
+    """Given the bits that encode the model, returns the associated letter.
+
+       It decoding/checksum fails, None is returned. The list of bits must
+       be a list of boolean variables.
+
+    """
+    # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7 == x8-x11 == ...
+    valid = False
+    if len(bit_list) == 3:
+        valid = True
+    elif len(bit_list) >= 4:
+        if (bit_list[3] == bit_list[0] ^ bit_list[1] ^ (not bit_list[2])):
+            valid = True
+            for i in range(4, len(bit_list)):
+                if bit_list[i] != bit_list[i - 4]:
+                    valid = False
+                    break
+    if valid:
+        return chr(65 + bit_list[0] | bit_list[1] << 1 | bit_list[2] << 2)
+    else:
+        return None
 
 def __int_to_bin(n, num_digits, reverse = False):
     """Returns the binary representation of a number as a list of booleans.
@@ -244,34 +278,48 @@ def write_to_stdout(unicode_text):
     writer = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
     writer.write(unicode_text)
 
+def increment_list(list_):
+    """Adds one to every element in a list of integers. Returns a new list.
+
+    """
+    return [n + 1 for n in list_]
+
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
        been created and data loaded, access directly to the attributes
        to get the data. The constructor reads data from a file. See
        doc/exam-data.sample for an example of such a file."""
 
+    re_model = re.compile('model-[a-zA-Z]')
+
     def __init__(self, filename = None):
         """Loads data from file if 'filename' is not None. Otherwise,
            default values are assigned to the attributes."""
         if filename is not None:
-            self.read_config(filename)
+            self.read(filename)
         else:
-            self.num_models = 0
             self.num_questions = 0
-            self.solutions = None
+            self.solutions = {}
             self.id_num_digits = 0
             self.dimensions = []
-            self.permutations = []
+            self.permutations = {}
+            self.models = []
             self.score_weights = None
 
-    def read_config(self, filename):
+    def set_solutions(self, model, solutions):
+        if self.solutions is None:
+            self.solutions = {}
+        self.solutions[model] = solutions
+
+    def set_permutations(self, model, permutations):
+        self.permutations[model] = permutations
+
+    def read(self, filename):
         """Reads exam configuration from the file named 'filename'."""
         exam_data = ConfigParser.SafeConfigParser()
-        exam_data.read([filename])
-        try:
-            self.num_models = exam_data.getint('exam', 'num-models')
-        except:
-            self.num_models = 1
+        files_read = exam_data.read([filename])
+        if len(files_read) != 1:
+            raise IOError('Exam config file not found: ' + filename)
         try:
             self.id_num_digits = exam_data.getint('exam', 'id-num-digits')
         except:
@@ -279,14 +327,19 @@ class ExamConfig(object):
         self.__parse_dimensions(exam_data.get('exam', 'dimensions'))
         self.num_questions = sum(dim[1] for dim in self.dimensions)
         has_permutations = exam_data.has_section('permutations')
-        self.solutions = []
-        self.permutations = []
-        for i in range(0, self.num_models):
-            key = 'model-' + chr(65 + i)
-            self.__parse_solutions(exam_data.get('solutions', key))
+        self.solutions = {}
+        self.permutations = {}
+        self.models = []
+        for key, value in exam_data.items('solutions'):
+            if not self.re_model.match(key):
+                raise Exception('Incorrect key in exam config: ' + key)
+            model = key[-1].upper()
+            self.models.append(model)
+            self.solutions[model] = self.__parse_solutions(value)
             if has_permutations:
-                key = 'permutations-' + chr(65 + i)
-                self.__parse_permutations(exam_data.get('permutations', key))
+                key = 'permutations-' + model
+                value = exam_data.get('permutations', key)
+                self.permutations[model] = self.__parse_permutations(value)
         has_correct_weight = exam_data.has_option('exam', 'correct-weight')
         has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
         has_blank_weight = exam_data.has_option('exam', 'blank-weight')
@@ -303,12 +356,54 @@ class ExamConfig(object):
         else:
            raise Exception('Exam config must contain correct and incorrect '
                            'weight or none')
+        self.models.sort()
+
+    def save(self, filename):
+        data = []
+        data.append('[exam]')
+        data.append('dimensions: %s'%self.format_dimensions())
+        data.append('id-num-digits: %d'%self.id_num_digits)
+        if self.score_weights is not None:
+            data.append('correct-weight: %.16f'%self.score_weights[0])
+            data.append('incorrect-weight: %.16f'%self.score_weights[1])
+            data.append('blank-weight: %.16f'%self.score_weights[2])
+        if len(self.solutions) > 0:
+            data.append('')
+            data.append('[solutions]')
+            for model in self.models:
+                data.append('model-%s: %s'%(model,
+                                            self.format_solutions(model)))
+        if len(self.permutations) > 0:
+            data.append('')
+            data.append('[permutations]')
+            for model in self.models:
+                data.append('permutations-%s: %s'%(model,
+                                            self.format_permutations(model)))
+        data.append('')
+        file_ = open(filename, 'w')
+        file_.write('\n'.join(data))
+        file_.close()
+
+    def format_dimensions(self):
+        return ';'.join(['%d,%d'%(cols, rows) \
+                             for cols, rows in self.dimensions])
+
+    def format_solutions(self, model):
+        return '/'.join([str(n) for n in self.solutions[model]])
+
+    def format_permutations(self, model):
+        return '/'.join([self.__format_permutation(p) \
+                             for p in self.permutations[model]])
+
+    def __format_permutation(self, permutation):
+        num_question, options = permutation
+        return '%d{%s}'%(num_question, ','.join([str(n) for n in options]))
 
     def __parse_solutions(self, s):
         pieces = s.split('/')
         if len(pieces) != self.num_questions:
             raise Exception('Wrong number of solutions')
-        self.solutions.append([int(num) for num in pieces])
+        return [int(num) for num in pieces]
 
     def __parse_dimensions(self, s):
         self.dimensions = []
@@ -331,7 +426,7 @@ class ExamConfig(object):
             if len(options) != self.num_options[i]:
                 raise Exception('Wrong number of options in permutation')
             permutation.append((num_question, options))
-        self.permutations.append(permutation)
+        return permutation
 
     def __parse_score(self, score):
         if score.find('-') != -1:
@@ -381,11 +476,23 @@ class ExamQuestions(object):
         return num[0]
 
     def shuffle(self, model):
+        """Shuffles questions and options within questions for the given model.
+
+        """
         shuffled, permutations = shuffle(self.questions)
         self.shuffled_questions[model] = shuffled
         self.permutations[model] = permutations
         for question in self.questions:
             question.shuffle(model)
+
+    def get_solutions_and_permutations(self, model):
+        solutions = []
+        permutations = []
+        for qid in self.permutations[model]:
+            answers_perm = self.questions[qid].permutations[model]
+            solutions.append(1 + answers_perm.index(0))
+            permutations.append((qid + 1, increment_list(answers_perm)))
+        return solutions, permutations
 
 class Question(object):
     def __init__(self):
