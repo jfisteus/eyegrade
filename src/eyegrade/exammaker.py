@@ -40,8 +40,8 @@ class ExamMaker(object):
         self.exam_questions = exam
 
     def create_exam(self, model):
-        if model is None or len(model) != 1 or ord(model) < 65 or \
-                ord(model) > 90:
+        if model is None or len(model) != 1 or ((ord(model) < 65 or \
+                 ord(model) > 90) and model != '0'):
             raise Exception('Incorrect model value')
         replacements = copy.copy(self.replacements)
         answer_table, dimensions = create_answer_table(self.num_questions,
@@ -52,14 +52,15 @@ class ExamMaker(object):
             if not model in self.exam_config.models:
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
-            self.exam_questions.shuffle(model)
+            if model != '0':
+                self.exam_questions.shuffle(model)
+                if self.exam_config is not None:
+                    solutions, permutations = \
+                        self.exam_questions.solutions_and_permutations(model)
+                    self.exam_config.solutions[model] = solutions
+                    self.exam_config.permutations[model] = permutations
             replacements['questions'] = format_questions(self.exam_questions,
                                                          model)
-            if self.exam_config is not None:
-                solutions, permutations = \
-                    self.exam_questions.get_solutions_and_permutations(model)
-                self.exam_config.solutions[model] = solutions
-                self.exam_config.permutations[model] = permutations
         replacements['answer-table'] = answer_table
         replacements['model'] = model
         # Replacement keys are in odd positions of self.parts
@@ -124,7 +125,10 @@ def create_answer_table(num_questions, num_choices, model, num_tables = 0):
     elif num_tables * 2 > num_questions:
         raise Exception('Too many tables for the given number of questions')
     compact = (num_tables > 2)
-    bits = utils.encode_model(model, num_tables, num_choices)
+    if model != '0':
+        bits = utils.encode_model(model, num_tables, num_choices)
+    else:
+        bits = [False] * num_tables * num_choices
     bits_rows = __create_infobits(bits, num_tables, num_choices)
     tables, question_numbers = __table_geometry(num_questions, num_choices,
                                                 num_tables)
@@ -295,16 +299,21 @@ def format_questions(exam, model):
     """
     data = []
     if exam.num_questions() > 0:
+        if model == '0':
+            questions = exam.questions
+        else:
+            questions = exam.shuffled_questions[model]
         data.append('\\begin{enumerate}[1.-]\n')
-        for question in exam.shuffled_questions[model]:
+        for question in questions:
             data.append('\\vspace{2mm}\n')
             data.extend(format_question(question, model, False))
             data.append('\n')
         data.append('\\end{enumerate}\n')
-        data.append('\n\n% solutions: ')
-        solutions, permutations = exam.get_solutions_and_permutations(model)
-        data.append(' '.join([str(n) for n in solutions]))
-        data.append('\n')
+        if model != '0':
+            data.append('\n\n% solutions: ')
+            solutions, permutations = exam.solutions_and_permutations(model)
+            data.append(' '.join([str(n) for n in solutions]))
+            data.append('\n')
     return ''.join(data)
 
 def format_question(question, model, as_string = True):
@@ -315,6 +324,10 @@ def format_question(question, model, as_string = True):
 
     """
     data = []
+    if model == '0':
+        choices = question.correct_choices + question.incorrect_choices
+    else:
+        choices = question.shuffled_choices[model]
     if (question.figure is not None or question.code is not None) and \
             question.annex_pos == 'right':
         width_right = question.annex_width + param_table_sep
@@ -328,7 +341,7 @@ def format_question(question, model, as_string = True):
     elif question.code is not None and question.annex_pos == 'center':
         data.extend(write_code(question.code))
     data.append('\n  \\begin{enumerate}[(a)]\n')
-    for choice in question.shuffled_choices[model]:
+    for choice in choices:
         data.append(r'    \item ')
         data.append(choice)
         data.append('\n')

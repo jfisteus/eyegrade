@@ -485,7 +485,7 @@ class ExamQuestions(object):
         for question in self.questions:
             question.shuffle(model)
 
-    def get_solutions_and_permutations(self, model):
+    def solutions_and_permutations(self, model):
         solutions = []
         permutations = []
         for qid in self.permutations[model]:
