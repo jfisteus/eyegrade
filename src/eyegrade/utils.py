@@ -328,20 +328,22 @@ class ExamConfig(object):
             self.id_num_digits = 0
         self.__parse_dimensions(exam_data.get('exam', 'dimensions'))
         self.num_questions = sum(dim[1] for dim in self.dimensions)
+        has_solutions = exam_data.has_section('solutions')
         has_permutations = exam_data.has_section('permutations')
         self.solutions = {}
         self.permutations = {}
         self.models = []
-        for key, value in exam_data.items('solutions'):
-            if not self.re_model.match(key):
-                raise Exception('Incorrect key in exam config: ' + key)
-            model = key[-1].upper()
-            self.models.append(model)
-            self.solutions[model] = self.__parse_solutions(value)
-            if has_permutations:
-                key = 'permutations-' + model
-                value = exam_data.get('permutations', key)
-                self.permutations[model] = self.__parse_permutations(value)
+        if has_solutions:
+            for key, value in exam_data.items('solutions'):
+                if not self.re_model.match(key):
+                    raise Exception('Incorrect key in exam config: ' + key)
+                model = key[-1].upper()
+                self.models.append(model)
+                self.solutions[model] = self.__parse_solutions(value)
+                if has_permutations:
+                    key = 'permutations-' + model
+                    value = exam_data.get('permutations', key)
+                    self.permutations[model] = self.__parse_permutations(value)
         has_correct_weight = exam_data.has_option('exam', 'correct-weight')
         has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
         has_blank_weight = exam_data.has_option('exam', 'blank-weight')

@@ -48,7 +48,10 @@ class ExamMaker(object):
                                                        self.num_choices,
                                                        model, self.num_tables)
         if self.exam_config is not None:
-            self.exam_config.dimensions = dimensions
+            if self.exam_config.dimensions == []:
+                self.exam_config.dimensions = dimensions
+            elif self.exam_config.dimensions != dimensions:
+                raise Exception('Incoherent answer table dimensions')
             if not model in self.exam_config.models:
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
