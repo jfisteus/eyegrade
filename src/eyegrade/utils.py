@@ -199,13 +199,15 @@ def encode_model(model, num_tables, num_answers):
     if model > 'H':
         raise Exception('Model is currently limited to A - H')
     model_num = ord(model) - 65
-    if model_num >= 2 ** (num_answers - 1):
+    num_bits = num_tables * num_answers
+    if model_num >= 2 ** (num_bits - 1):
         raise Exception('Model number too big given the number of answers')
-    bit_list = __int_to_bin(model_num, 3, True)
-    bit_list[2] = not bit_list[2]
-    bit_list.append(reduce(lambda x, y: x ^ y, bit_list))
-    bit_list[2] = not bit_list[2]
-    return (num_tables * bit_list)[:num_tables * num_answers]
+    seed = __int_to_bin(model_num, 3, True)
+    seed[2] = not seed[2]
+    seed.append(reduce(lambda x, y: x ^ y, seed))
+    seed[2] = not seed[2]
+    bit_list = seed * (1 + (num_bits - 1) // 4)
+    return bit_list[:num_tables * num_answers]
 
 def decode_model(bit_list):
     """Given the bits that encode the model, returns the associated letter.
