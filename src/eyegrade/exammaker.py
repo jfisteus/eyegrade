@@ -18,7 +18,7 @@ re_split_template = re.compile('{{([^{}]+)}}')
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
-                 num_tables=0):
+                 dont_shuffle_again, num_tables=0):
         self.num_questions = num_questions
         self.num_choices = num_choices
         self.num_tables = num_tables
@@ -29,6 +29,7 @@ class ExamMaker(object):
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
         self.exam_config_filename = exam_config_filename
+        self.dont_shuffle_again = dont_shuffle_again
         if self.exam_config_filename is not None:
             self.__load_exam_config()
         else:
@@ -56,12 +57,17 @@ class ExamMaker(object):
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
             if model != '0':
-                self.exam_questions.shuffle(model)
-                if self.exam_config is not None:
-                    solutions, permutations = \
-                        self.exam_questions.solutions_and_permutations(model)
-                    self.exam_config.solutions[model] = solutions
-                    self.exam_config.permutations[model] = permutations
+                if not model in self.exam_config.permutations or \
+                        not self.dont_shuffle_again:
+                    self.exam_questions.shuffle(model)
+                    if self.exam_config is not None:
+                        solutions, permutations = \
+                          self.exam_questions.solutions_and_permutations(model)
+                        self.exam_config.solutions[model] = solutions
+                        self.exam_config.permutations[model] = permutations
+                else:
+                    p = self.exam_config.permutations[model]
+                    self.exam_questions.set_permutation(model, p)
             replacements['questions'] = format_questions(self.exam_questions,
                                                          model)
         replacements['answer-table'] = answer_table

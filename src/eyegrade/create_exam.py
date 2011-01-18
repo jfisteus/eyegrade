@@ -29,6 +29,9 @@ def read_cmd_options():
                       help='concatenation of the model leters to create')
     parser.add_option('-t', '--duration', dest='duration', default=None,
                       help='exam duration time')
+    parser.add_option("-k", "--dont-shuffle-again", action="store_true",
+                      dest = "dont_shuffle_again", default = False,
+                      help = "don't shuffle already shuffled models")
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
@@ -83,7 +86,7 @@ def main():
         config_filename = options.output_file_prefix + '.eye'
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, config_filename,
-                                options.num_tables)
+                                options.dont_shuffle_again, options.num_tables)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:

@@ -374,13 +374,13 @@ class ExamConfig(object):
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')
-            for model in self.models:
+            for model in sorted(self.models):
                 data.append('model-%s: %s'%(model,
                                             self.format_solutions(model)))
         if len(self.permutations) > 0:
             data.append('')
             data.append('[permutations]')
-            for model in self.models:
+            for model in sorted(self.models):
                 data.append('permutations-%s: %s'%(model,
                                             self.format_permutations(model)))
         data.append('')
@@ -488,6 +488,15 @@ class ExamQuestions(object):
         self.permutations[model] = permutations
         for question in self.questions:
             question.shuffle(model)
+
+    def set_permutation(self, model, permutation):
+        self.permutations[model] = [p[0] - 1 for p in permutation]
+        self.shuffled_questions[model] = \
+            [self.questions[i] for i in self.permutations[model]]
+        for q, p in zip(self.shuffled_questions[model], permutation):
+            choices = q.correct_choices + q.incorrect_choices
+            q.permutations[model] = [i - 1 for i in p[1]]
+            q.shuffled_choices[model] = [choices[i - 1] for i in p[1]]
 
     def solutions_and_permutations(self, model):
         solutions = []
