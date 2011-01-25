@@ -422,7 +422,7 @@ def main():
                     not imageproc_options['show-lines']
             elif event == gui.event_snapshot:
                 if latest_graded_exam is None:
-                    exam = Exam(image, model, None, valid_student_ids, im_id,
+                    exam = Exam(image, model, {}, valid_student_ids, im_id,
                                 options.save_stats, exam_data.score_weights)
                     exam.grade()
                 else:
