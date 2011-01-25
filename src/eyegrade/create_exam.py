@@ -1,5 +1,6 @@
 from optparse import OptionParser
 import sys
+import locale
 
 # Local imports
 import utils
@@ -70,14 +71,15 @@ def main():
         num_choices = options.num_choices
 
     # Command line options override options from the file
+    encoding = locale.getpreferredencoding()
     if options.date is not None:
-        variables['date'] = options.date
+        variables['date'] = unicode(options.date, encoding)
     if options.subject is not None:
-        variables['subject'] = options.subject
+        variables['subject'] = unicode(options.subject, encoding)
     if options.degree is not None:
-        variables['degree'] = options.degree
+        variables['degree'] = unicode(options.degree, encoding)
     if options.duration is not None:
-        variables['duration'] = options.duration
+        variables['duration'] = unicode(options.duration, encoding)
     if options.output_file_prefix is None:
         output_file = sys.stdout
         config_filename = None
