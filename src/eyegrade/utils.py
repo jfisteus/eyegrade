@@ -410,13 +410,7 @@ class ExamConfig(object):
         return [int(num) for num in pieces]
 
     def __parse_dimensions(self, s):
-        self.dimensions = []
-        self.num_options = []
-        boxes = s.split(';')
-        for box in boxes:
-            dims = box.split(',')
-            self.dimensions.append((int(dims[0]), int(dims[1])))
-            self.num_options.extend([int(dims[0])] * int(dims[1]))
+        self.dimensions, self.num_options = parse_dimensions(s)
 
     def __parse_permutations(self, s):
         permutation = []
@@ -442,6 +436,19 @@ class ExamConfig(object):
             return float(parts[0]) / float(parts[1])
         else:
             raise Exception('Bad score value: "%s"'%score)
+
+def parse_dimensions(text):
+    dimensions = []
+    num_options = []
+    boxes = text.split(';')
+    for box in boxes:
+        dims = box.split(',')
+        data = (int(dims[0]), int(dims[1]))
+        if data[0] <= 0 or data[1] <= 0:
+            raise Exception('Incorrect number in exam geometry')
+        dimensions.append(data)
+        num_options.extend([data[0]] * data[1])
+    return dimensions, num_options
 
 def read_exam_questions(exam_filename):
     import xml.dom.minidom

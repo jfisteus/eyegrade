@@ -139,8 +139,8 @@ def create_answer_table(num_questions, num_choices, model, num_tables = 0):
     else:
         bits = [False] * num_tables * num_choices
     bits_rows = __create_infobits(bits, num_tables, num_choices)
-    tables, question_numbers = __table_geometry(num_questions, num_choices,
-                                                num_tables)
+    tables, question_numbers = table_geometry(num_questions, num_choices,
+                                             num_tables)
     rows = __table_top(num_tables, num_choices, compact)
     for i, row_geometry in enumerate(tables):
         rows.append(__horizontal_line(row_geometry, num_choices, compact))
@@ -186,17 +186,7 @@ def id_num_digits(parts):
             return data[1], int(data[0])
     return None, 0
 
-def __choose_num_tables(num_questions):
-    """Returns a good number of tables for the given number of questions."""
-    num_tables = 1
-    for numq in param_table_limits:
-        if numq >= num_questions:
-            break
-        else:
-            num_tables += 1
-    return num_tables
-
-def __table_geometry(num_questions, num_choices, num_tables):
+def table_geometry(num_questions, num_choices, num_tables):
     """Returns the geometry of the answer tables.
 
        The result is a tuple (tables, question_numbers) where:
@@ -228,6 +218,37 @@ def __table_geometry(num_questions, num_choices, num_tables):
     tables.append(diff * [-1] + (num_tables - diff) * [-2])
     tables.append(diff * [-2] + (num_tables - diff) * [-0])
     return tables, question_numbers
+
+def table_geometry_from_dimensions(dimensions):
+    num_cols = [table[0] for table in dimensions]
+    num_rows = 2 + max([table[1] for table in dimensions])
+    tables = []
+    for i in range(0, num_rows):
+        row = []
+        for j, num_choices in enumerate(num_cols):
+            if i < dimensions[j][1]:
+                row.append(num_choices)
+            elif i == dimensions[j][1]:
+                row.append(-1)
+            elif i == dimensions[j][1] + 1:
+                row.append(-2)
+            else:
+                row.append(0)
+        tables.append(row)
+    question_numbers = [0]
+    for i in range(1, len(dimensions) - 1):
+        question_numbers.append(quesion_numbers[-1] + dimensions[i][1])
+    return tables, question_numbers
+
+def __choose_num_tables(num_questions):
+    """Returns a good number of tables for the given number of questions."""
+    num_tables = 1
+    for numq in param_table_limits:
+        if numq >= num_questions:
+            break
+        else:
+            num_tables += 1
+    return num_tables
 
 def __horizontal_line(row_geometry, num_choices, compact):
     parts = []
