@@ -4,6 +4,9 @@
 ## Default camera device to use (int); -1 for automatic selection.
 camera-dev: 0
 
+## If error-logging is set to 'yes', exceptions in code are logged
+# error-logging: yes
+
 ## Filename pattern for saving captures. Use {student-id} or {seq-number}
 ## in places you wish those pieces of data to appear. Example:
 ## exam-{student-id}-{seq-number}.png

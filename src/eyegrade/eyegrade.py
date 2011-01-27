@@ -1,8 +1,5 @@
-import pygame
-from pygame.locals import *
 import sys
 import os
-import ConfigParser
 from optparse import OptionParser
 import imageproc
 import time
@@ -12,6 +9,7 @@ import re
 
 # Local imports
 import utils
+import gui
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -29,8 +27,8 @@ regexp_id = re.compile('\{student-id\}')
 regexp_seqnum = re.compile('\{seq-number\}')
 
 class Exam(object):
-    def __init__(self, image, model, solutions, valid_student_ids = None,
-                 im_id = None, save_stats = False):
+    def __init__(self, image, model, solutions, valid_student_ids,
+                 im_id, save_stats, score_weights):
         self.image = image
         self.model = model
         self.solutions = solutions
@@ -40,12 +38,14 @@ class Exam(object):
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
         if self.image.options['read-id']:
+            self.student_names = valid_student_ids
             self.student_id = self.decide_student_id(valid_student_ids)
             self.student_id_filter = []
             self.student_id_manual = []
         else:
             self.student_id = '-1'
         self.locked = False
+        self.score_weights = score_weights
 
     def grade(self):
         good = 0
@@ -53,7 +53,7 @@ class Exam(object):
         undet = 0
         self.correct = []
         for i in range(0, len(self.image.decisions)):
-            if self.solutions is not None and self.image.decisions[i] > 0:
+            if len(self.solutions) > 0 and self.image.decisions[i] > 0:
                 if self.solutions[i] == self.image.decisions[i]:
                     good += 1
                     self.correct.append(True)
@@ -65,13 +65,21 @@ class Exam(object):
                 self.correct.append(False)
             else:
                 self.correct.append(False)
-        self.score = (good, bad, undet)
+        blank = self.image.num_questions - good - bad
+        if self.score_weights is not None:
+            score = good * self.score_weights[0] - \
+                bad * self.score_weights[1] - blank * self.score_weights[2]
+            max_score = self.image.num_questions * self.score_weights[0]
+        else:
+            score = None
+            max_score = None
+        self.score = (good, bad, blank, undet, score, max_score)
 
     def draw_answers(self):
-        good, bad, undet = self.score
+#        good, bad, blank, undet = self.score
         self.image.draw_answers(self.locked, self.solutions, self.model,
                                 self.correct, self.score[0], self.score[1],
-                                self.score[2], self.im_id)
+                                self.score[3], self.im_id)
 
     def save_image(self, filename_pattern):
         filename = self.__saved_image_name(filename_pattern)
@@ -87,10 +95,10 @@ class Exam(object):
         writer = csv.writer(f, dialect = csv_dialect)
         data = [self.im_id,
                 self.student_id,
-                chr(65 + self.model) if self.model is not None else '?',
+                self.model if self.model is not None else '?',
                 self.score[0],
                 self.score[1],
-                self.score[2],
+                self.score[3],
                 "/".join([str(d) for d in self.image.decisions])]
         if stats is not None and self.save_stats:
             data.extend([stats['time'],
@@ -175,6 +183,13 @@ class Exam(object):
     def lock_capture(self):
         self.locked = True
 
+    def get_student_name(self):
+        if self.student_id != '-1' and self.student_names is not None and \
+                self.student_id in self.student_names:
+            return self.student_names[self.student_id]
+        else:
+            return None
+
     def __id_rank(self, student_id, scores):
         rank = 0.0
         for i in range(len(student_id)):
@@ -243,22 +258,6 @@ class PerformanceProfiler(object):
         else:
             stats['id-ocr-detected'] = '-1'
 
-def decode_model_2x31(bits):
-    # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7
-    valid = False
-    if len(bits) == 3:
-        valid = True
-    elif len(bits) >= 4:
-        if (bits[3] == bits[0] ^ bits[1] ^ (not bits[2])):
-            if len(bits) < 8:
-                valid = True
-            else:
-                valid = (bits[0:4] == bits[4:8])
-    if valid:
-        return bits[0] | bits[1] << 1 | bits[2] << 2
-    else:
-        return None
-
 def read_cmd_options():
     parser = OptionParser(usage = "usage: %prog [options] EXAM_CONFIG_FILE",
                           version = utils.program_name + ' ' + utils.version)
@@ -269,7 +268,7 @@ def read_cmd_options():
     parser.add_option("-s", "--start-id", dest = "start_id", type = "int",
                       help = "start at the given exam id",
                       default = 0)
-    parser.add_option("-o", "--output-dir", dest = "output_dir",
+    parser.add_option("-o", "--output-dir", dest = "output_dir", default = '.',
                       help = "store captured images at the given directory")
     parser.add_option("-d", "--debug", action="store_true", dest = "debug",
                       default = False, help = "activate debugging features")
@@ -284,6 +283,8 @@ def read_cmd_options():
                       help = "capture from raw file")
     parser.add_option("--capture-proc", dest = "proc_file", default = None,
                       help = "capture from pre-processed file")
+    parser.add_option("--fixed-hough", dest = "fixed_hough", default = None,
+                      type = "int", help = "fixed Hough transform threshold")
     parser.add_option("-f", "--ajust-first", action="store_true",
                       dest = "adjust", default = False,
                       help = "don't lock on an exam until SPC is pressed")
@@ -320,12 +321,6 @@ def dump_camera_buffer(camera):
         for i in range(0, 6):
             imageproc.capture(camera, False)
 
-def show_image(image, screen):
-    im = imageproc.ipl_to_pil(image)
-    pg_img = pygame.image.frombuffer(im.tostring(), im.size, im.mode)
-    screen.blit(pg_img, (0,0))
-    pygame.display.flip()
-
 def select_camera(options, config):
     if options.camera_dev is None:
         camera = config['camera-dev']
@@ -343,36 +338,38 @@ def main():
     dimensions = exam_data.dimensions
     id_num_digits = exam_data.id_num_digits
     read_id = (id_num_digits > 0)
-    if options.output_dir is not None:
-        save_pattern = os.path.join(options.output_dir, save_pattern)
+    save_pattern = os.path.join(options.output_dir, save_pattern)
     if options.answers_filename is not None:
         answers_file = options.answers_filename
     else:
         answers_file = 'eyegrade-answers.csv'
-        if options.output_dir is not None:
-            answers_file = os.path.join(options.output_dir, answers_file)
+        answers_file = os.path.join(options.output_dir, answers_file)
 
     im_id = options.start_id
     valid_student_ids = None
     if read_id and options.ids_file is not None:
-        valid_student_ids = utils.read_student_ids(options.ids_file)
+        valid_student_ids = utils.read_student_ids(options.ids_file, True)
 
-    pygame.init()
-    window = pygame.display.set_mode((640,480))
-    pygame.display.set_caption("eyegrade")
-    screen = pygame.display.get_surface()
+    interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
 
     profiler = PerformanceProfiler()
 
     # Initialize options
     imageproc_options = imageproc.ExamCapture.get_default_options()
     imageproc_options['infobits'] = True
+    imageproc_options['logging-dir'] = options.output_dir
     if read_id:
         imageproc_options['read-id'] = True
         imageproc_options['id-num-digits'] = id_num_digits
     if options.debug:
         imageproc_options['show-status'] = True
-    imageproc_context = imageproc.ExamCaptureContext()
+        imageproc_options['error-logging'] = True
+    if config['error-logging']:
+        imageproc_options['error-logging'] = True
+    if not options.fixed_hough:
+        imageproc_context = imageproc.ExamCaptureContext()
+    else:
+        imageproc_context = imageproc.ExamCaptureContext(options.fixed_hough)
 
     # Initialize capture source
     if options.proc_file is not None:
@@ -390,6 +387,10 @@ def main():
     # Program main loop
     lock_mode = not options.adjust
     last_time = time.time()
+    interface.update_text('Searching...', False)
+    interface.set_statusbar_message(utils.program_name + ' ' + utils.version)
+    interface.set_search_toolbar(True)
+    latest_graded_exam = None
     while True:
         override_id_mode = False
         exam = None
@@ -397,120 +398,136 @@ def main():
         profiler.count_capture()
         image = imageproc.ExamCapture(dimensions, imageproc_context,
                                       imageproc_options)
-        image.detect()
+        image.detect_safe()
         success = image.success
         if image.status['infobits']:
-            model = decode_model_2x31(image.bits)
-            if model is not None:
+            model = utils.decode_model(image.bits)
+            if model is not None and model in solutions:
                 exam = Exam(image, model, solutions[model], valid_student_ids,
-                            im_id, options.save_stats)
+                            im_id, options.save_stats, exam_data.score_weights)
                 exam.grade()
+                latest_graded_exam = exam
             else:
                 success = False
 
-        events = pygame.event.get()
-        for event in events:
-            if event.type == QUIT or \
-                    (event.type == KEYDOWN and event.key == 27):
+        events = interface.events_search_mode()
+        for event, event_info in events:
+            if event == gui.event_quit:
                 sys.exit(0)
-            elif event.type == KEYDOWN:
-                if event.key == ord('p') and options.debug:
-                    imageproc_options['show-image-proc'] = \
-                        not imageproc_options['show-image-proc']
-                elif event.key == ord('l') and options.debug:
-                    imageproc_options['show-lines'] = \
-                        not imageproc_options['show-lines']
-                elif event.key == ord('s'):
-                    sols = solutions[model] if model is not None else None
-                    exam = Exam(image, model, sols,
-                                valid_student_ids, im_id, options.save_stats)
-                    success = True
+            elif event == gui.event_debug_proc and options.debug:
+                imageproc_options['show-image-proc'] = \
+                    not imageproc_options['show-image-proc']
+            elif event == gui.event_debug_lines and options.debug:
+                imageproc_options['show-lines'] = \
+                    not imageproc_options['show-lines']
+            elif event == gui.event_snapshot:
+                if latest_graded_exam is None:
+                    exam = Exam(image, model, {}, valid_student_ids, im_id,
+                                options.save_stats, exam_data.score_weights)
                     exam.grade()
-                    if read_id:
-                        if options.ids_file is not None:
-                            exam.reset_student_id_filter(False)
-                        else:
-                            exam.reset_student_id_editor()
-                            override_id_mode = True
-                elif event.key == 32:
-                    lock_mode = True
+                else:
+                    exam = latest_graded_exam
+                success = True
+                if read_id:
+                    if options.ids_file is not None:
+                        exam.reset_student_id_filter(False)
+                    else:
+                        exam.reset_student_id_editor()
+                        override_id_mode = True
+            elif event == gui.event_lock:
+                lock_mode = True
+
+        # Enter review mode if the capture was succesfully read or the
+        # image was locked by the user
         if success and lock_mode:
             continue_waiting = True
             exam.lock_capture()
             exam.draw_answers()
-            show_image(image.image_drawn, screen)
+            interface.show_capture(exam.image.image_drawn, False)
+            interface.update_text(exam.get_student_name(), False)
+            if exam.score is not None:
+                interface.update_status(exam.score, False)
+            interface.set_review_toolbar(True)
             while continue_waiting:
-                event = pygame.event.wait()
-                if event.type == QUIT:
+                event, event_info = interface.wait_event_review_mode()
+                if event == gui.event_quit:
                     sys.exit(0)
-                elif event.type == KEYDOWN:
-                    if event.key == 27:
-                        sys.exit(0)
-                    elif event.key == 8:
-                        continue_waiting = False
-                    elif event.key == 32:
-                        stats = profiler.finish_exam(exam)
-                        exam.save_image(save_pattern)
-                        exam.save_answers(answers_file, config['csv-dialect'],
-                                          stats)
-                        if options.debug:
-                            exam.save_debug_images(save_pattern)
-                        im_id += 1
-                        continue_waiting = False
-                    elif event.key == ord('i') and read_id:
-                        override_id_mode = True
-                        exam.reset_student_id_editor()
-                        exam.draw_answers()
-                        show_image(exam.image.image_drawn, screen)
-                    elif event.key == 9 and read_id:
-                        if not override_id_mode \
-                                and options.ids_file is not None:
-                            if len(exam.student_id_filter) == 0:
-                                exam.try_next_student_id()
-                            else:
-                                exam.reset_student_id_filter()
-                            profiler.count_student_id_change()
-                            exam.draw_answers()
-                            show_image(exam.image.image_drawn, screen)
-                    elif event.key >= ord('0') and event.key <= ord('9') \
-                             and read_id:
-                        if override_id_mode:
-                            exam.student_id_editor(chr(event.key))
-                        elif options.ids_file is not None:
-                            exam.filter_student_id(chr(event.key))
+                elif event == gui.event_cancel_frame:
+                    continue_waiting = False
+                elif event == gui.event_save:
+                    stats = profiler.finish_exam(exam)
+                    exam.save_image(save_pattern)
+                    exam.save_answers(answers_file, config['csv-dialect'],
+                                      stats)
+                    if options.debug:
+                        exam.save_debug_images(save_pattern)
+                    im_id += 1
+                    continue_waiting = False
+                elif event == gui.event_manual_id and read_id:
+                    override_id_mode = True
+                    exam.reset_student_id_editor()
+                    exam.draw_answers()
+                    interface.show_capture(exam.image.image_drawn, False)
+                    interface.update_text(exam.get_student_name())
+                elif event == gui.event_next_id and read_id:
+                    if not override_id_mode and options.ids_file is not None:
+                        if len(exam.student_id_filter) == 0:
+                            exam.try_next_student_id()
+                        else:
+                            exam.reset_student_id_filter()
                         profiler.count_student_id_change()
                         exam.draw_answers()
-                        show_image(exam.image.image_drawn, screen)
-                    elif event.key == ord('p') and options.debug:
-                        imageproc_options['show-image-proc'] = \
-                            not imageproc_options['show-image-proc']
-                        continue_waiting = False
-                    elif event.key == ord('l') and options.debug:
-                        imageproc_options['show-lines'] = \
-                            not imageproc_options['show-lines']
-                        continue_waiting = False
-                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
-                    cell = cell_clicked(exam.image, event.pos)
+                        interface.show_capture(exam.image.image_drawn, False)
+                        interface.update_text(exam.get_student_name())
+                elif event == gui.event_id_digit and read_id:
+                    if override_id_mode:
+                        exam.student_id_editor(event_info)
+                    elif options.ids_file is not None:
+                        exam.filter_student_id(event_info)
+                    profiler.count_student_id_change()
+                    exam.draw_answers()
+                    interface.show_capture(exam.image.image_drawn, False)
+                    interface.update_text(exam.get_student_name())
+                elif event == gui.event_debug_proc and options.debug:
+                    imageproc_options['show-image-proc'] = \
+                        not imageproc_options['show-image-proc']
+                    continue_waiting = False
+                elif event == gui.event_debug_lines and options.debug:
+                    imageproc_options['show-lines'] = \
+                        not imageproc_options['show-lines']
+                    continue_waiting = False
+                elif event == gui.event_click:
+                    cell = cell_clicked(exam.image, event_info)
                     if cell is not None:
                         question, answer = cell
                         exam.toggle_answer(question, answer)
-                        show_image(exam.image.image_drawn, screen)
+                        interface.show_capture(exam.image.image_drawn, False)
+                        interface.update_status(exam.score)
             dump_camera_buffer(imageproc_context.camera)
+            interface.update_text('Searching...', False)
+            interface.update_status(None, False)
+            interface.set_search_toolbar(True)
+            latest_graded_exam = None
+            if imageproc_options['capture-from-file']:
+                sys.exit(0)
         else:
             if exam is not None:
                 exam.draw_answers()
             else:
                 image.draw_status()
-            show_image(image.image_drawn, screen)
+            interface.show_capture(image.image_drawn)
             current_time = time.time()
             diff = current_time - last_time
             if current_time > last_time and diff < param_max_wait_time:
-                pygame.time.delay(int(1000 * (param_max_wait_time - diff)))
+                interface.delay(param_max_wait_time - diff)
                 last_time += 1
             else:
                 if diff > 3 * param_max_wait_time:
                     dump_camera_buffer(imageproc_context.camera)
                 last_time = current_time
+            if imageproc_options['capture-from-file']:
+                interface.wait_key()
+                sys.exit(1)
 
 if __name__ == "__main__":
     main()

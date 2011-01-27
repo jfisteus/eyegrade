@@ -31,9 +31,11 @@ def stats_by_question(results, num_questions):
     return [stats_for_question(results, i) for i in range(0, num_questions)]
 
 def stats_for_model(results, model, num_questions):
-    """Returns a tuple with the count of (correct, incorrect, blank)
-       answers for the given model. Model is an integer, 0 for A, 1
-       for B, etc."""
+    """Returns a tuple with the count of (correct, incorrect, blank) answers
+
+       Applies to the given model. Model is an uppercase letter.
+
+    """
     data = [(r['good'], r['bad']) for r in results if r['model'] == model]
     if data != []:
         good = float(sum([d[0] for d in data])) / len(data)
@@ -45,9 +47,8 @@ def stats_for_model(results, model, num_questions):
         blank = 0
     return (len(data), good, bad, blank)
 
-def stats_by_model(results, num_questions, num_models):
-    return [stats_for_model(results, i, num_questions) \
-                for i in range(0, num_models)]
+def stats_by_model(results, num_questions, models):
+    return [stats_for_model(results, model, num_questions) for model in models]
 
 def print_stats_by_question(stats):
     for i, answers in enumerate(stats):
@@ -103,7 +104,7 @@ def analyze(results_filename, exam_cfg_filename):
     print_stats_by_question(stats_q)
     print
     stats_m = stats_by_model(results, exam_data.num_questions,
-                             exam_data.num_models)
+                             exam_data.models)
     print_stats_by_model(stats_m)
     plot_stats_by_question(stats_q)
     return results

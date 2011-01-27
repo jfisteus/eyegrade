@@ -1,6 +1,7 @@
 import math
 import copy
-import PIL.Image
+import sys
+import pygame
 
 # Local imports
 from geometry import *
@@ -22,7 +23,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 16
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 240, 210, 180]
+param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
@@ -43,6 +44,10 @@ param_id_boxes_energy_break = 0.99
 param_id_boxes_min_height = 15
 param_id_boxes_discard_distance = 20
 
+# Other parameters
+param_error_log = 'eyegrade-errors.log'
+param_error_image_pattern = 'error-%s.png'
+
 font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
@@ -55,7 +60,9 @@ class ExamCapture(object):
                        'show-status': False,
                        'capture-from-file': False,
                        'capture-raw-file': None,
-                       'capture-proc-file': None}
+                       'capture-proc-file': None,
+                       'error-logging': False,
+                       'logging-dir': '.'}
 
     @classmethod
     def get_default_options(cls):
@@ -85,8 +92,8 @@ class ExamCapture(object):
         self.height = self.image_raw.height
         self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
-        num_questions = sum([b[1] for b in boxes_dim])
-        self.decisions = [-1] * num_questions
+        self.num_questions = sum([b[1] for b in boxes_dim])
+        self.decisions = [-1] * self.num_questions
         self.corner_matrixes = None
         self.bits = None
         self.success = False
@@ -103,6 +110,17 @@ class ExamCapture(object):
                        'infobits': False,
                        'id-box-hlines': False,
                        'id-box': False}
+
+    def detect_safe(self):
+        try:
+            self.detect()
+        except Exception:
+            self.success = False
+            self.context.notify_failure()
+            if self.options['error-logging']:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                self.write_error_trace(exc_type, exc_value, exc_traceback)
+            # else... silence the exception, and try with the next capture
 
     def detect(self):
         axes = None
@@ -178,6 +196,29 @@ class ExamCapture(object):
             self.compute_cells_geometry()
             self.status['overall'] = True
 
+    def write_error_trace(self, exc_type, exc_value, exc_traceback):
+        import datetime
+        import re
+        import traceback
+        import os
+        if not self.options['capture-from-file']:
+            print 'Exception catched! Storing trace into a log file...'
+            date = str(datetime.datetime.now())
+            logname = os.path.join(self.options['logging-dir'], param_error_log)
+            file_ = open(logname, 'a')
+            file_.write('-' * 60 + '\n')
+            file_.write(date + '\n')
+            file_.write('Hough threshold: %d\n'\
+                            %self.context.get_hough_threshold())
+            traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                      file=file_)
+            file_.close()
+            im_file = param_error_image_pattern%re.sub(r'[-\ \.:]', '_', date)
+            cv.SaveImage(os.path.join(self.options['logging-dir'], im_file),
+                         self.image_raw)
+        else:
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+
     def draw_status(self):
         self.draw_status_bar()
         if self.options['show-status']:
@@ -189,7 +230,8 @@ class ExamCapture(object):
         base = 0
         color_good = (0, 210, 0)
         color_bad = (0, 0, 255)
-        color_dot = (200, 50, 0)
+        color_dot = (255, 0, 0)
+        color_blank = (192, 0, 192)
         if self.status['cells']:
             for corners in self.corner_matrixes:
                 for i in range(0, len(corners) - 1):
@@ -204,13 +246,16 @@ class ExamCapture(object):
                                             self.centers[base + i][d - 1],
                                             self.diagonals[base + i][d - 1],
                                             color)
-                    if solutions is not None and not correct[base + i]:
+                    if len(solutions) > 0 and not correct[base + i]:
+                        color = color_blank if d == 0 else color_dot
+                        radius = 5 if d == 0 else 3
                         ans = solutions[base + i]
                         draw_cell_center(self.image_drawn,
-                                     self.centers[base + i][ans - 1], color_dot)
+                                         self.centers[base + i][ans - 1],
+                                         color, radius)
                 base += len(corners) - 1
         if model is not None:
-            text = "Model %s: %d / %d"%(chr(65 + model), good, bad)
+            text = "Model %s: %d / %d"%(model, good, bad)
         else:
             text = "Model ?: %d / %d"%(good, bad)
         if undet > 0:
@@ -228,7 +273,7 @@ class ExamCapture(object):
                     color = color_bad
                 draw_text(self.image_drawn, str(im_id), color, (10, 65))
             if self.id is not None:
-                draw_text(self.image_drawn, self.id, color_dot, (10, 30))
+                draw_text(self.image_drawn, self.id, color, (10, 30))
         else:
             self.draw_status_bar()
         if self.options['show-status']:
@@ -334,8 +379,11 @@ class ExamCaptureContext:
         ExamCapture objects.
 
     """
-    def __init__(self):
-        self.hough_thresholds = param_hough_thresholds
+    def __init__(self, fixed_hough_threshold=None):
+        if not fixed_hough_threshold:
+            self.hough_thresholds = param_hough_thresholds
+        else:
+            self.hough_thresholds = [fixed_hough_threshold]
         self.hough_thresholds_idx = 0
         self.failures_in_a_row = 0
         self.camera = None
@@ -443,46 +491,6 @@ def load_image_grayscale(filename):
 def load_image(filename):
     return cv.LoadImage(filename)
 
-def ipl_to_pil(input):
-    """Converts an OpenCV/IPL image to PIL the Python Imaging Library.
-      Supported input image formats are
-         IPL_DEPTH_8U  x 1 channel
-         IPL_DEPTH_8U  x 3 channels
-         IPL_DEPTH_32F x 1 channel
-      Copied and adapted from opencv.adaptors.Ipl2PIL
-     """
-
-    # If wrapping old-style bindings, call its implementation instead:
-    if not cv_new_style:
-        return cv.ipl_to_pil(input)
-
-    # Continue here only for new-style bindings:
-    if not isinstance(input, cv.iplimage):
-        raise TypeError, 'must be called with a cv.IplImage!'
-    # orientation
-    if input.origin == 0:
-        orientation = 1 # top left
-    elif input.origin == 1:
-        orientation = -1 # bottom left
-    else:
-        raise ValueError, 'origin must be 0 or 1!'
-    # mode dictionary:
-    # (channels, depth) : (source mode, dest mode, depth in byte)
-    mode_list = {(1, cv.IPL_DEPTH_8U)  : ("L", "L", 1),
-                 (3, cv.IPL_DEPTH_8U)  : ("BGR", "RGB", 3),
-                 (1, cv.IPL_DEPTH_32F) : ("F", "F", 4)}
-    key = (input.nChannels, input.depth)
-    if not mode_list.has_key(key):
-        raise ValueError, 'unknown or unsupported input mode'
-    modes = mode_list[key]
-    return PIL.Image.fromstring(modes[1], # mode
-                                (input.width, input.height),
-                                input.tostring(),
-                                "raw",
-                                modes[0], # raw mode
-                                0, # stride
-                                orientation)
-
 def draw_line(image, line, color = (0, 0, 255, 0)):
     theta = line[1]
     points = set()
@@ -512,8 +520,7 @@ def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
     cv.Circle(image, center, radius, color, 2)
 
-def draw_cell_center(image, center, color = (255, 0, 0)):
-    radius = 4
+def draw_cell_center(image, center, color=(255, 0, 0), radius=4):
     cv.Circle(image, center, radius, color, cv.CV_FILLED)
 
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
@@ -636,7 +643,7 @@ def id_horizontal_lines(hlines, vlines, boxes_dim):
 
 def check_corners(corner_matrixes, width, height):
     # Check differences between horizontal lines:
-    corners = corner_matrixes[0]
+    corners = corner_matrixes[(len(corner_matrixes) - 1) // 2]
     ypoints = [row[-1][1] for row in corners]
     difs = []
     difs2 = []
@@ -661,6 +668,18 @@ def check_corners(corner_matrixes, width, height):
                         or point[1] < 0 or point[1] >= height:
 #                    print "Failure at point", point
                     return False
+
+    # Check that the sequence of points is coherent
+    for corners in corner_matrixes:
+        for i in range(0, len(corners) - 1):
+            for j in range(0, len(corners[0]) - 1):
+                if corners[i][j][1] >= corners[i + 1][j][1] or \
+                        corners[i][j + 1][1] >= corners[i + 1][j + 1][1] or \
+                        corners[i][j][0] >= corners[i][j + 1][0] or \
+                        corners[i + 1][j][0] >= corners[i + 1][j + 1][0]:
+                    print "Bad point"
+                    return False
+
     # Success if control reaches here
     return True
 
@@ -1012,3 +1031,9 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
+
+def cvimage_to_pygame(image):
+    image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
+    cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
+    return pygame.image.frombuffer(image_rgb.tostring(),
+                                   cv.GetSize(image_rgb), 'RGB')
