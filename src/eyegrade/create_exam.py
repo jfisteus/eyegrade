@@ -33,15 +33,19 @@ def read_cmd_options():
     parser.add_option("-k", "--dont-shuffle-again", action="store_true",
                       dest = "dont_shuffle_again", default = False,
                       help = "don't shuffle already shuffled models")
+    parser.add_option('-b', '--table-dimensions', dest='dimensions',
+                      default=None, help='table dimensions')
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
     options.models = options.models.upper()
     # Either -e is specified, or -q and -c are used
     if not options.exam_filename:
-        if options.num_questions is None or options.num_choices is None:
+        if (options.dimensions is None and
+            (options.num_questions is None or options.num_choices is None)):
             parser.error('A file with questions must be given, or options'
-                         ' -q and -c must be set.')
+                         ' -q and -c must be set, or tables dimensions'
+                         ' must be set.')
     else:
         if options.num_questions or options.num_choices:
             parser.error('Option -e is mutually exclusive with -q and -c')
@@ -67,8 +71,25 @@ def main():
                 raise Exception('Questions must have exactly 1 correct choice')
     else:
         exam = None
-        num_questions = options.num_questions
-        num_choices = options.num_choices
+        if options.dimensions is not None:
+            dimensions, num_options = utils.parse_dimensions(options.dimensions,
+                                                             True)
+            num_choices = dimensions[0][0]
+            num_questions = sum([d[1] for d in dimensions])
+            if (options.num_choices is not None and
+                options.num_choices != num_choices):
+                raise Exception('Incoherent number of choices')
+            if (options.num_questions is not None and
+                options.num_questions != num_questions):
+                raise Exception('Incoherent number of questions')
+            if (options.num_tables != 0 and
+                len(dimensions) != options.num_tables):
+                raise Exception('Incoherent number of tables')
+        else:
+            num_questions = options.num_questions
+            num_choices = options.num_choices
+            if num_questions is None or num_choices is None:
+                raise Exception('Expected a number of questions and choices')
 
     # Command line options override options from the file
     encoding = locale.getpreferredencoding()
@@ -88,7 +109,8 @@ def main():
         config_filename = options.output_file_prefix + '.eye'
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, config_filename,
-                                options.dont_shuffle_again, options.num_tables)
+                                options.dont_shuffle_again, options.num_tables,
+                                dimensions)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:

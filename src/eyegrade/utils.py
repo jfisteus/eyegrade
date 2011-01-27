@@ -437,7 +437,7 @@ class ExamConfig(object):
         else:
             raise Exception('Bad score value: "%s"'%score)
 
-def parse_dimensions(text):
+def parse_dimensions(text, check_equal_num_choices=False):
     dimensions = []
     num_options = []
     boxes = text.split(';')
@@ -448,6 +448,13 @@ def parse_dimensions(text):
             raise Exception('Incorrect number in exam geometry')
         dimensions.append(data)
         num_options.extend([data[0]] * data[1])
+    if len(dimensions) == 0:
+        raise Exception('Empty table dimensions')
+    if check_equal_num_choices:
+        for i in range(1, len(dimensions)):
+            if dimensions[i][0] != dimensions[0][0]:
+                raise Exception(('The number of choices per question must'
+                                 ' be the same for all questions'))
     return dimensions, num_options
 
 def read_exam_questions(exam_filename):
