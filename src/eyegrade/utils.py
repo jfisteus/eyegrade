@@ -374,13 +374,13 @@ class ExamConfig(object):
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')
-            for model in self.models:
+            for model in sorted(self.models):
                 data.append('model-%s: %s'%(model,
                                             self.format_solutions(model)))
         if len(self.permutations) > 0:
             data.append('')
             data.append('[permutations]')
-            for model in self.models:
+            for model in sorted(self.models):
                 data.append('permutations-%s: %s'%(model,
                                             self.format_permutations(model)))
         data.append('')
@@ -410,13 +410,7 @@ class ExamConfig(object):
         return [int(num) for num in pieces]
 
     def __parse_dimensions(self, s):
-        self.dimensions = []
-        self.num_options = []
-        boxes = s.split(';')
-        for box in boxes:
-            dims = box.split(',')
-            self.dimensions.append((int(dims[0]), int(dims[1])))
-            self.num_options.extend([int(dims[0])] * int(dims[1]))
+        self.dimensions, self.num_options = parse_dimensions(s)
 
     def __parse_permutations(self, s):
         permutation = []
@@ -442,6 +436,26 @@ class ExamConfig(object):
             return float(parts[0]) / float(parts[1])
         else:
             raise Exception('Bad score value: "%s"'%score)
+
+def parse_dimensions(text, check_equal_num_choices=False):
+    dimensions = []
+    num_options = []
+    boxes = text.split(';')
+    for box in boxes:
+        dims = box.split(',')
+        data = (int(dims[0]), int(dims[1]))
+        if data[0] <= 0 or data[1] <= 0:
+            raise Exception('Incorrect number in exam geometry')
+        dimensions.append(data)
+        num_options.extend([data[0]] * data[1])
+    if len(dimensions) == 0:
+        raise Exception('Empty table dimensions')
+    if check_equal_num_choices:
+        for i in range(1, len(dimensions)):
+            if dimensions[i][0] != dimensions[0][0]:
+                raise Exception(('The number of choices per question must'
+                                 ' be the same for all questions'))
+    return dimensions, num_options
 
 def read_exam_questions(exam_filename):
     import xml.dom.minidom
@@ -488,6 +502,15 @@ class ExamQuestions(object):
         self.permutations[model] = permutations
         for question in self.questions:
             question.shuffle(model)
+
+    def set_permutation(self, model, permutation):
+        self.permutations[model] = [p[0] - 1 for p in permutation]
+        self.shuffled_questions[model] = \
+            [self.questions[i] for i in self.permutations[model]]
+        for q, p in zip(self.shuffled_questions[model], permutation):
+            choices = q.correct_choices + q.incorrect_choices
+            q.permutations[model] = [i - 1 for i in p[1]]
+            q.shuffled_choices[model] = [choices[i - 1] for i in p[1]]
 
     def solutions_and_permutations(self, model):
         solutions = []

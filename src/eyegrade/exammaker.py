@@ -18,10 +18,9 @@ re_split_template = re.compile('{{([^{}]+)}}')
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
-                 num_tables=0):
+                 dont_shuffle_again, num_tables=0, dimensions=None):
         self.num_questions = num_questions
         self.num_choices = num_choices
-        self.num_tables = num_tables
         template = utils.read_file(template_filename)
         self.parts = re_split_template.split(template)
         self.output_file = output_file
@@ -29,6 +28,15 @@ class ExamMaker(object):
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
         self.exam_config_filename = exam_config_filename
+        self.dont_shuffle_again = dont_shuffle_again
+        if (num_tables > 0 and dimensions is not None and
+            len(dimensions) != num_tables):
+            raise Exception('Incoherent number of tables')
+        if dimensions is not None:
+            self.dimensions = dimensions
+        else:
+            self.dimensions = compute_table_dimensions(num_questions,
+                                                       num_choices, num_tables)
         if self.exam_config_filename is not None:
             self.__load_exam_config()
         else:
@@ -44,24 +52,25 @@ class ExamMaker(object):
                  ord(model) > 90) and model != '0'):
             raise Exception('Incorrect model value')
         replacements = copy.copy(self.replacements)
-        answer_table, dimensions = create_answer_table(self.num_questions,
-                                                       self.num_choices,
-                                                       model, self.num_tables)
+        answer_table = create_answer_table(self.dimensions, model)
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
-                self.exam_config.dimensions = dimensions
-            elif self.exam_config.dimensions != dimensions:
-                raise Exception('Incoherent answer table dimensions')
-            if not model in self.exam_config.models:
+                self.exam_config.dimensions = self.dimensions
+            if model != '0' and not model in self.exam_config.models:
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
             if model != '0':
-                self.exam_questions.shuffle(model)
-                if self.exam_config is not None:
-                    solutions, permutations = \
-                        self.exam_questions.solutions_and_permutations(model)
-                    self.exam_config.solutions[model] = solutions
-                    self.exam_config.permutations[model] = permutations
+                if not model in self.exam_config.permutations or \
+                        not self.dont_shuffle_again:
+                    self.exam_questions.shuffle(model)
+                    if self.exam_config is not None:
+                        solutions, permutations = \
+                          self.exam_questions.solutions_and_permutations(model)
+                        self.exam_config.solutions[model] = solutions
+                        self.exam_config.permutations[model] = permutations
+                else:
+                    p = self.exam_config.permutations[model]
+                    self.exam_questions.set_permutation(model, p)
             replacements['questions'] = format_questions(self.exam_questions,
                                                          model)
         replacements['answer-table'] = answer_table
@@ -89,6 +98,8 @@ class ExamMaker(object):
                     raise Exception('Incoherent number of questions')
                 if self.id_num_digits != self.exam_config.id_num_digits:
                     raise Exception('Incoherent configuration of id box')
+                if self.dimensions != self.exam_config.dimensions:
+                    raise Exception('Incoherent table dimensions')
             except IOError:
                 self.exam_config = utils.ExamConfig()
                 self.exam_config.num_questions = self.num_questions
@@ -108,33 +119,29 @@ class ExamMaker(object):
         else:
             raise Exception('Unknown replacement key: ' + key)
 
-def create_answer_table(num_questions, num_choices, model, num_tables = 0):
-    """Returns a string with the answer tables of the asnwer sheet.
+def create_answer_table(dimensions, model):
+    """Returns a string with the answer tables of the answer sheet.
 
-       Tables are LaTeX-formatted. 'num_questions' specifies the
-       number of questions of the exam. 'num_choices' specifies the
-       number of answers per question. 'num_tables' (optional)
-       specifies the number of tables. If not specified or set to a
-       non-positive vale, a number of tables that best fits the number
-       of questions is chosen.
+       Tables are LaTeX-formatted. 'dimensions' specifies the geometry
+       of the tables. 'model' is a one letter string with the name of
+       the model, or '0' for the un-shuffled exam.
 
     """
-    if num_questions < param_min_num_questions:
-        raise Exception('Too few questions')
-    if num_choices < 2:
-        raise Exception('Too few answers per question')
-    if num_tables <= 0:
-        num_tables = __choose_num_tables(num_questions)
-    elif num_tables * 2 > num_questions:
-        raise Exception('Too many tables for the given number of questions')
-    compact = (num_tables > 2)
+    if len(dimensions) == 0:
+        raise Exception('No tables defined in dimensions')
+    compact = (len(dimensions) > 2)
+    num_choices = dimensions[0][0]
+    num_tables = len(dimensions)
+    for d in dimensions:
+        if d[0] != num_choices:
+            raise Exception(('By now, all tables must have the same number'
+                             ' of choices'))
     if model != '0':
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
         bits = [False] * num_tables * num_choices
     bits_rows = __create_infobits(bits, num_tables, num_choices)
-    tables, question_numbers = __table_geometry(num_questions, num_choices,
-                                                num_tables)
+    tables, question_numbers = table_geometry(dimensions)
     rows = __table_top(num_tables, num_choices, compact)
     for i, row_geometry in enumerate(tables):
         rows.append(__horizontal_line(row_geometry, num_choices, compact))
@@ -142,13 +149,7 @@ def create_answer_table(num_questions, num_choices, model, num_tables = 0):
                                 num_choices, bits_rows, compact))
     rows.append(r'\end{tabular}')
     rows.append(r'\end{center}')
-    geometry = []
-    for i in range(0, len(question_numbers) - 1):
-        geometry.append((num_choices,
-                         question_numbers[i + 1] - question_numbers[i]))
-    geometry.append((num_choices, num_questions - question_numbers[-1] + 1))
-    return '\n'.join(rows), geometry
-
+    return '\n'.join(rows)
 
 def create_id_box(label, num_digits):
     """Creates the ID box given a label to show and number of digits.
@@ -180,6 +181,52 @@ def id_num_digits(parts):
             return data[1], int(data[0])
     return None, 0
 
+def compute_table_dimensions(num_questions, num_choices, num_tables):
+    """Computes and returns dimensions for answer tables.
+
+       The result is a list of tuples in which each element contains
+       the pair (num_cols, num_rows) for each table.
+
+    """
+    if num_questions < param_min_num_questions:
+        raise Exception('Too few questions')
+    if num_choices < 2:
+        raise Exception('Too few answers per question')
+    if num_tables <= 0:
+        num_tables = __choose_num_tables(num_questions)
+    elif num_tables * 2 > num_questions:
+        raise Exception('Too many tables for the given number of questions')
+    dimensions = []
+    rows_per_table, extra_rows = divmod(num_questions, num_tables)
+    for i in range(0, num_tables):
+        if i < extra_rows:
+            num_rows = rows_per_table + 1
+        else:
+            num_rows = rows_per_table
+        dimensions.append((num_choices, num_rows))
+    return dimensions
+
+def table_geometry(dimensions):
+    num_cols = [table[0] for table in dimensions]
+    num_rows = 2 + max([table[1] for table in dimensions])
+    tables = []
+    for i in range(0, num_rows):
+        row = []
+        for j, num_choices in enumerate(num_cols):
+            if i < dimensions[j][1]:
+                row.append(num_choices)
+            elif i == dimensions[j][1]:
+                row.append(-1)
+            elif i == dimensions[j][1] + 1:
+                row.append(-2)
+            else:
+                row.append(0)
+        tables.append(row)
+    question_numbers = [1]
+    for i in range(0, len(dimensions) - 1):
+        question_numbers.append(question_numbers[-1] + dimensions[i][1])
+    return tables, question_numbers
+
 def __choose_num_tables(num_questions):
     """Returns a good number of tables for the given number of questions."""
     num_tables = 1
@@ -189,39 +236,6 @@ def __choose_num_tables(num_questions):
         else:
             num_tables += 1
     return num_tables
-
-def __table_geometry(num_questions, num_choices, num_tables):
-    """Returns the geometry of the answer tables.
-
-       The result is a tuple (tables, question_numbers) where:
-       - 'tables' is a bidimensional list such that table[row][column]
-       represents the number of answers for the question in 'row' /
-       'column'. If 0, the question does not exist. If -1, a first row
-       of infobits should be placed there; if -2, a second row.
-       - 'question_numbers' is a list with the sequence number of the
-       question in the first row of each table. The first question is
-       numbered as 1.
-
-    """
-    rows_per_table = num_questions // num_tables
-    tables = rows_per_table * [num_tables * [num_choices]]
-    question_numbers = []
-    for i in range(0, num_tables):
-        question_numbers.append(1 + i * rows_per_table)
-    diff = num_questions - num_tables * rows_per_table
-    if diff > 0:
-        last_row = diff * [num_choices] + (num_tables - diff) * [-1]
-        tables.append(last_row)
-        acc = 0
-        for i in range(1, num_tables):
-            if i <= diff:
-                acc += 1
-            question_numbers[i] += acc
-    if diff == 0:
-        diff = num_tables
-    tables.append(diff * [-1] + (num_tables - diff) * [-2])
-    tables.append(diff * [-2] + (num_tables - diff) * [-0])
-    return tables, question_numbers
 
 def __horizontal_line(row_geometry, num_choices, compact):
     parts = []
@@ -264,10 +278,8 @@ def __build_row(num_row, row_geometry, question_numbers, num_choices,
         elif geometry == -2:
             parts.append(infobits_row[1][i])
         else:
-            skip_cells += 1 + num_empty_columns + num_choices
+            parts.append('\multicolumn{%d}{c}{}'%(1 + num_choices))
     row = ' & & '.join(parts) if not compact else ' & '.join(parts)
-    if skip_cells > 0:
-        row += r' & \multicolumn{%d}{c}{}'%skip_cells
     return row + r' \\'
 
 def __build_question_cell(num_question, num_choices):
