@@ -55,6 +55,7 @@ def main():
     options, args = read_cmd_options()
     template_filename = args[0]
     variables = {}
+    dimensions = None
     if options.exam_filename:
         exam = utils.read_exam_questions(options.exam_filename)
         variables['subject'] = exam.subject

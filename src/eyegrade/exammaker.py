@@ -60,8 +60,8 @@ class ExamMaker(object):
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
             if model != '0':
-                if not model in self.exam_config.permutations or \
-                        not self.dont_shuffle_again:
+                if (self.exam_config is None or not model in self.exam_config.permutations or
+                        not self.dont_shuffle_again):
                     self.exam_questions.shuffle(model)
                     if self.exam_config is not None:
                         solutions, permutations = \
