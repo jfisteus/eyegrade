@@ -23,7 +23,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_threshold = 16
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180]
+param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
@@ -135,6 +135,8 @@ class ExamCapture(object):
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
+            axes[1] = (axes[1][0], [l for l in axes[1][1] \
+                                      if l[0] < 0.96 * self.image_raw.height])
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                                 self.image_raw.width,
                                                 self.image_raw.height,
@@ -567,8 +569,6 @@ def detect_directions(lines):
     return axes
 
 def detect_boxes(lines, boxes_dim):
-    expected_horiz = 1 + max([box[1] for box in boxes_dim])
-    expected_vert = len(boxes_dim) + sum([box[0] for box in boxes_dim])
     axes = detect_directions(lines)
     axes = [axis for axis in axes if len(axis[1]) >= 5]
     if len(axes) == 2:
