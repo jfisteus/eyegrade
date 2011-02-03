@@ -31,7 +31,7 @@ param_cross_mask_thickness = 8
 # Number of pixels to go inside de cell for the mask cross
 param_cross_mask_margin = 8
 
-# Percentaje of points of the mask cross that must be active to decide a cross
+# Percentage of points of the mask cross that must be active to decide a cross
 param_cross_mask_threshold = 0.2
 param_bit_mask_threshold = 0.35
 param_bit_mask_radius_multiplier = 0.25
