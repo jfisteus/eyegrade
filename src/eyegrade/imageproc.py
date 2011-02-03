@@ -135,8 +135,16 @@ class ExamCapture(object):
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
+
+            # Sometimes bogus lines appear in the borders of the image
+            # They are filtered out:
             axes[1] = (axes[1][0], [l for l in axes[1][1] \
-                                      if l[0] < 0.96 * self.image_raw.height])
+                                 if (l[0] < 0.97 * self.image_raw.height and
+                                     l[0] > 0.03 * self.image_raw.height)])
+            axes[0] = (axes[0][0], [l for l in axes[0][1] \
+                                 if (l[0] < 0.97 * self.image_raw.width and
+                                     l[0] > 0.03 * self.image_raw.width)])
+
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                                 self.image_raw.width,
                                                 self.image_raw.height,
