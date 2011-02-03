@@ -29,10 +29,16 @@ param_check_corners_tolerance_mul = 6
 param_cross_mask_thickness = 8
 
 # Number of pixels to go inside de cell for the mask cross
-param_cross_mask_margin = 8
+param_cross_mask_margin = 0.6
+param_cell_mask_margin = 0.9
 
 # Percentage of points of the mask cross that must be active to decide a cross
-param_cross_mask_threshold = 0.2
+param_cross_mask_threshold = 0.1
+
+# Percentage of points of the must cross that must be active to decide a
+# cleared answer
+param_cleared_threshold = 0.3
+
 param_bit_mask_threshold = 0.35
 param_bit_mask_radius_multiplier = 0.25
 param_cell_mask_threshold = 0.6
@@ -168,6 +174,7 @@ class ExamCapture(object):
                     for line in self.id_hlines:
                         draw_line(self.image_drawn, line, (255, 255, 0))
             if len(self.corner_matrixes) > 0:
+#                draw_cell_crosses(self.image_drawn, self.corner_matrixes)
                 self.decisions = decide_cells(self.image_proc,
                                               self.corner_matrixes)
                 if self.options['infobits']:
@@ -541,6 +548,18 @@ def draw_success_indicator(image, success):
     color = (0, 192, 0) if success else (0, 0, 255)
     cv.Circle(image, position, 10, color, cv.CV_FILLED)
 
+def draw_cell_crosses(image, corner_matrixes):
+    for corners in corner_matrixes:
+        for i in range(0, len(corners) - 1):
+            for j in range(0, len(corners[0]) - 1):
+                plu, prd = closer_points_rel(corners[i][j],
+                                             corners[i + 1][j + 1],
+                                             param_cross_mask_margin)
+                pru, pld = closer_points_rel(corners[i][j + 1],
+                                         corners[i + 1][j],
+                                         param_cross_mask_margin)
+                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255))
+
 def detect_lines(image, hough_threshold):
     st = cv.CreateMemStorage()
     lines = cv.HoughLines2(image, st, cv.CV_HOUGH_STANDARD,
@@ -708,19 +727,29 @@ def decide_cells(image, corner_matrixes):
     return decisions
 
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
-    plu, prd = closer_points(plu, prd, param_cross_mask_margin)
-    pru, pld = closer_points(pru, pld, param_cross_mask_margin)
+    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin)
+    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin)
     cv.SetZero(mask)
-    draw_cross_mask(mask, plu, pru, pld, prd, (1))
+    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1))
     mask_pixels = cv.CountNonZero(mask)
     cv.Mul(image, mask, masked)
     masked_pixels = cv.CountNonZero(masked)
-    cell_marked = masked_pixels >= param_cross_mask_threshold * mask_pixels
+    cell_marked = masked_pixels > param_cross_mask_threshold * mask_pixels
     # If the whole cell is marked, don't count the result:
     if cell_marked:
-        pix_total, pix_set = count_pixels_in_cell(image, plu, pru, pld, prd)
-        cell_marked = pix_set < param_cell_mask_threshold * pix_total
-#        print float(pix_set) / pix_total
+        iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
+        ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
+        pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
+        cell_marked = (masked_pixels < param_cleared_threshold * mask_pixels or
+                       (pix_set - masked_pixels) < (pix_total - mask_pixels) * \
+                           param_cleared_threshold)
+    # Debug
+#    iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
+#    ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
+#    pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
+#    print 'total: %d, set: %d, mask: %d, masked: %d'%(pix_total, pix_set,
+#                                                      mask_pixels,
+#                                                      masked_pixels)
     return cell_marked
 
 def read_infobits(image, corner_matrixes):
@@ -926,30 +955,45 @@ def count_pixels_in_cell(image, plu, pru, pld, prd):
         number of non-zero pixels.
     """
     # Walk the quadrilateral in horizontal lines.
-    # First, decide which borders limit each step of horizontal lines.
+    total = 0
+    marked = 0
     points = sorted([plu, pru, pld, prd], key = lambda p: p[1])
-    slopes = [None, None, None, None]
-    if points[0][1] == points[1][1]:
-        if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
-            points = [points[1], points[0], points[2], points[3]]
-    else:
-        slopes[0] = slope_inv(points[0], points[1])
-    if points[2][1] == points[3][1]:
-        if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
-            points = [points[0], points[1], points[3], points[2]]
-    else:
-        slopes[3] = slope_inv(points[2], points[3])
-    slopes[1] = slope_inv(points[0], points[2])
-    slopes[2] = slope_inv(points[1], points[3])
-    pixels_total = 0
-    pixels_active = 0
-    c1 = count_pixels_horiz(image, points[0], slopes[0], points[0], slopes[1],
-                            points[0][1], points[1][1])
-    c2 = count_pixels_horiz(image, points[1], slopes[2], points[0], slopes[1],
-                            points[1][1], points[2][1])
-    c3 = count_pixels_horiz(image, points[1], slopes[2], points[2], slopes[3],
-                            points[2][1], points[3][1])
-    return (c1[0] + c2[0] + c3[0], c1[1] + c2[1] + c3[1])
+    same_side = (points[0][0] < points[1][0] and points[2][0] < points[3][0] or
+                 points[0][0] > points[1][0] and points[2][0] > points[3][0])
+    if points[0][1] < points[1][1]:
+        slope1 = slope_inv(points[0], points[1])
+        if same_side:
+            slope2 = slope_inv(points[0], points[2])
+        else:
+            slope2 = slope_inv(points[0], points[3])
+        t, m = count_pixels_horiz(image, points[0], slope1, points[0], slope2,
+                                  points[0][1], points[1][1])
+        total += t
+        marked += m
+    if points[1][1] < points[2][1]:
+        if same_side:
+            slope1 = slope_inv(points[0], points[2])
+            slope2 = slope_inv(points[1], points[3])
+        else:
+            slope1 = slope_inv(points[0], points[3])
+            slope2 = slope_inv(points[1], points[2])
+        t, m = count_pixels_horiz(image, points[0], slope1, points[1], slope2,
+                                  points[1][1], points[2][1])
+        total += t
+        marked += m
+    if points[2][1] < points[3][1]:
+        slope1 = slope_inv(points[2], points[3])
+        if same_side:
+            slope2 = slope_inv(points[1], points[3])
+            point2 = points[1]
+        else:
+            slope2 = slope_inv(points[2], points[3])
+            point2 = points[2]
+        t, m = count_pixels_horiz(image, points[2], slope1, point2, slope2,
+                                  points[2][1], points[3][1])
+        total += t
+        marked += m
+    return total, marked
 
 def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
     pix_total = 0
@@ -958,7 +1002,7 @@ def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
         x1 = int(round(p0[0] + slope0 * (y - p0[1])))
         x2 = int(round(p1[0] + slope1 * (y - p1[1])))
         inc = 1 if x1 < x2 else -1
-        for x in range(x1, x2, inc):
+        for x in range(x1, x2 + inc, inc):
             pix_total += 1
             if image[y, x] > 0:
                 pix_marked += 1
