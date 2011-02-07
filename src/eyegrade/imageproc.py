@@ -21,7 +21,7 @@ param_adaptive_threshold_block_size = 45
 param_adaptive_threshold_offset = 0
 
 # Other detection parameters
-param_collapse_threshold = 16
+param_collapse_thresholds = [30, 25, 20, 15, 10]
 param_directions_threshold = 0.4
 param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160]
 param_failures_threshold = 10
@@ -37,7 +37,7 @@ param_cross_mask_threshold = 0.1
 
 # Percentage of points of the must cross that must be active to decide a
 # cleared answer
-param_cleared_threshold = 0.3
+param_cleared_threshold = 0.25
 
 param_bit_mask_threshold = 0.35
 param_bit_mask_radius_multiplier = 0.25
@@ -141,16 +141,8 @@ class ExamCapture(object):
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
-
-            # Sometimes bogus lines appear in the borders of the image
-            # They are filtered out:
-            axes[1] = (axes[1][0], [l for l in axes[1][1] \
-                                 if (l[0] < 0.97 * self.image_raw.height and
-                                     l[0] > 0.03 * self.image_raw.height)])
-            axes[0] = (axes[0][0], [l for l in axes[0][1] \
-                                 if (l[0] < 0.97 * self.image_raw.width and
-                                     l[0] > 0.03 * self.image_raw.width)])
-
+            axes = filter_axes(axes, self.boxes_dim, self.image_raw.width,
+                               self.image_raw.height, self.options['read-id'])
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                                 self.image_raw.width,
                                                 self.image_raw.height,
@@ -602,13 +594,64 @@ def detect_boxes(lines, boxes_dim):
         perpendicular = abs(axes[1][0] - axes[0][0] - math.pi / 2) < 0.1 \
             or abs(axes[1][0] - axes[0][0] + math.pi / 2) < 0.1
         if perpendicular:
-            axes[0] = (axes[0][0], collapse_lines(axes[0][1]))
-            axes[1] = (axes[1][0], collapse_lines(axes[1][1]))
             return axes
     return None
 
-def collapse_lines(lines):
-    return collapse_lines_threshold(lines, param_collapse_threshold)
+def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
+    """Filters out lines near borders and lines too close to other lines.
+
+       - axes: [(vlines_angle, vlines), (hlines_angle, hlines)]
+       - boxes_dim: expected answer boxes dimensions
+       - image_width, image_height: image size
+       - read_id: True if the id must be read
+       Returns a new axes object with updated lines if success or
+       the lines without collapsing if not.
+
+    """
+    # First, filter out lines too close to image borders
+    axes = ((axes[0][0], [l for l in axes[0][1] \
+                              if (l[0] < 0.97 * image_width and
+                                  l[0] > 0.03 * image_width)]),
+            (axes[1][0], [l for l in axes[1][1] \
+                              if (l[0] < 0.97 * image_width and
+                                  l[0] > 0.03 * image_height)]))
+    # Now, colapse lines that are too close
+    v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
+    h_expected = 1 + max([box[1] for box in boxes_dim])
+    if read_id:
+        h_expected += 2
+    hlines = collapse_lines_adaptive(axes[1][1], h_expected, False)
+    if hlines is None:
+        return axes
+    vlines = collapse_lines_adaptive(axes[0][1], v_expected, True)
+    if vlines is None:
+        return axes
+    return [(axes[0][0], vlines), (axes[1][0], hlines)]
+
+def collapse_lines_adaptive(lines, expected, exact):
+    """Collapses lines that are close with different thresholds until
+       one matches the expected number of lines.
+
+       If exact is True, only exact match. If false, a number of lines
+       larger than the expected is also allowed. Returns the lines or
+       None if the expected number of lines is not matched.
+
+    """
+    if len(lines) == 0:
+        return None
+    success = False
+    for threshold in param_collapse_thresholds:
+        clines = collapse_lines_threshold(lines, threshold)
+        if len(clines) == expected:
+            success = True
+            break
+        elif len(clines) > expected:
+            success = not exact
+            break
+    if not success:
+        return None
+    else:
+        return clines
 
 def collapse_lines_threshold(lines, threshold):
     coll = []
