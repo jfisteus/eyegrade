@@ -747,7 +747,6 @@ def check_corners(corner_matrixes, width, height):
                         corners[i][j + 1][1] >= corners[i + 1][j + 1][1] or \
                         corners[i][j][0] >= corners[i][j + 1][0] or \
                         corners[i + 1][j][0] >= corners[i + 1][j + 1][0]:
-                    print "Bad point"
                     return False
 
     # Success if control reaches here
