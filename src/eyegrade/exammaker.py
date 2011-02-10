@@ -18,13 +18,16 @@ re_split_template = re.compile('{{([^{}]+)}}')
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
-                 dont_shuffle_again, num_tables=0, dimensions=None):
+                 dont_shuffle_again, num_tables=0, dimensions=None,
+                 table_width=None, id_box_width=None):
         self.num_questions = num_questions
         self.num_choices = num_choices
         template = utils.read_file(template_filename)
         self.parts = re_split_template.split(template)
         self.output_file = output_file
         self.exam_questions = None
+        self.table_width = table_width
+        self.id_box_width = id_box_width
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
         self.exam_config_filename = exam_config_filename
@@ -52,7 +55,8 @@ class ExamMaker(object):
                  ord(model) > 90) and model != '0'):
             raise Exception('Incorrect model value')
         replacements = copy.copy(self.replacements)
-        answer_table = create_answer_table(self.dimensions, model)
+        answer_table = create_answer_table(self.dimensions, model,
+                                           self.table_width)
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
@@ -60,8 +64,9 @@ class ExamMaker(object):
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
             if model != '0':
-                if (self.exam_config is None or not model in self.exam_config.permutations or
-                        not self.dont_shuffle_again):
+                if (self.exam_config is None or
+                    not model in self.exam_config.permutations or
+                    not self.dont_shuffle_again):
                     self.exam_questions.shuffle(model)
                     if self.exam_config is not None:
                         solutions, permutations = \
@@ -108,7 +113,8 @@ class ExamMaker(object):
     def __load_replacements(self, variables, id_label):
         self.replacements = copy.copy(variables)
         self.replacements['id-box'] = create_id_box(id_label,
-                                                    self.id_num_digits)
+                                                    self.id_num_digits,
+                                                    self.id_box_width)
         self.replacements['questions'] = ''
 
     def __replace(self, key, replacements):
@@ -119,12 +125,14 @@ class ExamMaker(object):
         else:
             raise Exception('Unknown replacement key: ' + key)
 
-def create_answer_table(dimensions, model):
+def create_answer_table(dimensions, model, table_width=None):
     """Returns a string with the answer tables of the answer sheet.
 
        Tables are LaTeX-formatted. 'dimensions' specifies the geometry
        of the tables. 'model' is a one letter string with the name of
-       the model, or '0' for the un-shuffled exam.
+       the model, or '0' for the un-shuffled exam. 'table_width' is
+       the desired width of the answer table, in cm. None for the default
+       width.
 
     """
     if len(dimensions) == 0:
@@ -142,25 +150,31 @@ def create_answer_table(dimensions, model):
         bits = [False] * num_tables * num_choices
     bits_rows = __create_infobits(bits, num_tables, num_choices)
     tables, question_numbers = table_geometry(dimensions)
-    rows = __table_top(num_tables, num_choices, compact)
+    rows = __table_top(num_tables, num_choices, compact, table_width)
     for i, row_geometry in enumerate(tables):
         rows.append(__horizontal_line(row_geometry, num_choices, compact))
         rows.append(__build_row(i, row_geometry, question_numbers,
                                 num_choices, bits_rows, compact))
     rows.append(r'\end{tabular}')
+    if table_width is not None:
+        rows.append('}')
     rows.append(r'\end{center}')
     return '\n'.join(rows)
 
-def create_id_box(label, num_digits):
+def create_id_box(label, num_digits, box_width=None):
     """Creates the ID box given a label to show and number of digits.
 
     """
     parts = [r'\begin{center}', r'\Large']
+    if box_width is not None:
+        parts.append(r'\resizebox{%fcm}{!}{'%box_width)
     parts.append(r'\begin{tabular}{l|' + num_digits * 'p{3mm}|' + '}')
     parts.append(r'\cline{2-%d}'%(1 + num_digits))
     parts.append(r'\textbf{%s}: '%label + num_digits * '& ' + r'\\')
     parts.append(r'\cline{2-%d}'%(1 + num_digits))
     parts.append(r'\end{tabular}')
+    if box_width is not None:
+        parts.append('}')
     parts.append(r'\end{center}')
     return '\n'.join(parts)
 
@@ -247,13 +261,16 @@ def __horizontal_line(row_geometry, num_choices, compact):
         first += 1 + num_empty_columns + num_choices
     return ' '.join(parts)
 
-def __table_top(num_tables, num_choices, compact):
+def __table_top(num_tables, num_choices, compact, table_width=None):
     middle_sep_format = 'p{3mm}' if not compact else ''
     middle_sep_header = ' & & ' if not compact else ' & '
+    lines = [r'\begin{center}', r'\large']
+    if table_width is not None:
+        lines.append(r'\resizebox{%fcm}{!}{'%table_width)
     l = middle_sep_format.join(num_tables
                                * ['|'.join(['r'] + num_choices * ['c'] + [''])])
     l = r'\begin{tabular}{' + l + '}'
-    lines = [r'\begin{center}', r'\large', l]
+    lines.append(l)
     parts = []
     for i in range(0, num_tables):
         parts_internal = []
