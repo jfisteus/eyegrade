@@ -21,12 +21,14 @@ param_adaptive_threshold_block_size = 45
 param_adaptive_threshold_offset = 0
 
 # Other detection parameters
-param_collapse_thresholds = [30, 25, 20, 15, 10]
+param_collapse_thresholds = [40, 30, 25, 20, 15, 10]
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160]
+param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160, 140]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
-param_cross_mask_thickness = 8
+
+# Thickness of the cross mask, as a fraction of the width of the cell
+param_cross_mask_thickness = 0.25
 
 # Number of pixels to go inside de cell for the mask cross
 param_cross_mask_margin = 0.6
@@ -522,8 +524,9 @@ def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
         print "draw_point: bad point (%d, %d)"%(x, y)
 
 def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
-    cv.Line(image, plu, prd, color, param_cross_mask_thickness)
-    cv.Line(image, pld, pru, color, param_cross_mask_thickness)
+    length = distance(plu, pru) * param_cross_mask_thickness
+    cv.Line(image, plu, prd, color, length)
+    cv.Line(image, pld, pru, color, length)
 
 def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
