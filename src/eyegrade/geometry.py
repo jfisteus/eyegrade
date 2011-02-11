@@ -44,19 +44,22 @@ def closer_points(p1, p2, offset):
     return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
             (int(p2[0] - dx * k), int(p2[1] - dy * k)))
 
-def closer_points_rel(p1, p2, offset_ratio):
+def closer_points_rel(p1, p2, offset_ratio, abs_offset = 0):
     """Returns a pair of points that are in the line that joins
        p1 and p2, but closer than them by the given ratio.
 
        Example: offset_ratio == 0.9 implies the distance between the
        new points is 0.9 the distance between the original points.
+       Points go then closer by abs_offset on each side.
 
     """
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
+    xoff = abs_offset * float(dx) / (abs(dx) + abs(dy))
+    yoff = abs_offset * float(dy) / (abs(dx) + abs(dy))
     k = (1.0 - float(offset_ratio)) / 2
-    return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
-            (int(p2[0] - dx * k), int(p2[1] - dy * k)))
+    return ((int(p1[0] + dx * k + xoff), int(p1[1] + dy * k + yoff)),
+            (int(p2[0] - dx * k - xoff), int(p2[1] - dy * k - yoff)))
 
 def walk_line(p0, p1):
     """Returns a generator of points in the line from p0 to p1 such

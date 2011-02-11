@@ -21,25 +21,31 @@ param_adaptive_threshold_block_size = 45
 param_adaptive_threshold_offset = 0
 
 # Other detection parameters
-param_collapse_thresholds = [40, 30, 25, 20, 15, 10]
+param_min_collapse_threshold = 6
+param_max_collapse_threshold = 50
 param_directions_threshold = 0.4
 param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160, 140]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 
 # Thickness of the cross mask, as a fraction of the width of the cell
-param_cross_mask_thickness = 0.25
+param_cross_mask_thickness = 0.2
 
 # Number of pixels to go inside de cell for the mask cross
 param_cross_mask_margin = 0.6
+param_cross_mask_margin_2 = 0.75
 param_cell_mask_margin = 0.9
 
 # Percentage of points of the mask cross that must be active to decide a cross
-param_cross_mask_threshold = 0.1
+param_cross_mask_threshold = 0.08
 
-# Percentage of points of the must cross that must be active to decide a
-# cleared answer
-param_cleared_threshold = 0.25
+# Percentage of points outside the mask cross that must be active to
+# decide a cleared answer
+param_clear_out_threshold = 0.35
+
+# Percentage of points inside the mask cross that must be active to
+# decide a cleared answer
+param_clear_in_threshold = 0.2
 
 param_bit_mask_threshold = 0.35
 param_bit_mask_radius_multiplier = 0.25
@@ -523,10 +529,9 @@ def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
     else:
         print "draw_point: bad point (%d, %d)"%(x, y)
 
-def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
-    length = distance(plu, pru) * param_cross_mask_thickness
-    cv.Line(image, plu, prd, color, length)
-    cv.Line(image, pld, pru, color, length)
+def draw_cross_mask(image, plu, pru, pld, prd, color, thickness):
+    cv.Line(image, plu, prd, color, int(thickness))
+    cv.Line(image, pld, pru, color, int(thickness))
 
 def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
@@ -547,13 +552,28 @@ def draw_cell_crosses(image, corner_matrixes):
     for corners in corner_matrixes:
         for i in range(0, len(corners) - 1):
             for j in range(0, len(corners[0]) - 1):
+                thickness = (distance(corners[i][j], corners[i][j + 1])
+                             * param_cross_mask_thickness)
                 plu, prd = closer_points_rel(corners[i][j],
                                              corners[i + 1][j + 1],
-                                             param_cross_mask_margin)
+                                             param_cross_mask_margin,
+                                             thickness / 2)
                 pru, pld = closer_points_rel(corners[i][j + 1],
-                                         corners[i + 1][j],
-                                         param_cross_mask_margin)
-                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255))
+                                             corners[i + 1][j],
+                                             param_cross_mask_margin,
+                                             thickness / 2)
+                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255),
+                                thickness)
+                plu, prd = closer_points_rel(corners[i][j],
+                                             corners[i + 1][j + 1],
+                                             param_cross_mask_margin_2,
+                                             thickness / 4)
+                pru, pld = closer_points_rel(corners[i][j + 1],
+                                             corners[i + 1][j],
+                                             param_cross_mask_margin_2,
+                                             thickness / 4)
+                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255),
+                                thickness / 2)
 
 def detect_lines(image, hough_threshold):
     st = cv.CreateMemStorage()
@@ -643,18 +663,31 @@ def collapse_lines_adaptive(lines, expected, exact):
     if len(lines) == 0:
         return None
     success = False
-    for threshold in param_collapse_thresholds:
-        clines = collapse_lines_threshold(lines, threshold)
-        if len(clines) == expected:
-            success = True
-            break
-        elif len(clines) > expected:
-            success = not exact
-            break
-    if not success:
-        return None
-    else:
+    a = param_min_collapse_threshold
+    b = param_max_collapse_threshold
+    clines = collapse_lines_threshold(lines, a)
+    if len(clines) == expected:
         return clines
+    elif len(clines) < expected:
+        return None
+    best_lines = clines
+    a += 1
+    while a <= b:
+        m = (a + b) // 2
+        clines = collapse_lines_threshold(lines, m)
+        if len(clines) < expected:
+            b = m - 1
+        elif len(clines) == expected:
+            best_lines = clines
+            b = m - 1
+        else:
+            if len(best_lines) > len(clines):
+                best_lines = clines
+            a = m + 1
+    if (exact and len(best_lines) == expected) or not exact:
+        return best_lines
+    else:
+        return None
 
 def collapse_lines_threshold(lines, threshold):
     coll = []
@@ -772,10 +805,18 @@ def decide_cells(image, corner_matrixes):
     return decisions
 
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
-    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin)
-    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin)
+    thickness = distance(plu, pru) * param_cross_mask_thickness
     cv.SetZero(mask)
-    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1))
+    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin,
+                                   thickness / 2)
+    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin,
+                                   thickness / 2)
+    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness)
+    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin_2,
+                                   thickness / 4)
+    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin_2,
+                                   thickness / 4)
+    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness / 2)
     mask_pixels = cv.CountNonZero(mask)
     cv.Mul(image, mask, masked)
     masked_pixels = cv.CountNonZero(masked)
@@ -785,9 +826,9 @@ def decide_cell(image, mask, masked, plu, pru, pld, prd):
         iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
         ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
         pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
-        cell_marked = (masked_pixels < param_cleared_threshold * mask_pixels or
+        cell_marked = (masked_pixels < param_clear_in_threshold * mask_pixels or
                        (pix_set - masked_pixels) < (pix_total - mask_pixels) * \
-                           param_cleared_threshold)
+                           param_clear_out_threshold)
     # Debug
 #    iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
 #    ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
