@@ -35,6 +35,11 @@ def read_cmd_options():
                       help = "don't shuffle already shuffled models")
     parser.add_option('-b', '--table-dimensions', dest='dimensions',
                       default=None, help='table dimensions')
+    parser.add_option('-w', '--table-width', type='float', dest='table_width',
+                      default=None, help='answer table width in cm')
+    parser.add_option('-x', '--id-box-width', type='float',
+                      dest='id_box_width', default=None,
+                      help='ID box width in cm')
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
@@ -111,7 +116,8 @@ def main():
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, config_filename,
                                 options.dont_shuffle_again, options.num_tables,
-                                dimensions)
+                                dimensions, options.table_width,
+                                options.id_box_width)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:

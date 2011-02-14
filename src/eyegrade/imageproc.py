@@ -21,18 +21,31 @@ param_adaptive_threshold_block_size = 45
 param_adaptive_threshold_offset = 0
 
 # Other detection parameters
-param_collapse_threshold = 16
+param_collapse_lines_maxgap = 7
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160]
+param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160, 140]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
-param_cross_mask_thickness = 8
+
+# Thickness of the cross mask, as a fraction of the width of the cell
+param_cross_mask_thickness = 0.2
 
 # Number of pixels to go inside de cell for the mask cross
-param_cross_mask_margin = 8
+param_cross_mask_margin = 0.6
+param_cross_mask_margin_2 = 0.75
+param_cell_mask_margin = 0.9
 
 # Percentage of points of the mask cross that must be active to decide a cross
-param_cross_mask_threshold = 0.2
+param_cross_mask_threshold = 0.08
+
+# Percentage of points outside the mask cross that must be active to
+# decide a cleared answer
+param_clear_out_threshold = 0.35
+
+# Percentage of points inside the mask cross that must be active to
+# decide a cleared answer
+param_clear_in_threshold = 0.2
+
 param_bit_mask_threshold = 0.35
 param_bit_mask_radius_multiplier = 0.25
 param_cell_mask_threshold = 0.6
@@ -116,6 +129,7 @@ class ExamCapture(object):
             self.detect()
         except Exception:
             self.success = False
+            self.status['cells'] = False
             self.context.notify_failure()
             if self.options['error-logging']:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -135,26 +149,14 @@ class ExamCapture(object):
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
-
-            # Sometimes bogus lines appear in the borders of the image
-            # They are filtered out:
-            axes[1] = (axes[1][0], [l for l in axes[1][1] \
-                                 if (l[0] < 0.97 * self.image_raw.height and
-                                     l[0] > 0.03 * self.image_raw.height)])
-            axes[0] = (axes[0][0], [l for l in axes[0][1] \
-                                 if (l[0] < 0.97 * self.image_raw.width and
-                                     l[0] > 0.03 * self.image_raw.width)])
-
+            axes = filter_axes(axes, self.boxes_dim, self.image_raw.width,
+                               self.image_raw.height, self.options['read-id'])
             self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                                 self.image_raw.width,
                                                 self.image_raw.height,
                                                 self.boxes_dim)
             if len(self.corner_matrixes) > 0:
                 self.status['cells'] = True
-            self.id_hlines = id_horizontal_lines(axes[1][1], axes[0][1],
-                                                 self.boxes_dim)
-            if self.id_hlines != []:
-                self.status['id-box-hlines'] = True
             if self.options['show-lines']:
                 for line in axes[0][1]:
                     draw_line(self.image_drawn, line, (255, 0, 0))
@@ -164,10 +166,8 @@ class ExamCapture(object):
                     for h in corners:
                         for c in h:
                             draw_point(self.image_drawn, c)
-                if len(self.corner_matrixes) > 0 and self.options['read-id']:
-                    for line in self.id_hlines:
-                        draw_line(self.image_drawn, line, (255, 255, 0))
             if len(self.corner_matrixes) > 0:
+#                draw_cell_crosses(self.image_drawn, self.corner_matrixes)
                 self.decisions = decide_cells(self.image_proc,
                                               self.corner_matrixes)
                 if self.options['infobits']:
@@ -181,23 +181,25 @@ class ExamCapture(object):
                 else:
                     self.success = True
                 if self.success and self.options['read-id']:
-                    if self.id_hlines != []:
-                        self.id_corners = \
-                            id_boxes_geometry(self.image_proc, self.id_hlines,
-                                              self.image_raw.width,
-                                              self.options['id-num-digits'])
-                        if self.id_corners == None:
-                            self.success = False
-                        else:
-                            self.status['id-box'] = True
-                            self.detect_id()
-                            if self.options['show-lines']:
-                                for c in self.id_corners[0]:
-                                    draw_point(self.image_drawn, c)
-                                for c in self.id_corners[1]:
-                                    draw_point(self.image_drawn, c)
-                    else:
+                    self.id_hlines, self.id_corners = \
+                        id_boxes_geometry(self.image_proc,
+                                          self.options['id-num-digits'],
+                                          axes[1][1], self.boxes_dim)
+                    if self.id_hlines:
+                        self.status['id-box-hlines'] = True
+                        if self.options['show-lines']:
+                            for line in self.id_hlines:
+                                draw_line(self.image_drawn, line, (255, 255, 0))
+                    if self.id_corners == None:
                         self.success = False
+                    else:
+                        self.status['id-box'] = True
+                        self.detect_id()
+                        if self.options['show-lines']:
+                            for c in self.id_corners[0]:
+                                draw_point(self.image_drawn, c)
+                            for c in self.id_corners[1]:
+                                draw_point(self.image_drawn, c)
             if self.success:
                 self.context.notify_success()
             else:
@@ -522,9 +524,9 @@ def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
     else:
         print "draw_point: bad point (%d, %d)"%(x, y)
 
-def draw_cross_mask(image, plu, pru, pld, prd, color = (255)):
-    cv.Line(image, plu, prd, color, param_cross_mask_thickness)
-    cv.Line(image, pld, pru, color, param_cross_mask_thickness)
+def draw_cross_mask(image, plu, pru, pld, prd, color, thickness):
+    cv.Line(image, plu, prd, color, int(thickness))
+    cv.Line(image, pld, pru, color, int(thickness))
 
 def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
     radius = int(round(diagonal / 3.5))
@@ -540,6 +542,33 @@ def draw_success_indicator(image, success):
     position = (image.width - 15, 15)
     color = (0, 192, 0) if success else (0, 0, 255)
     cv.Circle(image, position, 10, color, cv.CV_FILLED)
+
+def draw_cell_crosses(image, corner_matrixes):
+    for corners in corner_matrixes:
+        for i in range(0, len(corners) - 1):
+            for j in range(0, len(corners[0]) - 1):
+                thickness = (distance(corners[i][j], corners[i][j + 1])
+                             * param_cross_mask_thickness)
+                plu, prd = closer_points_rel(corners[i][j],
+                                             corners[i + 1][j + 1],
+                                             param_cross_mask_margin,
+                                             thickness / 2)
+                pru, pld = closer_points_rel(corners[i][j + 1],
+                                             corners[i + 1][j],
+                                             param_cross_mask_margin,
+                                             thickness / 2)
+                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255),
+                                thickness)
+                plu, prd = closer_points_rel(corners[i][j],
+                                             corners[i + 1][j + 1],
+                                             param_cross_mask_margin_2,
+                                             thickness / 4)
+                pru, pld = closer_points_rel(corners[i][j + 1],
+                                             corners[i + 1][j],
+                                             param_cross_mask_margin_2,
+                                             thickness / 4)
+                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255),
+                                thickness / 2)
 
 def detect_lines(image, hough_threshold):
     st = cv.CreateMemStorage()
@@ -583,31 +612,76 @@ def detect_boxes(lines, boxes_dim):
         perpendicular = abs(axes[1][0] - axes[0][0] - math.pi / 2) < 0.1 \
             or abs(axes[1][0] - axes[0][0] + math.pi / 2) < 0.1
         if perpendicular:
-            axes[0] = (axes[0][0], collapse_lines(axes[0][1]))
-            axes[1] = (axes[1][0], collapse_lines(axes[1][1]))
             return axes
     return None
 
-def collapse_lines(lines):
-    return collapse_lines_threshold(lines, param_collapse_threshold)
+def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
+    """Filters out lines near borders and lines too close to other lines.
 
-def collapse_lines_threshold(lines, threshold):
-    coll = []
-    first = 0
+       - axes: [(vlines_angle, vlines), (hlines_angle, hlines)]
+       - boxes_dim: expected answer boxes dimensions
+       - image_width, image_height: image size
+       - read_id: True if the id must be read
+       Returns a new axes object with updated lines if success or
+       the lines without collapsing if not.
+
+    """
+    # First, filter out lines too close to image borders
+    axes = ((axes[0][0], [l for l in axes[0][1] \
+                              if (l[0] < 0.97 * image_width and
+                                  l[0] > 0.03 * image_width)]),
+            (axes[1][0], [l for l in axes[1][1] \
+                              if (l[0] < 0.97 * image_width and
+                                  l[0] > 0.03 * image_height)]))
+    # Now, colapse lines that are too close
+    v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
+    h_expected = 1 + max([box[1] for box in boxes_dim])
+    if read_id:
+        h_expected += 2
+    hlines = collapse_lines_angles(axes[1][1], h_expected, True)
+    if hlines is None:
+        return axes
+    vlines = collapse_lines_angles(axes[0][1], v_expected, False)
+    if vlines is None:
+        return axes
+    return [(axes[0][0], vlines), (axes[1][0], hlines)]
+
+def collapse_lines_angles(lines, expected, horizontal):
+    """Collapses lines that are close together.
+
+       Receives the list of pairs of lines (rho, theta), the expected
+       number of lines to be matched, and whether lines are horizontal
+       or not. Returns the lines or None if the expected number of
+       lines is not matched.
+
+    """
+    if len(lines) < 2:
+        return None
+    success = False
+    main_lines = []
     sum_rho = lines[0][0]
     sum_theta = lines[0][1]
-    for i in range(1, len(lines)):
-        if abs(lines[i][0] - lines[first][0]) > threshold:
-            coll.append((sum_rho / (i - first), sum_theta / (i - first)))
-            first = i
-            sum_rho = lines[i][0]
-            sum_theta = lines[i][1]
+    num_lines = 1
+    new_group = True
+    last_line = lines[0]
+    for line in lines[1:]:
+        if ((horizontal and line[1] > last_line[1]) or
+            (not horizontal and line[1] < last_line[1]) or
+            abs(line[0] - last_line[0]) > param_collapse_lines_maxgap):
+            main_lines.append((sum_rho / num_lines, sum_theta / num_lines))
+            sum_rho = line[0]
+            sum_theta = line[1]
+            num_lines = 1
         else:
-            sum_rho += lines[i][0]
-            sum_theta += lines[i][1]
-    coll.append((sum_rho / (len(lines) - first),
-                 sum_theta / (len(lines) - first)))
-    return coll
+            sum_rho += line[0]
+            sum_theta += line[1]
+            num_lines += 1
+        last_line = line
+    main_lines.append((sum_rho / num_lines, sum_theta / num_lines))
+    if (not horizontal and len(main_lines) == expected) or horizontal:
+        return main_lines
+    else:
+        return None
 
 def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
     h_expected = 1 + max([box[1] for box in boxes_dim])
@@ -635,19 +709,6 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
         return corner_matrixes
     else:
         return []
-
-def id_horizontal_lines(hlines, vlines, boxes_dim):
-    discard = 1 + max([box[1] for box in boxes_dim])
-    lines = hlines[:-discard]
-    if len(lines) < 2:
-        return []
-    if len(lines) > 2:
-        threshold = float(min_rho_difference(hlines[-discard:])) / 2.5
-        lines = collapse_lines_threshold(lines, threshold)
-    lines = lines[-2:]
-    if lines[1][0] - lines[0][0] < param_id_boxes_min_height:
-        lines = []
-    return lines
 
 def check_corners(corner_matrixes, width, height):
     # Check differences between horizontal lines:
@@ -685,7 +746,6 @@ def check_corners(corner_matrixes, width, height):
                         corners[i][j + 1][1] >= corners[i + 1][j + 1][1] or \
                         corners[i][j][0] >= corners[i][j + 1][0] or \
                         corners[i + 1][j][0] >= corners[i + 1][j + 1][0]:
-                    print "Bad point"
                     return False
 
     # Success if control reaches here
@@ -708,19 +768,37 @@ def decide_cells(image, corner_matrixes):
     return decisions
 
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
-    plu, prd = closer_points(plu, prd, param_cross_mask_margin)
-    pru, pld = closer_points(pru, pld, param_cross_mask_margin)
+    thickness = distance(plu, pru) * param_cross_mask_thickness
     cv.SetZero(mask)
-    draw_cross_mask(mask, plu, pru, pld, prd, (1))
+    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin,
+                                   thickness / 2)
+    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin,
+                                   thickness / 2)
+    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness)
+    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin_2,
+                                   thickness / 4)
+    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin_2,
+                                   thickness / 4)
+    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness / 2)
     mask_pixels = cv.CountNonZero(mask)
     cv.Mul(image, mask, masked)
     masked_pixels = cv.CountNonZero(masked)
-    cell_marked = masked_pixels >= param_cross_mask_threshold * mask_pixels
+    cell_marked = masked_pixels > param_cross_mask_threshold * mask_pixels
     # If the whole cell is marked, don't count the result:
     if cell_marked:
-        pix_total, pix_set = count_pixels_in_cell(image, plu, pru, pld, prd)
-        cell_marked = pix_set < param_cell_mask_threshold * pix_total
-#        print float(pix_set) / pix_total
+        iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
+        ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
+        pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
+        cell_marked = (masked_pixels < param_clear_in_threshold * mask_pixels or
+                       (pix_set - masked_pixels) < (pix_total - mask_pixels) * \
+                           param_clear_out_threshold)
+    # Debug
+#    iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
+#    ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
+#    pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
+#    print 'total: %d, set: %d, mask: %d, masked: %d'%(pix_total, pix_set,
+#                                                      mask_pixels,
+#                                                      masked_pixels)
     return cell_marked
 
 def read_infobits(image, corner_matrixes):
@@ -771,26 +849,41 @@ def decide_answer(cell_decisions):
     else:
         return -1
 
-def id_boxes_geometry(image, hlines, iwidth, num_cells):
+def id_boxes_geometry(image, num_cells, lines, boxes_dim):
     success = False
+    # First, select the upper and bottom id lines
+    discard = 1 + max([box[1] for box in boxes_dim])
+    lim = 4 * lines[-discard][0] - 3 * lines[-discard + 1][0]
+    hlines = [l for l in lines[:-discard] if l[0] > lim]
+    if len(hlines) < 2:
+        return None, None
+    elif len(hlines) > 2:
+        hlines = [hlines[0], hlines[-1]]
+#        weights = [(count_pixels_in_horizontal_line(image, line), line) \
+#                       for line in lines]
+#        hlines = [weights[0][1], weights[1][1]]
+    min_height = 0.5 * (lines[-discard + 1][0] - lines[-discard][0])
+    if hlines[1][0] - hlines[0][0] < min_height:
+        return None, None
+    # Now, adjust corners
     pairs_left, pairs_right = line_bounds_adaptive(image, hlines[0], hlines[1],
-                                                   iwidth, 3)
+                                                   image.width, 3)
     all_bounds = [(l[0], r[0], l[1], r[1]) \
                       for l in pairs_left for r in pairs_right]
 #    print "len(all_bounds):", len(all_bounds)
 #    i = 1
     for bounds in all_bounds[:5]:
         corners = id_boxes_check_points(image, bounds, hlines,
-                                        iwidth, num_cells)
+                                        image.width, num_cells)
         if corners is not None:
 #            print "success", i
             success = True
             break
 #        i += 1
     if success:
-        return corners
+        return hlines, corners
     else:
-        return None
+        return hlines, None
 
 def id_boxes_check_points(image, points, hlines, iwidth, num_cells):
     plu, pru, pld, prd = points
@@ -926,30 +1019,45 @@ def count_pixels_in_cell(image, plu, pru, pld, prd):
         number of non-zero pixels.
     """
     # Walk the quadrilateral in horizontal lines.
-    # First, decide which borders limit each step of horizontal lines.
+    total = 0
+    marked = 0
     points = sorted([plu, pru, pld, prd], key = lambda p: p[1])
-    slopes = [None, None, None, None]
-    if points[0][1] == points[1][1]:
-        if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
-            points = [points[1], points[0], points[2], points[3]]
-    else:
-        slopes[0] = slope_inv(points[0], points[1])
-    if points[2][1] == points[3][1]:
-        if points[1][0] < points[0][0] and points[3][0] > points[2][0]:
-            points = [points[0], points[1], points[3], points[2]]
-    else:
-        slopes[3] = slope_inv(points[2], points[3])
-    slopes[1] = slope_inv(points[0], points[2])
-    slopes[2] = slope_inv(points[1], points[3])
-    pixels_total = 0
-    pixels_active = 0
-    c1 = count_pixels_horiz(image, points[0], slopes[0], points[0], slopes[1],
-                            points[0][1], points[1][1])
-    c2 = count_pixels_horiz(image, points[1], slopes[2], points[0], slopes[1],
-                            points[1][1], points[2][1])
-    c3 = count_pixels_horiz(image, points[1], slopes[2], points[2], slopes[3],
-                            points[2][1], points[3][1])
-    return (c1[0] + c2[0] + c3[0], c1[1] + c2[1] + c3[1])
+    same_side = (points[0][0] < points[1][0] and points[2][0] < points[3][0] or
+                 points[0][0] > points[1][0] and points[2][0] > points[3][0])
+    if points[0][1] < points[1][1]:
+        slope1 = slope_inv(points[0], points[1])
+        if same_side:
+            slope2 = slope_inv(points[0], points[2])
+        else:
+            slope2 = slope_inv(points[0], points[3])
+        t, m = count_pixels_horiz(image, points[0], slope1, points[0], slope2,
+                                  points[0][1], points[1][1])
+        total += t
+        marked += m
+    if points[1][1] < points[2][1]:
+        if same_side:
+            slope1 = slope_inv(points[0], points[2])
+            slope2 = slope_inv(points[1], points[3])
+        else:
+            slope1 = slope_inv(points[0], points[3])
+            slope2 = slope_inv(points[1], points[2])
+        t, m = count_pixels_horiz(image, points[0], slope1, points[1], slope2,
+                                  points[1][1], points[2][1])
+        total += t
+        marked += m
+    if points[2][1] < points[3][1]:
+        slope1 = slope_inv(points[2], points[3])
+        if same_side:
+            slope2 = slope_inv(points[1], points[3])
+            point2 = points[1]
+        else:
+            slope2 = slope_inv(points[2], points[3])
+            point2 = points[2]
+        t, m = count_pixels_horiz(image, points[2], slope1, point2, slope2,
+                                  points[2][1], points[3][1])
+        total += t
+        marked += m
+    return total, marked
 
 def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
     pix_total = 0
@@ -958,7 +1066,7 @@ def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
         x1 = int(round(p0[0] + slope0 * (y - p0[1])))
         x2 = int(round(p1[0] + slope1 * (y - p1[1])))
         inc = 1 if x1 < x2 else -1
-        for x in range(x1, x2, inc):
+        for x in range(x1, x2 + inc, inc):
             pix_total += 1
             if image[y, x] > 0:
                 pix_marked += 1
@@ -1039,6 +1147,19 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
+
+def count_pixels_in_horizontal_line(image, line):
+    p0 = line_point(line, x = 0)
+    if p0[1] < 0:
+        p0 = line_point(line, y = 0)
+    p1 = line_point(line, x = image.width - 1)
+    if p1[1] < 0:
+        p1 = line_point(line, y = 0)
+    active_points = 0
+    for x, y in walk_line(p0, p1):
+        if image[y, x] > 0:
+            active_points += 1
+    return active_points
 
 def cvimage_to_pygame(image):
     image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
