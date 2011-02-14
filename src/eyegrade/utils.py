@@ -148,9 +148,9 @@ def read_config():
     """Reads the general config file and returns the resulting config object.
 
     """
-    config = {'camera-dev': '-1',
+    config = {'camera-dev': '0',
               'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
-              'csv-dialect': 'excel'}
+              'csv-dialect': 'tabs'}
     parser = ConfigParser.SafeConfigParser()
     parser.read([os.path.expanduser('~/.eyegrade.cfg'),
                  os.path.expanduser('~/.camgrade.cfg')])
@@ -158,7 +158,7 @@ def read_config():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
     if not config['csv-dialect'] in csv.list_dialects():
-        config['csv-dialect'] = 'excel'
+        config['csv-dialect'] = 'tabs'
     if 'error-logging' in config and config['error-logging'] == 'yes':
         config['error-logging'] = True
     else:
