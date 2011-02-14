@@ -389,7 +389,8 @@ def format_question(question, model, as_string = True):
 
 def format_question_component(component):
     data = []
-    data.append(component.text)
+    if component.text is not None:
+        data.append(component.text)
     if component.figure is not None and component.annex_pos == 'center':
         data.extend(write_figure(component.figure,
                                  component.annex_width))
