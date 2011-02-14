@@ -360,32 +360,41 @@ def format_question(question, model, as_string = True):
         choices = question.correct_choices + question.incorrect_choices
     else:
         choices = question.shuffled_choices[model]
-    if (question.figure is not None or question.code is not None) and \
-            question.annex_pos == 'right':
-        width_right = question.annex_width + param_table_sep
+    if ((question.text.figure is not None
+         or question.text.code is not None) and
+        question.text.annex_pos == 'right'):
+        width_right = question.text.annex_width + param_table_sep
         width_left = 1 - width_right - param_table_margin
         data.append('\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}'
                     'p{%f\\textwidth}}\n'%(width_left, width_right))
     data.append(r'\item ')
-    data.append(question.text)
-    if question.figure is not None and question.annex_pos == 'center':
-        data.extend(write_figure(question.figure, question.annex_width))
-    elif question.code is not None and question.annex_pos == 'center':
-        data.extend(write_code(question.code))
+    data.extend(format_question_component(question.text))
     data.append('\n  \\begin{enumerate}[(a)]\n')
     for choice in choices:
         data.append(r'    \item ')
-        data.append(choice)
+        data.extend(format_question_component(choice))
         data.append('\n')
     data.append('\n  \\end{enumerate}\n')
-    if (question.figure is not None or question.code is not None) and \
-            question.annex_pos == 'right':
+    if ((question.text.figure is not None
+         or question.text.code is not None) and
+        question.text.annex_pos == 'right'):
         data.append('&\n')
-        if question.figure is not None:
-            data.extend(write_figure(question.figure, question.annex_width))
-        elif question.code is not None:
-            data.extend(write_code(question.code))
+        if question.text.figure is not None:
+            data.extend(write_figure(question.text.figure,
+                                     question.text.annex_width))
+        elif question.text.code is not None:
+            data.extend(write_code(question.text.code))
         data.append('\\\\\n\\end{tabular}\n')
+    return data
+
+def format_question_component(component):
+    data = []
+    data.append(component.text)
+    if component.figure is not None and component.annex_pos == 'center':
+        data.extend(write_figure(component.figure,
+                                 component.annex_width))
+    elif component.code is not None and component.annex_pos == 'center':
+        data.extend(write_code(component.code))
     return data
 
 def write_figure(figure, width):

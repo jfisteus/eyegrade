@@ -529,10 +529,6 @@ class Question(object):
         self.text = None
         self.correct_choices = []
         self.incorrect_choices = []
-        self.code = None
-        self.figure = None
-        self.annex_width = None
-        self.annex_pos = None
         self.shuffled_choices = {}
         self.permutations = {}
 
@@ -557,3 +553,29 @@ def shuffle(data):
         shuffled_data.append(item)
         permutations.append(pos)
     return shuffled_data, permutations
+
+class QuestionComponent(object):
+    """A piece of text and optional figure or code.
+
+       Represents both the text of a question and its choices.
+
+    """
+    def __init__(self, in_choice):
+        self.in_choice = in_choice
+        self.text = None
+        self.code = None
+        self.figure = None
+        self.annex_width = None
+        self.annex_pos = None
+
+    def check_is_valid(self):
+        if self.code is not None and self.figure is not None:
+            raise Exception('Code and figure cannot be in the same block')
+        if (self.in_choice and self.annex_pos != 'center' and
+            (self.code is not None or self.figure is not None)):
+            raise Exception('Figures and code in answers must be centered')
+        if (self.code is not None and self.annex_pos == 'center' and
+            self.annex_width != None):
+            raise Exception('Centered code cannot have width')
+        if not self.in_choice and self.text is None:
+            raise Exception('Questions must have a text')
