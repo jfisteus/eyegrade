@@ -65,25 +65,11 @@ def check_model_letter(model):
         raise Exception('Incorrect model letter: ' + model)
 
 def read_student_ids(filename, with_names=False):
-    """Reads the list of student IDs from a CSV-formatted file.
-
-       The format of the file is flexible: separators can be either
-       tabs or commas. Student ids must be in the first column. The
-       second columns, if present, must be the name of the student.
+    """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
     """
     csvfile = open(filename, 'rb')
-    if csvfile.readline().strip().isdigit():
-        csv.register_dialect('student-id', delimiter=',')
-        dialect = csv.get_dialect('student-id')
-    else:
-        try:
-            csvfile.seek(0)
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-        except:
-            raise Exception('Error while processing the students ID list')
-    csvfile.seek(0)
-    reader = csv.reader(csvfile, dialect)
+    reader = csv.reader(csvfile, 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
     else:
