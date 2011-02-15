@@ -217,7 +217,8 @@ def decode_model(bit_list):
                     valid = False
                     break
     if valid:
-        return chr(65 + bit_list[0] | bit_list[1] << 1 | bit_list[2] << 2)
+        return chr(65 + (int(bit_list[0]) | int(bit_list[1]) << 1 |
+                  int(bit_list[2]) << 2))
     else:
         return None
 
