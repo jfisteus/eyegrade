@@ -25,6 +25,16 @@ def round_point(point):
     """Rounds the coordinates of the point to the nearest integers."""
     return int(round(point[0])), int(round(point[1]))
 
+def angles_perpendicular(angle1, angle2):
+    """Returns True if angles are perpendicular or almost perpendicular.
+
+       There is a margin of +-0.1 radians in which they are still
+       considered perpendicular.
+
+    """
+    return (abs(angle2 - angle1 - math.pi / 2) < 0.1 or
+            abs(angle2 - angle1 + math.pi / 2) < 0.1)
+
 # Funtions on lines defined by two points
 #
 def slope(p1, p2):

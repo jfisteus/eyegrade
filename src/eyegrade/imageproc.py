@@ -608,12 +608,18 @@ def detect_directions(lines):
 def detect_boxes(lines, boxes_dim):
     axes = detect_directions(lines)
     axes = [axis for axis in axes if len(axis[1]) >= 5]
+    if len(axes) == 3:
+        if angles_perpendicular(axes[0][0], axes[1][0]):
+            del axes[2]
+        elif angles_perpendicular(axes[0][0], axes[2][0]):
+            del axes[1]
+        else:
+            del axes[0]
     if len(axes) == 2:
-        perpendicular = abs(axes[1][0] - axes[0][0] - math.pi / 2) < 0.1 \
-            or abs(axes[1][0] - axes[0][0] + math.pi / 2) < 0.1
-        if perpendicular:
+        if angles_perpendicular(axes[0][0], axes[1][0]):
             return axes
-    return None
+    else:
+        return None
 
 def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
     """Filters out lines near borders and lines too close to other lines.
