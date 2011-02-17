@@ -866,7 +866,7 @@ def id_boxes_geometry(image, num_cells, lines, boxes_dim):
     success = False
     # First, select the upper and bottom id lines
     discard = 1 + max([box[1] for box in boxes_dim])
-    lim = 3.5 * lines[-discard][0] - 2.5 * lines[-discard + 1][0]
+    lim = 4 * lines[-discard][0] - 3 * lines[-discard + 1][0]
     hlines = [l for l in lines[:-discard] if l[0] > lim]
     if len(hlines) < 2:
         return None, None
