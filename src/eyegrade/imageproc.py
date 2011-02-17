@@ -116,6 +116,7 @@ class ExamCapture(object):
         self.id = None
         self.id_ocr_original = None
         self.id_scores = None
+        self.id_corners = None
         self.status = {'overall': False,
                        'lines': False,
                        'boxes': False,
@@ -637,12 +638,12 @@ def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
     """
     # First, filter out lines too close to image borders
     axes = ((axes[0][0], [l for l in axes[0][1] \
-                             if ((l[0] < 0.97 * image_width and
-                                  l[0] > 0.03 * image_width) or
+                             if ((abs(l[0]) < 0.97 * image_width and
+                                  abs(l[0]) > 0.03 * image_width) or
                                  not angles_perpendicular(math.pi / 2, l[1]))]),
             (axes[1][0], [l for l in axes[1][1] \
-                              if ((l[0] < 0.97 * image_width and
-                                  l[0] > 0.03 * image_height) or
+                              if ((abs(l[0]) < 0.97 * image_width and
+                                  abs(l[0]) > 0.03 * image_height) or
                                   not angles_perpendicular(0.0, l[1]))]))
     # Now, colapse lines that are too close
     v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
@@ -678,7 +679,7 @@ def collapse_lines_angles(lines, expected, horizontal):
     for line in lines[1:]:
         if ((((horizontal and line[1] > last_line[1]) or
               (not horizontal and line[1] < last_line[1])) and
-             abs(line[0] - last_line[0]) >= 4.5) or
+             abs(line[0] - last_line[0]) >= 5) or
             abs(line[0] - last_line[0]) > param_collapse_lines_maxgap):
             main_lines.append((sum_rho / num_lines, sum_theta / num_lines))
             sum_rho = line[0]

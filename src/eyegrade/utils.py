@@ -46,7 +46,7 @@ def read_results(filename, permutations = {}):
     results = __read_results_file(filename)
     for result in results:
         if result['model'].isdigit():
-            result['model'] = ord(65 + int(result['model']))
+            result['model'] = chr(65 + int(result['model']))
         else:
             result['model'] = check_model_letter(result['model'])
         result['good'] = int(result['good'])
