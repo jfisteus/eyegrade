@@ -35,5 +35,5 @@ setup(
     name = "eyegrade",
 
     # targets to build
-    console = ["eyegrade.py", "create_exam.py"],
+    console = ["eyegrade.py", "create_exam.py", "mix_grades.py", "analysis.py"],
     )
