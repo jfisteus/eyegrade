@@ -4,10 +4,6 @@
 import csv
 import sys
 
-# For plots
-import numpy as np
-import matplotlib.pyplot as plt
-
 # Local imports
 import utils
 
@@ -63,6 +59,12 @@ def print_stats_by_question(stats):
         print '  - Not answered: %d (%.1f%%)'%(answers[0], percentage)
 
 def plot_stats_by_question(stats):
+    try:
+        import numpy as np
+        import matplotlib.pyplot as plt
+    except:
+        # matplotlib or numpy not installed; just return
+        return
     colors = 'bgrcmy'
     numq = len(stats)
     xvals = np.arange(numq)
