@@ -338,7 +338,7 @@ def format_questions(exam, model):
         data.append('\\begin{enumerate}[1.-]\n')
         for question in questions:
             data.append('\\vspace{2mm}\n')
-            data.extend(format_question(question, model, False))
+            data.extend(format_question(question, model))
             data.append('\n')
         data.append('\\end{enumerate}\n')
         if model != '0':
@@ -348,11 +348,8 @@ def format_questions(exam, model):
             data.append('\n')
     return ''.join(data)
 
-def format_question(question, model, as_string = True):
-    """Returns a latex formatted question, as a string or list of strings.
-
-       If 'as_string' is True, returns just one string. It it is
-       False, returns a list of strings to be joined later.
+def format_question(question, model):
+    """Returns a latex formatted question, as a list of strings.
 
     """
     data = []
