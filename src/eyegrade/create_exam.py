@@ -122,6 +122,9 @@ def main():
         maker.set_exam_questions(exam)
     for model in options.models:
         maker.create_exam(model)
+    maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
+    for model in options.models:
+        maker.create_exam(model, with_solution=True)
     if config_filename is not None:
         maker.save_exam_config()
 

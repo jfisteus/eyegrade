@@ -20,6 +20,10 @@ class ExamMaker(object):
                  output_file, variables, exam_config_filename,
                  dont_shuffle_again, num_tables=0, dimensions=None,
                  table_width=None, id_box_width=None):
+        """
+           Class able to create exams. One object is enough for all models.
+
+        """
         self.num_questions = num_questions
         self.num_choices = num_choices
         template = utils.read_file(template_filename)
@@ -50,7 +54,7 @@ class ExamMaker(object):
             raise Exception('Incorrect number of questions')
         self.exam_questions = exam
 
-    def create_exam(self, model):
+    def create_exam(self, model, with_solution=False):
         if model is None or len(model) != 1 or ((ord(model) < 65 or \
                  ord(model) > 90) and model != '0'):
             raise Exception('Incorrect model value')
@@ -77,9 +81,11 @@ class ExamMaker(object):
                     p = self.exam_config.permutations[model]
                     self.exam_questions.set_permutation(model, p)
             replacements['questions'] = format_questions(self.exam_questions,
-                                                         model)
+                                                         model, with_solution)
         replacements['answer-table'] = answer_table
         replacements['model'] = model
+        replacements['declarations'] = latex_declarations(with_solution)
+
         # Replacement keys are in odd positions of self.parts
         replaced = len(self.parts) * [None]
         replaced[::2] = self.parts[::2]
@@ -124,6 +130,26 @@ class ExamMaker(object):
             return replacements['id-box']
         else:
             raise Exception('Unknown replacement key: ' + key)
+
+def latex_declarations(with_solution):
+    """Returns the list of declarations to be set in the preamble
+       of the LaTeX output.
+
+    """
+    data = [r'\usepackage[dvipdf]{graphicx}',
+            r'\usepackage{fancyvrb}',
+            r'\usepackage{enumerate}',
+            r'\usepackage{color}',
+            r'\definecolor{lightgray}{rgb}{1, 1, 1}',
+            r'\newcommand{\light}[1]{\textcolor{lightgray}{#1}}',
+            r'\definecolor{hidden}{rgb}{1, 1, 1}',
+            r'\newcommand{\hidden}[1]{\textcolor{hidden}{#1}}',
+            r'\newif\ifsolutions']
+    if with_solution:
+        data.append(r'\solutionstrue')
+    else:
+        data.append(r'\solutionsfalse')
+    return '\n'.join(data)
 
 def create_answer_table(dimensions, model, table_width=None):
     """Returns a string with the answer tables of the answer sheet.
@@ -322,11 +348,12 @@ def __create_infobits(bits, num_tables, num_choices):
             parts[j].append(' & '.join(components))
     return parts
 
-def format_questions(exam, model):
+def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
        'exam' is a utils.ExamQuestions object. Writtes the questions
-       in their 'shuffled' order.
+       in their 'shuffled' order. If 'with_solution', correct answers
+       are marked in the text.
 
     """
     data = []
@@ -338,7 +365,7 @@ def format_questions(exam, model):
         data.append('\\begin{enumerate}[1.-]\n')
         for question in questions:
             data.append('\\vspace{2mm}\n')
-            data.extend(format_question(question, model))
+            data.extend(format_question(question, model, with_solution))
             data.append('\n')
         data.append('\\end{enumerate}\n')
         if model != '0':
@@ -348,8 +375,10 @@ def format_questions(exam, model):
             data.append('\n')
     return ''.join(data)
 
-def format_question(question, model):
+def format_question(question, model, with_solution=False):
     """Returns a latex formatted question, as a list of strings.
+
+       If 'with_solution', correct answers are marked in the text.
 
     """
     data = []
@@ -369,6 +398,8 @@ def format_question(question, model):
     data.append('\n  \\begin{enumerate}[(a)]\n')
     for choice in choices:
         data.append(r'    \item ')
+        if with_solution and choice in question.correct_choices:
+            data[-1] = data[-1] + r' \textbf{***} '
         data.extend(format_question_component(choice))
         data.append('\n')
     data.append('\n  \\end{enumerate}\n')
