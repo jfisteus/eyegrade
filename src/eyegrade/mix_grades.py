@@ -28,7 +28,6 @@ def mix_grades(results_filename, ids_filename, output_filename, dump_missing):
     utils.write_grades(results, file_, config['csv-dialect'])
     if output_filename is not None:
         file_.close()
-    print dump_missing
 
 def main():
     options, args = read_cmd_options()
