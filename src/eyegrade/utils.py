@@ -109,6 +109,40 @@ def mix_results(results_filename, student_list_filename, dump_missing):
                                      results[student_id][1]))
     return mixed_grades
 
+def mix_results_extra_grades(results_filename, student_list_filename,
+                             extra_grades_filename, dump_missing):
+    """Returns a list of tuples student_id, good_answers, bad_answers, <extra>
+
+       Receives the names of the files with results and student list.
+       If 'dump_missing' is True, grades of students not in the
+       student list are dumped at the end of the list.
+       <extra> represents as many data as columns 1:... in the extra file
+       (column 0 in that file is the student id).
+
+    """
+    mixed_grades = mix_results(results_filename, student_list_filename,
+                               dump_missing)
+    csvfile = open(extra_grades_filename, 'rb')
+    reader = csv.reader(csvfile, 'tabs')
+    extra_grades = {}
+    for line in reader:
+        if len(line) < 2:
+            raise Exception('Incorrect line in extra grades file')
+        extra_grades[line[0]] = tuple(line[1:])
+    csvfile.close()
+    ids = []
+    for i in range(0, len(mixed_grades)):
+        student_id = mixed_grades[i][0]
+        ids.append(student_id)
+        if student_id in extra_grades:
+            mixed_grades[i] = mixed_grades[i] + extra_grades[student_id]
+    if dump_missing:
+        for student_id in extra_grades:
+            if not student_id in ids:
+                mixed_grades.append(((student_id, 0, 0) +
+                                     extra_grades[student_id]))
+    return mixed_grades
+
 def write_grades(grades, file_, csv_dialect):
     """Writes the given grades to a file.
 
