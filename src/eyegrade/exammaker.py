@@ -18,7 +18,7 @@ re_split_template = re.compile('{{([^{}]+)}}')
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
-                 dont_shuffle_again, num_tables=0, dimensions=None,
+                 num_tables=0, dimensions=None,
                  table_width=None, id_box_width=None):
         """
            Class able to create exams. One object is enough for all models.
@@ -35,7 +35,6 @@ class ExamMaker(object):
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
         self.exam_config_filename = exam_config_filename
-        self.dont_shuffle_again = dont_shuffle_again
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
             raise Exception('Incoherent number of tables')
@@ -54,7 +53,14 @@ class ExamMaker(object):
             raise Exception('Incorrect number of questions')
         self.exam_questions = exam
 
-    def create_exam(self, model, with_solution=False):
+    def create_exam(self, model, shuffle, with_solution=False):
+        """Creates a new exam.
+
+           'shuffle' must be a boolean. If True, the exam is shuffled
+           again even if it was previously shuffled. If False, it is
+           only shuffled if it was not previously shuffled.
+
+        """
         if model is None or len(model) != 1 or ((ord(model) < 65 or \
                  ord(model) > 90) and model != '0'):
             raise Exception('Incorrect model value')
@@ -70,7 +76,8 @@ class ExamMaker(object):
             if model != '0':
                 if (self.exam_config is None or
                     not model in self.exam_config.permutations or
-                    not self.dont_shuffle_again):
+                    (model in self.exam_config.permutations and shuffle)):
+                    print "shuffling model", model
                     self.exam_questions.shuffle(model)
                     if self.exam_config is not None:
                         solutions, permutations = \
