@@ -612,13 +612,21 @@ def detect_boxes(lines, boxes_dim):
     axes = detect_directions(lines)
     axes = [axis for axis in axes \
                 if len(axis[1]) >= min(v_expected, h_expected)]
+    # If there are spurious axes, try to filter them out:
     if len(axes) == 3:
+        # Take the perpendicular angles
         if angles_perpendicular(axes[0][0], axes[1][0]):
             del axes[2]
         elif angles_perpendicular(axes[0][0], axes[2][0]):
             del axes[1]
         else:
             del axes[0]
+    elif len(axes) == 4:
+        # Take the angles which are the closest to 0 and pi/2.
+        # The image is assumed to have its horizontal and vertical lines closer
+        # to zero or pi/2 than spureous lines.
+        axes.sort(key=lambda x:distance_closest_axis(x[0], (0, math.pi / 2)))
+        axes = axes[:2]
     if len(axes) == 2:
         if angles_perpendicular(axes[0][0], axes[1][0]):
             return axes

@@ -196,3 +196,25 @@ def rect_center(plu, pru, pld, prd):
        Note: l/r are for left, right; u, d are for up/down."""
     return round_point((float(plu[0] + prd[0]) / 2, float(plu[1] + prd[1]) / 2))
 
+# Functions on angles (in radians)
+#
+def distance_closest_axis(angle, axes_angles):
+    """Returns the distance of angle to the closest angle in 'axes_angles'
+
+       Axes are computed in pi modulus (that is, 0 equals pi).
+       'axes_angles' is an iterable of angles. All parameters are in
+       radians. Distance is returned as an angle in radians. +/- pi
+       variations of the angles are also tested. The angle is
+       normalized to the range [0, pi).
+
+    """
+    axes_expanded = []
+    for a in axes_angles:
+        a = a % math.pi
+        axes_expanded.append(a)
+        if a > math.pi / 2:
+            axes_expanded.append(a - math.pi)
+        else:
+            axes_expanded.append(a + math.pi)
+    angle_normalized = angle % math.pi
+    return min([abs(angle_normalized - a) for a in axes_expanded])
