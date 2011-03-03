@@ -8,7 +8,7 @@ import random
 import re
 
 program_name = 'eyegrade'
-version = '0.1.7'
+version = '0.1.8'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[a-zA-Z]')
