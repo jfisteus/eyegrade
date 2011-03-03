@@ -8,7 +8,7 @@ import random
 import re
 
 program_name = 'eyegrade'
-version = '0.1.7'
+version = '0.1.8'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[a-zA-Z]')
@@ -19,9 +19,12 @@ keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
 
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
+    if path.endswith('.zip'):
+        path = os.path.split(path)[0]
     paths_to_try = [os.path.join(path, 'data'),
                     os.path.join(path, '..', 'data'),
-                    os.path.join(path, '..', '..', 'data')]
+                    os.path.join(path, '..', '..', 'data'),
+                    os.path.join(path, '..', '..', '..', 'data')]
     for p in paths_to_try:
         if os.path.isdir(p):
             return os.path.abspath(p)
@@ -43,7 +46,7 @@ def read_results(filename, permutations = {}):
     results = __read_results_file(filename)
     for result in results:
         if result['model'].isdigit():
-            result['model'] = ord(65 + int(result['model']))
+            result['model'] = chr(65 + int(result['model']))
         else:
             result['model'] = check_model_letter(result['model'])
         result['good'] = int(result['good'])
@@ -62,25 +65,11 @@ def check_model_letter(model):
         raise Exception('Incorrect model letter: ' + model)
 
 def read_student_ids(filename, with_names=False):
-    """Reads the list of student IDs from a CSV-formatted file.
-
-       The format of the file is flexible: separators can be either
-       tabs or commas. Student ids must be in the first column. The
-       second columns, if present, must be the name of the student.
+    """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
     """
     csvfile = open(filename, 'rb')
-    if csvfile.readline().strip().isdigit():
-        csv.register_dialect('student-id', delimiter=',')
-        dialect = csv.get_dialect('student-id')
-    else:
-        try:
-            csvfile.seek(0)
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-        except:
-            raise Exception('Error while processing the students ID list')
-    csvfile.seek(0)
-    reader = csv.reader(csvfile, dialect)
+    reader = csv.reader(csvfile, 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
     else:
@@ -120,6 +109,40 @@ def mix_results(results_filename, student_list_filename, dump_missing):
                                      results[student_id][1]))
     return mixed_grades
 
+def mix_results_extra_grades(results_filename, student_list_filename,
+                             extra_grades_filename, dump_missing):
+    """Returns a list of tuples student_id, good_answers, bad_answers, <extra>
+
+       Receives the names of the files with results and student list.
+       If 'dump_missing' is True, grades of students not in the
+       student list are dumped at the end of the list.
+       <extra> represents as many data as columns 1:... in the extra file
+       (column 0 in that file is the student id).
+
+    """
+    mixed_grades = mix_results(results_filename, student_list_filename,
+                               dump_missing)
+    csvfile = open(extra_grades_filename, 'rb')
+    reader = csv.reader(csvfile, 'tabs')
+    extra_grades = {}
+    for line in reader:
+        if len(line) < 2:
+            raise Exception('Incorrect line in extra grades file')
+        extra_grades[line[0]] = tuple(line[1:])
+    csvfile.close()
+    ids = []
+    for i in range(0, len(mixed_grades)):
+        student_id = mixed_grades[i][0]
+        ids.append(student_id)
+        if student_id in extra_grades:
+            mixed_grades[i] = mixed_grades[i] + extra_grades[student_id]
+    if dump_missing:
+        for student_id in extra_grades:
+            if not student_id in ids:
+                mixed_grades.append(((student_id, 0, 0) +
+                                     extra_grades[student_id]))
+    return mixed_grades
+
 def write_grades(grades, file_, csv_dialect):
     """Writes the given grades to a file.
 
@@ -145,9 +168,9 @@ def read_config():
     """Reads the general config file and returns the resulting config object.
 
     """
-    config = {'camera-dev': '-1',
+    config = {'camera-dev': '0',
               'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
-              'csv-dialect': 'excel'}
+              'csv-dialect': 'tabs'}
     parser = ConfigParser.SafeConfigParser()
     parser.read([os.path.expanduser('~/.eyegrade.cfg'),
                  os.path.expanduser('~/.camgrade.cfg')])
@@ -155,7 +178,7 @@ def read_config():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
     if not config['csv-dialect'] in csv.list_dialects():
-        config['csv-dialect'] = 'excel'
+        config['csv-dialect'] = 'tabs'
     if 'error-logging' in config and config['error-logging'] == 'yes':
         config['error-logging'] = True
     else:
@@ -228,7 +251,8 @@ def decode_model(bit_list):
                     valid = False
                     break
     if valid:
-        return chr(65 + bit_list[0] | bit_list[1] << 1 | bit_list[2] << 2)
+        return chr(65 + (int(bit_list[0]) | int(bit_list[1]) << 1 |
+                  int(bit_list[2]) << 2))
     else:
         return None
 
@@ -526,10 +550,6 @@ class Question(object):
         self.text = None
         self.correct_choices = []
         self.incorrect_choices = []
-        self.code = None
-        self.figure = None
-        self.annex_width = None
-        self.annex_pos = None
         self.shuffled_choices = {}
         self.permutations = {}
 
@@ -554,3 +574,29 @@ def shuffle(data):
         shuffled_data.append(item)
         permutations.append(pos)
     return shuffled_data, permutations
+
+class QuestionComponent(object):
+    """A piece of text and optional figure or code.
+
+       Represents both the text of a question and its choices.
+
+    """
+    def __init__(self, in_choice):
+        self.in_choice = in_choice
+        self.text = None
+        self.code = None
+        self.figure = None
+        self.annex_width = None
+        self.annex_pos = None
+
+    def check_is_valid(self):
+        if self.code is not None and self.figure is not None:
+            raise Exception('Code and figure cannot be in the same block')
+        if (self.in_choice and self.annex_pos != 'center' and
+            (self.code is not None or self.figure is not None)):
+            raise Exception('Figures and code in answers must be centered')
+        if (self.code is not None and self.annex_pos == 'center' and
+            self.annex_width != None):
+            raise Exception('Centered code cannot have width')
+        if not self.in_choice and self.text is None:
+            raise Exception('Questions must have a text')

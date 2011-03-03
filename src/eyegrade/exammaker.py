@@ -18,17 +18,23 @@ re_split_template = re.compile('{{([^{}]+)}}')
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
-                 dont_shuffle_again, num_tables=0, dimensions=None):
+                 num_tables=0, dimensions=None,
+                 table_width=None, id_box_width=None):
+        """
+           Class able to create exams. One object is enough for all models.
+
+        """
         self.num_questions = num_questions
         self.num_choices = num_choices
         template = utils.read_file(template_filename)
         self.parts = re_split_template.split(template)
         self.output_file = output_file
         self.exam_questions = None
+        self.table_width = table_width
+        self.id_box_width = id_box_width
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
         self.exam_config_filename = exam_config_filename
-        self.dont_shuffle_again = dont_shuffle_again
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
             raise Exception('Incoherent number of tables')
@@ -47,12 +53,20 @@ class ExamMaker(object):
             raise Exception('Incorrect number of questions')
         self.exam_questions = exam
 
-    def create_exam(self, model):
+    def create_exam(self, model, shuffle, with_solution=False):
+        """Creates a new exam.
+
+           'shuffle' must be a boolean. If True, the exam is shuffled
+           again even if it was previously shuffled. If False, it is
+           only shuffled if it was not previously shuffled.
+
+        """
         if model is None or len(model) != 1 or ((ord(model) < 65 or \
                  ord(model) > 90) and model != '0'):
             raise Exception('Incorrect model value')
         replacements = copy.copy(self.replacements)
-        answer_table = create_answer_table(self.dimensions, model)
+        answer_table = create_answer_table(self.dimensions, model,
+                                           self.table_width)
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
@@ -60,8 +74,10 @@ class ExamMaker(object):
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
             if model != '0':
-                if not model in self.exam_config.permutations or \
-                        not self.dont_shuffle_again:
+                if (self.exam_config is None or
+                    not model in self.exam_config.permutations or
+                    (model in self.exam_config.permutations and shuffle)):
+                    print "shuffling model", model
                     self.exam_questions.shuffle(model)
                     if self.exam_config is not None:
                         solutions, permutations = \
@@ -72,9 +88,11 @@ class ExamMaker(object):
                     p = self.exam_config.permutations[model]
                     self.exam_questions.set_permutation(model, p)
             replacements['questions'] = format_questions(self.exam_questions,
-                                                         model)
+                                                         model, with_solution)
         replacements['answer-table'] = answer_table
         replacements['model'] = model
+        replacements['declarations'] = latex_declarations(with_solution)
+
         # Replacement keys are in odd positions of self.parts
         replaced = len(self.parts) * [None]
         replaced[::2] = self.parts[::2]
@@ -108,7 +126,8 @@ class ExamMaker(object):
     def __load_replacements(self, variables, id_label):
         self.replacements = copy.copy(variables)
         self.replacements['id-box'] = create_id_box(id_label,
-                                                    self.id_num_digits)
+                                                    self.id_num_digits,
+                                                    self.id_box_width)
         self.replacements['questions'] = ''
 
     def __replace(self, key, replacements):
@@ -119,12 +138,34 @@ class ExamMaker(object):
         else:
             raise Exception('Unknown replacement key: ' + key)
 
-def create_answer_table(dimensions, model):
+def latex_declarations(with_solution):
+    """Returns the list of declarations to be set in the preamble
+       of the LaTeX output.
+
+    """
+    data = [r'\usepackage[dvipdf]{graphicx}',
+            r'\usepackage{fancyvrb}',
+            r'\usepackage{enumerate}',
+            r'\usepackage{color}',
+            r'\definecolor{lightgray}{rgb}{1, 1, 1}',
+            r'\newcommand{\light}[1]{\textcolor{lightgray}{#1}}',
+            r'\definecolor{hidden}{rgb}{1, 1, 1}',
+            r'\newcommand{\hidden}[1]{\textcolor{hidden}{#1}}',
+            r'\newif\ifsolutions']
+    if with_solution:
+        data.append(r'\solutionstrue')
+    else:
+        data.append(r'\solutionsfalse')
+    return '\n'.join(data)
+
+def create_answer_table(dimensions, model, table_width=None):
     """Returns a string with the answer tables of the answer sheet.
 
        Tables are LaTeX-formatted. 'dimensions' specifies the geometry
        of the tables. 'model' is a one letter string with the name of
-       the model, or '0' for the un-shuffled exam.
+       the model, or '0' for the un-shuffled exam. 'table_width' is
+       the desired width of the answer table, in cm. None for the default
+       width.
 
     """
     if len(dimensions) == 0:
@@ -142,25 +183,31 @@ def create_answer_table(dimensions, model):
         bits = [False] * num_tables * num_choices
     bits_rows = __create_infobits(bits, num_tables, num_choices)
     tables, question_numbers = table_geometry(dimensions)
-    rows = __table_top(num_tables, num_choices, compact)
+    rows = __table_top(num_tables, num_choices, compact, table_width)
     for i, row_geometry in enumerate(tables):
         rows.append(__horizontal_line(row_geometry, num_choices, compact))
         rows.append(__build_row(i, row_geometry, question_numbers,
                                 num_choices, bits_rows, compact))
     rows.append(r'\end{tabular}')
+    if table_width is not None:
+        rows.append('}')
     rows.append(r'\end{center}')
     return '\n'.join(rows)
 
-def create_id_box(label, num_digits):
+def create_id_box(label, num_digits, box_width=None):
     """Creates the ID box given a label to show and number of digits.
 
     """
     parts = [r'\begin{center}', r'\Large']
+    if box_width is not None:
+        parts.append(r'\resizebox{%fcm}{!}{'%box_width)
     parts.append(r'\begin{tabular}{l|' + num_digits * 'p{3mm}|' + '}')
     parts.append(r'\cline{2-%d}'%(1 + num_digits))
     parts.append(r'\textbf{%s}: '%label + num_digits * '& ' + r'\\')
     parts.append(r'\cline{2-%d}'%(1 + num_digits))
     parts.append(r'\end{tabular}')
+    if box_width is not None:
+        parts.append('}')
     parts.append(r'\end{center}')
     return '\n'.join(parts)
 
@@ -247,13 +294,16 @@ def __horizontal_line(row_geometry, num_choices, compact):
         first += 1 + num_empty_columns + num_choices
     return ' '.join(parts)
 
-def __table_top(num_tables, num_choices, compact):
+def __table_top(num_tables, num_choices, compact, table_width=None):
     middle_sep_format = 'p{3mm}' if not compact else ''
     middle_sep_header = ' & & ' if not compact else ' & '
+    lines = [r'\begin{center}', r'\large']
+    if table_width is not None:
+        lines.append(r'\resizebox{%fcm}{!}{'%table_width)
     l = middle_sep_format.join(num_tables
                                * ['|'.join(['r'] + num_choices * ['c'] + [''])])
     l = r'\begin{tabular}{' + l + '}'
-    lines = [r'\begin{center}', r'\large', l]
+    lines.append(l)
     parts = []
     for i in range(0, num_tables):
         parts_internal = []
@@ -305,11 +355,12 @@ def __create_infobits(bits, num_tables, num_choices):
             parts[j].append(' & '.join(components))
     return parts
 
-def format_questions(exam, model):
+def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
        'exam' is a utils.ExamQuestions object. Writtes the questions
-       in their 'shuffled' order.
+       in their 'shuffled' order. If 'with_solution', correct answers
+       are marked in the text.
 
     """
     data = []
@@ -321,7 +372,7 @@ def format_questions(exam, model):
         data.append('\\begin{enumerate}[1.-]\n')
         for question in questions:
             data.append('\\vspace{2mm}\n')
-            data.extend(format_question(question, model, False))
+            data.extend(format_question(question, model, with_solution))
             data.append('\n')
         data.append('\\end{enumerate}\n')
         if model != '0':
@@ -331,11 +382,10 @@ def format_questions(exam, model):
             data.append('\n')
     return ''.join(data)
 
-def format_question(question, model, as_string = True):
-    """Returns a latex formatted question, as a string or list of strings.
+def format_question(question, model, with_solution=False):
+    """Returns a latex formatted question, as a list of strings.
 
-       If 'as_string' is True, returns just one string. It it is
-       False, returns a list of strings to be joined later.
+       If 'with_solution', correct answers are marked in the text.
 
     """
     data = []
@@ -343,32 +393,44 @@ def format_question(question, model, as_string = True):
         choices = question.correct_choices + question.incorrect_choices
     else:
         choices = question.shuffled_choices[model]
-    if (question.figure is not None or question.code is not None) and \
-            question.annex_pos == 'right':
-        width_right = question.annex_width + param_table_sep
+    if ((question.text.figure is not None
+         or question.text.code is not None) and
+        question.text.annex_pos == 'right'):
+        width_right = question.text.annex_width + param_table_sep
         width_left = 1 - width_right - param_table_margin
         data.append('\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}'
                     'p{%f\\textwidth}}\n'%(width_left, width_right))
     data.append(r'\item ')
-    data.append(question.text)
-    if question.figure is not None and question.annex_pos == 'center':
-        data.extend(write_figure(question.figure, question.annex_width))
-    elif question.code is not None and question.annex_pos == 'center':
-        data.extend(write_code(question.code))
+    data.extend(format_question_component(question.text))
     data.append('\n  \\begin{enumerate}[(a)]\n')
     for choice in choices:
         data.append(r'    \item ')
-        data.append(choice)
+        if with_solution and choice in question.correct_choices:
+            data[-1] = data[-1] + r' \textbf{***} '
+        data.extend(format_question_component(choice))
         data.append('\n')
     data.append('\n  \\end{enumerate}\n')
-    if (question.figure is not None or question.code is not None) and \
-            question.annex_pos == 'right':
+    if ((question.text.figure is not None
+         or question.text.code is not None) and
+        question.text.annex_pos == 'right'):
         data.append('&\n')
-        if question.figure is not None:
-            data.extend(write_figure(question.figure, question.annex_width))
-        elif question.code is not None:
-            data.extend(write_code(question.code))
+        if question.text.figure is not None:
+            data.extend(write_figure(question.text.figure,
+                                     question.text.annex_width))
+        elif question.text.code is not None:
+            data.extend(write_code(question.text.code))
         data.append('\\\\\n\\end{tabular}\n')
+    return data
+
+def format_question_component(component):
+    data = []
+    if component.text is not None:
+        data.append(component.text)
+    if component.figure is not None and component.annex_pos == 'center':
+        data.extend(write_figure(component.figure,
+                                 component.annex_width))
+    elif component.code is not None and component.annex_pos == 'center':
+        data.extend(write_code(component.code))
     return data
 
 def write_figure(figure, width):

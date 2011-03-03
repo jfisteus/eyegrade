@@ -311,7 +311,7 @@ def cell_clicked(image, point):
                 min_dst = dst
                 clicked_row = i
                 clicked_col = j
-    if min_dst <= image.diagonals[i][j] / 2:
+    if min_dst is not None and min_dst <= image.diagonals[i][j] / 2:
         return (clicked_row, clicked_col + 1)
     else:
         return None

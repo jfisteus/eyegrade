@@ -35,6 +35,11 @@ def read_cmd_options():
                       help = "don't shuffle already shuffled models")
     parser.add_option('-b', '--table-dimensions', dest='dimensions',
                       default=None, help='table dimensions')
+    parser.add_option('-w', '--table-width', type='float', dest='table_width',
+                      default=None, help='answer table width in cm')
+    parser.add_option('-x', '--id-box-width', type='float',
+                      dest='id_box_width', default=None,
+                      help='ID box width in cm')
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
@@ -55,6 +60,7 @@ def main():
     options, args = read_cmd_options()
     template_filename = args[0]
     variables = {}
+    dimensions = None
     if options.exam_filename:
         exam = utils.read_exam_questions(options.exam_filename)
         variables['subject'] = exam.subject
@@ -109,12 +115,16 @@ def main():
         config_filename = options.output_file_prefix + '.eye'
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, config_filename,
-                                options.dont_shuffle_again, options.num_tables,
-                                dimensions)
+                                options.num_tables,
+                                dimensions, options.table_width,
+                                options.id_box_width)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:
-        maker.create_exam(model)
+        maker.create_exam(model, not options.dont_shuffle_again)
+    maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
+    for model in options.models:
+        maker.create_exam(model, False, with_solution=True)
     if config_filename is not None:
         maker.save_exam_config()
 

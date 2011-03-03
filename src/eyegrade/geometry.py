@@ -25,6 +25,16 @@ def round_point(point):
     """Rounds the coordinates of the point to the nearest integers."""
     return int(round(point[0])), int(round(point[1]))
 
+def angles_perpendicular(angle1, angle2):
+    """Returns True if angles are perpendicular or almost perpendicular.
+
+       There is a margin of +-0.1 radians in which they are still
+       considered perpendicular.
+
+    """
+    return (abs(angle2 - angle1 - math.pi / 2) < 0.1 or
+            abs(angle2 - angle1 + math.pi / 2) < 0.1)
+
 # Funtions on lines defined by two points
 #
 def slope(p1, p2):
@@ -43,6 +53,23 @@ def closer_points(p1, p2, offset):
     k = float(offset) / math.sqrt(dx * dx + dy * dy)
     return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
             (int(p2[0] - dx * k), int(p2[1] - dy * k)))
+
+def closer_points_rel(p1, p2, offset_ratio, abs_offset = 0):
+    """Returns a pair of points that are in the line that joins
+       p1 and p2, but closer than them by the given ratio.
+
+       Example: offset_ratio == 0.9 implies the distance between the
+       new points is 0.9 the distance between the original points.
+       Points go then closer by abs_offset on each side.
+
+    """
+    dx = p2[0] - p1[0]
+    dy = p2[1] - p1[1]
+    xoff = abs_offset * float(dx) / (abs(dx) + abs(dy))
+    yoff = abs_offset * float(dy) / (abs(dx) + abs(dy))
+    k = (1.0 - float(offset_ratio)) / 2
+    return ((int(p1[0] + dx * k + xoff), int(p1[1] + dy * k + yoff)),
+            (int(p2[0] - dx * k - xoff), int(p2[1] - dy * k - yoff)))
 
 def walk_line(p0, p1):
     """Returns a generator of points in the line from p0 to p1 such
@@ -169,3 +196,25 @@ def rect_center(plu, pru, pld, prd):
        Note: l/r are for left, right; u, d are for up/down."""
     return round_point((float(plu[0] + prd[0]) / 2, float(plu[1] + prd[1]) / 2))
 
+# Functions on angles (in radians)
+#
+def distance_closest_axis(angle, axes_angles):
+    """Returns the distance of angle to the closest angle in 'axes_angles'
+
+       Axes are computed in pi modulus (that is, 0 equals pi).
+       'axes_angles' is an iterable of angles. All parameters are in
+       radians. Distance is returned as an angle in radians. +/- pi
+       variations of the angles are also tested. The angle is
+       normalized to the range [0, pi).
+
+    """
+    axes_expanded = []
+    for a in axes_angles:
+        a = a % math.pi
+        axes_expanded.append(a)
+        if a > math.pi / 2:
+            axes_expanded.append(a - math.pi)
+        else:
+            axes_expanded.append(a + math.pi)
+    angle_normalized = angle % math.pi
+    return min([abs(angle_normalized - a) for a in axes_expanded])
