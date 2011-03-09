@@ -650,7 +650,7 @@ def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
                                   abs(l[0]) > 0.03 * image_width) or
                                  not angles_perpendicular(math.pi / 2, l[1]))]),
             (axes[1][0], [l for l in axes[1][1] \
-                              if ((abs(l[0]) < 0.97 * image_width and
+                              if ((abs(l[0]) < 0.97 * image_height and
                                   abs(l[0]) > 0.03 * image_height) or
                                   not angles_perpendicular(0.0, l[1]))]))
     # Now, colapse lines that are too close
