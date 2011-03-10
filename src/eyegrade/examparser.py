@@ -15,6 +15,7 @@ def parse_exam(dom_tree):
         exam.degree = get_element_content(root, namespace, 'degree')
         exam.date = get_element_content(root, namespace, 'date')
         exam.duration = get_element_content(root, namespace, 'duration')
+        exam.title = get_element_content(root, namespace, 'title')
         exam.questions = []
         for node in get_children_by_tag_name(root, namespace, 'question'):
             exam.questions.append(parse_question(node))

@@ -30,6 +30,8 @@ def read_cmd_options():
                       help='concatenation of the model leters to create')
     parser.add_option('-t', '--duration', dest='duration', default=None,
                       help='exam duration time')
+    parser.add_option('-l', '--title', dest='title', default=None,
+                      help='title of the exam')
     parser.add_option("-k", "--dont-shuffle-again", action="store_true",
                       dest = "dont_shuffle_again", default = False,
                       help = "don't shuffle already shuffled models")
@@ -67,6 +69,7 @@ def main():
         variables['degree'] = exam.degree
         variables['date'] = exam.date
         variables['duration'] = exam.duration
+        variables['title'] = exam.title
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if num_choices is None:
@@ -105,6 +108,8 @@ def main():
         variables['subject'] = unicode(options.subject, encoding)
     if options.degree is not None:
         variables['degree'] = unicode(options.degree, encoding)
+    if options.title is not None:
+        variables['title'] = unicode(options.title, encoding)
     if options.duration is not None:
         variables['duration'] = unicode(options.duration, encoding)
     if options.output_file_prefix is None:
