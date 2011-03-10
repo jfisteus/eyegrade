@@ -77,7 +77,6 @@ class ExamMaker(object):
                 if (self.exam_config is None or
                     not model in self.exam_config.permutations or
                     (model in self.exam_config.permutations and shuffle)):
-                    print "shuffling model", model
                     self.exam_questions.shuffle(model)
                     if self.exam_config is not None:
                         solutions, permutations = \
