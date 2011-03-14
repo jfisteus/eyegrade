@@ -874,14 +874,14 @@ def id_boxes_geometry(image, num_cells, lines, boxes_dim):
     success = False
     # First, select the upper and bottom id lines
     discard = 1 + max([box[1] for box in boxes_dim])
-    lim = 4 * lines[-discard][0] - 3 * lines[-discard + 1][0]
+    lim = 4.5 * lines[-discard][0] - 3.5 * lines[-discard + 1][0]
     hlines = [l for l in lines[:-discard] if l[0] > lim]
     if len(hlines) < 2:
         return None, None
     elif len(hlines) > 2:
         hlines = [hlines[0], hlines[-1]]
 #        weights = [(count_pixels_in_horizontal_line(image, line), line) \
-#                       for line in lines]
+#                       for line in hlines]
 #        hlines = [weights[0][1], weights[1][1]]
     min_height = 0.5 * (lines[-discard + 1][0] - lines[-discard][0])
     if hlines[1][0] - hlines[0][0] < min_height:
