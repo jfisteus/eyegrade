@@ -23,7 +23,7 @@ param_adaptive_threshold_offset = 0
 # Other detection parameters
 param_collapse_lines_maxgap = 7
 param_directions_threshold = 0.4
-param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160, 140]
+param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160, 140, 120]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 
