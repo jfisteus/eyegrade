@@ -15,7 +15,8 @@ re_model_letter = re.compile('[a-zA-Z]')
 
 csv.register_dialect('tabs', delimiter = '\t')
 
-keys = ['seq-num', 'student-id', 'model', 'good', 'bad', 'unknown', 'answers']
+results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
+                     'unknown', 'answers']
 
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
@@ -39,8 +40,8 @@ def read_results(filename, permutations = {}):
     """Parses an eyegrade results file.
 
        Results are returned as a list of dictionaries with the keys
-       stored in the 'keys' variable. If 'permutations' is provided,
-       answers are un-shuffled.
+       stored in the 'results_file_keys' variable. If 'permutations'
+       is provided, answers are un-shuffled.
 
     """
     results = __read_results_file(filename)
@@ -57,6 +58,34 @@ def read_results(filename, permutations = {}):
             answers = __permute_answers(answers, permutations[result['model']])
         result['answers'] = answers
     return results
+
+def write_results(results, filename, csv_dialect, append=False):
+    """Writes exam results to a file.
+
+       If filename is None, results are written to stdout. The output
+       file is overwritting by default. Use append=True to append
+       instead of overwriting.
+
+    """
+    if filename is not None:
+        if not append:
+            file_ = open(filename, 'wb')
+        else:
+            file_ = open(filename, 'ab')
+    else:
+        file_ = sys.stdout
+    writer = csv.writer(file_, dialect = csv_dialect)
+    for result in results:
+        data = [str(result['seq-num']),
+                result['student-id'],
+                result['model'],
+                str(result['good']),
+                str(result['bad']),
+                str(result['unknown']),
+                '/'.join([str(d) for d in result['answers']])]
+        writer.writerow(data)
+    if filename is not None:
+        file_.close()
 
 def check_model_letter(model):
     if re_model_letter.match(model):
@@ -190,7 +219,8 @@ def __read_results_file(filename):
     csvfile = open(filename, 'rb')
     dialect = csv.Sniffer().sniff(csvfile.read(1024))
     csvfile.seek(0)
-    reader = csv.DictReader(csvfile, fieldnames = keys, dialect = dialect)
+    reader = csv.DictReader(csvfile, fieldnames = results_file_keys,
+                            dialect = dialect)
     entries = [entry for entry in reader]
     csvfile.close()
     return entries
@@ -199,8 +229,8 @@ def __permute_answers(answers, permutation):
     assert(len(answers) == len(permutation))
     permutted = [0] * len(answers)
     for i, option in enumerate(answers):
-        if option == 0:
-            resolved_option = 0
+        if option == 0 or option == -1:
+            resolved_option = option
         else:
             resolved_option = permutation[i][1][option - 1]
         permutted[permutation[i][0] - 1] = resolved_option
