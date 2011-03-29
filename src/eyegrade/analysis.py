@@ -17,13 +17,18 @@ def stats_for_question(results, question, num_options = None):
     answers = [r['answers'][question] for r in results]
     if num_options is None:
         num_options = max(answers)
+        if num_options == -1:
+            num_options = 0
     counters = [0 for i in range(0, num_options + 1)]
     for answer in answers:
-        if answer <= num_options:
+        if answer == 0 or answer == -1:
+            counters[0] += 1
+        elif answer <= num_options:
             counters[answer] += 1
     return counters
 
 def stats_by_question(results, num_questions):
+    print results
     return [stats_for_question(results, i) for i in range(0, num_questions)]
 
 def stats_for_model(results, model, num_questions):
