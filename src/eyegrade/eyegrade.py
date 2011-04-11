@@ -37,13 +37,20 @@ class Exam(object):
         self.score = None
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
+        self.student_names = valid_student_ids
+        self.student_id_filter = []
+        self.student_id_manual = []
         if self.image.options['read-id']:
-            self.student_names = valid_student_ids
             self.student_id = self.decide_student_id(valid_student_ids)
-            self.student_id_filter = []
-            self.student_id_manual = []
         else:
+            # Allow manual insertion of ID even if OCR detection
+            # is not done
             self.student_id = '-1'
+            if valid_student_ids is not None:
+                self.ids_rank = [(0, sid) for sid in valid_student_ids]
+                self.ids_rank_pos = -1
+            else:
+                self.ids_rank = None
         self.locked = False
         self.score_weights = score_weights
 
@@ -152,15 +159,16 @@ class Exam(object):
             self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
 
     def filter_student_id(self, digit):
-        self.student_id_filter.append(digit)
-        ids = [sid for sid in self.ids_rank \
-                   if ''.join(self.student_id_filter) in sid[1]]
-        if len(ids) > 0:
-            self.__update_student_id(ids[0][1])
-        else:
-            self.__update_student_id(None)
-            self.student_id_filter = []
-            self.ids_rank_pos = -1
+        if self.ids_rank is not None:
+            self.student_id_filter.append(digit)
+            ids = [sid for sid in self.ids_rank \
+                       if ''.join(self.student_id_filter) in sid[1]]
+            if len(ids) > 0:
+                self.__update_student_id(ids[0][1])
+            else:
+                self.__update_student_id(None)
+                self.student_id_filter = []
+                self.ids_rank_pos = -1
 
     def reset_student_id_filter(self, show_first = True):
         self.student_id_filter = []
@@ -206,7 +214,7 @@ class Exam(object):
         self.image.clean_drawn_image()
 
     def __saved_image_name(self, filename_pattern):
-        if self.image.options['read-id'] and self.student_id != '-1':
+        if self.student_id != '-1':
             sid = self.student_id
         else:
             sid = 'noid'
@@ -347,7 +355,7 @@ def main():
 
     im_id = options.start_id
     valid_student_ids = None
-    if read_id and options.ids_file is not None:
+    if options.ids_file is not None:
         valid_student_ids = utils.read_student_ids(options.ids_file, True)
 
     interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
@@ -428,12 +436,11 @@ def main():
                 else:
                     exam = latest_graded_exam
                 success = True
-                if read_id:
-                    if options.ids_file is not None:
-                        exam.reset_student_id_filter(False)
-                    else:
-                        exam.reset_student_id_editor()
-                        override_id_mode = True
+                if options.ids_file is not None:
+                    exam.reset_student_id_filter(False)
+                else:
+                    exam.reset_student_id_editor()
+                    override_id_mode = True
             elif event == gui.event_lock:
                 lock_mode = True
 
@@ -463,13 +470,13 @@ def main():
                         exam.save_debug_images(save_pattern)
                     im_id += 1
                     continue_waiting = False
-                elif event == gui.event_manual_id and read_id:
+                elif event == gui.event_manual_id:
                     override_id_mode = True
                     exam.reset_student_id_editor()
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn, False)
                     interface.update_text(exam.get_student_name())
-                elif event == gui.event_next_id and read_id:
+                elif event == gui.event_next_id:
                     if not override_id_mode and options.ids_file is not None:
                         if len(exam.student_id_filter) == 0:
                             exam.try_next_student_id()
@@ -479,7 +486,7 @@ def main():
                         exam.draw_answers()
                         interface.show_capture(exam.image.image_drawn, False)
                         interface.update_text(exam.get_student_name())
-                elif event == gui.event_id_digit and read_id:
+                elif event == gui.event_id_digit:
                     if override_id_mode:
                         exam.student_id_editor(event_info)
                     elif options.ids_file is not None:

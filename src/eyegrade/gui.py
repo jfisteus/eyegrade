@@ -152,12 +152,12 @@ class PygameInterface(object):
         self.tool_over = None
         self.toolbar.append(((save_icon_normal, save_icon_high),
                              event_save, save_help))
-        if self.id_enabled:
-            if self.id_list_enabled:
-                self.toolbar.append(((next_id_icon_normal, next_id_icon_high),
-                                     event_next_id, next_id_help))
-            self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
-                                 event_manual_id, edit_id_help))
+        if self.id_list_enabled:
+            self.toolbar.append(((next_id_icon_normal, next_id_icon_high),
+                                 event_next_id, next_id_help))
+        # Manual ID can be inserted even if ID detection is disabled
+        self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
+                             event_manual_id, edit_id_help))
         self.toolbar.append(((discard_icon_normal, discard_icon_high),
                              event_cancel_frame, discard_help))
         self.toolbar.append((None, None))
