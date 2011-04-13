@@ -39,7 +39,7 @@ def parse_question(question_node):
 def parse_question_component(parent_node, is_choice):
     component = utils.QuestionComponent(is_choice)
     if not is_choice:
-        component.text = get_element_content(parent_node, namespace, 'text')
+        component.text = get_question_text_content(parent_node, namespace)
     else:
         component.text = get_element_content_node(parent_node)
     component.code, code_atts = \
@@ -73,6 +73,26 @@ def parse_question_component(parent_node, is_choice):
     component.check_is_valid()
     return component
 
+def get_question_text_content(parent, namespace):
+    parts = []
+    node_list = get_children_by_tag_name(parent, namespace, 'text')
+    if len(node_list) == 1:
+        for node in node_list[0].childNodes:
+            if node.nodeType == node.TEXT_NODE:
+                parts.append(('text', node.data))
+#                parts.append(('text', text_norm_re.sub(' ', node.data)))
+            elif node.nodeType == node.ELEMENT_NODE:
+                if (node.namespaceURI == namespace
+                    and node.localName == 'code'):
+                    parts.append(('code', get_text(node.childNodes, False)))
+                else:
+                    raise Exception('Unknown element: ' + node.localName)
+    elif len(node_list) == 0:
+        raise Exception('Text element expected in question')
+    elif len(node_list) > 1:
+        raise Exception('Duplicate text element')
+    return parts
+
 def get_element_content(parent, namespace, local_name):
     node_list = get_children_by_tag_name(parent, namespace, local_name)
     if len(node_list) == 1:
@@ -83,7 +103,7 @@ def get_element_content(parent, namespace, local_name):
         raise Exception('Duplicate element: ' + local_name)
 
 def get_element_content_node(element_node):
-    return get_text(element_node.childNodes)
+    return get_text(element_node.childNodes, False)
 
 def get_element_content_with_attrs(parent, namespace, local_name, attr_names):
     node_list = get_children_by_tag_name(parent, namespace, local_name)

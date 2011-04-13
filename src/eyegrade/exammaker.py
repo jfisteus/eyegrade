@@ -424,7 +424,14 @@ def format_question(question, model, with_solution=False):
 def format_question_component(component):
     data = []
     if component.text is not None:
-        data.append(component.text)
+        if isinstance(component.text, basestring):
+            data.append(component.text)
+        else:
+            for part in component.text:
+                if part[0] == 'text':
+                    data.append(part[1])
+                elif part[0] == 'code':
+                    data.extend(write_code(part[1]))
     if component.figure is not None and component.annex_pos == 'center':
         data.extend(write_figure(component.figure,
                                  component.annex_width))
