@@ -23,6 +23,7 @@ event_manual_id = 8
 event_next_id = 9
 event_id_digit = 10
 event_click = 11
+event_manual_detection = 12
 
 statusbar_event_id = pygame.USEREVENT + 1
 statusbar_display_time = 6000
@@ -225,6 +226,8 @@ class PygameInterface(object):
                 return (event_snapshot, None)
             elif event.key == 32:
                 return (event_lock, None)
+            elif event.key == ord('m'):
+                return (event_manual_detection, None)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:

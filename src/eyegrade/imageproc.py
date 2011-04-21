@@ -238,6 +238,9 @@ class ExamCapture(object):
             self.draw_status_flags()
             self.draw_hough_threshold()
 
+    def draw_corner(self, point):
+        draw_box_corner(self.image_drawn, point)
+
     def draw_answers(self, frozen, solutions, model,
                      correct, good, bad, undet, im_id = None):
         base = 0
@@ -536,6 +539,9 @@ def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
 def draw_cell_center(image, center, color=(255, 0, 0), radius=4):
     cv.Circle(image, center, radius, color, cv.CV_FILLED)
 
+def draw_box_corner(image, center, color=(255, 0, 0), radius=4, thickness=1):
+    cv.Circle(image, center, radius, color, thickness)
+
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
     cv.PutText(image, text, position, font, color)
 
@@ -715,8 +721,7 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
         hlines = hlines[-h_expected:]
     corner_matrixes = []
     vini = 0
-    for box_dim in boxes_dim:
-        width, height = box_dim
+    for width, height in boxes_dim:
         corners = []
         for i in range(0, height + 1):
             cpart = []
@@ -1187,3 +1192,59 @@ def cvimage_to_pygame(image):
     cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
     return pygame.image.frombuffer(image_rgb.tostring(),
                                    cv.GetSize(image_rgb), 'RGB')
+
+def process_box_corners(points, dimensions):
+    print points
+    num_boxes = len(dimensions)
+    points.sort()
+    group1 = [points[0]]
+    group2 = []
+    for i in range(1, len(points)):
+        if not points_closer_to_horizontal(group1[-1], points[i]):
+            group2.append(points[i])
+        else:
+            group1.append(points[i])
+    if group1[0][1] > group2[0][1]:
+        group1, group2 = group2, group1
+    print group1
+    print group2
+    if len(group1) != 2 * num_boxes or len(group2) != 2 * num_boxes:
+        print "Bad geometry"
+        return None
+    boxes = []
+    for i in range(0, num_boxes):
+        # each box is represented by its corners in this order:
+        # (left-up, right-up, left-bottom, right-bottom)
+        boxes.append((group1[2 * i], group1[2 * i + 1],
+                      group2[2 * i], group2[2 * i + 1]))
+    print boxes
+    corners = []
+    for box_dims, box_corners in zip(dimensions, boxes):
+        corners.append(construct_box(box_corners, box_dims[0], box_dims[1]))
+    return corners
+
+def construct_box(outer_corners, num_columns, num_rows):
+    """Returns the corners of all the cells in a box.
+
+       'outer_corners' is a 4-tuple with the coordinates of the outer
+       corners of the box: (left-up, right-up, left-bottom,
+       right-bottom).
+
+    """
+    plu, pru, pld, prd = outer_corners
+    line_up_len = distance(plu, pru)
+    line_down_len = distance(pld, prd)
+    line_left_len = distance(plu, pld)
+    line_right_len = distance(pru, prd)
+    factor_h = line_down_len / line_up_len
+    factor_v = line_right_len / line_left_len
+    vert_left = interpolate_line_progressive(plu, pld, num_rows + 1, factor_h)
+    vert_right = interpolate_line_progressive(pru, prd, num_rows + 1, factor_h)
+    corners = []
+    for i in range(0, num_rows + 1):
+        pl = vert_left[i]
+        pr = vert_right[i]
+        corners.append(interpolate_line_progressive(pl, pr, num_columns + 1,
+                                                    factor_v))
+    print corners
+    return corners

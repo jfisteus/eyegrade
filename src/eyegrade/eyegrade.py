@@ -403,6 +403,7 @@ def main():
         override_id_mode = False
         exam = None
         model = None
+        manual_detection = False
         profiler.count_capture()
         image = imageproc.ExamCapture(dimensions, imageproc_context,
                                       imageproc_options)
@@ -443,6 +444,29 @@ def main():
                     override_id_mode = True
             elif event == gui.event_lock:
                 lock_mode = True
+            elif event == gui.event_manual_detection:
+                manual_detection = True
+                exam = Exam(image, model, {}, valid_student_ids, im_id,
+                            options.save_stats, exam_data.score_weights)
+
+        # Enter manual detection mode. Users are expected here to
+        # manually enter cell corners
+        if manual_detection:
+            points = []
+            continue_waiting = True
+            interface.show_capture(exam.image.image_drawn, True)
+            while continue_waiting:
+                event, event_info = interface.wait_event_review_mode()
+                if event == gui.event_quit:
+                    sys.exit(0)
+                elif event == gui.event_click:
+                    points.append(event_info)
+                    exam.image.draw_corner(event_info)
+                    print event_info
+                    interface.show_capture(exam.image.image_drawn, True)
+                    if len(points) == 4 * len(exam.image.boxes_dim):
+                        imageproc.process_box_corners(points, exam.image.boxes_dim)
+                        sys.exit(0)
 
         # Enter review mode if the capture was succesfully read or the
         # image was locked by the user
