@@ -163,10 +163,7 @@ class ExamCapture(object):
                     draw_line(self.image_drawn, line, (255, 0, 0))
                 for line in axes[1][1]:
                     draw_line(self.image_drawn, line, (255, 0, 255))
-                for corners in self.corner_matrixes:
-                    for h in corners:
-                        for c in h:
-                            draw_point(self.image_drawn, c)
+                self.draw_cell_corners()
             if len(self.corner_matrixes) > 0:
 #                draw_cell_crosses(self.image_drawn, self.corner_matrixes)
                 self.decisions = decide_cells(self.image_proc,
@@ -208,6 +205,21 @@ class ExamCapture(object):
         if self.status['cells']:
             self.compute_cells_geometry()
             self.status['overall'] = True
+
+    def detect_manual(self, corner_matrixes):
+        """Called when cell corners are obtained from manual detection."""
+        self.corner_matrixes = corner_matrixes
+        self.status['cells'] = True
+        self.decisions = decide_cells(self.image_proc,
+                                      self.corner_matrixes)
+        if self.options['infobits']:
+            self.bits = read_infobits(self.image_proc,
+                                      self.corner_matrixes)
+            if self.bits is not None:
+                self.status['infobits'] = True
+        self.compute_cells_geometry()
+        self.status['overall'] = True
+        self.draw_cell_corners()
 
     def write_error_trace(self, exc_type, exc_value, exc_traceback):
         import datetime
@@ -295,6 +307,12 @@ class ExamCapture(object):
         if self.options['show-status']:
             self.draw_status_flags()
             self.draw_hough_threshold()
+
+    def draw_cell_corners(self):
+        for corners in self.corner_matrixes:
+            for h in corners:
+                for c in h:
+                    draw_point(self.image_drawn, c)
 
     def clean_drawn_image(self):
         self.image_drawn = cv.CloneImage(self.image_raw)
@@ -1194,7 +1212,6 @@ def cvimage_to_pygame(image):
                                    cv.GetSize(image_rgb), 'RGB')
 
 def process_box_corners(points, dimensions):
-    print points
     num_boxes = len(dimensions)
     points.sort()
     group1 = [points[0]]
@@ -1206,18 +1223,14 @@ def process_box_corners(points, dimensions):
             group1.append(points[i])
     if group1[0][1] > group2[0][1]:
         group1, group2 = group2, group1
-    print group1
-    print group2
     if len(group1) != 2 * num_boxes or len(group2) != 2 * num_boxes:
-        print "Bad geometry"
-        return None
+        return []
     boxes = []
     for i in range(0, num_boxes):
         # each box is represented by its corners in this order:
         # (left-up, right-up, left-bottom, right-bottom)
         boxes.append((group1[2 * i], group1[2 * i + 1],
                       group2[2 * i], group2[2 * i + 1]))
-    print boxes
     corners = []
     for box_dims, box_corners in zip(dimensions, boxes):
         corners.append(construct_box(box_corners, box_dims[0], box_dims[1]))
@@ -1246,5 +1259,4 @@ def construct_box(outer_corners, num_columns, num_rows):
         pr = vert_right[i]
         corners.append(interpolate_line_progressive(pl, pr, num_columns + 1,
                                                     factor_v))
-    print corners
     return corners

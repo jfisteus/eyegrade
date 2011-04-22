@@ -226,8 +226,6 @@ class PygameInterface(object):
                 return (event_snapshot, None)
             elif event.key == 32:
                 return (event_lock, None)
-            elif event.key == ord('m'):
-                return (event_manual_detection, None)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:
@@ -254,6 +252,8 @@ class PygameInterface(object):
                 return (event_debug_proc, None)
             elif event.key == ord('l'):
                 return (event_debug_lines, None)
+            elif event.key == ord('m'):
+                return (event_manual_detection, None)
             elif event.key >= ord('0') and event.key <= ord('9'):
                 return (event_id_digit, chr(event.key))
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
