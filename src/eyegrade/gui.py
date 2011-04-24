@@ -27,7 +27,7 @@ event_manual_detection = 12
 
 statusbar_event_id = pygame.USEREVENT + 1
 statusbar_display_time = 6000
-statusbar_tooltip_delay = 2000
+statusbar_tooltip_delay = 1000
 
 save_icon_normal = pygame.image.load(utils.resource_path('save.png'))
 save_icon_high = pygame.image.load(utils.resource_path('save_high.png'))
@@ -50,13 +50,13 @@ incorrect_icon = pygame.image.load(utils.resource_path('incorrect.png'))
 unanswered_icon = pygame.image.load(utils.resource_path('unanswered.png'))
 
 snapshot_help = 'Capture the current exam, when the ' + \
-    'system does not recognise it'
-exit_help = 'Exit the system'
-save_help = 'Save current exam and look for the next one'
-next_id_help = 'Try another student ID'
-edit_id_help = 'Insert the student ID manually using the keyboard'
-discard_help = 'Discard this capture and try again'
-manual_detect_help = 'Mark the answer tables manually'
+    'system does not recognise it (s)'
+exit_help = 'Exit the system (ESC)'
+save_help = 'Save the current exam and look for the next one (SPC)'
+next_id_help = 'Try another student ID (TAB)'
+edit_id_help = 'Insert the student ID manually using the keyboard (i)'
+discard_help = 'Discard this capture and try again (DEL)'
+manual_detect_help = 'Mark the answer tables manually (m)'
 
 icon_size = save_icon_normal.get_size()
 toolbar_pos = (8, 10)
