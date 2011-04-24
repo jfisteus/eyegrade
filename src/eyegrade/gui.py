@@ -23,10 +23,11 @@ event_manual_id = 8
 event_next_id = 9
 event_id_digit = 10
 event_click = 11
+event_manual_detection = 12
 
 statusbar_event_id = pygame.USEREVENT + 1
 statusbar_display_time = 6000
-statusbar_tooltip_delay = 2000
+statusbar_tooltip_delay = 1000
 
 save_icon_normal = pygame.image.load(utils.resource_path('save.png'))
 save_icon_high = pygame.image.load(utils.resource_path('save_high.png'))
@@ -38,6 +39,10 @@ discard_icon_normal = pygame.image.load(utils.resource_path('discard.png'))
 discard_icon_high = pygame.image.load(utils.resource_path('discard_high.png'))
 snapshot_icon_normal = pygame.image.load(utils.resource_path('snapshot.png'))
 snapshot_icon_high = pygame.image.load(utils.resource_path('snapshot_high.png'))
+manual_detect_icon_normal = \
+    pygame.image.load(utils.resource_path('manual_detect.png'))
+manual_detect_icon_high = \
+    pygame.image.load(utils.resource_path('manual_detect_high.png'))
 exit_icon_normal = pygame.image.load(utils.resource_path('exit.png'))
 exit_icon_high = pygame.image.load(utils.resource_path('exit_high.png'))
 correct_icon = pygame.image.load(utils.resource_path('correct.png'))
@@ -45,12 +50,13 @@ incorrect_icon = pygame.image.load(utils.resource_path('incorrect.png'))
 unanswered_icon = pygame.image.load(utils.resource_path('unanswered.png'))
 
 snapshot_help = 'Capture the current exam, when the ' + \
-    'system does not recognise it'
-exit_help = 'Exit the system'
-save_help = 'Save current exam and look for the next one'
-next_id_help = 'Try another student ID'
-edit_id_help = 'Insert the student ID manually using the keyboard'
-discard_help = 'Discard this capture and try again'
+    'system does not recognise it (s)'
+exit_help = 'Exit the system (ESC)'
+save_help = 'Save the current exam and look for the next one (SPC)'
+next_id_help = 'Try another student ID (TAB)'
+edit_id_help = 'Insert the student ID manually using the keyboard (i)'
+discard_help = 'Discard this capture and try again (DEL)'
+manual_detect_help = 'Mark the answer tables manually (m)'
 
 icon_size = save_icon_normal.get_size()
 toolbar_pos = (8, 10)
@@ -84,6 +90,10 @@ class PygameInterface(object):
         self.id_list_enabled = id_list_enabled
         self.last_score = None
         self.statusbar_active = None
+        self.manual_detect_enabled = False
+
+    def set_manual_detect_enabled(self, val):
+        self.manual_detect_enabled = val
 
     def show_capture(self, image, flip=True):
         pg_img = imageproc.cvimage_to_pygame(image)
@@ -141,28 +151,38 @@ class PygameInterface(object):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((snapshot_icon_normal, snapshot_icon_high),
-                             event_snapshot, snapshot_help))
+                             event_snapshot, ord('s'), snapshot_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit, exit_help))
+                             event_quit, 27, exit_help))
+        self.toolbar.append((None, event_debug_proc, ord('p'), None))
+        self.toolbar.append((None, event_debug_lines, ord('l'), None))
+        self.toolbar.append((None, event_lock, 32, None))
         self.draw_toolbar(flip)
 
     def set_review_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((save_icon_normal, save_icon_high),
-                             event_save, save_help))
+                             event_save, 32, save_help))
         if self.id_list_enabled:
             self.toolbar.append(((next_id_icon_normal, next_id_icon_high),
-                                 event_next_id, next_id_help))
+                                 event_next_id, 9, next_id_help))
         # Manual ID can be inserted even if ID detection is disabled
         self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
-                             event_manual_id, edit_id_help))
+                             event_manual_id, ord('i'), edit_id_help))
+        if self.manual_detect_enabled:
+            self.toolbar.append(((manual_detect_icon_normal,
+                                  manual_detect_icon_high),
+                                 event_manual_detection, ord('m'),
+                                 manual_detect_help))
         self.toolbar.append(((discard_icon_normal, discard_icon_high),
-                             event_cancel_frame, discard_help))
+                             event_cancel_frame, 8, discard_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit, exit_help))
+                             event_quit, 27, exit_help))
+        self.toolbar.append((None, event_debug_proc, ord('p'), None))
+        self.toolbar.append((None, event_debug_lines, ord('l'), None))
         self.draw_toolbar(flip)
 
     def draw_toolbar(self, flip):
@@ -210,21 +230,13 @@ class PygameInterface(object):
                                           param_background_color)
         self.screen.blit(surface, pos)
 
-
     def __parse_event_search_mode(self, event):
         if event.type == pygame.QUIT:
             return (event_quit, None)
         elif event.type == pygame.KEYDOWN:
-            if event.key == 27:
-                return (event_quit, None)
-            elif event.key == ord('p'):
-                return (event_debug_proc, None)
-            elif event.key == ord('l'):
-                return (event_debug_lines, None)
-            elif event.key == ord('s'):
-                return (event_snapshot, None)
-            elif event.key == 32:
-                return (event_lock, None)
+            for tool in self.toolbar:
+                if tool[1] is not None and event.key == tool[2]:
+                    return (tool[1], None)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:
@@ -237,21 +249,10 @@ class PygameInterface(object):
         if event.type == pygame.QUIT:
             return (event_quit, None)
         elif event.type == pygame.KEYDOWN:
-            if event.key == 27:
-                return (event_quit, None)
-            elif event.key == 8:
-                return (event_cancel_frame, None)
-            elif event.key == 32:
-                return (event_save, None)
-            elif event.key == ord('i'):
-                return (event_manual_id, None)
-            elif event.key == 9:
-                return (event_next_id, None)
-            elif event.key == ord('p'):
-                return (event_debug_proc, None)
-            elif event.key == ord('l'):
-                return (event_debug_lines, None)
-            elif event.key >= ord('0') and event.key <= ord('9'):
+            for tool in self.toolbar:
+                if tool[1] is not None and event.key == tool[2]:
+                    return (tool[1], None)
+            if event.key >= ord('0') and event.key <= ord('9'):
                 return (event_id_digit, chr(event.key))
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
@@ -267,7 +268,7 @@ class PygameInterface(object):
         else:
             tool_pos = self.__tool_at_position(pygame.mouse.get_pos())
             if tool_pos is not None:
-                self.set_statusbar_message(self.toolbar[tool_pos][2])
+                self.set_statusbar_message(self.toolbar[tool_pos][3])
             else:
                 self.__stop_statusbar_timer()
 

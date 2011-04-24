@@ -403,6 +403,7 @@ def main():
         override_id_mode = False
         exam = None
         model = None
+        manual_detection = False
         profiler.count_capture()
         image = imageproc.ExamCapture(dimensions, imageproc_context,
                                       imageproc_options)
@@ -418,6 +419,7 @@ def main():
             else:
                 success = False
 
+        interface.set_manual_detect_enabled(False)
         events = interface.events_search_mode()
         for event, event_info in events:
             if event == gui.event_quit:
@@ -433,6 +435,7 @@ def main():
                     exam = Exam(image, model, {}, valid_student_ids, im_id,
                                 options.save_stats, exam_data.score_weights)
                     exam.grade()
+                    interface.set_manual_detect_enabled(True)
                 else:
                     exam = latest_graded_exam
                 success = True
@@ -448,6 +451,8 @@ def main():
         # image was locked by the user
         if success and lock_mode:
             continue_waiting = True
+            manual_detection_mode = False
+            manual_points = []
             exam.lock_capture()
             exam.draw_answers()
             interface.show_capture(exam.image.image_drawn, False)
@@ -503,13 +508,50 @@ def main():
                     imageproc_options['show-lines'] = \
                         not imageproc_options['show-lines']
                     continue_waiting = False
+                elif event == gui.event_manual_detection:
+                    exam.image.clean_drawn_image()
+                    interface.show_capture(exam.image.image_drawn, False)
+                    interface.update_text(('Manual detection: click on the '
+                                           'outer corners of the answer '
+                                           'box(es)'))
+                    manual_detection_mode = True
+                    manual_points = []
                 elif event == gui.event_click:
-                    cell = cell_clicked(exam.image, event_info)
-                    if cell is not None:
-                        question, answer = cell
-                        exam.toggle_answer(question, answer)
-                        interface.show_capture(exam.image.image_drawn, False)
-                        interface.update_status(exam.score)
+                    if not manual_detection_mode:
+                        cell = cell_clicked(exam.image, event_info)
+                        if cell is not None:
+                            question, answer = cell
+                            exam.toggle_answer(question, answer)
+                            interface.show_capture(exam.image.image_drawn,
+                                                   False)
+                            interface.update_status(exam.score)
+                    else:
+                        manual_points.append(event_info)
+                        exam.image.draw_corner(event_info)
+                        interface.show_capture(exam.image.image_drawn, True)
+                        if len(manual_points) == 4 * len(exam.image.boxes_dim):
+                            corner_matrixes = imageproc.process_box_corners(
+                                manual_points, exam.image.boxes_dim)
+                            if corner_matrixes != []:
+                                exam.image.detect_manual(corner_matrixes)
+                                if exam.image.status['infobits']:
+                                    exam.model = utils.decode_model(image.bits)
+                                    if exam.model is not None:
+                                        exam.solutions = solutions[exam.model]
+                                        exam.grade()
+                                        interface.update_status(exam.score,
+                                                                False)
+                            else:
+                                exam.image.clean_drawn_image()
+                                interface.set_statusbar_message(('Manual '
+                                                                 'detection '
+                                                                 'failed!'),
+                                                                False)
+                            exam.draw_answers()
+                            interface.show_capture(exam.image.image_drawn,
+                                                   False)
+                            interface.update_text('', True)
+                            manual_detection_mode = False
             dump_camera_buffer(imageproc_context.camera)
             interface.update_text('Searching...', False)
             interface.update_status(None, False)
