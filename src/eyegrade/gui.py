@@ -39,6 +39,10 @@ discard_icon_normal = pygame.image.load(utils.resource_path('discard.png'))
 discard_icon_high = pygame.image.load(utils.resource_path('discard_high.png'))
 snapshot_icon_normal = pygame.image.load(utils.resource_path('snapshot.png'))
 snapshot_icon_high = pygame.image.load(utils.resource_path('snapshot_high.png'))
+manual_detect_icon_normal = \
+    pygame.image.load(utils.resource_path('manual_detect.png'))
+manual_detect_icon_high = \
+    pygame.image.load(utils.resource_path('manual_detect_high.png'))
 exit_icon_normal = pygame.image.load(utils.resource_path('exit.png'))
 exit_icon_high = pygame.image.load(utils.resource_path('exit_high.png'))
 correct_icon = pygame.image.load(utils.resource_path('correct.png'))
@@ -52,6 +56,7 @@ save_help = 'Save current exam and look for the next one'
 next_id_help = 'Try another student ID'
 edit_id_help = 'Insert the student ID manually using the keyboard'
 discard_help = 'Discard this capture and try again'
+manual_detect_help = 'Mark the answer tables manually'
 
 icon_size = save_icon_normal.get_size()
 toolbar_pos = (8, 10)
@@ -85,6 +90,10 @@ class PygameInterface(object):
         self.id_list_enabled = id_list_enabled
         self.last_score = None
         self.statusbar_active = None
+        self.manual_detect_enabled = False
+
+    def set_manual_detect_enabled(self, val):
+        self.manual_detect_enabled = val
 
     def show_capture(self, image, flip=True):
         pg_img = imageproc.cvimage_to_pygame(image)
@@ -162,6 +171,11 @@ class PygameInterface(object):
         # Manual ID can be inserted even if ID detection is disabled
         self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
                              event_manual_id, ord('i'), edit_id_help))
+        if self.manual_detect_enabled:
+            self.toolbar.append(((manual_detect_icon_normal,
+                                  manual_detect_icon_high),
+                                 event_manual_detection, ord('m'),
+                                 manual_detect_help))
         self.toolbar.append(((discard_icon_normal, discard_icon_high),
                              event_cancel_frame, 8, discard_help))
         self.toolbar.append((None, None))
@@ -169,7 +183,6 @@ class PygameInterface(object):
                              event_quit, 27, exit_help))
         self.toolbar.append((None, event_debug_proc, ord('p'), None))
         self.toolbar.append((None, event_debug_lines, ord('l'), None))
-        self.toolbar.append((None, event_manual_detection, ord('m'), None))
         self.draw_toolbar(flip)
 
     def draw_toolbar(self, flip):
@@ -217,7 +230,6 @@ class PygameInterface(object):
                                           param_background_color)
         self.screen.blit(surface, pos)
 
-
     def __parse_event_search_mode(self, event):
         if event.type == pygame.QUIT:
             return (event_quit, None)
@@ -256,7 +268,7 @@ class PygameInterface(object):
         else:
             tool_pos = self.__tool_at_position(pygame.mouse.get_pos())
             if tool_pos is not None:
-                self.set_statusbar_message(self.toolbar[tool_pos][2])
+                self.set_statusbar_message(self.toolbar[tool_pos][3])
             else:
                 self.__stop_statusbar_timer()
 

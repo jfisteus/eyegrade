@@ -419,6 +419,7 @@ def main():
             else:
                 success = False
 
+        interface.set_manual_detect_enabled(False)
         events = interface.events_search_mode()
         for event, event_info in events:
             if event == gui.event_quit:
@@ -434,6 +435,7 @@ def main():
                     exam = Exam(image, model, {}, valid_student_ids, im_id,
                                 options.save_stats, exam_data.score_weights)
                     exam.grade()
+                    interface.set_manual_detect_enabled(True)
                 else:
                     exam = latest_graded_exam
                 success = True
