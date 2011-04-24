@@ -142,28 +142,34 @@ class PygameInterface(object):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((snapshot_icon_normal, snapshot_icon_high),
-                             event_snapshot, snapshot_help))
+                             event_snapshot, ord('s'), snapshot_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit, exit_help))
+                             event_quit, 27, exit_help))
+        self.toolbar.append((None, event_debug_proc, ord('p'), None))
+        self.toolbar.append((None, event_debug_lines, ord('l'), None))
+        self.toolbar.append((None, event_lock, 32, None))
         self.draw_toolbar(flip)
 
     def set_review_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((save_icon_normal, save_icon_high),
-                             event_save, save_help))
+                             event_save, 32, save_help))
         if self.id_list_enabled:
             self.toolbar.append(((next_id_icon_normal, next_id_icon_high),
-                                 event_next_id, next_id_help))
+                                 event_next_id, 9, next_id_help))
         # Manual ID can be inserted even if ID detection is disabled
         self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
-                             event_manual_id, edit_id_help))
+                             event_manual_id, ord('i'), edit_id_help))
         self.toolbar.append(((discard_icon_normal, discard_icon_high),
-                             event_cancel_frame, discard_help))
+                             event_cancel_frame, 8, discard_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit, exit_help))
+                             event_quit, 27, exit_help))
+        self.toolbar.append((None, event_debug_proc, ord('p'), None))
+        self.toolbar.append((None, event_debug_lines, ord('l'), None))
+        self.toolbar.append((None, event_manual_detection, ord('m'), None))
         self.draw_toolbar(flip)
 
     def draw_toolbar(self, flip):
@@ -216,16 +222,9 @@ class PygameInterface(object):
         if event.type == pygame.QUIT:
             return (event_quit, None)
         elif event.type == pygame.KEYDOWN:
-            if event.key == 27:
-                return (event_quit, None)
-            elif event.key == ord('p'):
-                return (event_debug_proc, None)
-            elif event.key == ord('l'):
-                return (event_debug_lines, None)
-            elif event.key == ord('s'):
-                return (event_snapshot, None)
-            elif event.key == 32:
-                return (event_lock, None)
+            for tool in self.toolbar:
+                if tool[1] is not None and event.key == tool[2]:
+                    return (tool[1], None)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:
@@ -238,23 +237,10 @@ class PygameInterface(object):
         if event.type == pygame.QUIT:
             return (event_quit, None)
         elif event.type == pygame.KEYDOWN:
-            if event.key == 27:
-                return (event_quit, None)
-            elif event.key == 8:
-                return (event_cancel_frame, None)
-            elif event.key == 32:
-                return (event_save, None)
-            elif event.key == ord('i'):
-                return (event_manual_id, None)
-            elif event.key == 9:
-                return (event_next_id, None)
-            elif event.key == ord('p'):
-                return (event_debug_proc, None)
-            elif event.key == ord('l'):
-                return (event_debug_lines, None)
-            elif event.key == ord('m'):
-                return (event_manual_detection, None)
-            elif event.key >= ord('0') and event.key <= ord('9'):
+            for tool in self.toolbar:
+                if tool[1] is not None and event.key == tool[2]:
+                    return (tool[1], None)
+            if event.key >= ord('0') and event.key <= ord('9'):
                 return (event_id_digit, chr(event.key))
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
