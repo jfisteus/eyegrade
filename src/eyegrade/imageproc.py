@@ -1216,11 +1216,22 @@ def process_box_corners(points, dimensions):
     points.sort()
     group1 = [points[0]]
     group2 = []
+    # First, look for the other left-most point that is opposite to points[0]
     for i in range(1, len(points)):
-        if not points_closer_to_horizontal(group1[-1], points[i]):
-            group2.append(points[i])
-        else:
+        if points_closer_to_horizontal(points[0], points[i]):
             group1.append(points[i])
+        else:
+            group2.append(points[i])
+            break
+    vertical = diff_points(group2[0], group1[0])
+    # Now, classify all the other points
+    for i in range(len(group1) + len(group2), len(points)):
+        cos1 = abs(angle_cosine(vertical, diff_points(points[i], group1[-1])))
+        cos2 = abs(angle_cosine(vertical, diff_points(points[i], group2[-1])))
+        if cos1 < cos2:
+            group1.append(points[i])
+        else:
+            group2.append(points[i])
     if group1[0][1] > group2[0][1]:
         group1, group2 = group2, group1
     if len(group1) != 2 * num_boxes or len(group2) != 2 * num_boxes:
@@ -1229,8 +1240,8 @@ def process_box_corners(points, dimensions):
     for i in range(0, num_boxes):
         # each box is represented by its corners in this order:
         # (left-up, right-up, left-bottom, right-bottom)
-        boxes.append((group1[2 * i], group1[2 * i + 1],
-                      group2[2 * i], group2[2 * i + 1]))
+        boxes.append(fix_box_if_needed((group1[2 * i], group1[2 * i + 1],
+                                        group2[2 * i], group2[2 * i + 1])))
     corners = []
     for box_dims, box_corners in zip(dimensions, boxes):
         corners.append(construct_box(box_corners, box_dims[0], box_dims[1]))
@@ -1260,3 +1271,26 @@ def construct_box(outer_corners, num_columns, num_rows):
         corners.append(interpolate_line_progressive(pl, pr, num_columns + 1,
                                                     factor_v))
     return corners
+
+def fix_box_if_needed(box_corners):
+    """Due to a bug, sometimes corners were not properly detected.
+       This code will be kept for a while. It can be removed later the
+       error does not happen anymore."""
+    plu, pru, pld, prd = box_corners
+    if plu[1] > pld[1]:
+        plu, pld = pld, plu
+        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
+        print ' -> points at the left fixed'
+    if pru[1] > prd[1]:
+        pru, prd = prd, pru
+        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
+        print ' -> points at the rigth fixed'
+    return (plu, pru, pld, prd)
+
+## Debug the upper case with these points: (70, 102), (297, 270),
+##                          (62, 276), (260, 101),
+##                          (390, 269), (589, 264), (388, 98), (574, 103)
+
+## More for debugging:
+##   Testing box [lu,ru,ld,rd] ((97, 92), (288, 90), (95, 258), (287, 258))
+##   Testing box [lu,ru,ld,rd] ((409, 90), (597, 257), (408, 258), (586, 89))

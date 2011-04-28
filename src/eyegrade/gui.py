@@ -91,6 +91,10 @@ class PygameInterface(object):
         self.last_score = None
         self.statusbar_active = None
         self.manual_detect_enabled = False
+        self.event_queue = []
+
+    def enqueue_event(self, event):
+        self.event_queue.append(event)
 
     def set_manual_detect_enabled(self, val):
         self.manual_detect_enabled = val
@@ -152,6 +156,10 @@ class PygameInterface(object):
         self.tool_over = None
         self.toolbar.append(((snapshot_icon_normal, snapshot_icon_high),
                              event_snapshot, ord('s'), snapshot_help))
+        self.toolbar.append(((manual_detect_icon_normal,
+                              manual_detect_icon_high),
+                             event_manual_detection, ord('m'),
+                             manual_detect_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
                              event_quit, 27, exit_help))
@@ -197,10 +205,18 @@ class PygameInterface(object):
         pygame.display.flip()
 
     def wait_event_review_mode(self):
-        return self.__parse_event_review_mode(pygame.event.wait())
+        if len(self.event_queue) > 0:
+            event = self.event_queue[0]
+            del self.event_queue[0]
+            return event
+        else:
+            return self.__parse_event_review_mode(pygame.event.wait())
 
     def events_search_mode(self):
-        return [self.__parse_event_search_mode(e) for e in pygame.event.get()]
+        events = self.event_queue + [self.__parse_event_search_mode(e) \
+                                         for e in pygame.event.get()]
+        self.event_queue = []
+        return events
 
     def delay(self, time):
         """Blocks for a given amount of time (in seconds)."""

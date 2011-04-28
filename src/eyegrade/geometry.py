@@ -56,6 +56,11 @@ def module(vector):
     """Returns the module of a vector, given its two coordinates."""
     return math.sqrt(vector[0] * vector[0] + vector[1] * vector[1])
 
+def angle_cosine(vector1, vector2):
+    """Returns cos(angle) where angle is the angle between
+       vector1 and vector2"""
+    return scalar_product(vector1, vector2) / module(vector1) / module(vector2)
+
 # Funtions on lines defined by two points
 #
 def slope(p1, p2):
