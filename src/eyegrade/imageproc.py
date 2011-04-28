@@ -1216,11 +1216,22 @@ def process_box_corners(points, dimensions):
     points.sort()
     group1 = [points[0]]
     group2 = []
+    # First, look for the other left-most point that is opposite to points[0]
     for i in range(1, len(points)):
-        if not points_closer_to_horizontal(group1[-1], points[i]):
-            group2.append(points[i])
-        else:
+        if points_closer_to_horizontal(points[0], points[i]):
             group1.append(points[i])
+        else:
+            group2.append(points[i])
+            break
+    vertical = diff_points(group2[0], group1[0])
+    # Now, classify all the other points
+    for i in range(len(group1) + len(group2), len(points)):
+        cos1 = abs(angle_cosine(vertical, diff_points(points[i], group1[-1])))
+        cos2 = abs(angle_cosine(vertical, diff_points(points[i], group2[-1])))
+        if cos1 < cos2:
+            group1.append(points[i])
+        else:
+            group2.append(points[i])
     if group1[0][1] > group2[0][1]:
         group1, group2 = group2, group1
     if len(group1) != 2 * num_boxes or len(group2) != 2 * num_boxes:
@@ -1262,19 +1273,22 @@ def construct_box(outer_corners, num_columns, num_rows):
     return corners
 
 def fix_box_if_needed(box_corners):
-    """Sometimes corners are not properly detected. Try to fix the obvious
-       mistakes."""
+    """Due to a bug, sometimes corners were not properly detected.
+       This code will be kept for a while. It can be removed later the
+       error does not happen anymore."""
     plu, pru, pld, prd = box_corners
-    print 'Testing box [lu,ru,ld,rd]', box_corners
     if plu[1] > pld[1]:
         plu, pld = pld, plu
+        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
         print ' -> points at the left fixed'
     if pru[1] > prd[1]:
         pru, prd = prd, pru
+        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
         print ' -> points at the rigth fixed'
     return (plu, pru, pld, prd)
 
-## Debug with these points: (70, 102), (297, 270), (62, 276), (260, 101),
+## Debug the upper case with these points: (70, 102), (297, 270),
+##                          (62, 276), (260, 101),
 ##                          (390, 269), (589, 264), (388, 98), (574, 103)
 
 ## More for debugging:
