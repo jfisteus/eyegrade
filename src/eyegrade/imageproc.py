@@ -1229,8 +1229,8 @@ def process_box_corners(points, dimensions):
     for i in range(0, num_boxes):
         # each box is represented by its corners in this order:
         # (left-up, right-up, left-bottom, right-bottom)
-        boxes.append((group1[2 * i], group1[2 * i + 1],
-                      group2[2 * i], group2[2 * i + 1]))
+        boxes.append(fix_box_if_needed((group1[2 * i], group1[2 * i + 1],
+                                        group2[2 * i], group2[2 * i + 1])))
     corners = []
     for box_dims, box_corners in zip(dimensions, boxes):
         corners.append(construct_box(box_corners, box_dims[0], box_dims[1]))
@@ -1260,3 +1260,23 @@ def construct_box(outer_corners, num_columns, num_rows):
         corners.append(interpolate_line_progressive(pl, pr, num_columns + 1,
                                                     factor_v))
     return corners
+
+def fix_box_if_needed(box_corners):
+    """Sometimes corners are not properly detected. Try to fix the obvious
+       mistakes."""
+    plu, pru, pld, prd = box_corners
+    print 'Testing box [lu,ru,ld,rd]', box_corners
+    if plu[1] > pld[1]:
+        plu, pld = pld, plu
+        print ' -> points at the left fixed'
+    if pru[1] > prd[1]:
+        pru, prd = prd, pru
+        print ' -> points at the rigth fixed'
+    return (plu, pru, pld, prd)
+
+## Debug with these points: (70, 102), (297, 270), (62, 276), (260, 101),
+##                          (390, 269), (589, 264), (388, 98), (574, 103)
+
+## More for debugging:
+##   Testing box [lu,ru,ld,rd] ((97, 92), (288, 90), (95, 258), (287, 258))
+##   Testing box [lu,ru,ld,rd] ((409, 90), (597, 257), (408, 258), (586, 89))
