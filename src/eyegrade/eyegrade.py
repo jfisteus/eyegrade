@@ -444,6 +444,19 @@ def main():
                 else:
                     exam.reset_student_id_editor()
                     override_id_mode = True
+            elif event == gui.event_manual_detection:
+                exam = Exam(image, model, {}, valid_student_ids, im_id,
+                            options.save_stats, exam_data.score_weights)
+                exam.grade()
+                interface.set_manual_detect_enabled(True)
+                # Set the event to repeat again in lock_mode
+                interface.enqueue_event((gui.event_manual_detection, None))
+                success = True
+                if options.ids_file is not None:
+                    exam.reset_student_id_filter(False)
+                else:
+                    exam.reset_student_id_editor()
+                    override_id_mode = True
             elif event == gui.event_lock:
                 lock_mode = True
 
