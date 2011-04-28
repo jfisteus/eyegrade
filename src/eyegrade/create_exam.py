@@ -37,8 +37,14 @@ def read_cmd_options():
                       help = "don't shuffle already shuffled models")
     parser.add_option('-b', '--table-dimensions', dest='dimensions',
                       default=None, help='table dimensions')
-    parser.add_option('-w', '--table-width', type='float', dest='table_width',
+    # The -w below is maintained for compatibility; its use is deprecated
+    # Use -W instead.
+    parser.add_option('-w', '-W', '--table-width', type='float',
+                      dest='table_width',
                       default=None, help='answer table width in cm')
+    parser.add_option('-H', '--id-box-height', type='float',
+                      dest='table_height', default=None,
+                      help='answer table height in cm')
     parser.add_option('-x', '--id-box-width', type='float',
                       dest='id_box_width', default=None,
                       help='ID box width in cm')
@@ -121,7 +127,8 @@ def main():
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, config_filename,
                                 options.num_tables,
-                                dimensions, options.table_width,
+                                dimensions,
+                                options.table_width, options.table_height,
                                 options.id_box_width)
     if exam is not None:
         maker.set_exam_questions(exam)

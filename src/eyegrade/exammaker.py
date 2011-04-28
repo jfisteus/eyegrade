@@ -19,7 +19,7 @@ class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
                  num_tables=0, dimensions=None,
-                 table_width=None, id_box_width=None):
+                 table_width=None, table_height=None, id_box_width=None):
         """
            Class able to create exams. One object is enough for all models.
 
@@ -31,6 +31,7 @@ class ExamMaker(object):
         self.output_file = output_file
         self.exam_questions = None
         self.table_width = table_width
+        self.table_height = table_height
         self.id_box_width = id_box_width
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
@@ -66,7 +67,7 @@ class ExamMaker(object):
             raise Exception('Incorrect model value')
         replacements = copy.copy(self.replacements)
         answer_table = create_answer_table(self.dimensions, model,
-                                           self.table_width)
+                                           self.table_width, self.table_height)
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
@@ -157,14 +158,16 @@ def latex_declarations(with_solution):
         data.append(r'\solutionsfalse')
     return '\n'.join(data)
 
-def create_answer_table(dimensions, model, table_width=None):
+def create_answer_table(dimensions, model, table_width=None, table_height=None):
     """Returns a string with the answer tables of the answer sheet.
 
        Tables are LaTeX-formatted. 'dimensions' specifies the geometry
        of the tables. 'model' is a one letter string with the name of
        the model, or '0' for the un-shuffled exam. 'table_width' is
-       the desired width of the answer table, in cm. None for the default
-       width.
+       the desired width of the answer table, in cm. None for the
+       default width. 'table_height' is the desired height in cm. None
+       for the default. If only one of height and width is defined,
+       the other will keep the aspect ratio.
 
     """
     if len(dimensions) == 0:
@@ -182,13 +185,14 @@ def create_answer_table(dimensions, model, table_width=None):
         bits = [False] * num_tables * num_choices
     bits_rows = __create_infobits(bits, num_tables, num_choices)
     tables, question_numbers = table_geometry(dimensions)
-    rows = __table_top(num_tables, num_choices, compact, table_width)
+    rows = __table_top(num_tables, num_choices, compact, table_width,
+                       table_height)
     for i, row_geometry in enumerate(tables):
         rows.append(__horizontal_line(row_geometry, num_choices, compact))
         rows.append(__build_row(i, row_geometry, question_numbers,
                                 num_choices, bits_rows, compact))
     rows.append(r'\end{tabular}')
-    if table_width is not None:
+    if table_width is not None or table_height is not None:
         rows.append('}')
     rows.append(r'\end{center}')
     return '\n'.join(rows)
@@ -293,12 +297,17 @@ def __horizontal_line(row_geometry, num_choices, compact):
         first += 1 + num_empty_columns + num_choices
     return ' '.join(parts)
 
-def __table_top(num_tables, num_choices, compact, table_width=None):
+def __table_top(num_tables, num_choices, compact, table_width=None,
+                table_height=None):
     middle_sep_format = 'p{3mm}' if not compact else ''
     middle_sep_header = ' & & ' if not compact else ' & '
     lines = [r'\begin{center}', r'\large']
-    if table_width is not None:
+    if table_width is not None and table_height is None:
         lines.append(r'\resizebox{%fcm}{!}{'%table_width)
+    elif table_width is None and table_height is not None:
+        lines.append(r'\resizebox{!}{%fcm}{'%table_height)
+    elif table_width is not None and table_height is not None:
+        lines.append(r'\resizebox{%fcm}{%fcm}{'%(table_width, table_height))
     l = middle_sep_format.join(num_tables
                                * ['|'.join(['r'] + num_choices * ['c'] + [''])])
     l = r'\begin{tabular}{' + l + '}'
