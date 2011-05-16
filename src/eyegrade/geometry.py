@@ -21,6 +21,10 @@ def add_points(p1, p2):
     """Returns a tuple (p1.x + p2.x, p1.y + p2.y)."""
     return (p1[0] + p2[0], p1[1] + p2[1])
 
+def multiply_vector(vector, factor):
+    """Multiplies a vector of two coordinates by a given factor."""
+    return (factor * vector[0], factor * vector[1])
+
 def round_point(point):
     """Rounds the coordinates of the point to the nearest integers."""
     return int(round(point[0])), int(round(point[1]))
@@ -34,6 +38,28 @@ def angles_perpendicular(angle1, angle2):
     """
     return (abs(angle2 - angle1 - math.pi / 2) < 0.1 or
             abs(angle2 - angle1 + math.pi / 2) < 0.1)
+
+def points_closer_to_horizontal(p1, p2):
+    """Returns True if the line joining the two points is closer to
+       the horizontal than to the vertical.
+    """
+    d = diff_points(p1, p2)
+    return abs(d[0]) > abs(d[1])
+
+# Functions on two-dimensional vectors
+#
+def scalar_product(vector1, vector2):
+    """Returns the scalar product of two vectors."""
+    return vector1[0] * vector2[0] + vector1[1] * vector2[1]
+
+def module(vector):
+    """Returns the module of a vector, given its two coordinates."""
+    return math.sqrt(vector[0] * vector[0] + vector[1] * vector[1])
+
+def angle_cosine(vector1, vector2):
+    """Returns cos(angle) where angle is the angle between
+       vector1 and vector2"""
+    return scalar_product(vector1, vector2) / module(vector1) / module(vector2)
 
 # Funtions on lines defined by two points
 #
@@ -116,8 +142,11 @@ def walk_line_ordered(p0, p1):
 
 def interpolate_line(p0, p1, num_points):
     """Returns a list of num_points points in the line from p0 to p1.
+
        The list includes p0 and p1 and points are ordered from p0 to
-       p1."""
+       p1.
+
+       """
     num_divisions = num_points - 1
     dx = float(p1[0] - p0[0]) / num_divisions
     dy = float(p1[1] - p0[1]) / num_divisions
@@ -125,6 +154,33 @@ def interpolate_line(p0, p1, num_points):
     for i in range(1, num_divisions):
         points.append(round_point((p0[0] + dx * i, p0[1] + dy * i)))
     points.append(p1)
+    return points
+
+def interpolate_line_progressive(p0, p1, num_points, factor):
+    """Returns a list of num_points points in the line from p0 to p1.
+
+       The list includes p0 and p1 and points are ordered from p0 to
+       p1.
+
+       Distances are progressive according to factor: if factor > 1
+       there is more space in between the first points; if factor == 1 there
+       is exactly the same space between points; if factor < 1, there is
+       more space between the last points.
+
+       This function is twice as slow as the non progressive version.
+       When factor is 1 the other version should be used instead.
+
+       """
+    diff = diff_points(p1, p0)
+    n = num_points - 1
+    h1 = 2.0 / n / (factor + 1)
+    delta = h1 * (factor - 1) / (n - 1)
+    positions = [h1 * (i - 1) + 0.5 * delta * (i * i - 3 * i + 2) \
+                     for i in range(1, num_points + 1)]
+    points = [round_point(add_points(p0, multiply_vector(diff, pos))) \
+                  for pos in positions]
+    # Just in case it wasn't rounded to the proper value
+    points[-1] = p1
     return points
 
 # Functions on lines represented as rho, theta

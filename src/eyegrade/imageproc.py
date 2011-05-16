@@ -163,10 +163,7 @@ class ExamCapture(object):
                     draw_line(self.image_drawn, line, (255, 0, 0))
                 for line in axes[1][1]:
                     draw_line(self.image_drawn, line, (255, 0, 255))
-                for corners in self.corner_matrixes:
-                    for h in corners:
-                        for c in h:
-                            draw_point(self.image_drawn, c)
+                self.draw_cell_corners()
             if len(self.corner_matrixes) > 0:
 #                draw_cell_crosses(self.image_drawn, self.corner_matrixes)
                 self.decisions = decide_cells(self.image_proc,
@@ -209,6 +206,21 @@ class ExamCapture(object):
             self.compute_cells_geometry()
             self.status['overall'] = True
 
+    def detect_manual(self, corner_matrixes):
+        """Called when cell corners are obtained from manual detection."""
+        self.corner_matrixes = corner_matrixes
+        self.status['cells'] = True
+        self.decisions = decide_cells(self.image_proc,
+                                      self.corner_matrixes)
+        if self.options['infobits']:
+            self.bits = read_infobits(self.image_proc,
+                                      self.corner_matrixes)
+            if self.bits is not None:
+                self.status['infobits'] = True
+        self.compute_cells_geometry()
+        self.status['overall'] = True
+        self.draw_cell_corners()
+
     def write_error_trace(self, exc_type, exc_value, exc_traceback):
         import datetime
         import re
@@ -237,6 +249,9 @@ class ExamCapture(object):
         if self.options['show-status']:
             self.draw_status_flags()
             self.draw_hough_threshold()
+
+    def draw_corner(self, point):
+        draw_box_corner(self.image_drawn, point)
 
     def draw_answers(self, frozen, solutions, model,
                      correct, good, bad, undet, im_id = None):
@@ -292,6 +307,12 @@ class ExamCapture(object):
         if self.options['show-status']:
             self.draw_status_flags()
             self.draw_hough_threshold()
+
+    def draw_cell_corners(self):
+        for corners in self.corner_matrixes:
+            for h in corners:
+                for c in h:
+                    draw_point(self.image_drawn, c)
 
     def clean_drawn_image(self):
         self.image_drawn = cv.CloneImage(self.image_raw)
@@ -536,6 +557,9 @@ def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
 def draw_cell_center(image, center, color=(255, 0, 0), radius=4):
     cv.Circle(image, center, radius, color, cv.CV_FILLED)
 
+def draw_box_corner(image, center, color=(255, 0, 0), radius=4, thickness=1):
+    cv.Circle(image, center, radius, color, thickness)
+
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
     cv.PutText(image, text, position, font, color)
 
@@ -715,8 +739,7 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
         hlines = hlines[-h_expected:]
     corner_matrixes = []
     vini = 0
-    for box_dim in boxes_dim:
-        width, height = box_dim
+    for width, height in boxes_dim:
         corners = []
         for i in range(0, height + 1):
             cpart = []
@@ -1187,3 +1210,87 @@ def cvimage_to_pygame(image):
     cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
     return pygame.image.frombuffer(image_rgb.tostring(),
                                    cv.GetSize(image_rgb), 'RGB')
+
+def process_box_corners(points, dimensions):
+    num_boxes = len(dimensions)
+    points.sort()
+    group1 = [points[0]]
+    group2 = []
+    # First, look for the other left-most point that is opposite to points[0]
+    for i in range(1, len(points)):
+        if points_closer_to_horizontal(points[0], points[i]):
+            group1.append(points[i])
+        else:
+            group2.append(points[i])
+            break
+    vertical = diff_points(group2[0], group1[0])
+    # Now, classify all the other points
+    for i in range(len(group1) + len(group2), len(points)):
+        cos1 = abs(angle_cosine(vertical, diff_points(points[i], group1[-1])))
+        cos2 = abs(angle_cosine(vertical, diff_points(points[i], group2[-1])))
+        if cos1 < cos2:
+            group1.append(points[i])
+        else:
+            group2.append(points[i])
+    if group1[0][1] > group2[0][1]:
+        group1, group2 = group2, group1
+    if len(group1) != 2 * num_boxes or len(group2) != 2 * num_boxes:
+        return []
+    boxes = []
+    for i in range(0, num_boxes):
+        # each box is represented by its corners in this order:
+        # (left-up, right-up, left-bottom, right-bottom)
+        boxes.append(fix_box_if_needed((group1[2 * i], group1[2 * i + 1],
+                                        group2[2 * i], group2[2 * i + 1])))
+    corners = []
+    for box_dims, box_corners in zip(dimensions, boxes):
+        corners.append(construct_box(box_corners, box_dims[0], box_dims[1]))
+    return corners
+
+def construct_box(outer_corners, num_columns, num_rows):
+    """Returns the corners of all the cells in a box.
+
+       'outer_corners' is a 4-tuple with the coordinates of the outer
+       corners of the box: (left-up, right-up, left-bottom,
+       right-bottom).
+
+    """
+    plu, pru, pld, prd = outer_corners
+    line_up_len = distance(plu, pru)
+    line_down_len = distance(pld, prd)
+    line_left_len = distance(plu, pld)
+    line_right_len = distance(pru, prd)
+    factor_h = line_down_len / line_up_len
+    factor_v = line_right_len / line_left_len
+    vert_left = interpolate_line_progressive(plu, pld, num_rows + 1, factor_h)
+    vert_right = interpolate_line_progressive(pru, prd, num_rows + 1, factor_h)
+    corners = []
+    for i in range(0, num_rows + 1):
+        pl = vert_left[i]
+        pr = vert_right[i]
+        corners.append(interpolate_line_progressive(pl, pr, num_columns + 1,
+                                                    factor_v))
+    return corners
+
+def fix_box_if_needed(box_corners):
+    """Due to a bug, sometimes corners were not properly detected.
+       This code will be kept for a while. It can be removed later the
+       error does not happen anymore."""
+    plu, pru, pld, prd = box_corners
+    if plu[1] > pld[1]:
+        plu, pld = pld, plu
+        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
+        print ' -> points at the left fixed'
+    if pru[1] > prd[1]:
+        pru, prd = prd, pru
+        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
+        print ' -> points at the rigth fixed'
+    return (plu, pru, pld, prd)
+
+## Debug the upper case with these points: (70, 102), (297, 270),
+##                          (62, 276), (260, 101),
+##                          (390, 269), (589, 264), (388, 98), (574, 103)
+
+## More for debugging:
+##   Testing box [lu,ru,ld,rd] ((97, 92), (288, 90), (95, 258), (287, 258))
+##   Testing box [lu,ru,ld,rd] ((409, 90), (597, 257), (408, 258), (586, 89))
