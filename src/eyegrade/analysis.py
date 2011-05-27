@@ -29,7 +29,6 @@ def stats_for_question(results, question, num_options = None):
     return counters
 
 def stats_by_question(results, num_questions):
-    print results
     return [stats_for_question(results, i) for i in range(0, num_questions)]
 
 def stats_for_model(results, model, num_questions):
