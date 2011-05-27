@@ -3,6 +3,7 @@
 #
 import csv
 import sys
+from optparse import OptionParser
 
 # Local imports
 import utils
@@ -104,9 +105,11 @@ def print_stats_by_model(stats):
             print '    - Incorrect: %.1f (%.1f%%)'%(data[2], percentages[1])
             print '    - Not answered: %.1f (%.1f%%)'%(data[3], percentages[2])
 
-def analyze(results_filename, exam_cfg_filename):
+def analyze(results_filenames, exam_cfg_filename):
     exam_data = utils.ExamConfig(exam_cfg_filename)
-    results = utils.read_results(results_filename, exam_data.permutations)
+    results = []
+    for results_file in results_filenames:
+        results.extend(utils.read_results(results_file, exam_data.permutations))
     stats_q = stats_by_question(results, exam_data.num_questions)
     print_stats_by_question(stats_q)
     print
@@ -116,8 +119,20 @@ def analyze(results_filename, exam_cfg_filename):
     plot_stats_by_question(stats_q)
     return results
 
+def read_cmd_options():
+    parser = OptionParser(usage = ('usage: %prog [options] <results_file1>'
+                                   ' [<results_file2>...] <exam-config-file>'),
+                          version = utils.program_name + ' ' + utils.version)
+    (options, args) = parser.parse_args()
+    if len(args) < 2:
+        parser.error('Required parameters expected')
+    options.results_files = args[:-1]
+    options.exam_config = args[-1]
+    return options, args
+
 def main():
-    analyze(sys.argv[1], sys.argv[2])
+    options, args = read_cmd_options()
+    analyze(options.results_files, options.exam_config)
 
 if __name__ == "__main__":
     main()
