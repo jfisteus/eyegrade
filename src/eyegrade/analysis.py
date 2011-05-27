@@ -78,7 +78,7 @@ def plot_stats_by_question(stats):
     base = np.zeros(numq)
     for i in range(1, max_len):
         yvals = np.array([(s[i] if len(s) > i else 0) for s in stats])
-        plt.bar(xvals, yvals, width, base, colors[(i - 1)%len(colors)],
+        plt.bar(xvals, yvals, width, base, color = colors[(i - 1)%len(colors)],
                 label = 'Opt. ' + chr(64 + i))
         base += yvals
     plt.ylabel('Number of answers')
