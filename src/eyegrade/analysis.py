@@ -92,7 +92,7 @@ def plot_stats_by_question(stats):
 
 def print_stats_by_model(stats):
     for i, data in enumerate(stats):
-        num_questions = sum(data)
+        num_questions = sum(data[1:])
         print 'Model %s; number of exams: %d'%(chr(65 + i), data[0])
         if data[0] > 0:
             if num_questions > 0:
