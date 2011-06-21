@@ -47,7 +47,7 @@ param_clear_out_threshold = 0.35
 param_clear_in_threshold = 0.2
 
 param_bit_mask_threshold = 0.35
-param_bit_mask_radius_multiplier = 0.25
+param_bit_mask_radius_multiplier = 0.333
 param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
@@ -869,7 +869,6 @@ def decide_infobit(image, mask, masked, center_up, dy):
                            * param_bit_mask_radius_multiplier))
     if radius == 0:
         radius = 1
-    radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) / 3))
     cv.SetZero(mask)
     cv.Circle(mask, center_up, radius, (1), cv.CV_FILLED)
     mask_pixels = cv.CountNonZero(mask)
