@@ -6,6 +6,7 @@ import codecs
 import sys
 import random
 import re
+import copy
 
 program_name = 'eyegrade'
 version = '0.1.11'
@@ -339,6 +340,213 @@ def increment_list(list_):
 
     """
     return [n + 1 for n in list_]
+
+# Some regular expressions used in class Exam
+regexp_id = re.compile('\{student-id\}')
+regexp_seqnum = re.compile('\{seq-number\}')
+
+class Exam(object):
+    def __init__(self, image, model, solutions, valid_student_ids,
+                 im_id, save_stats, score_weights, save_image_function=None):
+        self.image = image
+        self.model = model
+        self.solutions = solutions
+        self.im_id = im_id
+        self.correct = None
+        self.score = None
+        self.original_decisions = copy.copy(self.image.decisions)
+        self.save_stats = save_stats
+        self.student_names = valid_student_ids
+        self.student_id_filter = []
+        self.student_id_manual = []
+        if self.image.options['read-id']:
+            self.student_id = self.decide_student_id(valid_student_ids)
+        else:
+            # Allow manual insertion of ID even if OCR detection
+            # is not done
+            self.student_id = '-1'
+            if valid_student_ids is not None:
+                self.ids_rank = [(0, sid) for sid in valid_student_ids]
+                self.ids_rank_pos = -1
+            else:
+                self.ids_rank = None
+        self.locked = False
+        self.score_weights = score_weights
+        self.save_image_function = save_image_function
+
+    def grade(self):
+        good = 0
+        bad = 0
+        undet = 0
+        self.correct = []
+        for i in range(0, len(self.image.decisions)):
+            if len(self.solutions) > 0 and self.image.decisions[i] > 0:
+                if self.solutions[i] == self.image.decisions[i]:
+                    good += 1
+                    self.correct.append(True)
+                else:
+                    bad += 1
+                    self.correct.append(False)
+            elif self.image.decisions[i] < 0:
+                undet += 1
+                self.correct.append(False)
+            else:
+                self.correct.append(False)
+        blank = self.image.num_questions - good - bad
+        if self.score_weights is not None:
+            score = good * self.score_weights[0] - \
+                bad * self.score_weights[1] - blank * self.score_weights[2]
+            max_score = self.image.num_questions * self.score_weights[0]
+        else:
+            score = None
+            max_score = None
+        self.score = (good, bad, blank, undet, score, max_score)
+
+    def draw_answers(self):
+#        good, bad, blank, undet = self.score
+        self.image.draw_answers(self.locked, self.solutions, self.model,
+                                self.correct, self.score[0], self.score[1],
+                                self.score[3], self.im_id)
+
+    def save_image(self, filename_pattern):
+        filename = self.__saved_image_name(filename_pattern)
+        if self.save_image_function:
+            self.save_image_function(filename, self.image.image_drawn)
+        else:
+            raise Exception('No save image function declared in utils.Exam')
+
+    def save_debug_images(self, filename_pattern):
+        filename = self.__saved_image_name(filename_pattern)
+        if self.save_image_function:
+            self.save_image_function(filename + '-raw', self.image.image_raw)
+            self.save_image_function(filename + '-proc', self.image.image_proc)
+        else:
+            raise Exception('No save image function declared in utils.Exam')
+
+    def save_answers(self, answers_file, csv_dialect, stats = None):
+        f = open(answers_file, "ab")
+        writer = csv.writer(f, dialect = csv_dialect)
+        data = [self.im_id,
+                self.student_id,
+                self.model if self.model is not None else '?',
+                self.score[0],
+                self.score[1],
+                self.score[3],
+                "/".join([str(d) for d in self.image.decisions])]
+        if stats is not None and self.save_stats:
+            data.extend([stats['time'],
+                         stats['manual-changes'],
+                         stats['num-captures'],
+                         stats['num-student-id-changes'],
+                         stats['id-ocr-digits-total'],
+                         stats['id-ocr-digits-error'],
+                         stats['id-ocr-detected']])
+        writer.writerow(data)
+        f.close()
+
+    def toggle_answer(self, question, answer):
+        if self.image.decisions[question] == answer:
+            self.image.decisions[question] = 0
+        else:
+            self.image.decisions[question] = answer
+        self.grade()
+        self.image.clean_drawn_image()
+        self.draw_answers()
+
+    def invalidate_id(self):
+        self.__update_student_id(None)
+
+    def num_manual_changes(self):
+        return len([d1 for (d1, d2) in \
+                        zip(self.original_decisions, self.image.decisions) \
+                        if d1 != d2])
+
+    def decide_student_id(self, valid_student_ids):
+        student_id = '-1'
+        self.ids_rank = None
+        if self.image.id is not None:
+            if valid_student_ids is not None:
+                ids_rank = [(self.__id_rank(sid, self.image.id_scores), sid) \
+                                for sid in valid_student_ids]
+                self.ids_rank = sorted(ids_rank, reverse = True)
+                student_id = self.ids_rank[0][1]
+                self.image.id = student_id
+                self.ids_rank_pos = 0
+            else:
+                student_id = self.image.id
+        elif valid_student_ids is not None:
+            self.ids_rank = [(0.0, sid) for sid in valid_student_ids]
+        return student_id
+
+    def try_next_student_id(self):
+        if self.ids_rank is not None \
+                and self.ids_rank_pos < len(self.ids_rank) - 1:
+            self.ids_rank_pos += 1
+            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
+
+    def filter_student_id(self, digit):
+        if self.ids_rank is not None:
+            self.student_id_filter.append(digit)
+            ids = [sid for sid in self.ids_rank \
+                       if ''.join(self.student_id_filter) in sid[1]]
+            if len(ids) > 0:
+                self.__update_student_id(ids[0][1])
+            else:
+                self.__update_student_id(None)
+                self.student_id_filter = []
+                self.ids_rank_pos = -1
+
+    def reset_student_id_filter(self, show_first = True):
+        self.student_id_filter = []
+        if show_first:
+            self.ids_rank_pos = 0
+            self.__update_student_id(self.ids_rank[0][1])
+        else:
+            self.ids_rank_pos = -1
+            self.__update_student_id(None)
+
+    def student_id_editor(self, digit):
+        self.student_id_manual.append(digit)
+        sid = ''.join(self.student_id_manual)
+        self.__update_student_id(sid)
+
+    def reset_student_id_editor(self):
+        self.student_id_manual = []
+        self.__update_student_id(None)
+
+    def lock_capture(self):
+        self.locked = True
+
+    def get_student_name(self):
+        if self.student_id != '-1' and self.student_names is not None and \
+                self.student_id in self.student_names:
+            return self.student_names[self.student_id]
+        else:
+            return None
+
+    def __id_rank(self, student_id, scores):
+        rank = 0.0
+        for i in range(len(student_id)):
+            rank += scores[i][int(student_id[i])]
+        return rank
+
+    def __update_student_id(self, new_id):
+        if new_id is None or new_id == '-1':
+            self.image.id = None
+            self.student_id = '-1'
+        else:
+            self.image.id = new_id
+            self.student_id = new_id
+        self.image.clean_drawn_image()
+
+    def __saved_image_name(self, filename_pattern):
+        if self.student_id != '-1':
+            sid = self.student_id
+        else:
+            sid = 'noid'
+        filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
+        filename = regexp_id.sub(sid, filename)
+        return filename
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
