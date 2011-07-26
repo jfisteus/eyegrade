@@ -31,13 +31,17 @@ def stats_for_question(results, question, num_options = None):
 def stats_by_question(results, num_questions):
     return [stats_for_question(results, i) for i in range(0, num_questions)]
 
-def stats_for_model(results, model, num_questions):
+def stats_for_model(results, num_questions, model=None):
     """Returns a tuple with the count of (correct, incorrect, blank) answers
 
-       Applies to the given model. Model is an uppercase letter.
+       Applies to the given model. Model is an uppercase letter. If
+       model is None, overall results are returned.
 
     """
-    data = [(r['good'], r['bad']) for r in results if r['model'] == model]
+    if model is None:
+        data = [(r['good'], r['bad']) for r in results]
+    else:
+        data = [(r['good'], r['bad']) for r in results if r['model'] == model]
     if data != []:
         good = float(sum([d[0] for d in data])) / len(data)
         bad = float(sum([d[1] for d in data])) / len(data)
@@ -49,7 +53,10 @@ def stats_for_model(results, model, num_questions):
     return (len(data), good, bad, blank)
 
 def stats_by_model(results, num_questions, models):
-    return [stats_for_model(results, model, num_questions) for model in models]
+    stats = ([stats_for_model(results, num_questions, None)]
+             + [stats_for_model(results, num_questions, model) \
+                    for model in models])
+    return stats
 
 def print_stats_by_question(stats):
     for i, answers in enumerate(stats):
@@ -92,7 +99,10 @@ def plot_stats_by_question(stats):
 def print_stats_by_model(stats):
     for i, data in enumerate(stats):
         num_questions = sum(data[1:])
-        print 'Model %s; number of exams: %d'%(chr(65 + i), data[0])
+        if i > 0:
+            print 'Model %s; number of exams: %d'%(chr(65 + i - 1), data[0])
+        else:
+            print 'All the exams; number of exams: %d'%data[0]
         if data[0] > 0:
             if num_questions > 0:
                 percentages = (float(data[1]) * 100 / num_questions,
