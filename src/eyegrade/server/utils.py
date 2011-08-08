@@ -154,18 +154,17 @@ def save_as_bitmap(image_filename, bitmap_filename):
 def test():
     import eyegrade.imageproc
     image = cv.LoadImage('../captures/test-001-processed.png')
-    image_proc = imageproc.rgb_to_gray(image)
+    image_proc = imageproc.pre_process(image)
     bitmap = image_to_bitmap(image_proc)
     image2 = bitmap_to_image(image_proc.width, image_proc.height, bitmap)
     cv.SaveImage('/tmp/test.png', image2)
 
 def test_server(host, path, image_filename):
     """Sends a valid request to the server in order to test it."""
-    import eyegrade.imageproc
     import httplib, urllib
     import sys
     image = cv.LoadImage(image_filename)
-    bitmap = image_to_bitmap(eyegrade.imageproc.rgb_to_gray(image))
+    bitmap = image_to_bitmap(imageproc.pre_process(image))
     headers = {'Content-type': 'application/x-eyegrade-bitmap'}
     conn = httplib.HTTPConnection(host)
     conn.request('POST', path, bitmap, headers)
