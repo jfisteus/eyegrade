@@ -2,6 +2,7 @@ import array
 
 import eyegrade.utils as utils
 import eyegrade.imageproc as imageproc
+import time
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -72,6 +73,7 @@ def process_exam(bitmap):
 
     """
     image = bitmap_to_image(640, 480, bitmap)
+    cv.SaveImage('/tmp/eyegrade-server-%d.png'%time.time(), image)
     config = utils.read_config()
     exam_data = utils.ExamConfig('../doc/exam-data.sample')
     solutions = exam_data.solutions
