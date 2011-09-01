@@ -82,7 +82,7 @@ def process_exam(bitmap):
     im_id = 0
     valid_student_ids = None
     imageproc_options = imageproc.ExamCapture.get_default_options()
-    imageproc_context = imageproc.ExamCaptureContext()
+    imageproc_context = imageproc.ExamCaptureContext(195)
     imageproc_options['capture-from-file'] = True
     imageproc_options['capture-proc-ipl'] = image
     image = imageproc.ExamCapture(dimensions, imageproc_context,
