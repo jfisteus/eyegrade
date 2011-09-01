@@ -159,12 +159,15 @@ def test():
     image2 = bitmap_to_image(image_proc.width, image_proc.height, bitmap)
     cv.SaveImage('/tmp/test.png', image2)
 
-def test_server(host, path, image_filename):
+def test_server(host, path, image_filename, preprocess=True):
     """Sends a valid request to the server in order to test it."""
     import httplib, urllib
     import sys
     image = cv.LoadImage(image_filename)
-    bitmap = image_to_bitmap(imageproc.pre_process(image))
+    if preprocess:
+        bitmap = image_to_bitmap(imageproc.pre_process(image))
+    else:
+        bitmap = image_to_bitmap(imageproc.rgb_to_gray(image))
     headers = {'Content-type': 'application/x-eyegrade-bitmap'}
     conn = httplib.HTTPConnection(host)
     conn.request('POST', path, bitmap, headers)
