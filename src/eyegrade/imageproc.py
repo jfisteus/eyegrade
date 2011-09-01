@@ -465,6 +465,7 @@ class ExamCaptureContext:
         self.hough_thresholds_idx = (self.hough_thresholds_idx + 1) % \
             len(self.hough_thresholds)
         self.failures_in_a_row = 0
+        print 'threshold:', self.get_hough_threshold()
 
     def notify_failure(self):
         self.failures_in_a_row += 1

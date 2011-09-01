@@ -1,4 +1,5 @@
 import array
+import cherrypy
 
 import eyegrade.utils as utils
 import eyegrade.imageproc as imageproc
@@ -82,7 +83,12 @@ def process_exam(bitmap):
     im_id = 0
     valid_student_ids = None
     imageproc_options = imageproc.ExamCapture.get_default_options()
-    imageproc_context = imageproc.ExamCaptureContext(195)
+    if 'imageproc_context' in cherrypy.session:
+        imageproc_context = cherrypy.session['imageproc_context']
+    else:
+        print 'New context created'
+        imageproc_context = imageproc.ExamCaptureContext()
+        cherrypy.session['imageproc_context'] = imageproc_context
     imageproc_options['capture-from-file'] = True
     imageproc_options['capture-proc-ipl'] = image
     image = imageproc.ExamCapture(dimensions, imageproc_context,
@@ -159,6 +165,20 @@ def test():
     image2 = bitmap_to_image(image_proc.width, image_proc.height, bitmap)
     cv.SaveImage('/tmp/test.png', image2)
 
+def parse_cookie(cookie):
+    name_val = cookie.split(';')[0].split('=')
+    return name_val[0], name_val[1]
+
+def read_session_cookie(http_response):
+    headers = http_response.getheaders()
+    for name, value in headers:
+        if name == 'set-cookie':
+            cookie_name, cookie_value = parse_cookie(value)
+            print cookie_name, cookie_value
+            if cookie_name == 'session_id':
+                return cookie_value
+    return None
+
 def test_server(host, path, image_filename, preprocess=True):
     """Sends a valid request to the server in order to test it."""
     import httplib, urllib
@@ -169,12 +189,23 @@ def test_server(host, path, image_filename, preprocess=True):
     else:
         bitmap = image_to_bitmap(imageproc.rgb_to_gray(image))
     headers = {'Content-type': 'application/x-eyegrade-bitmap'}
-    conn = httplib.HTTPConnection(host)
-    conn.request('POST', path, bitmap, headers)
-    response = conn.getresponse()
-    if response.status == 200:
-        print response.read()
-    else:
-        print >> sys.stderr, response.status, response.reason
-        print response.read()
-    conn.close()
+    success = False
+    counter = 0
+    while not success and counter < 32:
+        conn = httplib.HTTPConnection(host)
+        conn.request('POST', path, bitmap, headers)
+        response = conn.getresponse()
+        if response.status == 200:
+            result = response.read()
+            print result
+            if result.strip() != '<output><ok>false</ok></output>':
+                success = True
+            session_id = read_session_cookie(response)
+            if session_id is not None:
+                headers['Cookie'] = 'session_id=' + session_id
+        else:
+            print >> sys.stderr, response.status, response.reason
+            print response.read()
+            break
+        conn.close()
+        counter += 1
