@@ -1,0 +1,23 @@
+Eyegrade User Manual
+====================
+
+:Author: Jesús Arias Fisteus
+
+.. contents::
+
+
+Grading Exams
+-------------
+
+The main purpose of Eyegrade is grading exams. In order to grade exams,
+you will need:
+
+- The Eyegrade software installed in your computer.
+- The exam configuration file, which specifies the number
+  of questions in the exam, solutions, etc. It is normally named
+  *exam.eye*.
+- A compatible webcam, with minimum resolution 640x480.
+- The list of students in your class, if you want Eyegrade to
+  detect student IDs.
+- The exams to grade.
+
