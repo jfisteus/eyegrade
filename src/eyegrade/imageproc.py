@@ -65,7 +65,7 @@ font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
 
-    default_options = {'infobits': False,
+    default_options = {'infobits': True,
                        'show-lines': False,
                        'debug-ocr': False,
                        'show-image-proc': False,
@@ -74,6 +74,7 @@ class ExamCapture(object):
                        'capture-from-file': False,
                        'capture-raw-file': None,
                        'capture-proc-file': None,
+                       'capture-proc-ipl': None,
                        'error-logging': False,
                        'logging-dir': '.'}
 
@@ -96,6 +97,9 @@ class ExamCapture(object):
         elif self.options['capture-proc-file'] is not None:
             self.image_raw = load_image(self.options['capture-proc-file'])
             self.image_proc = rgb_to_gray(self.image_raw)
+        elif self.options['capture-proc-ipl'] is not None:
+            self.image_raw = self.options['capture-proc-ipl']
+            self.image_proc = self.options['capture-proc-ipl']
         else:
             raise Exception('Wrong capture options')
         if not self.options['show-image-proc']:
@@ -461,6 +465,7 @@ class ExamCaptureContext:
         self.hough_thresholds_idx = (self.hough_thresholds_idx + 1) % \
             len(self.hough_thresholds)
         self.failures_in_a_row = 0
+        print 'threshold:', self.get_hough_threshold()
 
     def notify_failure(self):
         self.failures_in_a_row += 1
@@ -1052,6 +1057,10 @@ def id_boxes_match_level(image, p0, p1):
     points = [(x, y) for (x, y) in walk_line(p0, p1)]
     active = len([(x, y) for (x, y) in points if image[y, x] > 0])
     return float(active) / len(points)
+
+def save_image(filename, image):
+    """Saves a IPL image. Wrapper for cv.SaveImage."""
+    cv.SaveImage(filename, image)
 
 # Utility functions
 #
