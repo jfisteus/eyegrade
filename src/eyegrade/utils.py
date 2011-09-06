@@ -392,7 +392,7 @@ class Exam(object):
                 self.correct.append(False)
             else:
                 self.correct.append(False)
-        blank = self.image.num_questions - good - bad
+        blank = self.image.num_questions - good - bad - undet
         if self.score_weights is not None:
             score = good * self.score_weights[0] - \
                 bad * self.score_weights[1] - blank * self.score_weights[2]
