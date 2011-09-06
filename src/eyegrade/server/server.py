@@ -59,6 +59,14 @@ class EyegradeServer(object):
         return 'OK'
     students.exposed = True
 
+    def close(self):
+        del cherrypy.session['exam_config']
+        del cherrypy.session['imageproc_context']
+        del cherrypy.session['student_ids']
+        cherrypy.lib.sessions.expire()
+        return 'OK'
+    close.exposed = True
+
 if __name__ == '__main__':
     config_file = os.path.expanduser('~/.eyegrade-server.cfg')
     if not os.path.isfile(config_file):
