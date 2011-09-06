@@ -147,7 +147,8 @@ def main():
     im_id = options.start_id
     valid_student_ids = None
     if options.ids_file is not None:
-        valid_student_ids = utils.read_student_ids(options.ids_file, True)
+        valid_student_ids = utils.read_student_ids(filename=options.ids_file,
+                                                   with_names=True)
 
     interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
 
