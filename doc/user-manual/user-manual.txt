@@ -21,3 +21,67 @@ you will need:
   detect student IDs.
 - The exams to grade.
 
+
+Launching Eyegrade
+..................
+
+Eyegrade can be launched from command line::
+
+    python -m eyegrade.eyegrade exam.eye
+
+where ``exam.eye`` is the file that holds the configuration of the
+exam (number of questions, geometry of tables, correct answers, etc.)
+
+If you want Eyegrade to read student's identity, it is recommended to
+provide it with the list of students in class::
+
+    python -m eyegrade.eyegrade exam.eye --id-list student-list.csv
+
+
+where ``student-list.csv`` is a tabulator-separated file in which
+there are one line per student. The first column must be the student
+identifier.  The second column (optional) must be the student
+name. Other columns, if present, are ignored.
+
+Eyegrade will start up and show its graphical interface, as shown in
+the next picture:
+
+.. image:: images/main-window.png
+   :alt: Eyegrade main window
+
+The interface is quite simple:
+
+- The output of the webcam is shown in the main area of the window.
+
+- A toolbar is shown at the right. We will go through the meaning of these
+  buttons later.
+
+- Two status lines are shown at the bottom. They show different pieces
+  of information depending on the currently active mode.
+
+
+Application modes
+.................
+
+At a given instant, the application is in one of these two modes:
+
+- *Search mode*: the application continually scans the input from the webcam,
+  looking foir a correct detection of an exam.
+
+- *Review mode*: the application shows a still capture of an exam with the
+  result of the grading, so that the user can review the result and
+  fix things if necessary before saving the score of the exam.
+
+Obviously, the application starts in the *search mode*. When the
+system detects an answer sheet that can be read, it locks the capture
+and enters the *review mode*. Once you save the score of the exam,
+Eyegrade automatically goes back to the *search mode* in order to scan
+the next exam.
+
+
+The search mode
+...............
+
+In the *search mode*, you have to get the camera to point to the answer table
+of the exam, including, if present, the id box above it and the small squares
+at the bottom.
