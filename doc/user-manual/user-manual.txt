@@ -72,11 +72,19 @@ At a given instant, the application is in one of these two modes:
   result of the grading, so that the user can review the result and
   fix things if necessary before saving the score of the exam.
 
+- *Manual detection mode*: in the rare cases in which the system is
+  not able to detect the geometry of the exam, you can enter this mode
+  and mark the corners of the answer tables. Eyegrade will be able to
+  detect the tables once you tell it where the corners are.
+
 Obviously, the application starts in the *search mode*. When the
 system detects an answer sheet that can be read, it locks the capture
 and enters the *review mode*. Once you save the score of the exam,
 Eyegrade automatically goes back to the *search mode* in order to scan
 the next exam.
+
+You can enter the *manual detection mode* by issuing the appropriate
+command while in the other modes.
 
 
 The search mode
@@ -85,3 +93,104 @@ The search mode
 In the *search mode*, you have to get the camera to point to the answer table
 of the exam, including, if present, the id box above it and the small squares
 at the bottom.
+
+Eyegrade will continually scan the input of the webcam until the whole
+exam is correctly detected. At that moment, Eyegrade will switch to the
+*review mode*.
+
+Sometimes, Eyegrade is able to detect the answer table but not the ID
+table at the top of it. You can notice that because the detected
+answers are temporary shown on top of the image. At this point, you
+may try further until the ID box is also detected, or just use the
+*snapshot* command (see the table below), which will force the system
+to switch to the *review mode* using the most recent capture in which
+the answer table was detected. You will be able to manually enter the
+missing student id in that mode.
+
+In rare occasions, Eyegrade could fail event to detect the answer table.
+The *manual detection* command allows you to help the system detect it.
+
+These are the commands available in the *search mode*:
+
+- |icon_snapshot| *snapshot* (shortcut 's'): forces the system to
+  enter the *review mode* with the the most recent capture in which
+  Eyegrade was able to detect the answer table. If there is no such
+  capture, the system just uses the current capture.
+
+- |icon_manual_detect| *manual detection* (shortcut 'm'): the system
+  enters the *manual detection mode*, in which you can help the system
+  detect the answer table by marking the corners of the answer
+  tables. After that, the system will detect the answers of the
+  student and automatically enter the *review mode*.
+
+- |icon_exit| *exit* (shortcut 'Esc'): Eyegrade terminates. There is
+  no risk of losing data, because the scores of previous exams are
+  already saved in a file.
+
+.. |icon_snapshot| image:: ../../data/snapshot.png
+.. |icon_manual_detect| image:: ../../data/manual_detect.png
+.. |icon_exit| image:: ../../data/exit.png
+
+
+The review mode
+...............
+
+In the *review mode* you can review and, if necessary, fix the information
+detected by Eyegrade in the current exam. You can review and fix both the
+answers given by the student to each question and the student id. You can
+enter the *review mode* in three different situations:
+
+- With the answers of the student and her id detected. This is the
+  usual case.  Eyegrade was able to detect the whole exam, and you can
+  review the information extracted from it.
+
+- With the answers of the student, but without her id. This is the case
+  when you use the *snapshot* command in the *search mode* because Eyegrade
+  detected the answer table in at least one capture, but not the student
+  id box. In this case, you can review the answers given by the student
+  and manually enter her id.
+
+- With neither the answers of the student nor her id. This is the case
+  when you use the *snapshot* command in the *search mode* because Eyegrade
+  was not able to detect anything from the exam. In this situation,
+  you can switch to the *manual detection mode* to help the system
+  detect the answer tables, and manually enter the student id.
+
+The user interface shows, in this mode, a capture of the exam augmented
+with the detected information, as shown in the following image:
+
+.. image:: images/review-mode-normal.png
+   :alt: Eyegrade in the review mode
+
+As you can see, the system shows:
+
+- The detected student id, at the upper-left corner, and his name at the
+  bottom, as taken from the student list you provided.
+
+- The sequence number of the exam, just below the student id. This
+  sequence number is automatically incremented by Eyegrade for each
+  exam it scans.
+
+- The answers of the student, with a green circle for correct answers
+  and a red circle for incorrect ones. When the student leaves a
+  question unanswered or provides a wrong answer for it, the correct
+  answer for that question is marked with a small blue dot.
+
+- The total number of correct, incorrect and blank answers, at the bottom.
+  This information is also shown on top of the image, at its left-bottom
+  corner.
+
+- The model of the exam, on top of the image, at the left-bottom. The
+  model is detected from the small black squares that are printed
+  below the answer table.
+
+In this mode, you can perform the following actions:
+
+- Click on a cell of the answer table to change an answer of the
+  student that was not correctly detected by Eyegrade: when the
+  student marked a given cell, but the system detected the question as
+  blank or marked other answer to that question, just click on the
+  cell the student marked; when the student left a question blank but
+  the system did mark one of the cells as the answer, click on that
+  cell to clear it. In both cases, Eyegrade will compute the scores
+  again and immediately update the information on the screen.
