@@ -5,6 +5,14 @@ Eyegrade User Manual
 
 .. contents::
 
+.. |icon_snapshot| image:: ../../data/snapshot.png
+.. |icon_manual_detect| image:: ../../data/manual_detect.png
+.. |icon_exit| image:: ../../data/exit.png
+.. |icon_save| image:: ../../data/save.png
+.. |icon_discard| image:: ../../data/discard.png
+.. |icon_next_id| image:: ../../data/next_id.png
+.. |icon_edit_id| image:: ../../data/edit_id.png
+
 
 Grading Exams
 -------------
@@ -121,15 +129,12 @@ These are the commands available in the *search mode*:
   enters the *manual detection mode*, in which you can help the system
   detect the answer table by marking the corners of the answer
   tables. After that, the system will detect the answers of the
-  student and automatically enter the *review mode*.
+  student and automatically enter the *review mode*. See `The manual
+  detection mode`_.
 
-- |icon_exit| *exit* (shortcut 'Esc'): Eyegrade terminates. There is
+- |icon_exit| *exit* (shortcut 'Escape'): Eyegrade terminates. There is
   no risk of losing data, because the scores of previous exams are
   already saved in a file.
-
-.. |icon_snapshot| image:: ../../data/snapshot.png
-.. |icon_manual_detect| image:: ../../data/manual_detect.png
-.. |icon_exit| image:: ../../data/exit.png
 
 
 The review mode
@@ -186,11 +191,111 @@ As you can see, the system shows:
 
 In this mode, you can perform the following actions:
 
-- Click on a cell of the answer table to change an answer of the
-  student that was not correctly detected by Eyegrade: when the
-  student marked a given cell, but the system detected the question as
-  blank or marked other answer to that question, just click on the
-  cell the student marked; when the student left a question blank but
-  the system did mark one of the cells as the answer, click on that
-  cell to clear it. In both cases, Eyegrade will compute the scores
-  again and immediately update the information on the screen.
+- Modify the answers of the student, if there are mistakes in the
+  automatically-detected answers, as explained in `Modifying student
+  answers`_.
+
+- Modify the student id, if the system did not recognize it or
+  recognized a wrong id, as explained in `Modifying the
+  student id`_.
+
+- |icon_save| *save* (shortcut 'Space-bar'): saves the grades of this
+  exam as well as the annotated captured image, and enters the *search
+  mode* in order to detect the next exam. **Tip:** before saving, it
+  is better to remove the exam from the sight of the camera to avoid
+  it from being captured again. You can even put the next exam under
+  the camera before saving to speed up the process.
+
+- |icon_discard| *discard* (shortcut 'Backspace'): discards the
+  current capture **without** saving. It is useful, for example, when
+  the capture is not good enough, or when you detect the same exam has
+  already been graded before.
+
+- |icon_manual_detect| *manual detection* (shortcut 'm'): the system
+  enters the *manual detection mode*, in which you can help the system
+  detect the answer table by marking the corners of the answer
+  tables. After that, the system will detect the answers of the
+  student and automatically enter again the *review mode*. This
+  command is allowed only when the system failed to recognize the
+  geometry of the answer tables. See `The manual detection mode`_.
+
+- |icon_exit| *exit* (shortcut 'Escape'): exits Eyegrade **without**
+  saving the current exam. However, there is no risk to loose data
+  from any exam that was saved before.
+
+
+
+Modifying student answers
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The optical recognition system of Eyegrade my fail sometimes, due to
+its own limitations, or students filling their exams in messy ways.
+Sometimes, Eyegrade shows a cell in the answer table as marked when it
+is not, or a cell is not marked when it actually is. In addition, if
+Eyegrade thinks that two cells of the same question are marked, it
+will leave that question as blank.
+
+You are able to fix those mistakes at the *review mode*. Click on a
+cell of the answer table to change an answer of the student that was
+not correctly detected by Eyegrade: when the student marked a given
+cell, but the system detected the question as blank, or simply showed
+other answer of that question as marked, just click on the cell the
+student actually marked. When the student left a question blank but
+the system did mark one of the cells as the answer, click on that cell
+to clear it. In both cases, Eyegrade will compute the scores again and
+immediately update the information on the screen.
+
+
+Modifying the student id
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Normally, you should provide Eyegrade with the list of class, because
+detection of student ids performs much better in that case. When
+scanning the id in an exam, Eyegrade sorts ids of the students in
+class according to the estimated probability of being the id in the
+exam. The one with the most probability is shown.
+
+In the *review mode*, there are several ways to set the student id
+when Eyegrade does not detect it, or detects a wrong one.
+
+- |icon_next_id| *next id* (shortcut 'Tabulator'): selects the next id
+  in the sorted list of ids. When the detected id is wrong, is usual
+  that the correct id is in the next two or three positions of the
+  list, so it may be worth using this command at least a couple of
+  times.
+
+- Type some digits from the correct id: other way of entering the
+  correct id is by typing some consecutive digits of the id. The most
+  probable id from the list of class containing that sequence of
+  digits is selected.  Each time you type a digit, the id is
+  updated. Just type a few digits until you get the id you
+  want. **Tip:** sometimes the first digits of ids are the same for
+  many students in class. Begin typing at a position in which ids are
+  more variable.
+
+- |icon_edit_id| *edit id* (shortcut 'i'): use this command to
+  manually enter the whole id, digit by digit, from left to
+  right. Just save the exam after entering the last digit. The entered
+  id is not checked against the list of class: you are allowed to
+  enter just any number. This mode is useful only when a student is
+  not in the list of class, or the list of class is not available.
+
+Note that the first two ways to select the student id are available
+only when Eyegrade has the list of class.
+
+**Tip:** when you need to correct an id, first use the *next id*
+option a few times. If after that the correct one does not appear,
+type a sequence of digits of the correct id, until Eyegrade selects
+the correct id.
+
+**Tip:** with the *edit id* command, there is no way to tell Eyegrade
+that you have finished entering it: just save the exam and go to the
+next exam.
+
+**Tip:** if you select *edit id* and make some mistakes when entering
+the id, you can begin to type again from the beginning by selecting
+again the *edit id* command.
+
+
+The manual detection mode
+.........................
