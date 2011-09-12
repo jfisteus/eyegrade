@@ -25,7 +25,7 @@ def read_cmd_options():
     parser.add_option('-s', '--subject', dest='subject', default=None,
                       help='subject name')
     parser.add_option('-g', '--degree', dest='degree', default=None,
-                      help='grade name')
+                      help='degree name')
     parser.add_option('-m', '--models', dest='models', default='A',
                       help='concatenation of the model leters to create')
     parser.add_option('-t', '--duration', dest='duration', default=None,
@@ -134,9 +134,10 @@ def main():
         maker.set_exam_questions(exam)
     for model in options.models:
         maker.create_exam(model, not options.dont_shuffle_again)
-    maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
-    for model in options.models:
-        maker.create_exam(model, False, with_solution=True)
+    if options.output_file_prefix is not None:
+        maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
+        for model in options.models:
+            maker.create_exam(model, False, with_solution=True)
     if config_filename is not None:
         maker.save_exam_config()
 
