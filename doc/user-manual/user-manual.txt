@@ -100,13 +100,13 @@ to support the platform are welcome.
 Grading Exams
 -------------
 
-.. |icon_snapshot| image:: ../../data/snapshot.png
-.. |icon_manual_detect| image:: ../../data/manual_detect.png
-.. |icon_exit| image:: ../../data/exit.png
-.. |icon_save| image:: ../../data/save.png
-.. |icon_discard| image:: ../../data/discard.png
-.. |icon_next_id| image:: ../../data/next_id.png
-.. |icon_edit_id| image:: ../../data/edit_id.png
+.. |icon_snapshot| image:: images/snapshot.png
+.. |icon_manual_detect| image:: images/manual_detect.png
+.. |icon_exit| image:: images/exit.png
+.. |icon_save| image:: images/save.png
+.. |icon_discard| image:: images/discard.png
+.. |icon_next_id| image:: images/next_id.png
+.. |icon_edit_id| image:: images/edit_id.png
 
 The main purpose of Eyegrade is grading exams. In order to grade exams,
 you will need:
