@@ -5,6 +5,101 @@ Eyegrade User Manual
 
 .. contents::
 
+
+Installing Eyegrade
+-------------------
+
+Eyegrade depends on the following free-software packages:
+
+- Python_: the run-time environment and standard library for the
+  execution Python programs. Eyegrade is known to work with Python
+  2.6.
+
+- Opencv_: a widely used computer-vision library. Version 2.0 or later
+  is needed. Not only the OpenCV library, but also the python bindings
+  distributed with it are needed.
+
+- Pygame_: a Python library for building games.
+
+- Tre_: a library for regular expressions. Install version 0.8.0 or
+  later.  Both the library and python bindings are needed.
+
+.. _Python: http://www.python.org/
+.. _Opencv: http://opencv.willowgarage.com/wiki/
+.. _Pygame: http://pygame.org/
+.. _Tre: http://laurikari.net/tre/
+
+
+Installation on GNU/Linux
+.........................
+
+If your Linux distribution is not very old, it should provide most of
+the needed software packages. Specific instructions for Debian
+GNU/Linux and Ubuntu are provided below.
+
+
+Installation on Debian and Ubuntu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _Debian: http://www.debian.org/
+.. _Ubuntu: http://www.ubuntu.com/
+
+Almost all the required software packages are already available in recent
+versions of Debian GNU/Linux and Ubuntu. The only exception are the
+Python bindings for Tre, which have to be installed manually.
+
+Using your favorite package manager (``apt-get``, ``aptitude``,
+``synaptic``, etc.), install the following packages: ``python2.6``,
+``python-pygame``, ``python-opencv``, ``libcv4``, ``libavformat52``,
+``libtre5``.
+
+Then, you have to install the Python bindings for Tre. First, install
+these two additional packages: ``python-dev``, ``libtre-dev``.
+Then, from the command line, download, compile and install the Python
+bindings::
+
+  wget http://laurikari.net/tre/tre-0.8.0.tar.gz
+  tar xzvf tre-0.8.0.tar.gz
+  cd tre-0.8.0/python/
+  python setup.py build
+  sudo python setup.py install
+
+Now, you only need to download Eyegrade using the git source code
+revision system (install the package ``git`` if you do not have it)::
+
+  cd $EYEGRADE_HOME
+  git clone http://www.it.uc3m.es/jaf/eyegrade/git eyegrade
+
+Note: replace $EYEGRADE_HOME above with the directory in which you
+want Eyegrade to be installed.
+
+Finally, add the ``$EYEGRADE_HOME/src`` directory to your ``PYTHONPATH`` and
+check that Eyegrade works::
+
+  export PYTHONPATH=$EYEGRADE_HOME/src
+  python -m eyegrade.eyegrade -h
+
+That's all! Eyegrade should now be installed. For further testing, go to
+`Launching Eyegrade`_.
+
+
+Installation on Microsoft Windows
+.................................
+
+Eyegrade has also been tested on Microsoft Windows environments.
+Installation instructions to be written.
+
+
+Installation on Mac OS X
+........................
+
+Sorry, Eyegrade is not currently supported on that platform. Volunteers
+to support the platform are welcome.
+
+
+Grading Exams
+-------------
+
 .. |icon_snapshot| image:: ../../data/snapshot.png
 .. |icon_manual_detect| image:: ../../data/manual_detect.png
 .. |icon_exit| image:: ../../data/exit.png
@@ -12,10 +107,6 @@ Eyegrade User Manual
 .. |icon_discard| image:: ../../data/discard.png
 .. |icon_next_id| image:: ../../data/next_id.png
 .. |icon_edit_id| image:: ../../data/edit_id.png
-
-
-Grading Exams
--------------
 
 The main purpose of Eyegrade is grading exams. In order to grade exams,
 you will need:
@@ -299,3 +390,42 @@ again the *edit id* command.
 
 The manual detection mode
 .........................
+
+In some rare occasions, Eyegrade may not be able to detect the answer
+tables. In those cases, you can enter the *manual detection mode* from
+the *search mode* (and also from the *review mode* if you entered that
+mode using the *snapshot* command). When entering the *manual
+detection mode*, the latest capture of the camera will be shown.
+
+In this mode, just click with the cursor in the for corners of each
+answer table (a small circle will appear in every location you
+click). The order in which you click on the corners does not
+matter. After having done that, Eyegrade will infer the limits of each
+cell, and based on them it will read the answers of the student and
+the exam model. It will enter the *review mode*.
+
+The following two images show an example. In the first image, the user
+has selected six corners (notice the small blue circles):
+
+.. image:: images/manual-detection-mode.png
+   :alt: Eyegrade in the review mode
+
+After she selects the remaining two corners, the system detects the
+answers and goes back to the *review mode*:
+
+.. image:: images/manual-detection-mode-2.png
+   :alt: Eyegrade in the review mode
+
+Note, however, that the student id will not be detected when you use
+this mode. When the system goes back to the *review mode*, set the id
+as explained in `Modifying the student id`_.
+
+At any point of the process, you can use the *manual detection*
+command (shortcut 'm') to reset the selection of corners and start
+again. If you think that the captured image is not good enough, you
+can also use the *discard* command (shortcut 'Backspace') to go again
+to the *search mode*.
+
+**Tip:** in the *manual detection mode*, make sure that the captured
+image shows all the answer tables as well as the exam model squares at
+the bottom.
