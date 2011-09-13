@@ -429,3 +429,176 @@ to the *search mode*.
 **Tip:** in the *manual detection mode*, make sure that the captured
 image shows all the answer tables as well as the exam model squares at
 the bottom.
+
+
+Processing Student Grades
+-------------------------
+
+The output produced by Eyegrade consists of:
+
+- A file with the scores, named ``eyegrade-results.csv``: it contains
+  one line for each graded exam. Each line contains, among other
+  things, the student id number, the number of correct and incorrect
+  answers, and the answer to every question in the exam.  Student
+  grades can be extracted from this file.
+
+- One snapshot of each graded exam, in PNG format: snapshots can be
+  used as an evidence to show students. They can be shown to students
+  coming to your office to review the exam, or even emailed to every
+  student. The default name for those images is the concatenation of
+  the student id and exam sequence number, in order to facilitate the
+  instructor to locate the snapshot for a specific student.
+
+
+The results file
+................
+
+The file ``eyegrade-results.csv`` produced by Eyegrade contains the
+scores in CSV format (with tabulator instead of comma as a separator),
+so that it can be easily imported from other programs such as
+spreadsheets. This is an example of such a file::
+
+    0	100999991	D	9	6	0	1/2/2/4/1/2/2/0/0/3/2/0/3/2/0/4/3/0/1/2
+    1	100999997	C	15	1	0	2/4/4/3/1/0/1/2/1/1/0/1/0/4/3/0/1/4/3/4
+    2	100800003	D	6	14	0	4/2/2/2/1/2/1/3/2/1/3/1/2/1/3/1/4/1/4/3
+    3	100777777	A	7	13	0	3/2/3/2/3/3/2/4/3/1/3/1/4/1/4/2/2/3/4/2
+
+The columns of this file represent:
+
+1.- The exam sequence number (the same number the user interface shows
+    below the student id in the *review mode*).
+
+2.- The student id (or '-1' if the student id is unknown).
+
+3.- The exam model ('A', 'B', 'C', etc.)
+
+4.- The number of correct answers.
+
+5.- The number of incorrect answers.
+
+6.- The number of undetermined answers (answers marked as blank because
+    of the system detecting more than one marked cell).
+
+7.- The response of the student to each question in the exam, from the
+    first question in her model to the last. '0' means a blank
+    answer. '1', '2', etc. mean the first choice, second choice, etc.,
+    in the order they were presented in her exam model.
+
+Exams are in the same sequence they were graded. See `Exporting a
+listing of scores`_ to know how to produce a listing of scores in the
+order that best fits your needs.
+
+**Tip:** if you start a new grading session from the same directory,
+the file ``eyegrade-results.csv`` will not be overwritten. New grades
+will just be appended at the end. Thus, it is safe to stop a grading
+session, close the application, and continuing later.
+
+**Tip:** you can edit this file with a text editor if, for example,
+you discover that the same exam was graded more than once (just remove
+the duplicate line).
+
+
+Exporting a listing of scores
+.............................
+
+You will probably want to import the listing of scores from your
+grade-book. You can easily process ``eyegrade-results.csv`` to produce
+a CSV-formatted file with three columns: student id, number of correct
+answers and number of incorrect answers, in the order you want. You
+can even produce the listing to for just a subset of the students.
+
+In order to do that, you need a listing of students whose grades you
+want to list. The listing must be a CSV file in which the first column
+contains the student ids (the rest of the columns will be just
+ignored). Normally, you will use the same listing of students you used
+to run Eyegrade. This is an example of such a file::
+
+    100000333	 Baggins, Frodo
+    100777777	 Bunny, Bugs
+    100999997	 Bux, Bastian B.
+    100999991	 Potter, Harry
+    100800003	 Simpson, Lisa
+
+This command will produce the listing in a file named
+``sorted-listing.csv``::
+
+    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -o sorted-listing.csv
+
+The output for the listing above, and the sample file shown in `The
+results file`_, would be::
+
+    100000333		
+    100777777	 7	13
+    100999997	 15	1
+    100999991	 9	6
+    100800003	 7	13
+
+Scores will be in the same order as the student list. The second and third
+columns represent the number of correct and wrong answers, respectively.
+In the example, the first student has those columns empty because there
+is no exam associated to his id.
+
+Importing the previous file in a spreadsheet should be
+straightforward, because the list of students will now be in the same
+order as your spreadsheet.
+
+If there are exams in the results file of students not in your list,
+the default behavior is including them in the listing, after the rest
+of the students. The rationale behind this behavior is apreventing
+accidental losses of student scores. This behavior can be changed (see
+`Exporting a listing for a subset of students`_).
+
+
+Exporting a listing for a subset of students
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to extract the scores for just a subset of the students,
+create a student list with the ids of the students you want and run
+the program with the ``-i`` option::
+
+    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -i -o sorted-listing.csv
+
+The ``-i`` option makes Eyegrade ignore students that are in the
+results file but not in the student list. That is, the listing will
+only contain the students that are in the student list you provide.
+
+This option may be useful, for example, if you examine students coming
+from different classes or groups. With this option you can produce a
+separate listing for each class.
+
+
+Editing exams
+-------------
+
+To be done.
+
+
+Other features
+--------------
+
+Webcam selection
+................
+
+If your computer has more than one camera (e.g. the internal camera of
+the laptop and an external camera you use to grade the exams),
+Eyegrade will select one of them by default. If the selected camera is
+not the camera you want to use to grade the exams, use the ``-c
+<camera-number>`` option when invoking Eyegrade. Cameras are numbered
+0, 1, 2, 3, etc. Invoke Eyegrade with a different camera number until
+the interface displays the one you want. For example, to select the
+camera numbered as 2::
+
+    python -m eyegrade.eyegrade exam.eye -c 2 --id-list student-list.csv
+
+You can configure Eyegrade to always use a specific camera number by
+inserting the option ``camera-dev`` in the ``default`` section of
+the configuration file::
+
+    ## Sample configuration file. Save it as $HOME/.eyegrade.cfg
+    [default]
+
+    ## Default camera device to use (int); -1 for automatic selection.
+    camera-dev: 1
+
+Save it in your user account with name ``.eyegrade.cfg``. In Windows systems,
+your account is at ``C:\Documents and Settings\<your_user_name>``.
