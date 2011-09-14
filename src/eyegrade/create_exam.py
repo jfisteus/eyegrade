@@ -25,7 +25,7 @@ def read_cmd_options():
     parser.add_option('-s', '--subject', dest='subject', default=None,
                       help='subject name')
     parser.add_option('-g', '--degree', dest='degree', default=None,
-                      help='grade name')
+                      help='degree name')
     parser.add_option('-m', '--models', dest='models', default='A',
                       help='concatenation of the model leters to create')
     parser.add_option('-t', '--duration', dest='duration', default=None,
@@ -71,11 +71,11 @@ def main():
     dimensions = None
     if options.exam_filename:
         exam = utils.read_exam_questions(options.exam_filename)
-        variables['subject'] = exam.subject
-        variables['degree'] = exam.degree
-        variables['date'] = exam.date
-        variables['duration'] = exam.duration
-        variables['title'] = exam.title
+        variables['subject'] = exam.subject or ''
+        variables['degree'] = exam.degree or ''
+        variables['date'] = exam.date or ''
+        variables['duration'] = exam.duration or ''
+        variables['title'] = exam.title or ''
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if num_choices is None:
@@ -124,6 +124,8 @@ def main():
     else:
         output_file = options.output_file_prefix + '-%s.tex'
         config_filename = options.output_file_prefix + '.eye'
+
+    # Create and call the exam maker object
     maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
                                 output_file, variables, config_filename,
                                 options.num_tables,
@@ -134,11 +136,16 @@ def main():
         maker.set_exam_questions(exam)
     for model in options.models:
         maker.create_exam(model, not options.dont_shuffle_again)
-    maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
-    for model in options.models:
-        maker.create_exam(model, False, with_solution=True)
+    if options.output_file_prefix is not None:
+        maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
+        for model in options.models:
+            maker.create_exam(model, False, with_solution=True)
     if config_filename is not None:
         maker.save_exam_config()
+
+    # Dump some final warnings
+    for key in maker.empty_variables:
+        print >>sys.stderr, 'Warning: empty \'%s\' variable'%key
 
 if __name__ == '__main__':
     main()

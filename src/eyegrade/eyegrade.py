@@ -1,226 +1,16 @@
 import sys
 import os
 from optparse import OptionParser
-import imageproc
 import time
-import copy
 import csv
 import re
 
 # Local imports
+import imageproc
 import utils
 import gui
 
-# Import the cv module. If new style bindings not found, use the old ones:
-try:
-    import cv
-    cv_new_style = True
-except ImportError:
-    import cvwrapper
-    cv = cvwrapper.CVWrapperObject()
-    cv_new_style = False
-
 param_max_wait_time = 0.15 # seconds
-
-# Other initializations:
-regexp_id = re.compile('\{student-id\}')
-regexp_seqnum = re.compile('\{seq-number\}')
-
-class Exam(object):
-    def __init__(self, image, model, solutions, valid_student_ids,
-                 im_id, save_stats, score_weights):
-        self.image = image
-        self.model = model
-        self.solutions = solutions
-        self.im_id = im_id
-        self.correct = None
-        self.score = None
-        self.original_decisions = copy.copy(self.image.decisions)
-        self.save_stats = save_stats
-        self.student_names = valid_student_ids
-        self.student_id_filter = []
-        self.student_id_manual = []
-        if self.image.options['read-id']:
-            self.student_id = self.decide_student_id(valid_student_ids)
-        else:
-            # Allow manual insertion of ID even if OCR detection
-            # is not done
-            self.student_id = '-1'
-            if valid_student_ids is not None:
-                self.ids_rank = [(0, sid) for sid in valid_student_ids]
-                self.ids_rank_pos = -1
-            else:
-                self.ids_rank = None
-        self.locked = False
-        self.score_weights = score_weights
-
-    def grade(self):
-        good = 0
-        bad = 0
-        undet = 0
-        self.correct = []
-        for i in range(0, len(self.image.decisions)):
-            if len(self.solutions) > 0 and self.image.decisions[i] > 0:
-                if self.solutions[i] == self.image.decisions[i]:
-                    good += 1
-                    self.correct.append(True)
-                else:
-                    bad += 1
-                    self.correct.append(False)
-            elif self.image.decisions[i] < 0:
-                undet += 1
-                self.correct.append(False)
-            else:
-                self.correct.append(False)
-        blank = self.image.num_questions - good - bad
-        if self.score_weights is not None:
-            score = good * self.score_weights[0] - \
-                bad * self.score_weights[1] - blank * self.score_weights[2]
-            max_score = self.image.num_questions * self.score_weights[0]
-        else:
-            score = None
-            max_score = None
-        self.score = (good, bad, blank, undet, score, max_score)
-
-    def draw_answers(self):
-#        good, bad, blank, undet = self.score
-        self.image.draw_answers(self.locked, self.solutions, self.model,
-                                self.correct, self.score[0], self.score[1],
-                                self.score[3], self.im_id)
-
-    def save_image(self, filename_pattern):
-        filename = self.__saved_image_name(filename_pattern)
-        cv.SaveImage(filename, self.image.image_drawn)
-
-    def save_debug_images(self, filename_pattern):
-        filename = self.__saved_image_name(filename_pattern)
-        cv.SaveImage(filename + '-raw', self.image.image_raw)
-        cv.SaveImage(filename + '-proc', self.image.image_proc)
-
-    def save_answers(self, answers_file, csv_dialect, stats = None):
-        f = open(answers_file, "ab")
-        writer = csv.writer(f, dialect = csv_dialect)
-        data = [self.im_id,
-                self.student_id,
-                self.model if self.model is not None else '?',
-                self.score[0],
-                self.score[1],
-                self.score[3],
-                "/".join([str(d) for d in self.image.decisions])]
-        if stats is not None and self.save_stats:
-            data.extend([stats['time'],
-                         stats['manual-changes'],
-                         stats['num-captures'],
-                         stats['num-student-id-changes'],
-                         stats['id-ocr-digits-total'],
-                         stats['id-ocr-digits-error'],
-                         stats['id-ocr-detected']])
-        writer.writerow(data)
-        f.close()
-
-    def toggle_answer(self, question, answer):
-        if self.image.decisions[question] == answer:
-            self.image.decisions[question] = 0
-        else:
-            self.image.decisions[question] = answer
-        self.grade()
-        self.image.clean_drawn_image()
-        self.draw_answers()
-
-    def invalidate_id(self):
-        self.__update_student_id(None)
-
-    def num_manual_changes(self):
-        return len([d1 for (d1, d2) in \
-                        zip(self.original_decisions, self.image.decisions) \
-                        if d1 != d2])
-
-    def decide_student_id(self, valid_student_ids):
-        student_id = '-1'
-        self.ids_rank = None
-        if self.image.id is not None:
-            if valid_student_ids is not None:
-                ids_rank = [(self.__id_rank(sid, self.image.id_scores), sid) \
-                                for sid in valid_student_ids]
-                self.ids_rank = sorted(ids_rank, reverse = True)
-                student_id = self.ids_rank[0][1]
-                self.image.id = student_id
-                self.ids_rank_pos = 0
-            else:
-                student_id = self.image.id
-        elif valid_student_ids is not None:
-            self.ids_rank = [(0.0, sid) for sid in valid_student_ids]
-        return student_id
-
-    def try_next_student_id(self):
-        if self.ids_rank is not None \
-                and self.ids_rank_pos < len(self.ids_rank) - 1:
-            self.ids_rank_pos += 1
-            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
-
-    def filter_student_id(self, digit):
-        if self.ids_rank is not None:
-            self.student_id_filter.append(digit)
-            ids = [sid for sid in self.ids_rank \
-                       if ''.join(self.student_id_filter) in sid[1]]
-            if len(ids) > 0:
-                self.__update_student_id(ids[0][1])
-            else:
-                self.__update_student_id(None)
-                self.student_id_filter = []
-                self.ids_rank_pos = -1
-
-    def reset_student_id_filter(self, show_first = True):
-        self.student_id_filter = []
-        if show_first:
-            self.ids_rank_pos = 0
-            self.__update_student_id(self.ids_rank[0][1])
-        else:
-            self.ids_rank_pos = -1
-            self.__update_student_id(None)
-
-    def student_id_editor(self, digit):
-        self.student_id_manual.append(digit)
-        sid = ''.join(self.student_id_manual)
-        self.__update_student_id(sid)
-
-    def reset_student_id_editor(self):
-        self.student_id_manual = []
-        self.__update_student_id(None)
-
-    def lock_capture(self):
-        self.locked = True
-
-    def get_student_name(self):
-        if self.student_id != '-1' and self.student_names is not None and \
-                self.student_id in self.student_names:
-            return self.student_names[self.student_id]
-        else:
-            return None
-
-    def __id_rank(self, student_id, scores):
-        rank = 0.0
-        for i in range(len(student_id)):
-            rank += scores[i][int(student_id[i])]
-        return rank
-
-    def __update_student_id(self, new_id):
-        if new_id is None or new_id == '-1':
-            self.image.id = None
-            self.student_id = '-1'
-        else:
-            self.image.id = new_id
-            self.student_id = new_id
-        self.image.clean_drawn_image()
-
-    def __saved_image_name(self, filename_pattern):
-        if self.student_id != '-1':
-            sid = self.student_id
-        else:
-            sid = 'noid'
-        filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
-        filename = regexp_id.sub(sid, filename)
-        return filename
 
 class PerformanceProfiler(object):
     def __init__(self):
@@ -319,7 +109,8 @@ def cell_clicked(image, point):
                 min_dst = dst
                 clicked_row = i
                 clicked_col = j
-    if min_dst is not None and min_dst <= image.diagonals[i][j] / 2:
+    if (min_dst is not None and
+        min_dst <= image.diagonals[clicked_row][clicked_col] / 2):
         return (clicked_row, clicked_col + 1)
     else:
         return None
@@ -356,7 +147,8 @@ def main():
     im_id = options.start_id
     valid_student_ids = None
     if options.ids_file is not None:
-        valid_student_ids = utils.read_student_ids(options.ids_file, True)
+        valid_student_ids = utils.read_student_ids(filename=options.ids_file,
+                                                   with_names=True)
 
     interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
 
@@ -364,7 +156,6 @@ def main():
 
     # Initialize options
     imageproc_options = imageproc.ExamCapture.get_default_options()
-    imageproc_options['infobits'] = True
     imageproc_options['logging-dir'] = options.output_dir
     if read_id:
         imageproc_options['read-id'] = True
@@ -412,8 +203,10 @@ def main():
         if image.status['infobits']:
             model = utils.decode_model(image.bits)
             if model is not None and model in solutions:
-                exam = Exam(image, model, solutions[model], valid_student_ids,
-                            im_id, options.save_stats, exam_data.score_weights)
+                exam = utils.Exam(image, model, solutions[model],
+                                  valid_student_ids, im_id, options.save_stats,
+                                  exam_data.score_weights,
+                                  imageproc.save_image)
                 exam.grade()
                 latest_graded_exam = exam
             else:
@@ -432,8 +225,10 @@ def main():
                     not imageproc_options['show-lines']
             elif event == gui.event_snapshot:
                 if latest_graded_exam is None:
-                    exam = Exam(image, model, {}, valid_student_ids, im_id,
-                                options.save_stats, exam_data.score_weights)
+                    exam = utils.Exam(image, model, {}, valid_student_ids,
+                                      im_id, options.save_stats,
+                                      exam_data.score_weights,
+                                      imageproc.save_image)
                     exam.grade()
                     interface.set_manual_detect_enabled(True)
                 else:
@@ -445,8 +240,9 @@ def main():
                     exam.reset_student_id_editor()
                     override_id_mode = True
             elif event == gui.event_manual_detection:
-                exam = Exam(image, model, {}, valid_student_ids, im_id,
-                            options.save_stats, exam_data.score_weights)
+                exam = utils.Exam(image, model, {}, valid_student_ids, im_id,
+                                  options.save_stats, exam_data.score_weights,
+                                  imageproc.save_image)
                 exam.grade()
                 interface.set_manual_detect_enabled(True)
                 # Set the event to repeat again in lock_mode

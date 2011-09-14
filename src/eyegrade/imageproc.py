@@ -47,7 +47,7 @@ param_clear_out_threshold = 0.35
 param_clear_in_threshold = 0.2
 
 param_bit_mask_threshold = 0.35
-param_bit_mask_radius_multiplier = 0.25
+param_bit_mask_radius_multiplier = 0.333
 param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
@@ -65,7 +65,7 @@ font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
 
-    default_options = {'infobits': False,
+    default_options = {'infobits': True,
                        'show-lines': False,
                        'debug-ocr': False,
                        'show-image-proc': False,
@@ -74,6 +74,7 @@ class ExamCapture(object):
                        'capture-from-file': False,
                        'capture-raw-file': None,
                        'capture-proc-file': None,
+                       'capture-proc-ipl': None,
                        'error-logging': False,
                        'logging-dir': '.'}
 
@@ -96,6 +97,9 @@ class ExamCapture(object):
         elif self.options['capture-proc-file'] is not None:
             self.image_raw = load_image(self.options['capture-proc-file'])
             self.image_proc = rgb_to_gray(self.image_raw)
+        elif self.options['capture-proc-ipl'] is not None:
+            self.image_raw = self.options['capture-proc-ipl']
+            self.image_proc = self.options['capture-proc-ipl']
         else:
             raise Exception('Wrong capture options')
         if not self.options['show-image-proc']:
@@ -869,7 +873,6 @@ def decide_infobit(image, mask, masked, center_up, dy):
                            * param_bit_mask_radius_multiplier))
     if radius == 0:
         radius = 1
-    radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) / 3))
     cv.SetZero(mask)
     cv.Circle(mask, center_up, radius, (1), cv.CV_FILLED)
     mask_pixels = cv.CountNonZero(mask)
@@ -1053,6 +1056,10 @@ def id_boxes_match_level(image, p0, p1):
     points = [(x, y) for (x, y) in walk_line(p0, p1)]
     active = len([(x, y) for (x, y) in points if image[y, x] > 0])
     return float(active) / len(points)
+
+def save_image(filename, image):
+    """Saves a IPL image. Wrapper for cv.SaveImage."""
+    cv.SaveImage(filename, image)
 
 # Utility functions
 #

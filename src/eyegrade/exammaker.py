@@ -48,6 +48,7 @@ class ExamMaker(object):
             self.__load_exam_config()
         else:
             self.exam_config = None
+        self.empty_variables = []
 
     def set_exam_questions(self, exam):
         if exam.num_questions() != self.num_questions:
@@ -132,7 +133,11 @@ class ExamMaker(object):
 
     def __replace(self, key, replacements):
         if key in replacements:
-            return replacements[key]
+            if not replacements[key] and not key in self.empty_variables:
+                self.empty_variables.append(key)
+                return ''
+            else:
+                return replacements[key]
         elif key.startswith('id-box'):
             return replacements['id-box']
         else:

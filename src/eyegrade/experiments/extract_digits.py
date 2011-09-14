@@ -32,20 +32,16 @@ def main():
     options['capture-from-file'] = True
     dimensions = [(4, 10), (4, 10)]
     context = imageproc.ExamCaptureContext()
-    image_template = ('/home/jaf/investigacion/escritos/'
-                      '2010_eyegrade_comp_educ/experiment1/exams/'
-                      'exam-%03d.png-proc')
-    results = utils.read_results('/home/jaf/investigacion/escritos/'
-                                 '2010_eyegrade_comp_educ/experiment1/exams/'
-                                 'camgrade-answers.txt')
+    image_template = ('exam-%s-%d.png-proc')
+    results = utils.read_results('eyegrade-answers.csv')
     for result in results:
         seq = int(result['seq-num'])
         sid = result['student-id']
-        corners, corners_int = process_image(image_template%seq,
+        corners, corners_int = process_image(image_template%(sid, seq),
                                              dimensions, options, context)
         if len(corners) > 0 and len(sid) == 9:
             for i, digit in enumerate(sid):
-                data = ['exam-%03d.png-proc'%seq, digit, i]
+                data = ['exam-%s-%d.png-proc'%(sid, seq), digit, i]
                 data.extend(corners[i])
                 data.extend(corners_int[i])
                 print '\t'.join([str(d) for d in data])

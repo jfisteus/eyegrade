@@ -193,7 +193,6 @@ def crossings(image, p0, p1, h, debug = False, image_drawn = None):
                     end_rel = float(end) / n
                     center_rel = (begin_rel + end_rel) / 2
                     length = end - begin + 1
-                    length_rel = float(length) / n
                     crossings.append((begin_rel, end_rel,
                                       center_rel, length, h))
                 begin = None
