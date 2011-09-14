@@ -10,7 +10,7 @@ import copy
 import io
 
 program_name = 'eyegrade'
-version = '0.1.11'
+version = '0.1.12'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[a-zA-Z]')
