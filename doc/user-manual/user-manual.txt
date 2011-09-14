@@ -590,6 +590,11 @@ camera numbered as 2::
 
     python -m eyegrade.eyegrade exam.eye -c 2 --id-list student-list.csv
 
+When the number is -1, eyegrade will automatically test different
+camera numbers until it finds one that works. When you select a camera
+number that does not exist or does not work, Eyegrade will also look
+automatically for other camera that works.
+
 You can configure Eyegrade to always use a specific camera number by
 inserting the option ``camera-dev`` in the ``default`` section of
 the configuration file::
