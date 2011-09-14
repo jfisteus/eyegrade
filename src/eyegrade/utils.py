@@ -20,6 +20,56 @@ csv.register_dialect('tabs', delimiter = '\t')
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'unknown', 'answers']
 
+
+class EyegradeException(Exception):
+    """An Eyegrade-specific exception.
+
+    In addition to what a normal exception would do, it encapsulates
+    user-friendly messages for some common causes of error due to
+    the user.
+
+    """
+
+    _error_messages = {
+        'incoherent_exam_config':
+            'The exam you are attempting to create is not compatible\n'
+            'with the already existing exam configuration file.\n'
+            'This happens, for example, when the configuration file\n'
+            'contains more or less questions than the exam you are now\n'
+            'creating. Removing the old configuration file and running\n'
+            'again this command will solve the problem, and a new\n'
+            'configuration file will be created.'
+        }
+
+    def __init__(self, message='', key=None):
+        """Creates a new exception.
+
+        If `key` is in `_error_messages`, a prettier version of the
+        exception will be shown to the user, with the explanation appended
+        to the end of what you provide in `message`.
+
+        """
+        if key in EyegradeException._error_messages:
+            self.full_message = ''.join(['ERROR: ', message, '\n\n',
+                                    EyegradeException._error_messages[key]])
+            super(EyegradeException, self).__init__(self.full_message)
+        else:
+            self.full_message = None
+            super(EyegradeException, self).__init__(message)
+
+    def __str__(self):
+        """Prints the exception.
+
+        A user-friendly message, without the stack trace, is shown when such
+        user-friendly message is available.
+
+        """
+        if self.full_message is not None:
+            return self.full_message
+        else:
+            return super(EyegradeException, self).__str__()
+
+
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
     if path.endswith('.zip'):

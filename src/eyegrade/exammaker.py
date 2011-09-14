@@ -4,6 +4,7 @@ import sys
 
 # Local imports
 import utils
+from utils import EyegradeException
 
 param_min_num_questions = 1
 
@@ -114,11 +115,17 @@ class ExamMaker(object):
             try:
                 self.exam_config = utils.ExamConfig(self.exam_config_filename)
                 if self.num_questions != self.exam_config.num_questions:
-                    raise Exception('Incoherent number of questions')
+                    raise EyegradeException(
+                        message='Incoherent number of questions',
+                        key='incoherent_exam_config')
                 if self.id_num_digits != self.exam_config.id_num_digits:
-                    raise Exception('Incoherent configuration of id box')
+                    raise EyegradeException(
+                        message='Incoherent configuration of id box',
+                        key='incoherent_exam_config')
                 if self.dimensions != self.exam_config.dimensions:
-                    raise Exception('Incoherent table dimensions')
+                    raise EyegradeException(
+                        message='Incoherent table dimensions',
+                        key='incoherent_exam_config')
             except IOError:
                 self.exam_config = utils.ExamConfig()
                 self.exam_config.num_questions = self.num_questions

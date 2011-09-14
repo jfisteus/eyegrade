@@ -67,15 +67,26 @@ def read_cmd_options():
 def main():
     options, args = read_cmd_options()
     template_filename = args[0]
-    variables = {}
+    variables = {
+        'subject': '',
+        'degree': '',
+        'date': '',
+        'duration': '',
+        'title': ''
+        }
     dimensions = None
     if options.exam_filename:
         exam = utils.read_exam_questions(options.exam_filename)
-        variables['subject'] = exam.subject or ''
-        variables['degree'] = exam.degree or ''
-        variables['date'] = exam.date or ''
-        variables['duration'] = exam.duration or ''
-        variables['title'] = exam.title or ''
+        if exam.subject is not None:
+            variables['subject'] = exam.subject
+        if exam.degree is not None:
+            variables['degree'] = exam.degree
+        if exam.date is not None:
+            variables['date'] = exam.date
+        if exam.duration is not None:
+            variables['duration'] = exam.duration
+        if exam.title is not None:
+            variables['title'] = exam.title
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if num_choices is None:
@@ -125,23 +136,28 @@ def main():
         output_file = options.output_file_prefix + '-%s.tex'
         config_filename = options.output_file_prefix + '.eye'
 
-    # Create and call the exam maker object
-    maker = exammaker.ExamMaker(num_questions, num_choices, template_filename,
-                                output_file, variables, config_filename,
-                                options.num_tables,
-                                dimensions,
-                                options.table_width, options.table_height,
-                                options.id_box_width)
-    if exam is not None:
-        maker.set_exam_questions(exam)
-    for model in options.models:
-        maker.create_exam(model, not options.dont_shuffle_again)
-    if options.output_file_prefix is not None:
-        maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
+    try:
+        # Create and call the exam maker object
+        maker = exammaker.ExamMaker(num_questions, num_choices,
+                                    template_filename,
+                                    output_file, variables, config_filename,
+                                    options.num_tables,
+                                    dimensions,
+                                    options.table_width, options.table_height,
+                                    options.id_box_width)
+        if exam is not None:
+            maker.set_exam_questions(exam)
         for model in options.models:
-            maker.create_exam(model, False, with_solution=True)
-    if config_filename is not None:
-        maker.save_exam_config()
+            maker.create_exam(model, not options.dont_shuffle_again)
+        if options.output_file_prefix is not None:
+            maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
+            for model in options.models:
+                maker.create_exam(model, False, with_solution=True)
+        if config_filename is not None:
+            maker.save_exam_config()
+    except utils.EyegradeException as ex:
+        print >>sys.stderr, ex
+        sys.exit(1)
 
     # Dump some final warnings
     for key in maker.empty_variables:
