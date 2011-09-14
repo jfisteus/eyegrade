@@ -66,7 +66,7 @@ def image_to_bitmap(image):
             bitmap_list.append(byte)
     return array.array('B', bitmap_list)
 
-def process_exam(bitmap):
+def process_exam(bitmap, imageproc_context, exam_config, student_ids):
     """Processes and grades an exam represented as a bitmap.
 
        Returns an XML-formatted string.
@@ -76,21 +76,16 @@ def process_exam(bitmap):
     image = bitmap_to_image(640, 480, bitmap)
     cv.SaveImage('/tmp/eyegrade-server-%d.png'%time.time(), image)
     config = utils.read_config()
-    exam_data = utils.ExamConfig('../doc/exam-data.sample')
-    solutions = exam_data.solutions
-    dimensions = exam_data.dimensions
-    id_num_digits = exam_data.id_num_digits
+    solutions = exam_config.solutions
+    dimensions = exam_config.dimensions
+    id_num_digits = exam_config.id_num_digits
     im_id = 0
-    valid_student_ids = None
     imageproc_options = imageproc.ExamCapture.get_default_options()
-    if 'imageproc_context' in cherrypy.session:
-        imageproc_context = cherrypy.session['imageproc_context']
-    else:
-        print 'New context created'
-        imageproc_context = imageproc.ExamCaptureContext()
-        cherrypy.session['imageproc_context'] = imageproc_context
     imageproc_options['capture-from-file'] = True
     imageproc_options['capture-proc-ipl'] = image
+    if student_ids is not None and student_ids != []:
+        imageproc_options['read-id'] = True
+        imageproc_options['id-num-digits'] = id_num_digits
     image = imageproc.ExamCapture(dimensions, imageproc_context,
                                   imageproc_options)
     image.detect_safe()
@@ -100,8 +95,8 @@ def process_exam(bitmap):
         model = utils.decode_model(image.bits)
         if model is not None and model in solutions:
             exam = utils.Exam(image, model, solutions[model],
-                              valid_student_ids, im_id, False,
-                              exam_data.score_weights, imageproc.save_image)
+                              student_ids, im_id, False,
+                              exam_config.score_weights, imageproc.save_image)
             exam.grade()
         else:
             success = False
@@ -179,33 +174,83 @@ def read_session_cookie(http_response):
                 return cookie_value
     return None
 
-def test_server(host, path, image_filename, preprocess=True):
+def test_server(host, image_filename, preprocess=True):
     """Sends a valid request to the server in order to test it."""
     import httplib, urllib
     import sys
+
+    headers = {}
+
+    # First, send a config file
+    with open('../doc/exam-data.sample') as f:
+        data = f.read()
+    conn = httplib.HTTPConnection(host)
+    headers['Content-type'] = 'application/x-eyegrade-exam-config'
+    conn.request('POST', '/init', data, headers)
+    response = conn.getresponse()
+    if response.status == 200:
+        print 'Exam config file succesfully sent'
+        session_id = read_session_cookie(response)
+        conn.close()
+    else:
+        print >> sys.stderr, response.status, response.reason
+        print response.read()
+        conn.close()
+        sys.exit(1)
+
+    if session_id is not None:
+        headers['Cookie'] = 'session_id=' + session_id
+
+    # Send a student list
+    headers['Content-type'] = 'application/x-eyegrade-student-list'
+    data='100099999\tJohn Doe\n100099998\tJane Doe\n'
+    conn = httplib.HTTPConnection(host)
+    conn.request('POST', '/students', data, headers)
+    response = conn.getresponse()
+    if response.status == 200:
+        print 'Student list succesfully sent'
+        conn.close()
+    else:
+        print >> sys.stderr, response.status, response.reason
+        print response.read()
+        conn.close()
+        sys.exit(1)
+
+    # Then, send an image
     image = cv.LoadImage(image_filename)
     if preprocess:
         bitmap = image_to_bitmap(imageproc.pre_process(image))
     else:
         bitmap = image_to_bitmap(imageproc.rgb_to_gray(image))
-    headers = {'Content-type': 'application/x-eyegrade-bitmap'}
+    headers['Content-type'] = 'application/x-eyegrade-bitmap'
     success = False
     counter = 0
     while not success and counter < 32:
         conn = httplib.HTTPConnection(host)
-        conn.request('POST', path, bitmap, headers)
+        conn.request('POST', '/process', bitmap, headers)
         response = conn.getresponse()
         if response.status == 200:
             result = response.read()
             print result
             if result.strip() != '<output><ok>false</ok></output>':
                 success = True
-            session_id = read_session_cookie(response)
-            if session_id is not None:
-                headers['Cookie'] = 'session_id=' + session_id
         else:
             print >> sys.stderr, response.status, response.reason
             print response.read()
             break
         conn.close()
         counter += 1
+
+    # Close session
+    del headers['Content-type']
+    conn = httplib.HTTPConnection(host)
+    conn.request('GET', '/close', headers=headers)
+    response = conn.getresponse()
+    if response.status == 200:
+        print 'Session succesfully closed'
+        conn.close()
+    else:
+        print >> sys.stderr, response.status, response.reason
+        print response.read()
+        conn.close()
+        sys.exit(1)

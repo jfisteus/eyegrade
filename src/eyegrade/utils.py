@@ -7,6 +7,7 @@ import sys
 import random
 import re
 import copy
+import io
 
 program_name = 'eyegrade'
 version = '0.1.11'
@@ -94,12 +95,21 @@ def check_model_letter(model):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename, with_names=False):
+def read_student_ids(filename=None, data=None, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
+       Either 'filename' or 'data' must be provided. 'filename'
+       specifies the name of a file to read. 'data' must be a string
+       that contains the actual content to be parsed.
+
     """
-    csvfile = open(filename, 'rb')
-    reader = csv.reader(csvfile, 'tabs')
+    assert((filename is not None) ^ (data is not None))
+    if filename is not None:
+        csvfile = open(filename, 'rb')
+        reader = csv.reader(csvfile, 'tabs')
+        csvfile.close()
+    else:
+        reader = csv.reader(io.BytesIO(data), 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
     else:
@@ -112,7 +122,6 @@ def read_student_ids(filename, with_names=False):
             else:
                 name = None
                 student_ids[sid] = None
-    csvfile.close()
     return student_ids
 
 def mix_results(results_filename, student_list_filename, dump_missing):
@@ -125,7 +134,7 @@ def mix_results(results_filename, student_list_filename, dump_missing):
     """
     mixed_grades = []
     results = results_by_id(read_results(results_filename))
-    ids = read_student_ids(student_list_filename)
+    ids = read_student_ids(filename=student_list_filename)
     for student_id in ids:
         if student_id in results:
             mixed_grades.append((student_id, results[student_id][0],
@@ -560,7 +569,7 @@ class ExamConfig(object):
         """Loads data from file if 'filename' is not None. Otherwise,
            default values are assigned to the attributes."""
         if filename is not None:
-            self.read(filename)
+            self.read(filename=filename)
         else:
             self.num_questions = 0
             self.solutions = {}
@@ -578,12 +587,23 @@ class ExamConfig(object):
     def set_permutations(self, model, permutations):
         self.permutations[model] = permutations
 
-    def read(self, filename):
-        """Reads exam configuration from the file named 'filename'."""
+    def read(self, filename=None, data=None):
+        """Reads exam configuration.
+
+           Either 'filename' or 'data' must be provided. 'filename'
+           specifies the name of a file to read. 'data' must be a
+           string that contains the actual content of the config file
+           to be parsed.
+
+        """
+        assert((filename is not None) ^ (data is not None))
         exam_data = ConfigParser.SafeConfigParser()
-        files_read = exam_data.read([filename])
-        if len(files_read) != 1:
-            raise IOError('Exam config file not found: ' + filename)
+        if filename is not None:
+            files_read = exam_data.read([filename])
+            if len(files_read) != 1:
+                raise IOError('Exam config file not found: ' + filename)
+        elif data is not None:
+            exam_data.readfp(io.BytesIO(data))
         try:
             self.id_num_digits = exam_data.getint('exam', 'id-num-digits')
         except:
