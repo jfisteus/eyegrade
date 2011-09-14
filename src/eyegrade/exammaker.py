@@ -296,8 +296,10 @@ def __horizontal_line(row_geometry, num_choices, compact):
     parts = []
     num_empty_columns = 1 if not compact else 0
     first = 2
-    for i, geometry in enumerate(row_geometry):
-        if geometry > 0 or geometry == -1:
+    extra_line = (max(row_geometry) > 0 or -1 in row_geometry)
+    for i in range(0, len(row_geometry)):
+        geometry = row_geometry[i]
+        if geometry > 0 or geometry == -1 or extra_line:
             parts.append(r'\cline{%d-%d}'%(first, first + num_choices - 1))
         first += 1 + num_empty_columns + num_choices
     return ' '.join(parts)
