@@ -1,8 +1,9 @@
-## Sample configuration file. Save it as ~/.eyegrade.cfg
+## Sample configuration file. Save it as $HOME/.eyegrade.cfg
+## In Windows, save at C:\Documents and Settings\<user-name>\.eyegrade.cfg
 [default]
 
 ## Default camera device to use (int); -1 for automatic selection.
-camera-dev: 0
+camera-dev: -1
 
 ## If error-logging is set to 'yes', exceptions in code are logged
 # error-logging: yes
@@ -13,5 +14,5 @@ camera-dev: 0
 save-filename-pattern: exam-{student-id}-{seq-number}.png
 
 ## Format of the output CSV file with results:
-## 'excel' (default; separator: comma) or 'tabs' (separator: tabs)
+## 'excel' (separator: comma) or 'tabs' (separator: tabulator; default option)
 # csv-dialect: tabs
