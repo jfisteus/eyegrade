@@ -243,8 +243,9 @@ def test_server(host, image_filename, preprocess=True):
 
     # Close session
     del headers['Content-type']
+    headers['Content-length'] = '0'
     conn = httplib.HTTPConnection(host)
-    conn.request('GET', '/close', headers=headers)
+    conn.request('POST', '/close', '', headers=headers)
     response = conn.getresponse()
     if response.status == 200:
         print 'Session succesfully closed'
