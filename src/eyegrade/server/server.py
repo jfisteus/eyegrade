@@ -60,9 +60,10 @@ class EyegradeServer(object):
     students.exposed = True
 
     def close(self):
-        del cherrypy.session['exam_config']
-        del cherrypy.session['imageproc_context']
-        del cherrypy.session['student_ids']
+        if not 'exam_config' in cherrypy.session:
+            raise cherrypy.HTTPError('403 Forbidden',
+                                     'Session was not open')
+        cherrypy.session.clear()
         cherrypy.lib.sessions.expire()
         return 'OK'
     close.exposed = True
