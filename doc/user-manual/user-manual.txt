@@ -466,7 +466,7 @@ spreadsheets. This is an example of such a file::
 The columns of this file represent:
 
 1.- The exam sequence number (the same number the user interface shows
-    below the student id in the *review mode*).
+below the student id in the *review mode*).
 
 2.- The student id (or '-1' if the student id is unknown).
 
@@ -477,12 +477,12 @@ The columns of this file represent:
 5.- The number of incorrect answers.
 
 6.- The number of undetermined answers (answers marked as blank because
-    of the system detecting more than one marked cell).
+of the system detecting more than one marked cell).
 
 7.- The response of the student to each question in the exam, from the
-    first question in her model to the last. '0' means a blank
-    answer. '1', '2', etc. mean the first choice, second choice, etc.,
-    in the order they were presented in her exam model.
+first question in her model to the last. '0' means a blank
+answer. '1', '2', etc. mean the first choice, second choice, etc., in
+the order they were presented in her exam model.
 
 Exams are in the same sequence they were graded. See `Exporting a
 listing of scores`_ to know how to produce a listing of scores in the
