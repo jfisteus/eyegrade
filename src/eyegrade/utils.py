@@ -95,20 +95,27 @@ def check_model_letter(model):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename=None, data=None, with_names=False):
+def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
-       Either 'filename' or 'data' must be provided. 'filename'
-       specifies the name of a file to read. 'data' must be a string
-       that contains the actual content to be parsed.
+    Either 'filename', 'file_' or 'data' must be provided.  'filename'
+    specifies the name of a file to read.  'file_' is a file object
+    instead of a file name.  'data' must be a string that contains the
+    actual content of the config file to be parsed. Only one of them
+    should not be None, although this restriction is not enforced: the
+    first one not to be None, in the same order they are specified in
+    the function, is used.
 
     """
-    assert((filename is not None) ^ (data is not None))
+    assert((filename is not None) or (file_ is not None)
+           or (data is not None))
     if filename is not None:
         csvfile = open(filename, 'rb')
         reader = csv.reader(csvfile, 'tabs')
         csvfile.close()
-    else:
+    elif file_ is not None:
+        reader = csv.reader(file_, 'tabs')
+    elif data is not None:
         reader = csv.reader(io.BytesIO(data), 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
@@ -587,21 +594,28 @@ class ExamConfig(object):
     def set_permutations(self, model, permutations):
         self.permutations[model] = permutations
 
-    def read(self, filename=None, data=None):
+    def read(self, filename=None, file_=None, data=None):
         """Reads exam configuration.
 
-           Either 'filename' or 'data' must be provided. 'filename'
-           specifies the name of a file to read. 'data' must be a
+           Either 'filename', 'file_' or 'data' must be provided.
+           'filename' specifies the name of a file to read.  'file_' is
+           a file object instead of a file name.  'data' must be a
            string that contains the actual content of the config file
-           to be parsed.
+           to be parsed. Only one of them should not be None, although
+           this restriction is not enforced: the first one not to be
+           None, in the same order they are specified in the function,
+           is used.
 
         """
-        assert((filename is not None) ^ (data is not None))
+        assert((filename is not None) or (file_ is not None)
+               or (data is not None))
         exam_data = ConfigParser.SafeConfigParser()
         if filename is not None:
             files_read = exam_data.read([filename])
             if len(files_read) != 1:
                 raise IOError('Exam config file not found: ' + filename)
+        elif file_ is not None:
+            exam_data.readfp(file_)
         elif data is not None:
             exam_data.readfp(io.BytesIO(data))
         try:

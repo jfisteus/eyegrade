@@ -19,18 +19,31 @@ class EyegradeServer(object):
         raise cherrypy.HTTPError('404 Not Found', 'Resource not available')
     index.exposed = True
 
-    def init(self):
-        data = cherrypy.request.body.read()
+    def init(self, Filename):
+        """Opens a new grading session.
+
+        An exam configuration file is expected. It must be uploaded
+        as multipart/form-data with name `Filename`.
+
+        """
         exam_config = eyegrade.utils.ExamConfig()
-        exam_config.read(data=data)
+#        data = cherrypy.request.body.read()
+#        exam_config.read(data=data)
+        exam_config.read(file_=Filename.file)
         cherrypy.session['exam_config'] = exam_config
         cherrypy.session['imageproc_context'] = imageproc.ExamCaptureContext()
         cherrypy.session['student_ids'] = None
         cherrypy.log('New context created')
+        cherrypy.log('Questions: ' + str(exam_config.num_questions))
         return 'OK'
     init.exposed = True
 
     def process(self):
+        """Processes an image capture and returns its result.
+
+        Session should have been opened first with /init.
+
+        """
         if not 'exam_config' in cherrypy.session:
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
@@ -48,18 +61,30 @@ class EyegradeServer(object):
         return output
     process.exposed = True
 
-    def students(self):
+    def students(self, Filename):
+        """Receives the student list.
+
+        Session should have been opened first with /init. The file
+        with the student list is expected. It must be uploaded as
+        multipart/form-data with name `Filename`.
+
+        """
         if not 'exam_config' in cherrypy.session:
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
-        data = cherrypy.request.body.read()
-        student_ids = eyegrade.utils.read_student_ids(data=data,
+        student_ids = eyegrade.utils.read_student_ids(file_=Filename.file,
                                                       with_names=True)
         cherrypy.session['student_ids'] = student_ids
+        cherrypy.log('Students: ' + str(student_ids))
         return 'OK'
     students.exposed = True
 
     def close(self):
+        """Closes the current session.
+
+        Session should have been opened first with /init.
+
+        """
         if not 'exam_config' in cherrypy.session:
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Session was not open')
