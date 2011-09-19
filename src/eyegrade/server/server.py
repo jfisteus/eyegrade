@@ -19,17 +19,17 @@ class EyegradeServer(object):
         raise cherrypy.HTTPError('404 Not Found', 'Resource not available')
     index.exposed = True
 
-    def init(self, Filename):
+    def init(self, Filename, Filedata, Upload):
         """Opens a new grading session.
 
         An exam configuration file is expected. It must be uploaded
-        as multipart/form-data with name `Filename`.
+        as multipart/form-data with name `Filedata`.
 
         """
         exam_config = eyegrade.utils.ExamConfig()
 #        data = cherrypy.request.body.read()
 #        exam_config.read(data=data)
-        exam_config.read(file_=Filename.file)
+        exam_config.read(file_=Filedata.file)
         cherrypy.session['exam_config'] = exam_config
         cherrypy.session['imageproc_context'] = imageproc.ExamCaptureContext()
         cherrypy.session['student_ids'] = None
@@ -61,18 +61,18 @@ class EyegradeServer(object):
         return output
     process.exposed = True
 
-    def students(self, Filename):
+    def students(self, Filename, Filedata, Upload):
         """Receives the student list.
 
         Session should have been opened first with /init. The file
         with the student list is expected. It must be uploaded as
-        multipart/form-data with name `Filename`.
+        multipart/form-data with name `Filedata`.
 
         """
         if not 'exam_config' in cherrypy.session:
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
-        student_ids = eyegrade.utils.read_student_ids(file_=Filename.file,
+        student_ids = eyegrade.utils.read_student_ids(file_=Filedata.file,
                                                       with_names=True)
         cherrypy.session['student_ids'] = student_ids
         cherrypy.log('Students: ' + str(student_ids))
