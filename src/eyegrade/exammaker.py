@@ -1,9 +1,28 @@
+# Eyegrade: grading multiple choice questions with a webcam
+# Copyright (C) 2010-2011 Jesus Arias Fisteus
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
 import re
 import copy
 import sys
 
 # Local imports
 import utils
+from utils import EyegradeException
 
 param_min_num_questions = 1
 
@@ -114,11 +133,17 @@ class ExamMaker(object):
             try:
                 self.exam_config = utils.ExamConfig(self.exam_config_filename)
                 if self.num_questions != self.exam_config.num_questions:
-                    raise Exception('Incoherent number of questions')
+                    raise EyegradeException(
+                        message='Incoherent number of questions',
+                        key='incoherent_exam_config')
                 if self.id_num_digits != self.exam_config.id_num_digits:
-                    raise Exception('Incoherent configuration of id box')
+                    raise EyegradeException(
+                        message='Incoherent configuration of id box',
+                        key='incoherent_exam_config')
                 if self.dimensions != self.exam_config.dimensions:
-                    raise Exception('Incoherent table dimensions')
+                    raise EyegradeException(
+                        message='Incoherent table dimensions',
+                        key='incoherent_exam_config')
             except IOError:
                 self.exam_config = utils.ExamConfig()
                 self.exam_config.num_questions = self.num_questions
@@ -296,8 +321,10 @@ def __horizontal_line(row_geometry, num_choices, compact):
     parts = []
     num_empty_columns = 1 if not compact else 0
     first = 2
-    for i, geometry in enumerate(row_geometry):
-        if geometry > 0 or geometry == -1:
+    extra_line = (max(row_geometry) > 0 or -1 in row_geometry)
+    for i in range(0, len(row_geometry)):
+        geometry = row_geometry[i]
+        if geometry > 0 or geometry == -1 or extra_line:
             parts.append(r'\cline{%d-%d}'%(first, first + num_choices - 1))
         first += 1 + num_empty_columns + num_choices
     return ' '.join(parts)

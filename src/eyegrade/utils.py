@@ -1,3 +1,21 @@
+# Eyegrade: grading multiple choice questions with a webcam
+# Copyright (C) 2010-2011 Jesus Arias Fisteus
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
 import ConfigParser
 import csv
 import os
@@ -10,7 +28,7 @@ import copy
 import io
 
 program_name = 'eyegrade'
-version = '0.1.12'
+version = '0.1.13'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[a-zA-Z]')
@@ -19,6 +37,56 @@ csv.register_dialect('tabs', delimiter = '\t')
 
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'unknown', 'answers']
+
+
+class EyegradeException(Exception):
+    """An Eyegrade-specific exception.
+
+    In addition to what a normal exception would do, it encapsulates
+    user-friendly messages for some common causes of error due to
+    the user.
+
+    """
+
+    _error_messages = {
+        'incoherent_exam_config':
+            'The exam you are attempting to create is not compatible\n'
+            'with the already existing exam configuration file.\n'
+            'This happens, for example, when the configuration file\n'
+            'contains more or less questions than the exam you are now\n'
+            'creating. Removing the old configuration file and running\n'
+            'again this command will solve the problem, and a new\n'
+            'configuration file will be created.'
+        }
+
+    def __init__(self, message='', key=None):
+        """Creates a new exception.
+
+        If `key` is in `_error_messages`, a prettier version of the
+        exception will be shown to the user, with the explanation appended
+        to the end of what you provide in `message`.
+
+        """
+        if key in EyegradeException._error_messages:
+            self.full_message = ''.join(['ERROR: ', message, '\n\n',
+                                    EyegradeException._error_messages[key]])
+            super(EyegradeException, self).__init__(self.full_message)
+        else:
+            self.full_message = None
+            super(EyegradeException, self).__init__(message)
+
+    def __str__(self):
+        """Prints the exception.
+
+        A user-friendly message, without the stack trace, is shown when such
+        user-friendly message is available.
+
+        """
+        if self.full_message is not None:
+            return self.full_message
+        else:
+            return super(EyegradeException, self).__str__()
+
 
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
@@ -95,20 +163,27 @@ def check_model_letter(model):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename=None, data=None, with_names=False):
+def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
-       Either 'filename' or 'data' must be provided. 'filename'
-       specifies the name of a file to read. 'data' must be a string
-       that contains the actual content to be parsed.
+    Either 'filename', 'file_' or 'data' must be provided.  'filename'
+    specifies the name of a file to read.  'file_' is a file object
+    instead of a file name.  'data' must be a string that contains the
+    actual content of the config file to be parsed. Only one of them
+    should not be None, although this restriction is not enforced: the
+    first one not to be None, in the same order they are specified in
+    the function, is used.
 
     """
-    assert((filename is not None) ^ (data is not None))
+    assert((filename is not None) or (file_ is not None)
+           or (data is not None))
     if filename is not None:
         csvfile = open(filename, 'rb')
         reader = csv.reader(csvfile, 'tabs')
         csvfile.close()
-    else:
+    elif file_ is not None:
+        reader = csv.reader(file_, 'tabs')
+    elif data is not None:
         reader = csv.reader(io.BytesIO(data), 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
@@ -587,21 +662,28 @@ class ExamConfig(object):
     def set_permutations(self, model, permutations):
         self.permutations[model] = permutations
 
-    def read(self, filename=None, data=None):
+    def read(self, filename=None, file_=None, data=None):
         """Reads exam configuration.
 
-           Either 'filename' or 'data' must be provided. 'filename'
-           specifies the name of a file to read. 'data' must be a
+           Either 'filename', 'file_' or 'data' must be provided.
+           'filename' specifies the name of a file to read.  'file_' is
+           a file object instead of a file name.  'data' must be a
            string that contains the actual content of the config file
-           to be parsed.
+           to be parsed. Only one of them should not be None, although
+           this restriction is not enforced: the first one not to be
+           None, in the same order they are specified in the function,
+           is used.
 
         """
-        assert((filename is not None) ^ (data is not None))
+        assert((filename is not None) or (file_ is not None)
+               or (data is not None))
         exam_data = ConfigParser.SafeConfigParser()
         if filename is not None:
             files_read = exam_data.read([filename])
             if len(files_read) != 1:
                 raise IOError('Exam config file not found: ' + filename)
+        elif file_ is not None:
+            exam_data.readfp(file_)
         elif data is not None:
             exam_data.readfp(io.BytesIO(data))
         try:

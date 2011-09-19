@@ -1,0 +1,43 @@
+Eyegrade uses a webcam to grade MCQ (multiple choice question)
+exams. Needing just a cheap low-end webcam, it aims to be a low-cost
+and portable solution available to everyone, on the contrary to other
+solutions based on scanners.
+
+Eyegrade is still alpha. It is fully functional and has been used in
+several courses at Universidad Carlos III de Madrid in the last two
+years. Its use is encouraged for tech-savvy people. However, it still
+needs great improvements in its user-friendliness in order to be
+usable for the general public. A work-in-progress user manual is
+available at:
+
+http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/
+
+The program is free software, licensed under the terms of the GNU
+General Public License (GPL) version 3 or any later version.
+
+Bug reports, feature requests and pull requests are welcome at the
+Github repository:
+
+https://github.com/jfisteus/eyegrade
+
+The main features of Eyegrade are:
+
+- Typesetting exams: Although you can create your exams with other tools,
+Eyegrade integrates an utility to creating MCQ exams. It is able to
+create your exams in PDF format.  Eyegrade can automatically build
+several versions of the exam by reordering questions and choices
+within questions.
+
+- Grading exams: Using a webcam, the graphical user interface of
+Eyegrade allows you to grade your exam. Eyegrade is able to recognize
+not only the answers to the questions, but also the identity of the
+student by using its hand-written digit cognition module. The whole
+process is supervised by the user in order to detect and fix potential
+errors of the system.
+
+- Extracting statistics: you can view question-by-question statistics in
+order to analyze which topics are clear to the majority of your
+students, and which topics need further work.
+
+- Exporting grades: grades can be exported in CSV format, compatible
+with other programs such as spreadsheets.

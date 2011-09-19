@@ -1,3 +1,21 @@
+# Eyegrade: grading multiple choice questions with a webcam
+# Copyright (C) 2010-2011 Jesus Arias Fisteus
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
 import array
 import cherrypy
 
@@ -243,8 +261,9 @@ def test_server(host, image_filename, preprocess=True):
 
     # Close session
     del headers['Content-type']
+    headers['Content-length'] = '0'
     conn = httplib.HTTPConnection(host)
-    conn.request('GET', '/close', headers=headers)
+    conn.request('POST', '/close', '', headers=headers)
     response = conn.getresponse()
     if response.status == 200:
         print 'Session succesfully closed'
