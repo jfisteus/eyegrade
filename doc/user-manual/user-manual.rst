@@ -41,12 +41,10 @@ GNU/Linux and Ubuntu are provided below.
 Installation on Debian and Ubuntu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. _Debian: http://www.debian.org/
-.. _Ubuntu: http://www.ubuntu.com/
-
-Almost all the required software packages are already available in recent
-versions of Debian GNU/Linux and Ubuntu. The only exception are the
-Python bindings for Tre, which have to be installed manually.
+Almost all the required software packages are already available in
+recent versions of `Debian GNU/Linux <http://www.debian.org/>`_ and
+`Ubuntu <http://www.ubuntu.com/>`_. The only exception are the Python
+bindings for Tre, which have to be installed manually.
 
 Using your favorite package manager (``apt-get``, ``aptitude``,
 ``synaptic``, etc.), install the following packages: ``python2.6``,
@@ -68,7 +66,7 @@ Now, you only need to download Eyegrade using the git source code
 revision system (install the package ``git`` if you do not have it)::
 
   cd $EYEGRADE_HOME
-  git clone http://www.it.uc3m.es/jaf/eyegrade/git eyegrade
+  git clone git://github.com/jfisteus/eyegrade.git
 
 Note: replace $EYEGRADE_HOME above with the directory in which you
 want Eyegrade to be installed.
@@ -86,8 +84,125 @@ That's all! Eyegrade should now be installed. For further testing, go to
 Installation on Microsoft Windows
 .................................
 
-Eyegrade has also been tested on Microsoft Windows environments.
-Installation instructions to be written.
+You have to follow these three steps, explained in the following
+sections, in order to install Eyegrade in Windows:
+
+1.- Install Python 2.6 (including Pygame and Tre).
+
+2.- Install OpenCV 2.1.
+
+3.- Install Eyegrade itself.
+
+
+Installing Python
+~~~~~~~~~~~~~~~~~
+
+The easiest way to install Python, Pygame and Tre in Windows 64-bit [1]_ is
+to download a ZIP file that contains all of them and extract it in
+your file system.
+
+1.- Download the ZIP file from:
+<http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip>.
+
+2.- Extract it somewhere in your file system (for example, in
+``C:\``). A directory named ``Python26`` will appear. Be aware that
+the full path of the directory where you extract it *cannot contain*
+white-spaces.
+
+You can test your installation by launching the interactive Python
+interpreter. For example, if you installed it at ``C:\``, open a
+command prompt window and type::
+
+    C:\Python26\Python
+
+Once in the Python interpreter, the following commands should work::
+
+    import pygame
+    import tre
+
+These commands should not output any message. If they do, there is a
+problem with the installation.
+
+.. [1] I do not know if this package works in 32-bit systems, because
+    I do not own a license for a Windows 32-bit operating system. If
+    you have a 32-bit system, try following these instructions. If it
+    does not work, and you are willing to help solve the problem,
+    please leave an issue at
+    <https://github.com/jfisteus/eyegrade/issues> and we can
+    collaborate to provide useful instructions for that platform. The
+    workaround is: (1) installing an official version of Python for
+    Windows 32-bit systems; (2) download and install Pygame; (3)
+    download and install Tre, although you will need Microsoft Visual
+    Studio (the express version is free and works) for this last step.
+
+
+Installing OpenCV
+~~~~~~~~~~~~~~~~~
+
+Download the EXE installer of OpenCV 2.1.0 for Windows platforms:
+`OpenCV-2.1.0-win32-vs2008.exe
+<http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.1/OpenCV-2.1.0-win32-vs2008.exe/download>`_. There
+is a copy of the same file at `OpenCV21.exe
+<http://www.it.uc3m.es/jaf/eyegrade/downloads/OpenCV21.exe>`_.
+
+Execute the installer. Again, it is better to choose an installation
+path which has no white-spaces in it. The installer will eventually
+ask to put OpenCV in your system PATH. Answer *yes for this user* or
+*yes for all the users*.
+
+In order to test the installation, open a *new* command prompt window
+(it must necessarily be a new window for the system path to be
+updated). Run the python interpreter as explained in the previous
+section and type in it::
+
+    import cv
+
+This command should not output any message. If it does, there is a
+problem with the installation.
+
+
+Installing Eyegrade
+~~~~~~~~~~~~~~~~~~~
+
+By now, the recommended way to install Eyegrade is through the `Git
+version control system <http://git-scm.com/>`_. This way it will be
+easier to update Eyegrade in the future, when new versions are
+released (see `Updating Eyegrade`_).
+
+In order to install Eyegrade through Git, follow these steps:
+
+1.- Download and install Git if you do not have it installed. The
+installer and installation instructions are available at
+<http://git-scm.com/>.
+
+2.- Open a command line prompt (for example, a Git shell), enter the
+directory you want Eyegrade to be installed (again, with no
+white-spaces in it), and type::
+
+    git clone git://github.com/jfisteus/eyegrade.git
+
+If you prefer not to install Git:
+
+1.- Go to `the page of Eyegrade at Github
+<https://github.com/jfisteus/eyegrade>`_, click on the *Downloads*
+button and select the most recent release. Extract it in your file
+system, in a directory with no white-spaces in its path.
+
+Once you have Eyegrade installed (either with or without Git), test
+it. For example, if you have installed both Python and Eyegrade at
+``C:\``::
+
+    set PYTHONPATH = C:\eyegrade
+    C:\Python26\python -m eyegrade.eyegrade -h
+
+It should dump a help message. Eyegrade should now be installed. For
+further testing, go to `Launching Eyegrade`_.
+
+**Tip:** it may be convenient adding C:\Python26 to your system path
+permanently, and adding PYTHONPATH to the system-wide environment
+variables. There are plenty of resources in the Web that explain how
+to do this. For example,
+<http://www.windows7hacker.com/index.php/2010/05/how-to-addedit-environment-variables-in-windows-7/>.
 
 
 Installation on Mac OS X
@@ -95,6 +210,18 @@ Installation on Mac OS X
 
 Sorry, Eyegrade is not currently supported on that platform. Volunteers
 to support the platform are welcome.
+
+
+Updating Eyegrade
+.................
+
+From time to time, a new release of Eyegrade may appear. If you
+installed Eyegrade using Git, updating is simple. Open a command
+prompt window, enter the Eyegrade installation directory and type::
+
+    git update
+
+This should work on any platform (Linux, Windows, etc.)
 
 
 Grading Exams
