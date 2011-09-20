@@ -49,6 +49,7 @@ class EyegradeException(Exception):
     """
 
     _error_messages = {}
+    _short_messages = {}
 
     def __init__(self, message, key=None):
         """Creates a new exception.
@@ -58,10 +59,18 @@ class EyegradeException(Exception):
         to the end of what you provide in `message`.
 
         """
-        if key in EyegradeException._error_messages:
-            self.full_message = ''.join(['ERROR: ', message, '\n\n',
-                                    EyegradeException._error_messages[key],
-                                    '\n'])
+        if (key in EyegradeException._error_messages
+            or key in EyegradeException._short_messages):
+            parts = ['ERROR: ']
+            if message:
+                parts.append(message)
+            elif key in EyegradeException._short_messages:
+                parts.append(EyegradeException._short_messages[key])
+            if key in EyegradeException._error_messages:
+                parts.append('\n\n')
+                parts.append(EyegradeException._error_messages[key])
+            parts.append('\n')
+            self.full_message = ''.join(parts)
             super(EyegradeException, self).__init__(self.full_message)
         else:
             self.full_message = None
@@ -80,15 +89,27 @@ class EyegradeException(Exception):
             return super(EyegradeException, self).__str__()
 
     @staticmethod
-    def register_error(key, message):
+    def register_error(key, detailed_message='', short_message=''):
         """Registers a new error message associated to a key.
+
+        `key` is just a string used to identify this error message,
+        that must be passed when creating exception
+        objects. `detailed_message` is a (possibly long and with end
+        of line characters inside) explanation of the
+        error. `short_message` is a one line error message to be used
+        only when a blank message is passed when creating the
+        exception.
 
         Being this method static, messages added through it will be
         shared for all the instances of the exception.
 
         """
-        if not key in EyegradeException._error_messages:
-            EyegradeException._error_messages[key] = message
+        if (not key in EyegradeException._error_messages
+            and not key in EyegradeException._short_messages):
+            if detailed_message:
+                EyegradeException._error_messages[key] = detailed_message
+            if short_message:
+                EyegradeException._short_messages[key] = short_message
         else:
             raise EyegradeException('Duplicate error key in register_error')
 
