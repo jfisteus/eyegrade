@@ -34,6 +34,17 @@ param_table_margin = 0.1
 param_table_limits = [8, 24, 55]
 re_split_template = re.compile('{{([^{}]+)}}')
 
+# Register user-friendly error messages
+EyegradeException.register_error('incoherent_exam_config',
+            'The exam you are attempting to create is not compatible\n'
+            'with the already existing exam configuration file.\n'
+            'This happens, for example, when the configuration file\n'
+            'contains more or less questions than the exam you are now\n'
+            'creating. Removing the old configuration file and running\n'
+            'again this command will solve the problem, and a new\n'
+            'configuration file will be created.')
+
+
 class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
@@ -133,17 +144,15 @@ class ExamMaker(object):
             try:
                 self.exam_config = utils.ExamConfig(self.exam_config_filename)
                 if self.num_questions != self.exam_config.num_questions:
-                    raise EyegradeException(
-                        message='Incoherent number of questions',
-                        key='incoherent_exam_config')
+                    raise EyegradeException('Incoherent number of questions',
+                                            key='incoherent_exam_config')
                 if self.id_num_digits != self.exam_config.id_num_digits:
                     raise EyegradeException(
-                        message='Incoherent configuration of id box',
+                        'Incoherent configuration of id box',
                         key='incoherent_exam_config')
                 if self.dimensions != self.exam_config.dimensions:
-                    raise EyegradeException(
-                        message='Incoherent table dimensions',
-                        key='incoherent_exam_config')
+                    raise EyegradeException('Incoherent table dimensions',
+                                            key='incoherent_exam_config')
             except IOError:
                 self.exam_config = utils.ExamConfig()
                 self.exam_config.num_questions = self.num_questions

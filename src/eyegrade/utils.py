@@ -48,18 +48,9 @@ class EyegradeException(Exception):
 
     """
 
-    _error_messages = {
-        'incoherent_exam_config':
-            'The exam you are attempting to create is not compatible\n'
-            'with the already existing exam configuration file.\n'
-            'This happens, for example, when the configuration file\n'
-            'contains more or less questions than the exam you are now\n'
-            'creating. Removing the old configuration file and running\n'
-            'again this command will solve the problem, and a new\n'
-            'configuration file will be created.'
-        }
+    _error_messages = {}
 
-    def __init__(self, message='', key=None):
+    def __init__(self, message, key=None):
         """Creates a new exception.
 
         If `key` is in `_error_messages`, a prettier version of the
@@ -86,6 +77,19 @@ class EyegradeException(Exception):
             return self.full_message
         else:
             return super(EyegradeException, self).__str__()
+
+    @staticmethod
+    def register_error(key, message):
+        """Registers a new error message associated to a key.
+
+        Being this method static, messages added through it will be
+        shared for all the instances of the exception.
+
+        """
+        if not key in EyegradeException._error_messages:
+            EyegradeException._error_messages[key] = message
+        else:
+            raise EyegradeException('Duplicate error key in register_error')
 
 
 def guess_data_dir():
