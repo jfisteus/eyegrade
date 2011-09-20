@@ -82,7 +82,7 @@ def read_cmd_options():
             parser.error('Option -e is mutually exclusive with -q and -c')
     return options, args
 
-def main():
+def create_exam():
     options, args = read_cmd_options()
     template_filename = args[0]
     variables = {
@@ -154,32 +154,34 @@ def main():
         output_file = options.output_file_prefix + '-%s.tex'
         config_filename = options.output_file_prefix + '.eye'
 
-    try:
-        # Create and call the exam maker object
-        maker = exammaker.ExamMaker(num_questions, num_choices,
-                                    template_filename,
-                                    output_file, variables, config_filename,
-                                    options.num_tables,
-                                    dimensions,
-                                    options.table_width, options.table_height,
-                                    options.id_box_width)
-        if exam is not None:
-            maker.set_exam_questions(exam)
+    # Create and call the exam maker object
+    maker = exammaker.ExamMaker(num_questions, num_choices,
+                                template_filename,
+                                output_file, variables, config_filename,
+                                options.num_tables,
+                                dimensions,
+                                options.table_width, options.table_height,
+                                options.id_box_width)
+    if exam is not None:
+        maker.set_exam_questions(exam)
+    for model in options.models:
+        maker.create_exam(model, not options.dont_shuffle_again)
+    if options.output_file_prefix is not None:
+        maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
         for model in options.models:
-            maker.create_exam(model, not options.dont_shuffle_again)
-        if options.output_file_prefix is not None:
-            maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
-            for model in options.models:
-                maker.create_exam(model, False, with_solution=True)
-        if config_filename is not None:
-            maker.save_exam_config()
-    except utils.EyegradeException as ex:
-        print >>sys.stderr, ex
-        sys.exit(1)
+            maker.create_exam(model, False, with_solution=True)
+    if config_filename is not None:
+        maker.save_exam_config()
 
     # Dump some final warnings
     for key in maker.empty_variables:
         print >>sys.stderr, 'Warning: empty \'%s\' variable'%key
+
+def main():
+    try:
+        create_exam()
+    except utils.EyegradeException as ex:
+        print >>sys.stderr, ex
 
 if __name__ == '__main__':
     main()
