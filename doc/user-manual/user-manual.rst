@@ -97,7 +97,7 @@ sections, in order to install Eyegrade in Windows:
 Installing Python
 ~~~~~~~~~~~~~~~~~
 
-The easiest way to install Python, Pygame and Tre in Windows 64-bit [1]_ is
+The easiest way to install Python, Pygame and Tre in Windows is
 to download a ZIP file that contains all of them and extract it in
 your file system.
 
@@ -123,17 +123,11 @@ Once in the Python interpreter, the following commands should work::
 These commands should not output any message. If they do, there is a
 problem with the installation.
 
-.. [1] I do not know if this package works in 32-bit systems, because
-    I do not own a license for a Windows 32-bit operating system. If
-    you have a 32-bit system, try following these instructions. If it
-    does not work, and you are willing to help solve the problem,
-    please leave an issue at
-    <https://github.com/jfisteus/eyegrade/issues> and we can
-    collaborate to provide useful instructions for that platform. The
-    workaround is: (1) installing an official version of Python for
-    Windows 32-bit systems; (2) download and install Pygame; (3)
-    download and install Tre, although you will need Microsoft Visual
-    Studio (the express version is free and works) for this last step.
+If you already have a Python 2.6 installation and want to use it, you
+must, on that installation of Python: (1) download and install Pygame;
+(2) download and install Tre 0.8.0. You will need Microsoft Visual
+Studio 2008 (the express version is free and works) for this last
+step.
 
 
 Installing OpenCV
