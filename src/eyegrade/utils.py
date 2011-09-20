@@ -60,7 +60,8 @@ class EyegradeException(Exception):
         """
         if key in EyegradeException._error_messages:
             self.full_message = ''.join(['ERROR: ', message, '\n\n',
-                                    EyegradeException._error_messages[key]])
+                                    EyegradeException._error_messages[key],
+                                    '\n'])
             super(EyegradeException, self).__init__(self.full_message)
         else:
             self.full_message = None
