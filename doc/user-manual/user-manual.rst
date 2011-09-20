@@ -66,7 +66,7 @@ Now, you only need to download Eyegrade using the git source code
 revision system (install the package ``git`` if you do not have it)::
 
   cd $EYEGRADE_HOME
-  git clone git://github.com/jfisteus/eyegrade.git
+  git clone -b master git://github.com/jfisteus/eyegrade.git
 
 Note: replace $EYEGRADE_HOME above with the directory in which you
 want Eyegrade to be installed.
@@ -179,7 +179,7 @@ installer and installation instructions are available at
 directory you want Eyegrade to be installed (again, with no
 white-spaces in it), and type::
 
-    git clone git://github.com/jfisteus/eyegrade.git
+    git clone -b master git://github.com/jfisteus/eyegrade.git
 
 If you prefer not to install Git:
 
