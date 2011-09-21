@@ -48,8 +48,9 @@ bindings for Tre, which have to be installed manually.
 
 Using your favorite package manager (``apt-get``, ``aptitude``,
 ``synaptic``, etc.), install the following packages: ``python2.6``,
-``python-pygame``, ``python-opencv``, ``libcv4``, ``libavformat52``,
-``libtre5``.
+``python-pygame``, ``python-opencv``, ``libcv4`` (in recent versions
+of Ubuntu the name of this package has been changed to ``libcv2.1``),
+``libavformat52``, ``libtre5``.
 
 Then, you have to install the Python bindings for Tre. First, install
 these two additional packages: ``python-dev``, ``libtre-dev``.
@@ -63,7 +64,7 @@ bindings::
   sudo python setup.py install
 
 Now, you only need to download Eyegrade using the git source code
-revision system (install the package ``git`` if you do not have it)::
+revision system (install the ``git`` package if you do not have it)::
 
   cd $EYEGRADE_HOME
   git clone -b master git://github.com/jfisteus/eyegrade.git
