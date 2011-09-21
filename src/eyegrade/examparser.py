@@ -20,7 +20,8 @@ import xml.dom.minidom as dom
 import re
 
 import utils
-from utils import EyegradeException
+
+EyegradeException = utils.EyegradeException
 
 namespace = 'http://www.it.uc3m.es/jaf/eyegrade/ns/'
 text_norm_re = re.compile(r'[\ \t\n]+')

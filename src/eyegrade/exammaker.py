@@ -22,7 +22,8 @@ import sys
 
 # Local imports
 import utils
-from utils import EyegradeException
+
+EyegradeException = utils.EyegradeException
 
 param_min_num_questions = 1
 
@@ -36,13 +37,30 @@ re_split_template = re.compile('{{([^{}]+)}}')
 
 # Register user-friendly error messages
 EyegradeException.register_error('incoherent_exam_config',
-            'The exam you are attempting to create is not compatible\n'
-            'with the already existing exam configuration file.\n'
-            'This happens, for example, when the configuration file\n'
-            'contains more or less questions than the exam you are now\n'
-            'creating. Removing the old configuration file and running\n'
-            'again this command will solve the problem, and a new\n'
-            'configuration file will be created.')
+    'The exam you are attempting to create is not compatible\n'
+    'with the already existing exam configuration file.\n'
+    'This happens, for example, when the configuration file\n'
+    'contains more or less questions than the exam you are now\n'
+    'creating. Removing the old configuration file and running\n'
+    'again this command will solve the problem, and a new\n'
+    'configuration file will be created.')
+EyegradeException.register_error('incoherent_num_tables',
+    'The specified number of tables and the exam dimensions are not\n'
+    'compatible. The exam dimensions implicitly specify the number of tables.\n'
+    'Therefore, there is no need to explicitly specify the number of tables.',
+    'Incoherent number of tables.')
+EyegradeException.register_error('bad_model_value',
+    'A model must be represented by an uppercase English letter (A-Z).\n'
+    'You can also create an unshuffled version of the exam with the\n'
+    "special '0' model.",
+    'Bad model value.')
+EyegradeException.register_error('too_few_questions',
+    short_message='At least %d question(s) needed'%param_min_num_questions)
+EyegradeException.register_error('too_few_choices',
+    short_message='At least 2 choices per question needed')
+EyegradeException.register_error('too_many_tables',
+    'There cannot be less than two questions per table.',
+    'There are too many tables for such a few questions')
 
 
 class ExamMaker(object):
@@ -68,7 +86,7 @@ class ExamMaker(object):
         self.exam_config_filename = exam_config_filename
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
-            raise Exception('Incoherent number of tables')
+            raise EyegradeException('', key='incoherent_num_tables')
         if dimensions is not None:
             self.dimensions = dimensions
         else:
@@ -95,7 +113,7 @@ class ExamMaker(object):
         """
         if model is None or len(model) != 1 or ((ord(model) < 65 or \
                  ord(model) > 90) and model != '0'):
-            raise Exception('Incorrect model value')
+            raise EyegradeException('', 'bad_model_value')
         replacements = copy.copy(self.replacements)
         answer_table = create_answer_table(self.dimensions, model,
                                            self.table_width, self.table_height)
@@ -216,8 +234,7 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None):
     num_tables = len(dimensions)
     for d in dimensions:
         if d[0] != num_choices:
-            raise Exception(('By now, all tables must have the same number'
-                             ' of choices'))
+            raise EyegradeException('', 'same_num_choices')
     if model != '0':
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
@@ -278,13 +295,13 @@ def compute_table_dimensions(num_questions, num_choices, num_tables):
 
     """
     if num_questions < param_min_num_questions:
-        raise Exception('Too few questions')
+        raise EyegradeException('', key='too_few_questions')
     if num_choices < 2:
-        raise Exception('Too few answers per question')
+        raise EyegradeException('', key='too_few_choices')
     if num_tables <= 0:
         num_tables = __choose_num_tables(num_questions)
     elif num_tables * 2 > num_questions:
-        raise Exception('Too many tables for the given number of questions')
+        raise EyegradeException('', key='too_many_tables')
     dimensions = []
     rows_per_table, extra_rows = divmod(num_questions, num_tables)
     for i in range(0, num_tables):

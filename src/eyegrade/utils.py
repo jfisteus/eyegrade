@@ -114,6 +114,19 @@ class EyegradeException(Exception):
             raise EyegradeException('Duplicate error key in register_error')
 
 
+EyegradeException.register_error('bad_dimensions',
+    "Dimensions must be specified as a ';' separated list of tables.\n"
+    "For each table, specify the number of choices + comma + the number of\n"
+    "questions in that table. For example, '4,10;4,9' configures two\n"
+    "tables, the left-most with 9 questions and 4 choices per question,\n"
+    "and the right-most with 10 questions and the same number of choices."
+    'Bad dimensions value.')
+EyegradeException.register_error('same_num_choices',
+    "By now, Eyegrade needs you to use the same number of choices in\n"
+    "all the questions of the exam.",
+    'There are questions with a different number of choices')
+
+
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
     if path.endswith('.zip'):
@@ -833,18 +846,22 @@ def parse_dimensions(text, check_equal_num_choices=False):
     boxes = text.split(';')
     for box in boxes:
         dims = box.split(',')
-        data = (int(dims[0]), int(dims[1]))
+        try:
+            data = (int(dims[0]), int(dims[1]))
+        except ValueError:
+            raise EyegradeException('Incorrect number in exam dimensions',
+                                    'bad_dimensions')
         if data[0] <= 0 or data[1] <= 0:
-            raise Exception('Incorrect number in exam geometry')
+            raise EyegradeException('Incorrect number in exam dimensions',
+                                    'bad_dimensions')
         dimensions.append(data)
         num_options.extend([data[0]] * data[1])
     if len(dimensions) == 0:
-        raise Exception('Empty table dimensions')
+        raise EyegradeException('Dimensions are empty', 'bad_dimensions')
     if check_equal_num_choices:
         for i in range(1, len(dimensions)):
             if dimensions[i][0] != dimensions[0][0]:
-                raise Exception(('The number of choices per question must'
-                                 ' be the same for all questions'))
+                raise EyegradeException('', 'same_num_choices')
     return dimensions, num_options
 
 def read_exam_questions(exam_filename):

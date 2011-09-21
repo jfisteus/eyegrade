@@ -24,6 +24,8 @@ import locale
 import utils
 import exammaker
 
+EyegradeException = utils.EyegradeException
+
 def read_cmd_options():
     parser = OptionParser(usage = 'usage: %prog [options] <template_filename>',
                           version = utils.program_name + ' ' + utils.version)
@@ -128,7 +130,7 @@ def create_exam():
                 raise Exception('Incoherent number of questions')
             if (options.num_tables != 0 and
                 len(dimensions) != options.num_tables):
-                raise Exception('Incoherent number of tables')
+                raise EyegradeException('', 'incoherent_num_tables')
         else:
             num_questions = options.num_questions
             num_choices = options.num_choices
