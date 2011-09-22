@@ -28,7 +28,7 @@ import copy
 import io
 
 program_name = 'eyegrade'
-version = '0.1.13'
+version = '0.1.13.1'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[a-zA-Z]')
