@@ -28,7 +28,7 @@ import copy
 import io
 
 program_name = 'eyegrade'
-version = '0.1.13'
+version = '0.1.13.1'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[a-zA-Z]')
@@ -177,10 +177,10 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     """
     assert((filename is not None) or (file_ is not None)
            or (data is not None))
+    csvfile = None
     if filename is not None:
         csvfile = open(filename, 'rb')
         reader = csv.reader(csvfile, 'tabs')
-        csvfile.close()
     elif file_ is not None:
         reader = csv.reader(file_, 'tabs')
     elif data is not None:
@@ -197,6 +197,8 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
             else:
                 name = None
                 student_ids[sid] = None
+    if csvfile is not None:
+        csvfile.close()
     return student_ids
 
 def mix_results(results_filename, student_list_filename, dump_missing):
