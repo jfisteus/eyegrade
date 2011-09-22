@@ -214,7 +214,7 @@ From time to time, a new release of Eyegrade may appear. If you
 installed Eyegrade using Git, updating is simple. Open a command
 prompt window, enter the Eyegrade installation directory and type::
 
-    git update
+    git pull
 
 This should work on any platform (Linux, Windows, etc.)
 
