@@ -39,9 +39,10 @@ event_cancel_frame = 6
 event_save = 7
 event_manual_id = 8
 event_next_id = 9
-event_id_digit = 10
-event_click = 11
-event_manual_detection = 12
+event_previous_id = 10
+event_id_digit = 11
+event_click = 12
+event_manual_detection = 13
 
 statusbar_event_id = pygame.USEREVENT + 1
 statusbar_display_time = 6000
@@ -208,6 +209,9 @@ class PygameInterface(object):
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
                              event_quit, pygame.K_ESCAPE, exit_help))
+        if self.id_list_enabled:
+            self.toolbar.append((None, event_next_id, pygame.K_DOWN, None))
+            self.toolbar.append((None, event_previous_id, pygame.K_UP, None))
         self.toolbar.append((None, event_debug_proc, pygame.K_p, None))
         self.toolbar.append((None, event_debug_lines, pygame.K_l, None))
         self.draw_toolbar(flip)

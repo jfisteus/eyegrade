@@ -308,10 +308,14 @@ def main():
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn, False)
                     interface.update_text(exam.get_student_name())
-                elif event == gui.event_next_id:
+                elif (event == gui.event_next_id
+                      or event == gui.event_previous_id):
                     if not override_id_mode and options.ids_file is not None:
                         if len(exam.student_id_filter) == 0:
-                            exam.try_next_student_id()
+                            if event == gui.event_next_id:
+                                exam.try_next_student_id()
+                            else:
+                                exam.try_previous_student_id()
                         else:
                             exam.reset_student_id_filter()
                         profiler.count_student_id_change()

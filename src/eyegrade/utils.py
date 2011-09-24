@@ -609,6 +609,12 @@ class Exam(object):
             self.ids_rank_pos += 1
             self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
 
+    def try_previous_student_id(self):
+        if self.ids_rank is not None \
+                and self.ids_rank_pos >= 1:
+            self.ids_rank_pos -= 1
+            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
+
     def filter_student_id(self, digit):
         if self.ids_rank is not None:
             self.student_id_filter.append(digit)
