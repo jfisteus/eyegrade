@@ -173,42 +173,43 @@ class PygameInterface(object):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((snapshot_icon_normal, snapshot_icon_high),
-                             event_snapshot, ord('s'), snapshot_help))
+                             event_snapshot, pygame.K_s, snapshot_help))
         self.toolbar.append(((manual_detect_icon_normal,
                               manual_detect_icon_high),
-                             event_manual_detection, ord('m'),
+                             event_manual_detection, pygame.K_m,
                              manual_detect_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit, 27, exit_help))
-        self.toolbar.append((None, event_debug_proc, ord('p'), None))
-        self.toolbar.append((None, event_debug_lines, ord('l'), None))
-        self.toolbar.append((None, event_lock, 32, None))
+                             event_quit, pygame.K_ESCAPE, exit_help))
+        self.toolbar.append((None, event_debug_proc, pygame.K_p, None))
+        self.toolbar.append((None, event_debug_lines, pygame.K_l, None))
+        self.toolbar.append((None, event_lock, pygame.K_SPACE, None))
         self.draw_toolbar(flip)
 
     def set_review_toolbar(self, flip=True):
         self.toolbar = []
         self.tool_over = None
         self.toolbar.append(((save_icon_normal, save_icon_high),
-                             event_save, 32, save_help))
+                             event_save, pygame.K_SPACE, save_help))
         if self.id_list_enabled:
             self.toolbar.append(((next_id_icon_normal, next_id_icon_high),
-                                 event_next_id, 9, next_id_help))
+                                 event_next_id, pygame.K_TAB, next_id_help))
         # Manual ID can be inserted even if ID detection is disabled
         self.toolbar.append(((edit_id_icon_normal, edit_id_icon_high),
-                             event_manual_id, ord('i'), edit_id_help))
+                             event_manual_id, pygame.K_i, edit_id_help))
         if self.manual_detect_enabled:
             self.toolbar.append(((manual_detect_icon_normal,
                                   manual_detect_icon_high),
-                                 event_manual_detection, ord('m'),
+                                 event_manual_detection, pygame.K_m,
                                  manual_detect_help))
         self.toolbar.append(((discard_icon_normal, discard_icon_high),
-                             event_cancel_frame, 8, discard_help))
+                             event_cancel_frame, pygame.K_BACKSPACE,
+                             discard_help))
         self.toolbar.append((None, None))
         self.toolbar.append(((exit_icon_normal, exit_icon_high),
-                             event_quit, 27, exit_help))
-        self.toolbar.append((None, event_debug_proc, ord('p'), None))
-        self.toolbar.append((None, event_debug_lines, ord('l'), None))
+                             event_quit, pygame.K_ESCAPE, exit_help))
+        self.toolbar.append((None, event_debug_proc, pygame.K_p, None))
+        self.toolbar.append((None, event_debug_lines, pygame.K_l, None))
         self.draw_toolbar(flip)
 
     def draw_toolbar(self, flip):
@@ -286,8 +287,10 @@ class PygameInterface(object):
             for tool in self.toolbar:
                 if tool[1] is not None and event.key == tool[2]:
                     return (tool[1], None)
-            if event.key >= ord('0') and event.key <= ord('9'):
+            if event.key >= pygame.K_0 and event.key <= pygame.K_9:
                 return (event_id_digit, chr(event.key))
+            elif event.key >= pygame.K_KP0 and event.key <= pygame.K_KP9:
+                return (event_id_digit, chr(event.key - pygame.K_KP0 + 48))
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return self.__process_mouse_click(event)
         elif event.type == pygame.MOUSEMOTION:
