@@ -471,11 +471,15 @@ exam. The one with the most probability is shown.
 In the *review mode*, there are several ways to set the student id
 when Eyegrade does not detect it, or detects a wrong one.
 
-- |icon_next_id| *next id* (shortcut 'Tabulator'): selects the next id
-  in the sorted list of ids. When the detected id is wrong, is usual
-  that the correct id is in the next two or three positions of the
-  list, so it may be worth using this command at least a couple of
-  times.
+- |icon_next_id| *next id* (shortcut 'Tabulator' or 'Down arrow'):
+  selects the next id in the sorted list of ids. When the detected id
+  is wrong, is usual that the correct id is in the next two or three
+  positions of the list, so it may be worth using this command at
+  least a couple of times.
+
+- *previous id* (shortcut 'Up arrow'): selects the previous id in the
+  sorted list of ids. It allows you to go back if you missed the
+  correct id while using the *next id* command.
 
 - Type some digits from the correct id: other way of entering the
   correct id is by typing some consecutive digits of the id. The most
@@ -484,7 +488,9 @@ when Eyegrade does not detect it, or detects a wrong one.
   updated. Just type a few digits until you get the id you
   want. **Tip:** sometimes the first digits of ids are the same for
   many students in class. Begin typing at a position in which ids are
-  more variable.
+  more variable. **Tip:** if you typed some digits but want to cancel
+  your selection or begin again with new digits, use the *next id*
+  or *previous id* commands.
 
 - |icon_edit_id| *edit id* (shortcut 'i'): use this command to
   manually enter the whole id, digit by digit, from left to
