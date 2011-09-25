@@ -19,8 +19,6 @@
 #
 # Module for analysis of results
 #
-import csv
-import sys
 from optparse import OptionParser
 
 # Local imports
