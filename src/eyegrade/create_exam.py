@@ -53,10 +53,13 @@ def read_cmd_options():
     parser.add_option('-l', '--title', dest='title', default=None,
                       help='title of the exam')
     parser.add_option("-k", "--dont-shuffle-again", action="store_true",
-                      dest = "dont_shuffle_again", default = False,
-                      help = "don't shuffle already shuffled models")
+                      dest="dont_shuffle_again", default=False,
+                      help="don't shuffle already shuffled models")
     parser.add_option('-b', '--table-dimensions', dest='dimensions',
                       default=None, help='table dimensions')
+    parser.add_option('-f', '--force', dest='force_config_overwrite',
+                      action='store_true', default=False,
+                      help='force removal of the previous .eye exam file')
     # The -w below is maintained for compatibility; its use is deprecated
     # Use -W instead.
     parser.add_option('-w', '-W', '--table-width', type='float',
@@ -163,7 +166,8 @@ def create_exam():
                                 options.num_tables,
                                 dimensions,
                                 options.table_width, options.table_height,
-                                options.id_box_width)
+                                options.id_box_width,
+                                options.force_config_overwrite)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:

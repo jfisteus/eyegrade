@@ -38,12 +38,11 @@ re_split_template = re.compile('{{([^{}]+)}}')
 # Register user-friendly error messages
 EyegradeException.register_error('incoherent_exam_config',
     'The exam you are attempting to create is not compatible\n'
-    'with the already existing exam configuration file.\n'
+    'with the already existing .eye exam configuration file.\n'
     'This happens, for example, when the configuration file\n'
     'contains more or less questions than the exam you are now\n'
-    'creating. Removing the old configuration file and running\n'
-    'again this command will solve the problem, and a new\n'
-    'configuration file will be created.')
+    'creating. If you really want to discard the previous .eye file,\n'
+    'use the --force option, or just remove the file manually.')
 EyegradeException.register_error('incoherent_num_tables',
     'The specified number of tables and the exam dimensions are not\n'
     'compatible. The exam dimensions implicitly specify the number of tables.\n'
@@ -67,7 +66,8 @@ class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
                  num_tables=0, dimensions=None,
-                 table_width=None, table_height=None, id_box_width=None):
+                 table_width=None, table_height=None, id_box_width=None,
+                 force_config_overwrite=False):
         """
            Class able to create exams. One object is enough for all models.
 
@@ -93,7 +93,10 @@ class ExamMaker(object):
             self.dimensions = compute_table_dimensions(num_questions,
                                                        num_choices, num_tables)
         if self.exam_config_filename is not None:
-            self.__load_exam_config()
+            if not force_config_overwrite:
+                self.__load_exam_config()
+            else:
+                self._new_exam_config()
         else:
             self.exam_config = None
         self.empty_variables = []
@@ -172,9 +175,12 @@ class ExamMaker(object):
                     raise EyegradeException('Incoherent table dimensions',
                                             key='incoherent_exam_config')
             except IOError:
-                self.exam_config = utils.ExamConfig()
-                self.exam_config.num_questions = self.num_questions
-                self.exam_config.id_num_digits = self.id_num_digits
+                self._new_exam_config()
+
+    def _new_exam_config(self):
+        self.exam_config = utils.ExamConfig()
+        self.exam_config.num_questions = self.num_questions
+        self.exam_config.id_num_digits = self.id_num_digits
 
     def __load_replacements(self, variables, id_label):
         self.replacements = copy.copy(variables)
