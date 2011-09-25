@@ -67,7 +67,7 @@ class ExamMaker(object):
                  output_file, variables, exam_config_filename,
                  num_tables=0, dimensions=None,
                  table_width=None, table_height=None, id_box_width=None,
-                 force_config_overwrite=False):
+                 force_config_overwrite=False, score_weights=None):
         """
            Class able to create exams. One object is enough for all models.
 
@@ -99,6 +99,8 @@ class ExamMaker(object):
                 self._new_exam_config()
         else:
             self.exam_config = None
+        if score_weights is not None and self.exam_config is not None:
+            self.exam_config.score_weights = score_weights
         self.empty_variables = []
 
     def set_exam_questions(self, exam):
