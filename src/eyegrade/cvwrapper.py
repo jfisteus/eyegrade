@@ -43,7 +43,9 @@ except:
 
 class CVWrapperObject(object):
     def __init__(self):
-        self.function_cache = {}
+        self.function_cache = {
+            'CaptureFromCAM': getattr(highgui, 'cvCreateCameraCapture')
+            }
 
     def ipl_to_pil(self, image):
         """This function does not exist in the new bindings, and therefore

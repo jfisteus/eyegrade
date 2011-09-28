@@ -1231,10 +1231,14 @@ def count_pixels_in_horizontal_line(image, line):
     return active_points
 
 def cvimage_to_pygame(image):
-    image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
-    cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
-    return pygame.image.frombuffer(image_rgb.tostring(),
-                                   cv.GetSize(image_rgb), 'RGB')
+    if cv_new_style:
+        image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
+        cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
+        return pygame.image.frombuffer(image_rgb.tostring(),
+                                       cv.GetSize(image_rgb), 'RGB')
+    else:
+        im = cv.ipl_to_pil(image)
+        return pygame.image.frombuffer(im.tostring(), im.size, im.mode)
 
 def process_box_corners(points, dimensions):
     num_boxes = len(dimensions)
