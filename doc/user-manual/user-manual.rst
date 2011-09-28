@@ -187,7 +187,7 @@ Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
 ``C:\``::
 
-    set PYTHONPATH = C:\eyegrade
+    set PYTHONPATH=C:\eyegrade\src
     C:\Python26\python -m eyegrade.eyegrade -h
 
 It should dump a help message. Eyegrade should now be installed. For
