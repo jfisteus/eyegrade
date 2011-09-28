@@ -69,9 +69,9 @@ def stats_for_model(results, num_questions, model=None):
     return (len(data), good, bad, blank)
 
 def stats_by_model(results, num_questions, models):
-    stats = ([stats_for_model(results, num_questions, None)]
-             + [stats_for_model(results, num_questions, model) \
-                    for model in models])
+    stats = {None: stats_for_model(results, num_questions, None)}
+    for model in models:
+        stats[model] = stats_for_model(results, num_questions, model)
     return stats
 
 def print_stats_by_question(stats):
@@ -113,10 +113,11 @@ def plot_stats_by_question(stats):
     plt.show()
 
 def print_stats_by_model(stats):
-    for i, data in enumerate(stats):
+    for model in stats:
+        data = stats[model]
         num_questions = sum(data[1:])
-        if i > 0:
-            print 'Model %s; number of exams: %d'%(chr(65 + i - 1), data[0])
+        if model is not None:
+            print 'Model %s; number of exams: %d'%(model, data[0])
         else:
             print 'All the exams; number of exams: %d'%data[0]
         if data[0] > 0:

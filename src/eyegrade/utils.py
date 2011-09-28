@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 version = '0.1.13.1'
 version_status = 'alpha'
 
-re_model_letter = re.compile('[a-zA-Z]')
+re_model_letter = re.compile('[0a-zA-Z]')
 
 csv.register_dialect('tabs', delimiter = '\t')
 
@@ -155,10 +155,7 @@ def read_results(filename, permutations = {}):
     """
     results = __read_results_file(filename)
     for result in results:
-        if result['model'].isdigit():
-            result['model'] = chr(65 + int(result['model']))
-        else:
-            result['model'] = check_model_letter(result['model'])
+        result['model'] = check_model_letter(result['model'])
         result['good'] = int(result['good'])
         result['bad'] = int(result['bad'])
         result['unknown'] = int(result['unknown'])
@@ -388,11 +385,13 @@ def encode_model(model, num_tables, num_answers):
     bit_list = seed * (1 + (num_bits - 1) // 4)
     return bit_list[:num_tables * num_answers]
 
-def decode_model(bit_list):
+def decode_model(bit_list, accept_model_0=False):
     """Given the bits that encode the model, returns the associated letter.
 
        It decoding/checksum fails, None is returned. The list of bits must
        be a list of boolean variables.
+
+       The special model 0 is not valid unless `accept_model_0` is set.
 
     """
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7 == x8-x11 == ...
@@ -409,6 +408,8 @@ def decode_model(bit_list):
     if valid:
         return chr(65 + (int(bit_list[0]) | int(bit_list[1]) << 1 |
                   int(bit_list[2]) << 2))
+    elif accept_model_0 and max(bit_list) == False:
+        return '0'
     else:
         return None
 
@@ -685,7 +686,7 @@ class ExamConfig(object):
        to get the data. The constructor reads data from a file. See
        doc/exam-data.sample for an example of such a file."""
 
-    re_model = re.compile('model-[a-zA-Z]')
+    re_model = re.compile('model-[0a-zA-Z]')
 
     def __init__(self, filename = None):
         """Loads data from file if 'filename' is not None. Otherwise,

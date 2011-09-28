@@ -104,6 +104,9 @@ def read_cmd_options():
     parser.add_option("-f", "--ajust-first", action="store_true",
                       dest = "adjust", default = False,
                       help = "don't lock on an exam until SPC is pressed")
+    parser.add_option("--accept-model-0", action="store_true",
+                      dest = "accept_model_0", default = False,
+                      help = "accept model 0 as a valid exam model")
 
     (options, args) = parser.parse_args()
     if len(args) == 1:
@@ -152,6 +155,8 @@ def main():
 
     exam_data = utils.ExamConfig(options.ex_data_filename)
     solutions = exam_data.solutions
+    if options.accept_model_0:
+        solutions['0'] = exam_data.num_questions * [1]
     dimensions = exam_data.dimensions
     id_num_digits = exam_data.id_num_digits
     read_id = (id_num_digits > 0)
@@ -219,7 +224,8 @@ def main():
         image.detect_safe()
         success = image.success
         if image.status['infobits']:
-            model = utils.decode_model(image.bits)
+            model = utils.decode_model(image.bits,
+                                       accept_model_0=options.accept_model_0)
             if model is not None and model in solutions:
                 exam = utils.Exam(image, model, solutions[model],
                                   valid_student_ids, im_id, options.save_stats,
