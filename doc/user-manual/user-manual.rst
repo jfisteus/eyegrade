@@ -256,7 +256,7 @@ exam (number of questions, geometry of tables, correct answers, etc.)
 If you want Eyegrade to read student's identity, it is recommended to
 provide it with the list of students in class::
 
-    python -m eyegrade.eyegrade exam.eye --id-list student-list.csv
+    python -m eyegrade.eyegrade exam.eye -l student-list.csv
 
 
 where ``student-list.csv`` is a tabulator-separated file in which
@@ -710,7 +710,7 @@ not the camera you want to use to grade the exams, use the ``-c
 the interface displays the one you want. For example, to select the
 camera numbered as 2::
 
-    python -m eyegrade.eyegrade exam.eye -c 2 --id-list student-list.csv
+    python -m eyegrade.eyegrade exam.eye -c 2 -l student-list.csv
 
 You can configure Eyegrade to always use a specific camera number by
 inserting the option ``camera-dev`` in the ``default`` section of

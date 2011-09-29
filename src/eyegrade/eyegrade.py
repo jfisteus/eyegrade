@@ -77,8 +77,6 @@ class PerformanceProfiler(object):
 def read_cmd_options():
     parser = OptionParser(usage = 'usage: %prog [options] EXAM_CONFIG_FILE',
                           version = utils.program_name + ' ' + utils.version)
-    parser.add_option('-e', '--exam-data-file', dest = 'ex_data_filename',
-                      help = 'read model data from FILENAME')
     parser.add_option('-a', '--answers-file', dest = 'answers_filename',
                       help = 'write students answers to FILENAME')
     parser.add_option('-s', '--start-id', dest = 'start_id', type = 'int',
@@ -93,7 +91,7 @@ def read_cmd_options():
     parser.add_option('--stats', action='store_true', dest = 'save_stats',
                       default = False,
                       help = 'save performance stats to the answers file')
-    parser.add_option('--id-list', dest = 'ids_file', default = None,
+    parser.add_option('-l', '--id-list', dest = 'ids_file', default = None,
                       help = 'file with the list of valid student ids')
     parser.add_option('--capture-raw', dest = 'raw_file', default = None,
                       help = 'capture from raw file')
