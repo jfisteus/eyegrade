@@ -28,10 +28,10 @@ import copy
 import io
 
 program_name = 'eyegrade'
-version = '0.1.13.1'
+version = '0.1.14'
 version_status = 'alpha'
 
-re_model_letter = re.compile('[a-zA-Z]')
+re_model_letter = re.compile('[0a-zA-Z]')
 
 csv.register_dialect('tabs', delimiter = '\t')
 
@@ -48,18 +48,10 @@ class EyegradeException(Exception):
 
     """
 
-    _error_messages = {
-        'incoherent_exam_config':
-            'The exam you are attempting to create is not compatible\n'
-            'with the already existing exam configuration file.\n'
-            'This happens, for example, when the configuration file\n'
-            'contains more or less questions than the exam you are now\n'
-            'creating. Removing the old configuration file and running\n'
-            'again this command will solve the problem, and a new\n'
-            'configuration file will be created.'
-        }
+    _error_messages = {}
+    _short_messages = {}
 
-    def __init__(self, message='', key=None):
+    def __init__(self, message, key=None):
         """Creates a new exception.
 
         If `key` is in `_error_messages`, a prettier version of the
@@ -67,9 +59,18 @@ class EyegradeException(Exception):
         to the end of what you provide in `message`.
 
         """
-        if key in EyegradeException._error_messages:
-            self.full_message = ''.join(['ERROR: ', message, '\n\n',
-                                    EyegradeException._error_messages[key]])
+        if (key in EyegradeException._error_messages
+            or key in EyegradeException._short_messages):
+            parts = ['ERROR: ']
+            if message:
+                parts.append(message)
+            elif key in EyegradeException._short_messages:
+                parts.append(EyegradeException._short_messages[key])
+            if key in EyegradeException._error_messages:
+                parts.append('\n\n')
+                parts.append(EyegradeException._error_messages[key])
+            parts.append('\n')
+            self.full_message = ''.join(parts)
             super(EyegradeException, self).__init__(self.full_message)
         else:
             self.full_message = None
@@ -86,6 +87,44 @@ class EyegradeException(Exception):
             return self.full_message
         else:
             return super(EyegradeException, self).__str__()
+
+    @staticmethod
+    def register_error(key, detailed_message='', short_message=''):
+        """Registers a new error message associated to a key.
+
+        `key` is just a string used to identify this error message,
+        that must be passed when creating exception
+        objects. `detailed_message` is a (possibly long and with end
+        of line characters inside) explanation of the
+        error. `short_message` is a one line error message to be used
+        only when a blank message is passed when creating the
+        exception.
+
+        Being this method static, messages added through it will be
+        shared for all the instances of the exception.
+
+        """
+        if (not key in EyegradeException._error_messages
+            and not key in EyegradeException._short_messages):
+            if detailed_message:
+                EyegradeException._error_messages[key] = detailed_message
+            if short_message:
+                EyegradeException._short_messages[key] = short_message
+        else:
+            raise EyegradeException('Duplicate error key in register_error')
+
+
+EyegradeException.register_error('bad_dimensions',
+    "Dimensions must be specified as a ';' separated list of tables.\n"
+    "For each table, specify the number of choices + comma + the number of\n"
+    "questions in that table. For example, '4,10;4,9' configures two\n"
+    "tables, the left-most with 9 questions and 4 choices per question,\n"
+    "and the right-most with 10 questions and the same number of choices."
+    'Bad dimensions value.')
+EyegradeException.register_error('same_num_choices',
+    "By now, Eyegrade needs you to use the same number of choices in\n"
+    "all the questions of the exam.",
+    'There are questions with a different number of choices')
 
 
 def guess_data_dir():
@@ -116,10 +155,7 @@ def read_results(filename, permutations = {}):
     """
     results = __read_results_file(filename)
     for result in results:
-        if result['model'].isdigit():
-            result['model'] = chr(65 + int(result['model']))
-        else:
-            result['model'] = check_model_letter(result['model'])
+        result['model'] = check_model_letter(result['model'])
         result['good'] = int(result['good'])
         result['bad'] = int(result['bad'])
         result['unknown'] = int(result['unknown'])
@@ -349,11 +385,13 @@ def encode_model(model, num_tables, num_answers):
     bit_list = seed * (1 + (num_bits - 1) // 4)
     return bit_list[:num_tables * num_answers]
 
-def decode_model(bit_list):
+def decode_model(bit_list, accept_model_0=False):
     """Given the bits that encode the model, returns the associated letter.
 
        It decoding/checksum fails, None is returned. The list of bits must
        be a list of boolean variables.
+
+       The special model 0 is not valid unless `accept_model_0` is set.
 
     """
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7 == x8-x11 == ...
@@ -370,6 +408,8 @@ def decode_model(bit_list):
     if valid:
         return chr(65 + (int(bit_list[0]) | int(bit_list[1]) << 1 |
                   int(bit_list[2]) << 2))
+    elif accept_model_0 and max(bit_list) == False:
+        return '0'
     else:
         return None
 
@@ -570,6 +610,12 @@ class Exam(object):
             self.ids_rank_pos += 1
             self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
 
+    def try_previous_student_id(self):
+        if self.ids_rank is not None \
+                and self.ids_rank_pos >= 1:
+            self.ids_rank_pos -= 1
+            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
+
     def filter_student_id(self, digit):
         if self.ids_rank is not None:
             self.student_id_filter.append(digit)
@@ -640,7 +686,7 @@ class ExamConfig(object):
        to get the data. The constructor reads data from a file. See
        doc/exam-data.sample for an example of such a file."""
 
-    re_model = re.compile('model-[a-zA-Z]')
+    re_model = re.compile('model-[0a-zA-Z]')
 
     def __init__(self, filename = None):
         """Loads data from file if 'filename' is not None. Otherwise,
@@ -809,18 +855,22 @@ def parse_dimensions(text, check_equal_num_choices=False):
     boxes = text.split(';')
     for box in boxes:
         dims = box.split(',')
-        data = (int(dims[0]), int(dims[1]))
+        try:
+            data = (int(dims[0]), int(dims[1]))
+        except ValueError:
+            raise EyegradeException('Incorrect number in exam dimensions',
+                                    'bad_dimensions')
         if data[0] <= 0 or data[1] <= 0:
-            raise Exception('Incorrect number in exam geometry')
+            raise EyegradeException('Incorrect number in exam dimensions',
+                                    'bad_dimensions')
         dimensions.append(data)
         num_options.extend([data[0]] * data[1])
     if len(dimensions) == 0:
-        raise Exception('Empty table dimensions')
+        raise EyegradeException('Dimensions are empty', 'bad_dimensions')
     if check_equal_num_choices:
         for i in range(1, len(dimensions)):
             if dimensions[i][0] != dimensions[0][0]:
-                raise Exception(('The number of choices per question must'
-                                 ' be the same for all questions'))
+                raise EyegradeException('', 'same_num_choices')
     return dimensions, num_options
 
 def read_exam_questions(exam_filename):

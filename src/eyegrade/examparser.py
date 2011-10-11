@@ -21,8 +21,34 @@ import re
 
 import utils
 
+EyegradeException = utils.EyegradeException
+
 namespace = 'http://www.it.uc3m.es/jaf/eyegrade/ns/'
 text_norm_re = re.compile(r'[\ \t\n]+')
+
+# Register user-friendly error messages
+EyegradeException.register_error('exam_root_element',
+    "The root element of the exam XML with the questions is expected\n"
+    "to be named 'exam' in the Eyegrade namespace. Review the\n"
+    "syntax of your exam and namespace declarations.\n"
+    "The Eyegrade namespace is: " + namespace)
+EyegradeException.register_error('exam_one_choices',
+    short_message="Only one 'choices' element is allowed in a question.")
+EyegradeException.register_error('bad_position_value',
+    "The value of 'position' must be either 'center' or 'right'.",
+    "Incorrect value for the 'position' attribute.")
+EyegradeException.register_error('missing_width_code',
+    "Code positioned to the right must have a 'width' attribute.",
+    "Missing 'width' attribute in a 'code' element.")
+EyegradeException.register_error('missing_width_fig',
+    "Figures must always have a 'width' attribute.",
+    "Missing 'width' attribute in a 'figure' element.")
+EyegradeException.register_error('missing_text',
+    "Questions must contain exactly one 'text' element.",
+    "Text element expected in a question.")
+EyegradeException.register_error('duplicate_text',
+    "Questions must contain exactly one 'text' element.",
+    "Multiple text elements in a question.")
 
 def parse_exam(dom_tree):
     assert dom_tree.nodeType == dom.Node.DOCUMENT_NODE
@@ -38,7 +64,8 @@ def parse_exam(dom_tree):
         for node in get_children_by_tag_name(root, namespace, 'question'):
             exam.questions.append(parse_question(node))
     else:
-        raise Exception('Error: root element expected to be "exam"')
+        raise EyegradeException('Bad root element: ' + printable_name(root),
+                                key='exam_root_element')
     return exam
 
 def parse_question(question_node):
@@ -46,7 +73,7 @@ def parse_question(question_node):
     question.text = parse_question_component(question_node, False)
     choices_list = get_children_by_tag_name(question_node, namespace, 'choices')
     if len(choices_list) != 1:
-        raise Exception('Expected exacly one choices element')
+        raise EyegradeException('', key='exam_one_choices')
     choices = choices_list[0]
     for node in get_children_by_tag_name(choices, namespace, 'correct'):
         question.correct_choices.append(parse_question_component(node, True))
@@ -70,10 +97,9 @@ def parse_question_component(parent_node, is_choice):
         if code_atts[1] is None:
             code_atts[1] = 'center'
         elif code_atts[1] != 'center' and code_atts[1] != 'right':
-            raise Exception('Incorrect value for attribute "position"')
+            raise EyegradeException('', key='bad_position_value')
         if code_atts[0] is None and code_atts[1] == 'right':
-            raise Exception('Attribute "width" is mandatory for code '
-                            'positioned at the right')
+            raise EyegradeException('', key='missing_width_code')
         if code_atts[0] is not None:
             component.annex_width = float(code_atts[0])
         else:
@@ -83,9 +109,9 @@ def parse_question_component(parent_node, is_choice):
         if figure_atts[1] is None:
             figure_atts[1] = 'center'
         elif figure_atts[1] != 'center' and figure_atts[1] != 'right':
-            raise Exception('Incorrect value for attribute "position"')
+            raise EyegradeException('', key='bad_position_value')
         if figure_atts[0] is None:
-            raise Exception('Attribute "width" is mandatory for figures')
+            raise EyegradeException('', key='missing_width_fig')
         component.annex_width = float(figure_atts[0])
         component.annex_pos = figure_atts[1]
     component.check_is_valid()
@@ -104,11 +130,12 @@ def get_question_text_content(parent, namespace):
                     and node.localName == 'code'):
                     parts.append(('code', get_text(node.childNodes, False)))
                 else:
-                    raise Exception('Unknown element: ' + node.localName)
+                    raise EyegradeException(
+                        'Unknown element: ' + node.localName)
     elif len(node_list) == 0:
-        raise Exception('Text element expected in question')
+        raise EyegradeException('', key='missing_text')
     elif len(node_list) > 1:
-        raise Exception('Duplicate text element')
+        raise EyegradeException('', key='duplicate_text')
     return parts
 
 def get_element_content(parent, namespace, local_name):
@@ -118,7 +145,7 @@ def get_element_content(parent, namespace, local_name):
     elif len(node_list) == 0:
         return None
     elif len(node_list) > 1:
-        raise Exception('Duplicate element: ' + local_name)
+        raise EyegradeException('Duplicate element: ' + local_name)
 
 def get_element_content_node(element_node):
     return get_text(element_node.childNodes, False)
@@ -134,7 +161,7 @@ def get_element_content_with_attrs(parent, namespace, local_name, attr_names):
     elif len(node_list) == 0:
         return None, None
     elif len(node_list) > 1:
-        raise Exception('Duplicate element: ' + local_name)
+        raise EyegradeException('Duplicate element: ' + local_name)
 
 def get_attribute_text(element, attribute_name):
     value = element.getAttributeNS(namespace, attribute_name)
@@ -164,4 +191,9 @@ def get_text(node_list, normalize = True):
         return None
 
 def get_full_name(element):
+    """Returns a tuple with (namespace, local_name) for the given element."""
     return (element.namespaceURI, element.localName)
+
+def printable_name(element):
+    """Returns a string 'namespace:local_name' for the given element."""
+    return '%s:%s'%(element.namespaceURI, element.localName)

@@ -17,6 +17,7 @@
       <correct>A programming language</correct>
       <incorrect>A computer manufacturer</incorrect>
       <incorrect>A kind of tree</incorrect>
+      <incorrect>Who knows!</incorrect>
     </choices>
   </question>
 
@@ -29,6 +30,7 @@
          time over a network, especially over the Internet.</correct>
       <incorrect>A video camera intended to spy on spiders</incorrect>
       <incorrect>A kind of fish</incorrect>
+      <incorrect>Who knows!</incorrect>
     </choices>
   </question>
 
@@ -42,6 +44,7 @@
       <correct>A computer program</correct>
       <incorrect>A recipe</incorrect>
       <incorrect>A tree</incorrect>
+      <incorrect>Who knows!</incorrect>
     </choices>
   </question>
 
@@ -54,6 +57,7 @@
       <correct>Well, it tries to be a logo, to be honest.</correct>
       <incorrect>No, it's a tree.</incorrect>
       <incorrect>No, it's a perfect square.</incorrect>
+      <incorrect>Who knows!</incorrect>
     </choices>
   </question>
 

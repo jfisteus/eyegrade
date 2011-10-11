@@ -200,7 +200,7 @@ def test_server(host, image_filename, preprocess=True):
     headers = {}
 
     # First, send a config file
-    with open('../doc/exam-data.sample') as f:
+    with open('../doc/sample-files/exam.eye') as f:
         data = f.read()
     conn = httplib.HTTPConnection(host)
     headers['Content-type'] = 'application/x-eyegrade-exam-config'

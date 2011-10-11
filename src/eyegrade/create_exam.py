@@ -24,6 +24,13 @@ import locale
 import utils
 import exammaker
 
+EyegradeException = utils.EyegradeException
+
+EyegradeException.register_error('correct_weight_none',
+    "The option '--incorrect-weight' was set. It requires\n"
+    "'--correct-weight' to be also set.",
+    "'--correct-weight' not set.")
+
 def read_cmd_options():
     parser = OptionParser(usage = 'usage: %prog [options] <template_filename>',
                           version = utils.program_name + ' ' + utils.version)
@@ -51,10 +58,19 @@ def read_cmd_options():
     parser.add_option('-l', '--title', dest='title', default=None,
                       help='title of the exam')
     parser.add_option("-k", "--dont-shuffle-again", action="store_true",
-                      dest = "dont_shuffle_again", default = False,
-                      help = "don't shuffle already shuffled models")
+                      dest="dont_shuffle_again", default=False,
+                      help="don't shuffle already shuffled models")
     parser.add_option('-b', '--table-dimensions', dest='dimensions',
                       default=None, help='table dimensions')
+    parser.add_option('-f', '--force', dest='force_config_overwrite',
+                      action='store_true', default=False,
+                      help='force removal of the previous .eye exam file')
+    parser.add_option('--cw', '--correct-weight', type='float',
+                      dest='correct_weight',
+                      help='weight of correct answers', default=None)
+    parser.add_option('--iw', '--incorrect-weight', type='float',
+                      dest='incorrect_weight',
+                      help='negative weight of incorrect answers', default=None)
     # The -w below is maintained for compatibility; its use is deprecated
     # Use -W instead.
     parser.add_option('-w', '-W', '--table-width', type='float',
@@ -82,7 +98,7 @@ def read_cmd_options():
             parser.error('Option -e is mutually exclusive with -q and -c')
     return options, args
 
-def main():
+def create_exam():
     options, args = read_cmd_options()
     template_filename = args[0]
     variables = {
@@ -128,7 +144,7 @@ def main():
                 raise Exception('Incoherent number of questions')
             if (options.num_tables != 0 and
                 len(dimensions) != options.num_tables):
-                raise Exception('Incoherent number of tables')
+                raise EyegradeException('', 'incoherent_num_tables')
         else:
             num_questions = options.num_questions
             num_choices = options.num_choices
@@ -154,32 +170,47 @@ def main():
         output_file = options.output_file_prefix + '-%s.tex'
         config_filename = options.output_file_prefix + '.eye'
 
-    try:
-        # Create and call the exam maker object
-        maker = exammaker.ExamMaker(num_questions, num_choices,
-                                    template_filename,
-                                    output_file, variables, config_filename,
-                                    options.num_tables,
-                                    dimensions,
-                                    options.table_width, options.table_height,
-                                    options.id_box_width)
-        if exam is not None:
-            maker.set_exam_questions(exam)
+    if options.correct_weight is not None:
+        if options.incorrect_weight is None:
+            options.incorrect_weight = 0.0
+        if options.incorrect_weight < 0:
+            options.incorrect_weight = -options.incorrect_weight
+        score_weights = (options.correct_weight, options.incorrect_weight, 0.0)
+    elif options.incorrect_weight is not None:
+        raise EyegradeException('', 'correct_weight_none')
+    else:
+        score_weights = None
+
+    # Create and call the exam maker object
+    maker = exammaker.ExamMaker(num_questions, num_choices,
+                                template_filename,
+                                output_file, variables, config_filename,
+                                options.num_tables,
+                                dimensions,
+                                options.table_width, options.table_height,
+                                options.id_box_width,
+                                options.force_config_overwrite,
+                                score_weights)
+    if exam is not None:
+        maker.set_exam_questions(exam)
+    for model in options.models:
+        maker.create_exam(model, not options.dont_shuffle_again)
+    if options.output_file_prefix is not None:
+        maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
         for model in options.models:
-            maker.create_exam(model, not options.dont_shuffle_again)
-        if options.output_file_prefix is not None:
-            maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
-            for model in options.models:
-                maker.create_exam(model, False, with_solution=True)
-        if config_filename is not None:
-            maker.save_exam_config()
-    except utils.EyegradeException as ex:
-        print >>sys.stderr, ex
-        sys.exit(1)
+            maker.create_exam(model, False, with_solution=True)
+    if config_filename is not None:
+        maker.save_exam_config()
 
     # Dump some final warnings
     for key in maker.empty_variables:
         print >>sys.stderr, 'Warning: empty \'%s\' variable'%key
+
+def main():
+    try:
+        create_exam()
+    except utils.EyegradeException as ex:
+        print >>sys.stderr, ex
 
 if __name__ == '__main__':
     main()

@@ -75,45 +75,46 @@ class PerformanceProfiler(object):
             stats['id-ocr-detected'] = '-1'
 
 def read_cmd_options():
-    parser = OptionParser(usage = "usage: %prog [options] EXAM_CONFIG_FILE",
+    parser = OptionParser(usage = 'usage: %prog [options] EXAM_CONFIG_FILE',
                           version = utils.program_name + ' ' + utils.version)
-    parser.add_option("-e", "--exam-data-file", dest = "ex_data_filename",
-                      help = "read model data from FILENAME")
-    parser.add_option("-a", "--answers-file", dest = "answers_filename",
-                      help = "write students' answers to FILENAME")
-    parser.add_option("-s", "--start-id", dest = "start_id", type = "int",
-                      help = "start at the given exam id",
+    parser.add_option('-a', '--answers-file', dest = 'answers_filename',
+                      help = 'write students answers to FILENAME')
+    parser.add_option('-s', '--start-id', dest = 'start_id', type = 'int',
+                      help = 'start at the given exam id',
                       default = 0)
-    parser.add_option("-o", "--output-dir", dest = "output_dir", default = '.',
-                      help = "store captured images at the given directory")
-    parser.add_option("-d", "--debug", action="store_true", dest = "debug",
-                      default = False, help = "activate debugging features")
-    parser.add_option("-c", "--camera", type="int", dest = "camera_dev",
-                      help = "camera device to be selected (-1 for default)")
-    parser.add_option("--stats", action="store_true", dest = "save_stats",
+    parser.add_option('-o', '--output-dir', dest = 'output_dir', default = '.',
+                      help = 'store captured images at the given directory')
+    parser.add_option('-d', '--debug', action='store_true', dest = 'debug',
+                      default = False, help = 'activate debugging features')
+    parser.add_option('-c', '--camera', type='int', dest = 'camera_dev',
+                      help = 'camera device to be selected (-1 for default)')
+    parser.add_option('--stats', action='store_true', dest = 'save_stats',
                       default = False,
-                      help = "save performance stats to the answers file")
-    parser.add_option("--id-list", dest = "ids_file", default = None,
-                      help = "file with the list of valid student ids")
-    parser.add_option("--capture-raw", dest = "raw_file", default = None,
-                      help = "capture from raw file")
-    parser.add_option("--capture-proc", dest = "proc_file", default = None,
-                      help = "capture from pre-processed file")
-    parser.add_option("--fixed-hough", dest = "fixed_hough", default = None,
-                      type = "int", help = "fixed Hough transform threshold")
-    parser.add_option("-f", "--ajust-first", action="store_true",
-                      dest = "adjust", default = False,
-                      help = "don't lock on an exam until SPC is pressed")
+                      help = 'save performance stats to the answers file')
+    parser.add_option('-l', '--id-list', dest = 'ids_file', default = None,
+                      help = 'file with the list of valid student ids')
+    parser.add_option('--capture-raw', dest = 'raw_file', default = None,
+                      help = 'capture from raw file')
+    parser.add_option('--capture-proc', dest = 'proc_file', default = None,
+                      help = 'capture from pre-processed file')
+    parser.add_option('--fixed-hough', dest = 'fixed_hough', default = None,
+                      type = 'int', help = 'fixed Hough transform threshold')
+    parser.add_option('-f', '--ajust-first', action='store_true',
+                      dest = 'adjust', default = False,
+                      help = 'don\'t lock on an exam until SPC is pressed')
+    parser.add_option('--accept-model-0', action='store_true',
+                      dest = 'accept_model_0', default = False,
+                      help = 'accept model 0 as a valid exam model')
 
     (options, args) = parser.parse_args()
     if len(args) == 1:
         options.ex_data_filename = args[0]
     elif len(args) == 0:
-        parser.error("Exam configuration file required")
+        parser.error('Exam configuration file required')
     elif len(args) > 1:
-        parser.error("Too many input command-line parameters")
+        parser.error('Too many input command-line parameters')
     if options.raw_file is not None and options.proc_file is not None:
-        parser.error("--capture-raw and --capture-proc are mutually exclusive")
+        parser.error('--capture-raw and --capture-proc are mutually exclusive')
     return options
 
 def cell_clicked(image, point):
@@ -152,6 +153,8 @@ def main():
 
     exam_data = utils.ExamConfig(options.ex_data_filename)
     solutions = exam_data.solutions
+    if options.accept_model_0:
+        solutions['0'] = exam_data.num_questions * [1]
     dimensions = exam_data.dimensions
     id_num_digits = exam_data.id_num_digits
     read_id = (id_num_digits > 0)
@@ -219,7 +222,8 @@ def main():
         image.detect_safe()
         success = image.success
         if image.status['infobits']:
-            model = utils.decode_model(image.bits)
+            model = utils.decode_model(image.bits,
+                                       accept_model_0=options.accept_model_0)
             if model is not None and model in solutions:
                 exam = utils.Exam(image, model, solutions[model],
                                   valid_student_ids, im_id, options.save_stats,
@@ -308,10 +312,14 @@ def main():
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn, False)
                     interface.update_text(exam.get_student_name())
-                elif event == gui.event_next_id:
+                elif (event == gui.event_next_id
+                      or event == gui.event_previous_id):
                     if not override_id_mode and options.ids_file is not None:
                         if len(exam.student_id_filter) == 0:
-                            exam.try_next_student_id()
+                            if event == gui.event_next_id:
+                                exam.try_next_student_id()
+                            else:
+                                exam.try_previous_student_id()
                         else:
                             exam.reset_student_id_filter()
                         profiler.count_student_id_change()
@@ -405,5 +413,5 @@ def main():
                 interface.wait_key()
                 sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

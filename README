@@ -41,3 +41,10 @@ students, and which topics need further work.
 
 - Exporting grades: grades can be exported in CSV format, compatible
 with other programs such as spreadsheets.
+
+Note for developers: the Eyegrade repository contains two main
+branches, 'master' and 'development'. The 'master' branch will be
+placed at the latest stable release of Eyegrade. The 'development'
+branch will receive commits of yet-to-be-released features. If you
+plan to submit pull-requests, base your work on the development branch
+to facilitate their integration.

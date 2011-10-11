@@ -37,17 +37,17 @@ class EyegradeServer(object):
         raise cherrypy.HTTPError('404 Not Found', 'Resource not available')
     index.exposed = True
 
-    def init(self, Filename, Filedata, Upload):
+    def init(self):
         """Opens a new grading session.
 
         An exam configuration file is expected. It must be uploaded
-        as multipart/form-data with name `Filedata`.
+        directly as the body of the request with mime type
+        `application/x-eyegrade-exam-config`.
 
         """
         exam_config = eyegrade.utils.ExamConfig()
-#        data = cherrypy.request.body.read()
-#        exam_config.read(data=data)
-        exam_config.read(file_=Filedata.file)
+        data = cherrypy.request.body.read()
+        exam_config.read(data=data)
         cherrypy.session['exam_config'] = exam_config
         cherrypy.session['imageproc_context'] = imageproc.ExamCaptureContext()
         cherrypy.session['student_ids'] = None
@@ -55,6 +55,23 @@ class EyegradeServer(object):
         cherrypy.log('Questions: ' + str(exam_config.num_questions))
         return 'OK'
     init.exposed = True
+
+    def init_multi(self, Filename, Filedata, Upload):
+        """Opens a new grading session.
+
+        An exam configuration file is expected. It must be uploaded
+        as multipart/form-data with name `Filedata`.
+
+        """
+        exam_config = eyegrade.utils.ExamConfig()
+        exam_config.read(file_=Filedata.file)
+        cherrypy.session['exam_config'] = exam_config
+        cherrypy.session['imageproc_context'] = imageproc.ExamCaptureContext()
+        cherrypy.session['student_ids'] = None
+        cherrypy.log('New context created')
+        cherrypy.log('Questions: ' + str(exam_config.num_questions))
+        return 'OK'
+    init_multi.exposed = True
 
     def process(self):
         """Processes an image capture and returns its result.
@@ -79,7 +96,27 @@ class EyegradeServer(object):
         return output
     process.exposed = True
 
-    def students(self, Filename, Filedata, Upload):
+    def students(self):
+        """Receives the student list.
+
+        Session should have been opened first with /init. The file
+        with the student list is expected. It must be uploaded
+        directly in the body of the request with mime type
+        `application/x-eyegrade-student-list`.
+
+        """
+        if not 'exam_config' in cherrypy.session:
+            raise cherrypy.HTTPError('403 Forbidden',
+                                     'Please, send exam configuration first')
+        data = cherrypy.request.body.read()
+        student_ids = eyegrade.utils.read_student_ids(data=data,
+                                                      with_names=True)
+        cherrypy.session['student_ids'] = student_ids
+        cherrypy.log('Students: ' + str(student_ids))
+        return 'OK'
+    students.exposed = True
+
+    def students_multi(self, Filename, Filedata, Upload):
         """Receives the student list.
 
         Session should have been opened first with /init. The file
@@ -95,7 +132,7 @@ class EyegradeServer(object):
         cherrypy.session['student_ids'] = student_ids
         cherrypy.log('Students: ' + str(student_ids))
         return 'OK'
-    students.exposed = True
+    students_multi.exposed = True
 
     def close(self):
         """Closes the current session.
