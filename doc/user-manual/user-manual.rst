@@ -9,7 +9,7 @@ Eyegrade User Manual
 Installing Eyegrade
 -------------------
 
-Eyegrade depends on the following free-software packages:
+Eyegrade depends on the following free-software projects:
 
 - Python_: the run-time environment and standard library for the
   execution Python programs. Eyegrade is known to work with Python
@@ -588,7 +588,7 @@ spreadsheets. This is an example of such a file::
 The columns of this file represent:
 
 1.- The exam sequence number (the same number the user interface shows
-    below the student id in the *review mode*).
+below the student id in the *review mode*).
 
 2.- The student id (or '-1' if the student id is unknown).
 
@@ -599,12 +599,12 @@ The columns of this file represent:
 5.- The number of incorrect answers.
 
 6.- The number of undetermined answers (answers marked as blank because
-    of the system detecting more than one marked cell).
+of the system detecting more than one marked cell).
 
 7.- The response of the student to each question in the exam, from the
-    first question in her model to the last. '0' means a blank
-    answer. '1', '2', etc. mean the first choice, second choice, etc.,
-    in the order they were presented in her exam model.
+first question in her model to the last. '0' means a blank
+answer. '1', '2', etc. mean the first choice, second choice, etc., in
+the order they were presented in her exam model.
 
 Exams are in the same sequence they were graded. See `Exporting a
 listing of scores`_ to know how to produce a listing of scores in the
@@ -612,8 +612,10 @@ order that best fits your needs.
 
 **Tip:** if you start a new grading session from the same directory,
 the file ``eyegrade-results.csv`` will not be overwritten. New grades
-will just be appended at the end. Thus, it is safe to stop a grading
-session, close the application, and continuing later.
+will just be appended at the end. Thus, it is safe stopping a grading
+session, closing the application and continuing later. Separate grading
+sessions must be executed from different directories to avoid using
+the same ``eyegrade-results.csv`` file.
 
 **Tip:** you can edit this file with a text editor if, for example,
 you discover that the same exam was graded more than once (just remove
@@ -670,6 +672,10 @@ of the students. The rationale behind this behavior is apreventing
 accidental losses of student scores. This behavior can be changed (see
 `Exporting a listing for a subset of students`_).
 
+See `Mixing manually-graded questions`_ if you need to produce
+listings in exams combining MCQ questions with manually-graded
+questions.
+
 
 Exporting a listing for a subset of students
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -695,8 +701,8 @@ Editing exams
 To be done.
 
 
-Other features
---------------
+Advanced features
+-----------------
 
 Webcam selection
 ................
@@ -712,6 +718,11 @@ camera numbered as 2::
 
     python -m eyegrade.eyegrade exam.eye -c 2 -l student-list.csv
 
+When the number is -1, eyegrade will automatically test different
+camera numbers until it finds one that works. When you select a camera
+number that does not exist or does not work, Eyegrade will also look
+automatically for other camera that works.
+
 You can configure Eyegrade to always use a specific camera number by
 inserting the option ``camera-dev`` in the ``default`` section of
 the configuration file::
@@ -724,3 +735,49 @@ the configuration file::
 
 Save it in your user account with name ``.eyegrade.cfg``. In Windows systems,
 your account is at ``C:\Documents and Settings\<your_user_name>``.
+
+
+Mixing manually-graded questions
+................................
+
+You may want to mix in the same exam MCQ questions with other type
+of questions that must be graded manually. Even though Eyegrade can
+only grade the MCQ questions of the exam, it can simplify a little
+bit the process of mixing grades.
+
+First, grade the MCQ exams with Eyegrade. Then, grade the other
+questions *without* changing the ordering of the exams.
+
+Create a new CSV file with only one column, which contains the student
+ids of the students that submitted the exam. It will help a lot
+producing this listing in the same order you have graded the
+exams. Such a listing can be trivially obtained from the file
+``eyegrade-answers.csv``. In Linux, it can be done with just a
+command::
+
+    cut eyegrade-answers.csv -f 2 >extra-marks.csv
+
+Edit that listing to include the marks of the manually-graded
+questions. Write marks in one or more columns at the right of the
+student id. Having this file the same order of your exams, introducing
+manual marks should be easier, since you do not need to search.  This
+is an example with only one manual mark per exam (just one column)::
+
+    100999991   7
+    100999997   8
+    100800003   5
+    100777777   9.5
+
+The final listing that combines the results of all the questions can
+be produced with ``mix_grades``::
+
+    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
+
+The columns with the manual marks would appear at the right in the
+resulting file::
+
+    100000333			
+    100777777	 7	13	9.5
+    100999997	 15	1	8
+    100999991	 9	6	7
+    100800003	 7	13	5
