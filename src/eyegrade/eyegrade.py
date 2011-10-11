@@ -228,7 +228,7 @@ def main():
                 exam = utils.Exam(image, model, solutions[model],
                                   valid_student_ids, im_id, options.save_stats,
                                   exam_data.score_weights,
-                                  imageproc.save_image)
+                                  interface.save_capture)
                 exam.grade()
                 latest_graded_exam = exam
             else:
@@ -250,7 +250,7 @@ def main():
                     exam = utils.Exam(image, model, {}, valid_student_ids,
                                       im_id, options.save_stats,
                                       exam_data.score_weights,
-                                      imageproc.save_image)
+                                      interface.save_capture)
                     exam.grade()
                     interface.set_manual_detect_enabled(True)
                 else:
@@ -264,7 +264,7 @@ def main():
             elif event == gui.event_manual_detection:
                 exam = utils.Exam(image, model, {}, valid_student_ids, im_id,
                                   options.save_stats, exam_data.score_weights,
-                                  imageproc.save_image)
+                                  interface.save_capture)
                 exam.grade()
                 interface.set_manual_detect_enabled(True)
                 # Set the event to repeat again in lock_mode
@@ -287,9 +287,9 @@ def main():
             exam.lock_capture()
             exam.draw_answers()
             interface.show_capture(exam.image.image_drawn, False)
-            interface.update_text(exam.get_student_name(), False)
+            interface.update_text(exam.get_student_id_and_name(), False)
             if exam.score is not None:
-                interface.update_status(exam.score, False)
+                interface.update_status(exam.score, exam.model, False)
             interface.set_review_toolbar(True)
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
@@ -311,7 +311,7 @@ def main():
                     exam.reset_student_id_editor()
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn, False)
-                    interface.update_text(exam.get_student_name())
+                    interface.update_text(exam.get_student_id_and_name())
                 elif (event == gui.event_next_id
                       or event == gui.event_previous_id):
                     if not override_id_mode and options.ids_file is not None:
@@ -325,7 +325,7 @@ def main():
                         profiler.count_student_id_change()
                         exam.draw_answers()
                         interface.show_capture(exam.image.image_drawn, False)
-                        interface.update_text(exam.get_student_name())
+                        interface.update_text(exam.get_student_id_and_name())
                 elif event == gui.event_id_digit:
                     if override_id_mode:
                         exam.student_id_editor(event_info)
@@ -334,7 +334,7 @@ def main():
                     profiler.count_student_id_change()
                     exam.draw_answers()
                     interface.show_capture(exam.image.image_drawn, False)
-                    interface.update_text(exam.get_student_name())
+                    interface.update_text(exam.get_student_id_and_name())
                 elif event == gui.event_debug_proc and options.debug:
                     imageproc_options['show-image-proc'] = \
                         not imageproc_options['show-image-proc']
@@ -359,7 +359,7 @@ def main():
                             exam.toggle_answer(question, answer)
                             interface.show_capture(exam.image.image_drawn,
                                                    False)
-                            interface.update_status(exam.score)
+                            interface.update_status(exam.score, exam.model)
                     else:
                         manual_points.append(event_info)
                         exam.image.draw_corner(event_info)
@@ -375,6 +375,7 @@ def main():
                                         exam.solutions = solutions[exam.model]
                                         exam.grade()
                                         interface.update_status(exam.score,
+                                                                exam.model,
                                                                 False)
                             else:
                                 exam.image.clean_drawn_image()
@@ -389,7 +390,7 @@ def main():
                             manual_detection_mode = False
             dump_camera_buffer(imageproc_context.camera)
             interface.update_text('Searching...', False)
-            interface.update_status(None, False)
+            interface.update_status(None, flip=False)
             interface.set_search_toolbar(True)
             latest_graded_exam = None
             if imageproc_options['capture-from-file']:

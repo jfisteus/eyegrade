@@ -656,6 +656,17 @@ class Exam(object):
         else:
             return None
 
+    def get_student_id_and_name(self):
+        if self.student_id != '-1':
+            if (self.student_names is not None and
+                self.student_id in self.student_names):
+                return ' '.join((self.student_id,
+                                 self.student_names[self.student_id]))
+            else:
+                return self.student_id
+        else:
+            return None
+
     def __id_rank(self, student_id, scores):
         rank = 0.0
         for i in range(len(student_id)):

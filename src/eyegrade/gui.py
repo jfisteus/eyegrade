@@ -108,6 +108,7 @@ class PygameInterface(object):
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
         self.last_score = None
+        self.last_model = None
         self.statusbar_active = None
         self.manual_detect_enabled = False
         self.event_queue = []
@@ -131,8 +132,9 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
-    def update_status(self, score, flip=True):
+    def update_status(self, score, model=None, flip=True):
         self.last_score = score
+        self.last_model = model
         self.__stop_statusbar_timer()
         self.statusbar_active = False
         self.screen.blit(self.surface_bottom_2, (0, self.capture_size[1] + 32))
@@ -148,9 +150,14 @@ class PygameInterface(object):
                 self.__render_text(str(correct), (36, vpos))
                 self.__render_text(str(incorrect), (100, vpos))
                 self.__render_text(str(blank), (164, vpos))
+                hpos = 210
                 if score is not None and max_score is not None:
                     text = 'Score: %.2f / %.2f'%(score, max_score)
-                    self.__render_text(text, (210, vpos))
+                    size = self.__render_text(text, (hpos, vpos))
+                    hpos += size[0] + 20
+            if model is not None:
+                size = self.__render_text('Model: ' + model, (hpos, vpos))
+                hpos += size[0] + 20
         if flip:
             pygame.display.flip()
 
@@ -165,7 +172,7 @@ class PygameInterface(object):
 
     def cancel_statusbar_message(self, flip=True):
         if self.statusbar_active:
-            self.update_status(self.last_score, flip)
+            self.update_status(self.last_score, self.last_model, flip)
             self.statusbar_active = False
         else:
             self.__stop_statusbar_timer()
@@ -256,6 +263,13 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
+    def save_capture(self, filename, ipl_image):
+        self.cancel_statusbar_message(flip=True)
+        surface = pygame.Surface((self.capture_size[0], self.size[1]))
+        surface.blit(self.screen, (0,0),
+                     pygame.Rect(0, 0, self.capture_size[0], self.size[1]))
+        pygame.image.save(surface, filename)
+
     def __start_statusbar_timer(self, time=None):
         if time is None:
             time = statusbar_display_time
@@ -268,6 +282,7 @@ class PygameInterface(object):
         surface = self.normal_font.render(text, True, param_font_color,
                                           param_background_color)
         self.screen.blit(surface, pos)
+        return surface.get_size()
 
     def __parse_event_search_mode(self, event):
         if event.type == pygame.QUIT:
