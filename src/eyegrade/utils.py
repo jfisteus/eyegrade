@@ -28,6 +28,7 @@ import copy
 import io
 
 program_name = 'eyegrade'
+web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
 version = '0.1.14'
 version_status = 'alpha'
 

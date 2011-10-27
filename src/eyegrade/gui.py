@@ -45,7 +45,7 @@ event_click = 12
 event_manual_detection = 13
 
 statusbar_event_id = pygame.USEREVENT + 1
-statusbar_display_time = 6000
+statusbar_display_time = 10000
 statusbar_tooltip_delay = 1000
 
 save_icon_normal = pygame.image.load(utils.resource_path('save.png'))
