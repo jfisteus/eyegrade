@@ -61,4 +61,100 @@
     </choices>
   </question>
 
+  <question>
+    <text>
+      Which is the capital of Spain?
+    </text>
+    <choices>
+      <correct>Madrid.</correct>
+      <incorrect>Barcelona.</incorrect>
+      <incorrect>Paris.</incorrect>
+      <incorrect>None of the other answers is correct.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      Which is the capital of France?
+    </text>
+    <choices>
+      <correct>Paris.</correct>
+      <incorrect>Lion.</incorrect>
+      <incorrect>Madrid.</incorrect>
+      <incorrect>None of the other answers is correct.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      What does ``hola'' mean in Spanish?
+    </text>
+    <choices>
+      <correct>``Hello''.</correct>
+      <incorrect>``Bye''.</incorrect>
+      <incorrect>``Wave''.</incorrect>
+      <incorrect>``Hola'' is not a word in Spanish.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      How many months has a year?
+    </text>
+    <choices>
+      <correct>12.</correct>
+      <incorrect>6.</incorrect>
+      <incorrect>10.</incorrect>
+      <incorrect>It depends on whether it is a leap year or not.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      Are dolphins mammals?
+    </text>
+    <choices>
+      <correct>Yes.</correct>
+      <incorrect>No.</incorrect>
+      <incorrect>Sometimes.</incorrect>
+      <incorrect>Who knows\ldots.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      Who created Python?
+    </text>
+    <choices>
+      <correct>Guido van Rossum.</correct>
+      <incorrect>Richard Stallman.</incorrect>
+      <incorrect>Dennis M. Ritchie.</incorrect>
+      <incorrect>Jamie Zawinski.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      How is ``Germany'' said in German?
+    </text>
+    <choices>
+      <correct>Deutschland.</correct>
+      <incorrect>Die Schweiz.</incorrect>
+      <incorrect>Germany.</incorrect>
+      <incorrect>Berlin.</incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <text>
+      What is Linux?
+    </text>
+    <choices>
+      <correct>A free-software operating system.</correct>
+      <incorrect>A river in Spain.</incorrect>
+      <incorrect>The tallest mountain on Earth.</incorrect>
+      <incorrect>An Internet company that sells phones.</incorrect>
+    </choices>
+  </question>
+
 </exam>
