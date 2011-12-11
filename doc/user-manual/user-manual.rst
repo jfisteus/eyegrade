@@ -704,7 +704,71 @@ separate listing for each class.
 Editing exams
 -------------
 
-To be done.
+Although you can use any software of your preference to typeset the
+exams, Eyegrade provides a module for doing that in combination to the
+LaTeX document preparation system.
+
+First, write your questions in an XML document like the following one:
+
+    .. include:: ../sample-files/exam-questions.xml
+       :literal:
+
+Then, create a LaTeX template for the exam. This is an example:
+
+    .. include:: ../sample-files/template.tex
+       :literal:
+
+In the template, notice that there are some marks within {{ and }}
+that are intended to be replaced by the script with data from the
+exam:
+
+- `{{declarations}}`: the script will put there declarations needed
+  for the generate LaTeX file.
+- `{{subject}}`, `{{degree}}`: name of the subject and degree it
+  belongs to. Taken from the XML file with the questions.
+- `{{title}}`: the title of the exam. Taken from the XML file with the
+  questions.
+- `{{duration}}`: duration of the exam. Taken from the XML file with
+  the questions.
+- `{{model}}`: a letter representing the model of the exam. Each model
+  has a different ordering for questions and choices within questions.
+- `{{id-box(9,ID}}`: replaced by a box for students to fill in their IDs.
+  The number of digits and the text to be put at the left of the box are
+  specified within the parenthesis.
+- `{{answer-table}}`: replaced by the table in which students mark out
+  their answers.
+- `{{questions}}`: replaced by the questions of the exam.
+
+Note that a template is highly reusable for different exams and
+subjects.
+
+Once the exam file and the template have been created, the script
+`create_exam.py` parses them and generates the exam in LaTeX format::
+
+  python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
+
+The previous command will create models 0, A and B of the exam with
+names `exam-0.tex`, `exam-A.tex` and `exam-B.tex`. Exam model 0 is a
+special exam in which questions are not reordered. The correct answer
+is always the first choice. Those files can be compiled with LaTeX to
+obtain a PDF that can be printed. In addition, the ``exam.eye`` file
+needed to grade the exam is automatically created (or updated if it
+already exists).
+
+The script `create_exam.py` has other features, like creating just the
+front page of the exam (no questions needed). They can be explored with
+the command-line help of the program::
+
+  python -m eyegrade.create_exam -h
+
+**Warning:** the current prototype of Eyegrade has trouble with some
+exam geometries (for example, answer tables in which horizontal and
+vertical dimensions are not relatively balanced, or the ID box is much
+wider or narrower than the answer table. Before printing all the
+exams, print a sample and try it, just in case. Options `-W`, `-H` and
+`-x` of `create_exam.py` can be used to adjust the geometry of those
+tables to something Eyegrade can read. Option ``-n`` can also help,
+because it controls the number of answer tables to show.
 
 
 Advanced features
