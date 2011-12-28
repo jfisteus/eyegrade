@@ -290,7 +290,8 @@ def main():
             interface.show_capture(exam.image.image_drawn, False)
             interface.update_text(exam.get_student_id_and_name(), False)
             if exam.score is not None:
-                interface.update_status(exam.score, exam.model, False)
+                interface.update_status(exam.score, exam.model, exam.im_id,
+                                        flip=False)
             interface.set_review_toolbar(True)
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
@@ -360,7 +361,8 @@ def main():
                             exam.toggle_answer(question, answer)
                             interface.show_capture(exam.image.image_drawn,
                                                    False)
-                            interface.update_status(exam.score, exam.model)
+                            interface.update_status(exam.score, exam.model,
+                                                    exam.im_id, flip=True)
                     else:
                         manual_points.append(event_info)
                         exam.image.draw_corner(event_info)
@@ -377,7 +379,8 @@ def main():
                                         exam.grade()
                                         interface.update_status(exam.score,
                                                                 exam.model,
-                                                                False)
+                                                                exam.im_id,
+                                                                flip=False)
                             else:
                                 exam.image.clean_drawn_image()
                                 interface.set_statusbar_message(('Manual '

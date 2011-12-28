@@ -132,7 +132,7 @@ class PygameInterface(object):
         if flip:
             pygame.display.flip()
 
-    def update_status(self, score, model=None, flip=True):
+    def update_status(self, score, model=None, seq_num=None, flip=True):
         self.last_score = score
         self.last_model = model
         self.__stop_statusbar_timer()
@@ -157,6 +157,9 @@ class PygameInterface(object):
                     hpos += size[0] + 20
             if model is not None:
                 size = self.__render_text('Model: ' + model, (hpos, vpos))
+                hpos += size[0] + 20
+            if seq_num is not None:
+                size = self.__render_text('Num: ' + str(seq_num), (hpos, vpos))
                 hpos += size[0] + 20
         if flip:
             pygame.display.flip()
