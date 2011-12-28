@@ -48,6 +48,8 @@ statusbar_event_id = pygame.USEREVENT + 1
 statusbar_display_time = 10000
 statusbar_tooltip_delay = 1000
 
+eyegrade_icon = pygame.image.load(utils.resource_path('icon.png'))
+eyegrade_icon_small = pygame.image.load(utils.resource_path('icon-32x32.png'))
 save_icon_normal = pygame.image.load(utils.resource_path('save.png'))
 save_icon_high = pygame.image.load(utils.resource_path('save_high.png'))
 next_id_icon_normal = pygame.image.load(utils.resource_path('next_id.png'))
@@ -90,6 +92,7 @@ class PygameInterface(object):
     """Implements the user interface of the system using pygame."""
 
     def __init__(self, capture_size, id_enabled, id_list_enabled):
+        pygame.display.set_icon(eyegrade_icon)
         self.capture_size = capture_size
         self.size = (capture_size[0] + 48, capture_size[1] + 64)
         pygame.display.set_mode(self.size)
@@ -122,6 +125,8 @@ class PygameInterface(object):
     def show_capture(self, image, flip=True):
         pg_img = imageproc.cvimage_to_pygame(image)
         self.screen.blit(pg_img, (0,0))
+        self.screen.blit(eyegrade_icon_small, (self.capture_size[0] - 36,
+                                               self.capture_size[1] - 36))
         if flip:
             pygame.display.flip()
 
