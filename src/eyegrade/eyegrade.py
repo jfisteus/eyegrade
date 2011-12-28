@@ -81,7 +81,7 @@ def read_cmd_options():
                       help = 'write students answers to FILENAME')
     parser.add_option('-s', '--start-id', dest = 'start_id', type = 'int',
                       help = 'start at the given exam id',
-                      default = 0)
+                      default = 1)
     parser.add_option('-o', '--output-dir', dest = 'output_dir', default = '.',
                       help = 'store captured images at the given directory')
     parser.add_option('-d', '--debug', action='store_true', dest = 'debug',
