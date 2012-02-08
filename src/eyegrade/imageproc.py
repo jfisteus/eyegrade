@@ -304,27 +304,7 @@ class ExamCapture(object):
                                          self.centers[base + i][ans - 1],
                                          color, radius)
                 base += len(corners) - 1
-        if model is not None:
-            text = "Model %s: %d / %d"%(model, good, bad)
-        else:
-            text = "Model ?: %d / %d"%(good, bad)
-        if undet > 0:
-            color = color_bad
-            text = text + " / " + str(undet)
-        else:
-            color = color_dot
-        draw_text(self.image_drawn, text, color,
-                  (10, self.image_drawn.height - 20))
-        if frozen:
-            if im_id is not None:
-                if self.status['infobits'] and model is not None:
-                    color = color_dot
-                else:
-                    color = color_bad
-                draw_text(self.image_drawn, str(im_id), color, (10, 65))
-            if self.id is not None:
-                draw_text(self.image_drawn, self.id, color, (10, 30))
-        else:
+        if not frozen:
             self.draw_status_bar()
         if self.options['show-status']:
             self.draw_status_flags()
