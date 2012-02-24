@@ -258,9 +258,9 @@ Eyegrade can be launched from command line::
 where ``exam.eye`` is the file that holds the configuration of the
 exam (number of questions, geometry of tables, correct answers, etc.)
 
-Inside the directory ``doc/sample-files`` you can find a sample
-``exam.eye``, along with a sample exam, named ``exam-A.pdf`` that you
-can use for testing the program.
+Inside the directory ``doc/sample-files`` you can find a sample exam,
+named ``exam-A.pdf``, that you can print for testing the program. The
+corresponding ``exam.eye`` file is also there.
 
 If you want Eyegrade to read student's identity, it is recommended to
 provide it with the list of students in class::
