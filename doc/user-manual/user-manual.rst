@@ -47,10 +47,11 @@ recent versions of `Debian GNU/Linux <http://www.debian.org/>`_ and
 bindings for Tre, which have to be installed manually.
 
 Using your favorite package manager (``apt-get``, ``aptitude``,
-``synaptic``, etc.), install the following packages: ``python2.6``,
-``python-pygame``, ``python-opencv``, ``libcv4`` (in recent versions
-of Ubuntu the name of this package has been changed to ``libcv2.1``),
-``libavformat52``, ``libtre5``.
+``synaptic``, etc.), install the following packages: ``python`` (check
+that the version is either 2.6 or 2.7), ``python-pygame``,
+``python-opencv``, ``libavformat52``, ``libtre5``. In older versions
+of Ubuntu and Debian, you might need to install also ``libcv2.1``. In
+even older versions, the name of this package is ``libcv4`` instead.
 
 Then, you have to install the Python bindings for Tre. First, install
 these two additional packages: ``python-dev``, ``libtre-dev``.
@@ -66,17 +67,21 @@ bindings::
 Now, you only need to download Eyegrade using the git source code
 revision system (install the ``git`` package if you do not have it)::
 
-  cd $EYEGRADE_HOME
+  cd $DIR
   git clone -b master git://github.com/jfisteus/eyegrade.git
 
-Note: replace $EYEGRADE_HOME above with the directory in which you
+Note: replace $DIR above with the directory in which you
 want Eyegrade to be installed.
 
-Finally, add the ``$EYEGRADE_HOME/src`` directory to your ``PYTHONPATH`` and
+Finally, add the ``$DIR/eyegrade/src`` directory to your ``PYTHONPATH`` and
 check that Eyegrade works::
 
-  export PYTHONPATH=$EYEGRADE_HOME/src
+  export PYTHONPATH=$DIR/eyegrade/src
   python -m eyegrade.eyegrade -h
+
+The export command works only in the current terminal. You can make it
+permanent by adding it to your $HOME/.bashrc file (if you use the BASH
+shell).
 
 That's all! Eyegrade should now be installed. For further testing, go to
 `Launching Eyegrade`_.
