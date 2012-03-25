@@ -20,8 +20,6 @@ import sys
 import os
 from optparse import OptionParser
 import time
-import csv
-import re
 
 # Local imports
 import imageproc
@@ -215,7 +213,7 @@ def main():
         override_id_mode = False
         exam = None
         model = None
-        manual_detection = False
+        manual_detection_mode = False
         profiler.count_capture()
         image = imageproc.ExamCapture(dimensions, imageproc_context,
                                       imageproc_options)

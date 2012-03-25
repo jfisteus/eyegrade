@@ -703,12 +703,10 @@ def collapse_lines_angles(lines, expected, horizontal):
     """
     if len(lines) < 2:
         return None
-    success = False
     main_lines = []
     sum_rho = lines[0][0]
     sum_theta = lines[0][1]
     num_lines = 1
-    new_group = True
     last_line = lines[0]
     for line in lines[1:]:
         if ((((horizontal and line[1] > last_line[1]) or

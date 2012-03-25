@@ -391,8 +391,6 @@ def __table_top(num_tables, num_choices, compact, table_width=None,
 def __build_row(num_row, row_geometry, question_numbers, num_choices,
                 infobits_row, compact):
     parts = []
-    num_empty_columns = 1 if not compact else 0
-    skip_cells = 0
     for i, geometry in enumerate(row_geometry):
         if geometry > 0:
             parts.append(__build_question_cell(num_row + question_numbers[i],
