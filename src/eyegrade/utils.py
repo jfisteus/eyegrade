@@ -200,7 +200,7 @@ def check_model_letter(model):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename=None, file_=None, data=None):
+def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
     Either 'filename', 'file_' or 'data' must be provided.  'filename'
@@ -222,15 +222,18 @@ def read_student_ids(filename=None, file_=None, data=None):
         reader = csv.reader(file_, 'tabs')
     elif data is not None:
         reader = csv.reader(io.BytesIO(data), 'tabs')
-    student_ids = {}
-    for row in reader:
-        sid = row[0]
-        if len(row) > 1:
-            name = row[1]
-            student_ids[sid] = unicode(name, locale.getpreferredencoding())
-        else:
-            name = None
-            student_ids[sid] = None
+    if not with_names:
+        student_ids = [row[0] for row in reader]
+    else:
+        student_ids = {}
+        for row in reader:
+            sid = row[0]
+            if len(row) > 1:
+                name = row[1]
+                student_ids[sid] = unicode(name, locale.getpreferredencoding())
+            else:
+                name = None
+                student_ids[sid] = None
     if csvfile is not None:
         csvfile.close()
     return student_ids

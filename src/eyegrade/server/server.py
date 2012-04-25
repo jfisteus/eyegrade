@@ -109,7 +109,8 @@ class EyegradeServer(object):
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
         data = cherrypy.request.body.read()
-        student_ids = eyegrade.utils.read_student_ids(data=data)
+        student_ids = eyegrade.utils.read_student_ids(data=data,
+                                                      with_names=True)
         cherrypy.session['student_ids'] = student_ids
         cherrypy.log('Students: ' + str(student_ids))
         return 'OK'
@@ -126,7 +127,8 @@ class EyegradeServer(object):
         if not 'exam_config' in cherrypy.session:
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
-        student_ids = eyegrade.utils.read_student_ids(file_=Filedata.file)
+        student_ids = eyegrade.utils.read_student_ids(file_=Filedata.file,
+                                                      with_names=True)
         cherrypy.session['student_ids'] = student_ids
         cherrypy.log('Students: ' + str(student_ids))
         return 'OK'
