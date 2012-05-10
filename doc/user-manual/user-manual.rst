@@ -573,7 +573,7 @@ Processing Student Grades
 
 The output produced by Eyegrade consists of:
 
-- A file with the scores, named ``eyegrade-results.csv``: it contains
+- A file with the scores, named ``eyegrade-answers.csv``: it contains
   one line for each graded exam. Each line contains, among other
   things, the student id number, the number of correct and incorrect
   answers, and the answer to every question in the exam.  Student
@@ -664,7 +664,7 @@ This command will produce the listing in a file named
     python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
 
 The output for the listing above, and the sample file shown in `The
-results file`_, would be::
+answers file`_, would be::
 
     100000333		
     100777777	 7	13
@@ -681,7 +681,7 @@ Importing the previous file in a spreadsheet should be
 straightforward, because the list of students will now be in the same
 order as your spreadsheet.
 
-If there are exams in the results file of students not in your list,
+If there are exams in the answers file of students not in your list,
 the default behavior is including them in the listing, after the rest
 of the students. The rationale behind this behavior is apreventing
 accidental losses of student scores. This behavior can be changed (see
@@ -699,10 +699,10 @@ In order to extract the scores for just a subset of the students,
 create a student list with the ids of the students you want and run
 the program with the ``-i`` option::
 
-    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -i -o sorted-listing.csv
+    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -i -o sorted-listing.csv
 
 The ``-i`` option makes Eyegrade ignore students that are in the
-results file but not in the student list. That is, the listing will
+answers file but not in the student list. That is, the listing will
 only contain the students that are in the student list you provide.
 
 This option may be useful, for example, if you examine students coming
@@ -850,7 +850,7 @@ is an example with only one manual mark per exam (just one column)::
 The final listing that combines the results of all the questions can
 be produced with ``mix_grades``::
 
-    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
+    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
 
 The columns with the manual marks would appear at the right in the
 resulting file::
