@@ -587,10 +587,10 @@ The output produced by Eyegrade consists of:
   instructor to locate the snapshot for a specific student.
 
 
-The results file
+The answers file
 ................
 
-The file ``eyegrade-results.csv`` produced by Eyegrade contains the
+The file ``eyegrade-answers.csv`` produced by Eyegrade contains the
 scores in CSV format (with tabulator instead of comma as a separator),
 so that it can be easily imported from other programs such as
 spreadsheets. This is an example of such a file::
@@ -626,11 +626,11 @@ listing of scores`_ to know how to produce a listing of scores in the
 order that best fits your needs.
 
 **Tip:** if you start a new grading session from the same directory,
-the file ``eyegrade-results.csv`` will not be overwritten. New grades
+the file ``eyegrade-answers.csv`` will not be overwritten. New grades
 will just be appended at the end. Thus, it is safe stopping a grading
 session, closing the application and continuing later. Separate grading
 sessions must be executed from different directories to avoid using
-the same ``eyegrade-results.csv`` file.
+the same ``eyegrade-answers.csv`` file.
 
 **Tip:** you can edit this file with a text editor if, for example,
 you discover that the same exam was graded more than once (just remove
@@ -641,7 +641,7 @@ Exporting a listing of scores
 .............................
 
 You will probably want to import the listing of scores from your
-grade-book. You can easily process ``eyegrade-results.csv`` to produce
+grade-book. You can easily process ``eyegrade-answers.csv`` to produce
 a CSV-formatted file with three columns: student id, number of correct
 answers and number of incorrect answers, in the order you want. You
 can even produce the listing to for just a subset of the students.
@@ -661,7 +661,7 @@ to run Eyegrade. This is an example of such a file::
 This command will produce the listing in a file named
 ``sorted-listing.csv``::
 
-    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -o sorted-listing.csv
+    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
 
 The output for the listing above, and the sample file shown in `The
 results file`_, would be::
