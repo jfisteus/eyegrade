@@ -110,16 +110,22 @@ your file system.
 1.- Download the ZIP file from:
 <http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip>.
 
-2.- Extract it somewhere in your file system (for example, in
-``C:\``). A directory named ``Python26`` will appear. Be aware that
-the full path of the directory where you extract it *cannot contain*
-white-spaces.
+2.- Extract it somewhere in your file system (I recommend ``C:\``). A
+directory named ``Python26`` will appear. Be aware that the full path
+of the directory where you extract it *cannot contain* white-spaces.
 
-You can test your installation by launching the interactive Python
-interpreter. For example, if you installed it at ``C:\``, open a
-command prompt window and type::
+3.- Add the main directory (``Python26``) of your Python installation
+to your system PATH. For example, if you uncompressed Python at ``C:\``,
+add ``C:\Python26`` to the system PATH variable.
 
-    C:\Python26\Python
+You can test your installation by opening a new command line console
+and launching the interactive Python interpreter in it::
+
+    Python
+
+If it does not start, you have probably not added it correctly to your
+system PATH. Opening a new console is important because changes in the
+system PATH apply only to newly-opened consoles.
 
 Once in the Python interpreter, the following commands should work::
 
@@ -127,7 +133,9 @@ Once in the Python interpreter, the following commands should work::
     import tre
 
 These commands should not output any message. If they do, there is a
-problem with the installation.
+problem with the installation. If *tre* complains about a missing DLL,
+the problem is probably that the installation directory of Python is
+not in the system PATH.
 
 If you already have a Python 2.6 installation and want to use it, you
 must, on that installation of Python: (1) download and install Pygame;
