@@ -28,6 +28,11 @@ import gui
 
 param_max_wait_time = 0.15 # seconds
 
+utils.EyegradeException.register_error('no_camera',
+    'There is no suitable webcam. Eyegrade needs a webcam to work.\n'
+    'If your computer already has a camera, check that it is not being\n'
+    'used by another application.')
+
 class PerformanceProfiler(object):
     def __init__(self):
         self.start()
@@ -199,8 +204,7 @@ def main():
     else:
         imageproc_context.init_camera(select_camera(options, config))
         if imageproc_context.camera is None:
-            print >> sys.stderr, 'ERROR: No camera found!'
-            sys.exit(1)
+            raise utils.EyegradeException('No camera found!', key='no_camera')
 
     # Program main loop
     lock_mode = not options.adjust
@@ -421,3 +425,4 @@ if __name__ == '__main__':
         main()
     except utils.EyegradeException as ex:
         print >>sys.stderr, ex
+        sys.exit(1)
