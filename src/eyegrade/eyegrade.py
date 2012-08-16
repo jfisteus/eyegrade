@@ -417,4 +417,7 @@ def main():
                 sys.exit(1)
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except utils.EyegradeException as ex:
+        print >>sys.stderr, ex
