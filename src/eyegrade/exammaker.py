@@ -79,12 +79,7 @@ class ExamMaker(object):
         self.parts = re_split_template.split(template)
         self.output_file = output_file
         self.exam_questions = None
-        self.table_width = table_width
-        self.table_height = table_height
-        self.table_scale = table_scale
-        self.id_box_width = id_box_width
         id_label, self.id_num_digits = id_num_digits(self.parts)
-        self.__load_replacements(variables, id_label)
         self.exam_config_filename = exam_config_filename
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
@@ -94,6 +89,15 @@ class ExamMaker(object):
         else:
             self.dimensions = compute_table_dimensions(num_questions,
                                                        num_choices, num_tables)
+        self.table_scale = table_scale
+        self.id_box_width = id_box_width
+        if table_width is None and table_height is None:
+            self.table_width, self.table_height, self.id_box_width = \
+                self._compute_table_size()
+        else:
+            self.table_width = table_width
+            self.table_height = table_height
+        self.__load_replacements(variables, id_label)
         if self.exam_config_filename is not None:
             if not force_config_overwrite:
                 self.__load_exam_config()
@@ -187,6 +191,56 @@ class ExamMaker(object):
         self.exam_config.num_questions = self.num_questions
         self.exam_config.id_num_digits = self.id_num_digits
 
+    def _compute_table_size(self):
+        """Computes a size for the table such as it is more or less square.
+
+        Some facts the function is based on:
+
+        - In Latex, the proportion between the witdh and the height of a
+        cell will be 1.55.
+
+        - Each table has an extra column for the question number.
+
+        - There are one extra row at the top, and two at the bottom.
+
+        - The objective is making the lengths of the horizontal lines be
+        close to the length of the vertical lines.
+
+        - When resizing the table, with double width proportions are 1:1.
+
+        """
+        num_cols = self.dimensions[0][0] * len(self.dimensions)
+        num_rows = max([d[1] for d in self.dimensions])
+        extra_cols = len(self.dimensions)
+        extra_rows = 3
+        actual_ratio = 1.55 * num_cols / num_rows
+        desired_ratio = ((1 + 1.0 * extra_cols / num_cols)
+                         / (1 + 1.0 * extra_rows / num_rows))
+        if actual_ratio > 1.35 * desired_ratio:
+            ratio = 1.35 * desired_ratio
+        elif actual_ratio < 0.74 * desired_ratio:
+            ratio = 0.74 * desired_ratio
+        else:
+            ratio = actual_ratio
+        height = 0.3 * num_rows
+        if height < 3:
+            height = 3.0
+        elif height > 4.6:
+            height = 4.6
+        height = height * self.table_scale
+        width = 2 * height * ratio
+        if self.id_num_digits > 0 and self.id_box_width is None:
+            actual_id_width = 0.75 * self.id_num_digits
+            if actual_id_width < 0.66 * width:
+                id_width = 0.66 * width
+            elif actual_id_width > 1.5 * width:
+                id_width = 1.5 * width
+            else:
+                id_width = None
+        else:
+            id_width = None
+        return width, height, id_width
+
     def __load_replacements(self, variables, id_label):
         self.replacements = copy.copy(variables)
         self.replacements['id-box'] = create_id_box(id_label,
@@ -247,10 +301,6 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None,
     for d in dimensions:
         if d[0] != num_choices:
             raise EyegradeException('', 'same_num_choices')
-    if table_width is None and table_height is None:
-        table_width, table_height = compute_table_size(dimensions)
-        table_width = table_scale * table_width
-        table_height = table_scale * table_height
     if model != '0':
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
@@ -268,45 +318,6 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None,
         rows.append('}')
     rows.append(r'\end{center}')
     return '\n'.join(rows)
-
-def compute_table_size(dimensions):
-    """Computes a size for the table such as it is more or less square.
-
-    Some facts the function is based on:
-
-    - In Latex, the proportion between the witdh and the height of a
-    cell will be 1.55.
-
-    - Each table has an extra column for the question number.
-
-    - There are one extra row at the top, and two at the bottom.
-
-    - The objective is making the lengths of the horizontal lines be
-      close to the length of the vertical lines.
-
-    - When resizing the table, with double width proportions are 1:1.
-
-    """
-    num_cols = dimensions[0][0] * len(dimensions)
-    num_rows = max([d[1] for d in dimensions])
-    extra_cols = len(dimensions)
-    extra_rows = 3
-    actual_ratio = 1.55 * num_cols / num_rows
-    desired_ratio = ((1 + 1.0 * extra_cols / num_cols)
-                   / (1 + 1.0 * extra_rows / num_rows))
-    if actual_ratio > 1.35 * desired_ratio:
-        ratio = 1.35 * desired_ratio
-    elif actual_ratio < 0.74 * desired_ratio:
-        ratio = 0.74 * desired_ratio
-    else:
-        ratio = actual_ratio
-    height = 0.3 * num_rows
-    if height < 3:
-        height = 3.0
-    elif height > 4.6:
-        height = 4.6
-    width = 2 * height * ratio
-    return width, height
 
 def create_id_box(label, num_digits, box_width=None):
     """Creates the ID box given a label to show and number of digits.
