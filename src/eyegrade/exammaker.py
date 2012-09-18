@@ -237,12 +237,14 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None):
     """
     if len(dimensions) == 0:
         raise Exception('No tables defined in dimensions')
-    compact = (len(dimensions) > 2)
+    compact = True
     num_choices = dimensions[0][0]
     num_tables = len(dimensions)
     for d in dimensions:
         if d[0] != num_choices:
             raise EyegradeException('', 'same_num_choices')
+    if table_width is None and table_height is None:
+        table_width, table_height = compute_table_size(dimensions)
     if model != '0':
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
@@ -260,6 +262,45 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None):
         rows.append('}')
     rows.append(r'\end{center}')
     return '\n'.join(rows)
+
+def compute_table_size(dimensions):
+    """Computes a size for the table such as it is more or less square.
+
+    Some facts the function is based on:
+
+    - In Latex, the proportion between the witdh and the height of a
+    cell will be 1.55.
+
+    - Each table has an extra column for the question number.
+
+    - There are one extra row at the top, and two at the bottom.
+
+    - The objective is making the lengths of the horizontal lines be
+      close to the length of the vertical lines.
+
+    - When resizing the table, with double width proportions are 1:1.
+
+    - The minimum height and width are 3 and 6 respectively.
+
+    - The maximum height and width are 6 and 12 respectively.
+
+    """
+    num_cols = dimensions[0][0] * len(dimensions)
+    num_rows = max([d[1] for d in dimensions])
+    extra_cols = len(dimensions)
+    extra_rows = 3
+    actual_ratio = 1.55 * num_cols / num_rows
+    desired_ratio = ((1 + 1.0 * extra_cols / num_cols)
+                   / (1 + 1.0 * extra_rows / num_rows))
+    height = 4.0
+    if actual_ratio > 1.25 * desired_ratio:
+        ratio = 1.25 * desired_ratio
+    elif actual_ratio < 0.75 * desired_ratio:
+        ratio = 0.75 * desired_ratio
+    else:
+        ratio = actual_ratio
+    width = 2 * height * ratio
+    return width, height
 
 def create_id_box(label, num_digits, box_width=None):
     """Creates the ID box given a label to show and number of digits.
