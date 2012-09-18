@@ -66,7 +66,8 @@ class ExamMaker(object):
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
                  num_tables=0, dimensions=None,
-                 table_width=None, table_height=None, id_box_width=None,
+                 table_width=None, table_height=None, table_scale=1.0,
+                 id_box_width=None,
                  force_config_overwrite=False, score_weights=None):
         """
            Class able to create exams. One object is enough for all models.
@@ -80,6 +81,7 @@ class ExamMaker(object):
         self.exam_questions = None
         self.table_width = table_width
         self.table_height = table_height
+        self.table_scale = table_scale
         self.id_box_width = id_box_width
         id_label, self.id_num_digits = id_num_digits(self.parts)
         self.__load_replacements(variables, id_label)
@@ -121,7 +123,8 @@ class ExamMaker(object):
             raise EyegradeException('', 'bad_model_value')
         replacements = copy.copy(self.replacements)
         answer_table = create_answer_table(self.dimensions, model,
-                                           self.table_width, self.table_height)
+                                           self.table_width, self.table_height,
+                                           self.table_scale)
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
@@ -223,7 +226,8 @@ def latex_declarations(with_solution):
         data.append(r'\solutionsfalse')
     return '\n'.join(data)
 
-def create_answer_table(dimensions, model, table_width=None, table_height=None):
+def create_answer_table(dimensions, model, table_width=None, table_height=None,
+                        table_scale=1.0):
     """Returns a string with the answer tables of the answer sheet.
 
        Tables are LaTeX-formatted. 'dimensions' specifies the geometry
@@ -245,6 +249,8 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None):
             raise EyegradeException('', 'same_num_choices')
     if table_width is None and table_height is None:
         table_width, table_height = compute_table_size(dimensions)
+        table_width = table_scale * table_width
+        table_height = table_scale * table_height
     if model != '0':
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
@@ -280,10 +286,6 @@ def compute_table_size(dimensions):
 
     - When resizing the table, with double width proportions are 1:1.
 
-    - The minimum height and width are 3 and 6 respectively.
-
-    - The maximum height and width are 6 and 12 respectively.
-
     """
     num_cols = dimensions[0][0] * len(dimensions)
     num_rows = max([d[1] for d in dimensions])
@@ -292,13 +294,17 @@ def compute_table_size(dimensions):
     actual_ratio = 1.55 * num_cols / num_rows
     desired_ratio = ((1 + 1.0 * extra_cols / num_cols)
                    / (1 + 1.0 * extra_rows / num_rows))
-    height = 4.0
-    if actual_ratio > 1.25 * desired_ratio:
-        ratio = 1.25 * desired_ratio
-    elif actual_ratio < 0.75 * desired_ratio:
-        ratio = 0.75 * desired_ratio
+    if actual_ratio > 1.35 * desired_ratio:
+        ratio = 1.35 * desired_ratio
+    elif actual_ratio < 0.74 * desired_ratio:
+        ratio = 0.74 * desired_ratio
     else:
         ratio = actual_ratio
+    height = 0.3 * num_rows
+    if height < 3:
+        height = 3.0
+    elif height > 4.6:
+        height = 4.6
     width = 2 * height * ratio
     return width, height
 

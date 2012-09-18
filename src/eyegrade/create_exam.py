@@ -76,9 +76,13 @@ def read_cmd_options():
     parser.add_option('-w', '-W', '--table-width', type='float',
                       dest='table_width',
                       default=None, help='answer table width in cm')
-    parser.add_option('-H', '--id-box-height', type='float',
+    parser.add_option('-H', '--table_height', type='float',
                       dest='table_height', default=None,
                       help='answer table height in cm')
+    parser.add_option('-S', '--table_scale', type='float',
+                      dest='table_scale', default=1.0,
+                      help='scale answer table with respect to default'
+                           ' values > 1.0 for augmenting, < 1.0 for reducing')
     parser.add_option('-x', '--id-box-width', type='float',
                       dest='id_box_width', default=None,
                       help='ID box width in cm')
@@ -188,7 +192,7 @@ def create_exam():
                                 options.num_tables,
                                 dimensions,
                                 options.table_width, options.table_height,
-                                options.id_box_width,
+                                options.table_scale, options.id_box_width,
                                 options.force_config_overwrite,
                                 score_weights)
     if exam is not None:
