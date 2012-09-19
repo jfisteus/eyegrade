@@ -1,0 +1,8 @@
+2012-09-20  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.1.16.
+
+	* Auto-sizing of the answer tables in create_exam in order to
+	keep width and height reasonably proportionate.
+
+	* Other minor changes in the code and documentation.
