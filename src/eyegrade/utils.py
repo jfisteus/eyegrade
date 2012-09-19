@@ -29,7 +29,7 @@ import io
 
 program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
-version = '0.1.15.1'
+version = '0.1.16'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
