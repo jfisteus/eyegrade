@@ -76,10 +76,10 @@ def read_cmd_options():
     parser.add_option('-w', '-W', '--table-width', type='float',
                       dest='table_width',
                       default=None, help='answer table width in cm')
-    parser.add_option('-H', '--table_height', type='float',
+    parser.add_option('-H', '--table-height', type='float',
                       dest='table_height', default=None,
                       help='answer table height in cm')
-    parser.add_option('-S', '--table_scale', type='float',
+    parser.add_option('-S', '--table-scale', type='float',
                       dest='table_scale', default=1.0,
                       help='scale answer table with respect to default'
                            ' values > 1.0 for augmenting, < 1.0 for reducing')
@@ -100,6 +100,10 @@ def read_cmd_options():
     else:
         if options.num_questions or options.num_choices:
             parser.error('Option -e is mutually exclusive with -q and -c')
+    # The scale factor must be greater than 0.1
+    if options.table_scale < 0.1:
+        parser.error('The scale factor must be positive and greater or equal'
+                     ' to 0.1')
     return options, args
 
 def create_exam():

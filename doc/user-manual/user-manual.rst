@@ -780,14 +780,13 @@ the command-line help of the program::
 
   python -m eyegrade.create_exam -h
 
-**Warning:** the current prototype of Eyegrade has trouble with some
-exam geometries (for example, answer tables in which horizontal and
-vertical dimensions are not relatively balanced, or the ID box is much
-wider or narrower than the answer table. Before printing all the
-exams, print a sample and try it, just in case. Options `-W`, `-H` and
-`-x` of `create_exam.py` can be used to adjust the geometry of those
-tables to something Eyegrade can read. Option ``-n`` can also help,
-because it controls the number of answer tables to show.
+The answer table can be enlarged or reduced with respect to its
+default size, using the `-S` option and passing a scale factor
+(between 0.1 and 1.0 to reduce it, or greater than 1.0 to enlarge it).
+The following command enlarges the default size in a 50% (factor 1.5)::
+
+  python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
+
 
 
 Advanced features
