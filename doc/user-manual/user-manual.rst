@@ -47,10 +47,13 @@ recent versions of `Debian GNU/Linux <http://www.debian.org/>`_ and
 bindings for Tre, which have to be installed manually.
 
 Using your favorite package manager (``apt-get``, ``aptitude``,
-``synaptic``, etc.), install the following packages: ``python2.6``,
-``python-pygame``, ``python-opencv``, ``libcv4`` (in recent versions
-of Ubuntu the name of this package has been changed to ``libcv2.1``),
-``libavformat52``, ``libtre5``.
+``synaptic``, etc.), install the following packages: ``python`` (check
+that the version is either 2.6 or 2.7), ``python-pygame``,
+``python-opencv``, ``libavformat53``, ``libtre5``. In older versions
+of Ubuntu and Debian, you might need to install also ``libcv2.1`` (in
+even older versions, the name of this package is ``libcv4`` instead).
+If you can't find ``libavformat53`` in your distribution, use
+``libavformat52`` instead.
 
 Then, you have to install the Python bindings for Tre. First, install
 these two additional packages: ``python-dev``, ``libtre-dev``.
@@ -66,17 +69,21 @@ bindings::
 Now, you only need to download Eyegrade using the git source code
 revision system (install the ``git`` package if you do not have it)::
 
-  cd $EYEGRADE_HOME
+  cd $DIR
   git clone -b master git://github.com/jfisteus/eyegrade.git
 
-Note: replace $EYEGRADE_HOME above with the directory in which you
+Note: replace $DIR above with the directory in which you
 want Eyegrade to be installed.
 
-Finally, add the ``$EYEGRADE_HOME/src`` directory to your ``PYTHONPATH`` and
+Finally, add the ``$DIR/eyegrade/src`` directory to your ``PYTHONPATH`` and
 check that Eyegrade works::
 
-  export PYTHONPATH=$EYEGRADE_HOME/src
+  export PYTHONPATH=$DIR/eyegrade/src
   python -m eyegrade.eyegrade -h
+
+The export command works only in the current terminal. You can make it
+permanent by adding it to your $HOME/.bashrc file (if you use the BASH
+shell).
 
 That's all! Eyegrade should now be installed. For further testing, go to
 `Launching Eyegrade`_.
@@ -105,16 +112,22 @@ your file system.
 1.- Download the ZIP file from:
 <http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip>.
 
-2.- Extract it somewhere in your file system (for example, in
-``C:\``). A directory named ``Python26`` will appear. Be aware that
-the full path of the directory where you extract it *cannot contain*
-white-spaces.
+2.- Extract it somewhere in your file system (I recommend ``C:\``). A
+directory named ``Python26`` will appear. Be aware that the full path
+of the directory where you extract it *cannot contain* white-spaces.
 
-You can test your installation by launching the interactive Python
-interpreter. For example, if you installed it at ``C:\``, open a
-command prompt window and type::
+3.- Add the main directory (``Python26``) of your Python installation
+to your system PATH. For example, if you uncompressed Python at ``C:\``,
+add ``C:\Python26`` to the system PATH variable.
 
-    C:\Python26\Python
+You can test your installation by opening a new command line console
+and launching the interactive Python interpreter in it::
+
+    Python
+
+If it does not start, you have probably not added it correctly to your
+system PATH. Opening a new console is important because changes in the
+system PATH apply only to newly-opened consoles.
 
 Once in the Python interpreter, the following commands should work::
 
@@ -122,7 +135,9 @@ Once in the Python interpreter, the following commands should work::
     import tre
 
 These commands should not output any message. If they do, there is a
-problem with the installation.
+problem with the installation. If *tre* complains about a missing DLL,
+the problem is probably that the installation directory of Python is
+not in the system PATH.
 
 If you already have a Python 2.6 installation and want to use it, you
 must, on that installation of Python: (1) download and install Pygame;
@@ -252,6 +267,10 @@ Eyegrade can be launched from command line::
 
 where ``exam.eye`` is the file that holds the configuration of the
 exam (number of questions, geometry of tables, correct answers, etc.)
+
+Inside the directory ``doc/sample-files`` you can find a sample exam,
+named ``exam-A.pdf``, that you can print for testing the program. The
+corresponding ``exam.eye`` file is also there.
 
 If you want Eyegrade to read student's identity, it is recommended to
 provide it with the list of students in class::
@@ -564,7 +583,7 @@ Processing Student Grades
 
 The output produced by Eyegrade consists of:
 
-- A file with the scores, named ``eyegrade-results.csv``: it contains
+- A file with the scores, named ``eyegrade-answers.csv``: it contains
   one line for each graded exam. Each line contains, among other
   things, the student id number, the number of correct and incorrect
   answers, and the answer to every question in the exam.  Student
@@ -578,10 +597,10 @@ The output produced by Eyegrade consists of:
   instructor to locate the snapshot for a specific student.
 
 
-The results file
+The answers file
 ................
 
-The file ``eyegrade-results.csv`` produced by Eyegrade contains the
+The file ``eyegrade-answers.csv`` produced by Eyegrade contains the
 scores in CSV format (with tabulator instead of comma as a separator),
 so that it can be easily imported from other programs such as
 spreadsheets. This is an example of such a file::
@@ -617,11 +636,11 @@ listing of scores`_ to know how to produce a listing of scores in the
 order that best fits your needs.
 
 **Tip:** if you start a new grading session from the same directory,
-the file ``eyegrade-results.csv`` will not be overwritten. New grades
+the file ``eyegrade-answers.csv`` will not be overwritten. New grades
 will just be appended at the end. Thus, it is safe stopping a grading
 session, closing the application and continuing later. Separate grading
 sessions must be executed from different directories to avoid using
-the same ``eyegrade-results.csv`` file.
+the same ``eyegrade-answers.csv`` file.
 
 **Tip:** you can edit this file with a text editor if, for example,
 you discover that the same exam was graded more than once (just remove
@@ -632,7 +651,7 @@ Exporting a listing of scores
 .............................
 
 You will probably want to import the listing of scores from your
-grade-book. You can easily process ``eyegrade-results.csv`` to produce
+grade-book. You can easily process ``eyegrade-answers.csv`` to produce
 a CSV-formatted file with three columns: student id, number of correct
 answers and number of incorrect answers, in the order you want. You
 can even produce the listing to for just a subset of the students.
@@ -652,10 +671,10 @@ to run Eyegrade. This is an example of such a file::
 This command will produce the listing in a file named
 ``sorted-listing.csv``::
 
-    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -o sorted-listing.csv
+    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
 
 The output for the listing above, and the sample file shown in `The
-results file`_, would be::
+answers file`_, would be::
 
     100000333		
     100777777	 7	13
@@ -672,7 +691,7 @@ Importing the previous file in a spreadsheet should be
 straightforward, because the list of students will now be in the same
 order as your spreadsheet.
 
-If there are exams in the results file of students not in your list,
+If there are exams in the answers file of students not in your list,
 the default behavior is including them in the listing, after the rest
 of the students. The rationale behind this behavior is apreventing
 accidental losses of student scores. This behavior can be changed (see
@@ -690,10 +709,10 @@ In order to extract the scores for just a subset of the students,
 create a student list with the ids of the students you want and run
 the program with the ``-i`` option::
 
-    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -i -o sorted-listing.csv
+    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -i -o sorted-listing.csv
 
 The ``-i`` option makes Eyegrade ignore students that are in the
-results file but not in the student list. That is, the listing will
+answers file but not in the student list. That is, the listing will
 only contain the students that are in the student list you provide.
 
 This option may be useful, for example, if you examine students coming
@@ -761,14 +780,13 @@ the command-line help of the program::
 
   python -m eyegrade.create_exam -h
 
-**Warning:** the current prototype of Eyegrade has trouble with some
-exam geometries (for example, answer tables in which horizontal and
-vertical dimensions are not relatively balanced, or the ID box is much
-wider or narrower than the answer table. Before printing all the
-exams, print a sample and try it, just in case. Options `-W`, `-H` and
-`-x` of `create_exam.py` can be used to adjust the geometry of those
-tables to something Eyegrade can read. Option ``-n`` can also help,
-because it controls the number of answer tables to show.
+The answer table can be enlarged or reduced with respect to its
+default size, using the `-S` option and passing a scale factor
+(between 0.1 and 1.0 to reduce it, or greater than 1.0 to enlarge it).
+The following command enlarges the default size in a 50% (factor 1.5)::
+
+  python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
+
 
 
 Advanced features
@@ -841,7 +859,7 @@ is an example with only one manual mark per exam (just one column)::
 The final listing that combines the results of all the questions can
 be produced with ``mix_grades``::
 
-    python -m eyegrade.mix_grades eyegrade-results.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
+    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
 
 The columns with the manual marks would appear at the right in the
 resulting file::

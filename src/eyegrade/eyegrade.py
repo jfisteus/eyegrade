@@ -20,8 +20,6 @@ import sys
 import os
 from optparse import OptionParser
 import time
-import csv
-import re
 
 # Local imports
 import imageproc
@@ -29,6 +27,11 @@ import utils
 import gui
 
 param_max_wait_time = 0.15 # seconds
+
+utils.EyegradeException.register_error('no_camera',
+    'There is no suitable webcam. Eyegrade needs a webcam to work.\n'
+    'If your computer already has a camera, check that it is not being\n'
+    'used by another application.')
 
 class PerformanceProfiler(object):
     def __init__(self):
@@ -201,8 +204,7 @@ def main():
     else:
         imageproc_context.init_camera(select_camera(options, config))
         if imageproc_context.camera is None:
-            print >> sys.stderr, 'ERROR: No camera found!'
-            sys.exit(1)
+            raise utils.EyegradeException('No camera found!', key='no_camera')
 
     # Program main loop
     lock_mode = not options.adjust
@@ -216,7 +218,7 @@ def main():
         override_id_mode = False
         exam = None
         model = None
-        manual_detection = False
+        manual_detection_mode = False
         profiler.count_capture()
         image = imageproc.ExamCapture(dimensions, imageproc_context,
                                       imageproc_options)
@@ -419,4 +421,8 @@ def main():
                 sys.exit(1)
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except utils.EyegradeException as ex:
+        print >>sys.stderr, ex
+        sys.exit(1)

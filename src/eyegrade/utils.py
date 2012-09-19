@@ -29,7 +29,7 @@ import io
 
 program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
-version = '0.1.15.1'
+version = '0.1.16'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
@@ -122,10 +122,19 @@ EyegradeException.register_error('bad_dimensions',
     "tables, the left-most with 9 questions and 4 choices per question,\n"
     "and the right-most with 10 questions and the same number of choices."
     'Bad dimensions value.')
+
 EyegradeException.register_error('same_num_choices',
     "By now, Eyegrade needs you to use the same number of choices in\n"
     "all the questions of the exam.",
     'There are questions with a different number of choices')
+
+EyegradeException.register_error('error_student_list',
+    'The syntax of the student list is not correct.\n'
+    'The file is expected to contain one line per student.\n'
+    'Each line can contain one or more TAB-separated columns.\n'
+    'The first column must be the student id (a number).\n'
+    'The second column, if present, is interpreted as the student name.\n'
+    'The rest of the columns are ignored.')
 
 
 def guess_data_dir():
@@ -227,6 +236,9 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     else:
         student_ids = {}
         for row in reader:
+            if len(row) == 0:
+                raise EyegradeException('Empty line in student list',
+                                        key='error_student_list')
             sid = row[0]
             if len(row) > 1:
                 name = row[1]
