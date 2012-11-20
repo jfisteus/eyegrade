@@ -672,7 +672,8 @@ class Exam(object):
     def get_student_id_and_name(self):
         if self.student_id != '-1':
             if (self.student_names is not None and
-                self.student_id in self.student_names):
+                self.student_id in self.student_names and
+                self.student_names[self.student_id] is not None):
                 return ' '.join((self.student_id,
                                  self.student_names[self.student_id]))
             else:
