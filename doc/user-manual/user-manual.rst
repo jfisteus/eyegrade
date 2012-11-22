@@ -887,6 +887,12 @@ the program can read them. This is an example:
 .. image:: images/example-table.png
    :alt: Example answer tables.
 
+You can use as a template this `example MS Word document
+<samples/sample-exam.doc>`_. It shows an answer table for 20 questions,
+which you can edit in order to customize if for your
+needs. Nevertheless, you should read the rest of this section if you
+are planning to customize the answer table.
+
 An *answer table* is a table in which rows represent the questions and
 columns represent the choices. There can be more than one answer
 table, but they have to be side by side (they cannot be placed one
