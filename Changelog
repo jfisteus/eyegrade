@@ -1,3 +1,13 @@
+2012-11-22  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.1.17.
+
+	* Fixed a bug when loading a student id list without student names
+	(issue #33 at github).
+
+	* Some improvements to the user manual, including a MS-Word
+	template for answer tables.
+
 2012-09-20  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.1.16.
