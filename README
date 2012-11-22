@@ -4,8 +4,8 @@ and portable solution available to everyone, on the contrary to other
 solutions based on scanners.
 
 Eyegrade is still alpha. It is fully functional and has been used in
-several courses at Universidad Carlos III de Madrid in the last two
-years. Its use is encouraged for tech-savvy people. However, it still
+several courses at Universidad Carlos III de Madrid since 2010.
+Its use is encouraged for tech-savvy people. However, it still
 needs great improvements in its user-friendliness in order to be
 usable for the general public. A work-in-progress user manual is
 available at:
@@ -41,6 +41,15 @@ students, and which topics need further work.
 
 - Exporting grades: grades can be exported in CSV format, compatible
 with other programs such as spreadsheets.
+
+An article describing Eyegrade has been published by the Journal of
+Science Education and Technology:
+
+Jesus Arias Fisteus, Abelardo Pardo and Norberto Fernández García,
+"Grading Multiple Choice Exams with Low-Cost and Portable
+Computer-Vision Techniques". Journal of Science Education and
+Technology. DOI: 10.1007/s10956-012-9414-8.  It is available at:
+http://dx.doi.org/10.1007/s10956-012-9414-8
 
 Note for developers: the Eyegrade repository contains two main
 branches, 'master' and 'development'. The 'master' branch will be

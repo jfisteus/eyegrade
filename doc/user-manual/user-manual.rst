@@ -869,3 +869,168 @@ resulting file::
     100999997	 15	1	8
     100999991	 9	6	7
     100800003	 7	13	5
+
+
+Creating the exams in a word processor
+........................................
+
+The current prototype of Eyegrade require users to know LaTex in order
+to personalize exam templates. This section explains an alternative
+way to create exams compatible with Eyegrade in a word processor such
+as Microsoft Word. If you create your own exams with a word processor,
+you'll need also to edit the `.eye` file manually. See
+`Manually editing the .eye file`_.
+
+The objective is emulating the tables that Eyegrade creates so that
+the program can read them. This is an example:
+
+.. image:: images/example-table.png
+   :alt: Example answer tables.
+
+You can use as a template this `example MS Word document
+<samples/sample-exam.doc>`_. It shows an answer table for 20 questions,
+which you can edit in order to customize if for your
+needs. Nevertheless, you should read the rest of this section if you
+are planning to customize the answer table.
+
+An *answer table* is a table in which rows represent the questions and
+columns represent the choices. There can be more than one answer
+table, but they have to be side by side (they cannot be placed one
+above the other). The example above show two answer tables. A few
+restrictions have to be taken into account:
+
+- If there are more than one table, they must be horizontally
+  aligned. That is, their top and bottom must be in the same line, and
+  their rows must have exactly the same height (see the example above).
+
+- All the rows should have the same height.
+
+- In order to improve the detection process, the length of the
+  vertical lines and the length of the horizontal lines should be more
+  or less proportionate (e.g. one of them should not be more than a
+  30% larger than the other). If there are more than one answer table,
+  consider the added length of the horizontal lines of every
+  table. The following image illustrates this. The red vertical line
+  is not much smaller than the sum of the two horizontal lines.
+
+.. image:: images/example-table-lengths.png
+   :alt: Example answer tables.
+
+- If an answer table has less rows than the others, it is better to
+  keep the horizontal lines, as shown in the image below:
+
+.. image:: images/example-table-2.png
+   :alt: Example answer tables.
+
+The boxes for the student ID number should be above the answer tables,
+not too close but not too far away either (see the example below).
+The width of the student ID table should be comparable to the sum of
+the width of the answer tables (approximately no less than 2/3 of that
+sum, and no more than 3/2). Student IDs with just a few digits (two,
+three, four) can potentially be problematic for wide answer tables.
+
+.. image:: images/example-table-id.png
+   :alt: Example answer tables with student ID box.
+
+At the bottom of the answer boxes there must be some black
+squares. They encode the exam model (permutation). In addition, they
+help the system to know whether the detection of the answer tables was
+correct.
+
+Imagine that there are two more rows at the end of each answer table,
+with the same height as the other rows.  Squares will be either in the
+one above or in the one below, and there must be a square per
+column. Squares should be centered in those imaginary cells. The
+position (above/below) of a square conveys the information read by
+Eyegrade as binary information.
+
+The exam model is encoded with three squares. Therefore, there can be
+eight different models. The fourth square is a redundancy code for the
+previous three squares. This 4-square pattern is repeated from left to
+right as long as there are columns. The table to which a column
+belongs is not taken into account. For example, if there are two
+answer tables with three columns each, the fourth square (the
+redundancy square) is placed at the first column of the second
+table. The other two columns of the second answer table would contain
+the same squares as the first two columns of the first table.
+
+The following table show the 4-square pattern for each exam model, as
+they should be placed from left to right:
+
++-------+---------------------------+
+| Model |                           |
++-------+------+------+------+------+
+|   A   | Down | Down | Down |  Up  |
++-------+------+------+------+------+
+|   B   |  Up  | Down | Down | Down |
++-------+------+------+------+------+
+|   C   | Down |  Up  | Down | Down |
++-------+------+------+------+------+
+|   D   |  Up  |  Up  | Down |  Up  |
++-------+------+------+------+------+
+|   E   | Down | Down |  Up  | Down |
++-------+------+------+------+------+
+|   F   |  Up  | Down |  Up  |  Up  |
++-------+------+------+------+------+
+|   G   | Down |  Up  |  Up  |  Up  |
++-------+------+------+------+------+
+|   H   |  Up  |  Up  |  Up  | Down |
++-------+------+------+------+------+
+
+
+Manually editing the .eye file
+........................................
+
+The files that store the configuration of an exam and the correct
+answer for each question are stored with a `.eye` extension. An example
+is shown below:
+
+    .. include:: ../sample-files/exam.eye
+       :literal:
+
+The file is just plain text and can be edited with any text editor. It
+has several sections: *exam*, *solutions* and *permutations*.
+
+The fields of the *exam* section are:
+
+- `dimensions`: here the number of answer tables and the number of
+  columns and rows in each answer table are configured. For example,
+  "4,6;4,6" means that there are two answer tables, both of them with
+  geometry "4,6".  The "4" is the number of columns of the table. The
+  "6" is the number of rows. Tables are specified from left to right
+  (i.e. the first table geometry corresponds to the left-most table in
+  the exam).
+
+- `id-num-digits`: number of cells of the table for the student id
+  number.  Putting a 0 here means that the id number needs not to be
+  read.
+
+- `correct-weight`: a number, such as 1.75, that represents the score
+  assigned to a correct answer.
+
+- `incorrect-weight`: a number that represents the score to be
+  substracted for failed answers. Blank answers are not affected by
+  this.
+
+The fields `correct-weight` and `incorrect-weight` are optional. If
+they appear in the file, the program will show the total score in the
+user interface.
+
+The *solutions* section specifies the correct answers for each model
+(permutation) of the exam. Models are identified by letters ("A", "B",
+etc.). For example::
+
+    model-A: 4/1/2/1/1/1/2/4/1/2/3/1
+    model-B: 3/2/1/4/4/2/2/1/4/2/3/3
+
+In the example above, in the model A, the correct answer for the first
+question is the 4th choice, for the second question is the 1st choice,
+for the third question is the 2nd choice, etc.
+
+The *permutations* section has information that allows to know how
+questions and choices have been shuffled with respect to the original
+order. They are used only for extracting statistics or fixing grades
+after the exam if the solutions used for grading are found to have an
+error in some questions. If you create the `.eye` manually, you
+probably want to just remove this section from the file, unless you
+need some of the above-mentioned functions.
