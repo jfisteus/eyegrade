@@ -4,6 +4,7 @@ Eyegrade User Manual
 :Author: Jesús Arias Fisteus
 
 .. contents::
+.. section-numbering::
 
 
 Installing Eyegrade
