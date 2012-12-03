@@ -68,7 +68,8 @@ class ExamMaker(object):
                  num_tables=0, dimensions=None,
                  table_width=None, table_height=None, table_scale=1.0,
                  id_box_width=None,
-                 force_config_overwrite=False, score_weights=None):
+                 force_config_overwrite=False, score_weights=None,
+                 left_to_right_numbering=False):
         """
            Class able to create exams. One object is enough for all models.
 
@@ -77,6 +78,7 @@ class ExamMaker(object):
         self.num_choices = num_choices
         template = utils.read_file(template_filename)
         self.parts = re_split_template.split(template)
+        self.left_to_right_numbering = left_to_right_numbering
         self.output_file = output_file
         self.exam_questions = None
         id_label, self.id_num_digits = id_num_digits(self.parts)
@@ -128,7 +130,8 @@ class ExamMaker(object):
         replacements = copy.copy(self.replacements)
         answer_table = create_answer_table(self.dimensions, model,
                                            self.table_width, self.table_height,
-                                           self.table_scale)
+                                           self.table_scale,
+                                           self.left_to_right_numbering)
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
@@ -183,6 +186,10 @@ class ExamMaker(object):
                 if self.dimensions != self.exam_config.dimensions:
                     raise EyegradeException('Incoherent table dimensions',
                                             key='incoherent_exam_config')
+                if (self.left_to_right_numbering !=
+                    self.exam_config.left_to_right_numbering):
+                    raise EyegradeException('Incoherent question numbering',
+                                            key='incoherent_exam_config')
             except IOError:
                 self._new_exam_config()
 
@@ -190,6 +197,7 @@ class ExamMaker(object):
         self.exam_config = utils.ExamConfig()
         self.exam_config.num_questions = self.num_questions
         self.exam_config.id_num_digits = self.id_num_digits
+        self.exam_config.left_to_right_numbering = self.left_to_right_numbering
 
     def _compute_table_size(self):
         """Computes a size for the table such as it is more or less square.
@@ -281,7 +289,7 @@ def latex_declarations(with_solution):
     return '\n'.join(data)
 
 def create_answer_table(dimensions, model, table_width=None, table_height=None,
-                        table_scale=1.0):
+                        table_scale=1.0, left_to_right_numbering=False):
     """Returns a string with the answer tables of the answer sheet.
 
        Tables are LaTeX-formatted. 'dimensions' specifies the geometry
@@ -290,7 +298,10 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None,
        the desired width of the answer table, in cm. None for the
        default width. 'table_height' is the desired height in cm. None
        for the default. If only one of height and width is defined,
-       the other will keep the aspect ratio.
+       the other will keep the aspect ratio. 'left_to_right_numbering'
+       set to True makes cell numbers to grow from left to right
+       instead of from up to bottom. The default is False (up to
+       bottom).
 
     """
     if len(dimensions) == 0:
@@ -312,7 +323,8 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None,
     for i, row_geometry in enumerate(tables):
         rows.append(__horizontal_line(row_geometry, num_choices, compact))
         rows.append(__build_row(i, row_geometry, question_numbers,
-                                num_choices, bits_rows, compact))
+                                num_choices, bits_rows, compact,
+                                left_to_right_numbering))
     rows.append(r'\end{tabular}')
     if table_width is not None or table_height is not None:
         rows.append('}')
@@ -447,12 +459,15 @@ def __table_top(num_tables, num_choices, compact, table_width=None,
     return lines
 
 def __build_row(num_row, row_geometry, question_numbers, num_choices,
-                infobits_row, compact):
+                infobits_row, compact, left_to_right_numbering=False):
     parts = []
     for i, geometry in enumerate(row_geometry):
         if geometry > 0:
-            parts.append(__build_question_cell(num_row + question_numbers[i],
-                                               geometry))
+            if not left_to_right_numbering:
+                cell_number = num_row + question_numbers[i]
+            else:
+                cell_number = i + 1 + len(row_geometry) * num_row
+            parts.append(__build_question_cell(cell_number, geometry))
         elif geometry == -1:
             parts.append(infobits_row[0][i])
         elif geometry == -2:

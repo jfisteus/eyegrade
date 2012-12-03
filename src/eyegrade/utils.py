@@ -726,6 +726,7 @@ class ExamConfig(object):
             self.permutations = {}
             self.models = []
             self.score_weights = None
+            self.left_to_right_numbering = False
 
     def set_solutions(self, model, solutions):
         if self.solutions is None:
@@ -795,8 +796,13 @@ class ExamConfig(object):
         elif not has_correct_weight and not has_incorrect_weight:
             self.score_weights = None
         else:
-           raise Exception('Exam config must contain correct and incorrect '
-                           'weight or none')
+            raise Exception('Exam config must contain correct and incorrect '
+                            'weight or none')
+        if exam_data.has_option('exam', 'left-to-right-numbering'):
+            self.left_to_right_numbering = \
+                       exam_data.getboolean('exam', 'left-to-right-numbering')
+        else:
+            self.left_to_right_numbering = False
         self.models.sort()
 
     def save(self, filename):
@@ -804,6 +810,8 @@ class ExamConfig(object):
         data.append('[exam]')
         data.append('dimensions: %s'%self.format_dimensions())
         data.append('id-num-digits: %d'%self.id_num_digits)
+        if self.left_to_right_numbering:
+            data.append('left-to-right-numbering: yes')
         if self.score_weights is not None:
             data.append('correct-weight: %.16f'%self.score_weights[0])
             data.append('incorrect-weight: %.16f'%self.score_weights[1])

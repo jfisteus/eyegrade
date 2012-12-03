@@ -86,6 +86,11 @@ def read_cmd_options():
     parser.add_option('-x', '--id-box-width', type='float',
                       dest='id_box_width', default=None,
                       help='ID box width in cm')
+    parser.add_option('--left-to-right-numbering',
+                      dest='left_to_right_numbering',
+                      action='store_true', default=False,
+                      help=('number questions from left to right instead of '
+                            'up to bottom'))
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
@@ -198,7 +203,8 @@ def create_exam():
                                 options.table_width, options.table_height,
                                 options.table_scale, options.id_box_width,
                                 options.force_config_overwrite,
-                                score_weights)
+                                score_weights,
+                                options.left_to_right_numbering)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:
