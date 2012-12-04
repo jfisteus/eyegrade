@@ -205,6 +205,8 @@ def main():
         imageproc_context.init_camera(select_camera(options, config))
         if imageproc_context.camera is None:
             raise utils.EyegradeException('No camera found!', key='no_camera')
+    imageproc_options['left-to-right-numbering'] = \
+                                           exam_data.left_to_right_numbering
 
     # Program main loop
     lock_mode = not options.adjust

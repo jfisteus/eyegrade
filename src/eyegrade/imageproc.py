@@ -83,18 +83,21 @@ font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 class ExamCapture(object):
 
-    default_options = {'infobits': True,
-                       'show-lines': False,
-                       'debug-ocr': False,
-                       'show-image-proc': False,
-                       'read-id': False,
-                       'show-status': False,
-                       'capture-from-file': False,
-                       'capture-raw-file': None,
-                       'capture-proc-file': None,
-                       'capture-proc-ipl': None,
-                       'error-logging': False,
-                       'logging-dir': '.'}
+    default_options = {
+        'infobits': True,
+        'left-to-right-numbering': False,
+        'show-lines': False,
+        'debug-ocr': False,
+        'show-image-proc': False,
+        'read-id': False,
+        'show-status': False,
+        'capture-from-file': False,
+        'capture-raw-file': None,
+        'capture-proc-file': None,
+        'capture-proc-ipl': None,
+        'error-logging': False,
+        'logging-dir': '.',
+        }
 
     @classmethod
     def get_default_options(cls):
@@ -124,6 +127,7 @@ class ExamCapture(object):
             self.image_drawn = cv.CloneImage(self.image_raw)
         else:
             self.image_drawn = gray_ipl_to_rgb(self.image_proc)
+        self.left_to_right_numbering = self.options['left-to-right-numbering']
         self.height = self.image_raw.height
         self.width = self.image_raw.width
         self.boxes_dim = boxes_dim
@@ -227,6 +231,8 @@ class ExamCapture(object):
         if self.status['cells']:
             self.compute_cells_geometry()
             self.status['overall'] = True
+            if self.left_to_right_numbering:
+                self._set_left_to_right()
 
     def detect_manual(self, corner_matrixes):
         """Called when cell corners are obtained from manual detection."""
@@ -241,6 +247,8 @@ class ExamCapture(object):
                 self.status['infobits'] = True
         self.compute_cells_geometry()
         self.status['overall'] = True
+        if self.left_to_right_numbering:
+            self._set_left_to_right()
         self.draw_cell_corners()
 
     def write_error_trace(self, exc_type, exc_value, exc_traceback):
@@ -334,6 +342,27 @@ class ExamCapture(object):
                         distance(corners[i][j], corners[i + 1][j + 1]))
                 self.centers.append(row_centers)
                 self.diagonals.append(row_diagonals)
+
+    def _set_left_to_right(self):
+        """Sets left to right order in decisions and cell geometry."""
+        centers2 = []
+        diagonals2 = []
+        decisions2 = []
+        num_rows = max([len(c) for c in self.corner_matrixes]) - 1
+        heads = [1]
+        for corners in self.corner_matrixes[:-1]:
+            heads.append(heads[-1] + len(corners) - 1)
+        heads.append(len(self.centers) + 1)
+        for row in range(0, num_rows):
+            for column in range(0, len(self.corner_matrixes)):
+                pos = heads[column] + row
+                if pos < heads[column + 1]:
+                    centers2.append(self.centers[pos - 1])
+                    diagonals2.append(self.diagonals[pos - 1])
+                    decisions2.append(self.decisions[pos - 1])
+        self.centers = centers2
+        self.diagonals = diagonals2
+        self.decisions = decisions2
 
     def detect_id(self):
         if self.id_corners is None:
