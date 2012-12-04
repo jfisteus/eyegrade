@@ -229,8 +229,13 @@ def main():
         if image.status['infobits']:
             model = utils.decode_model(image.bits,
                                        accept_model_0=options.accept_model_0)
-            if model is not None and model in solutions:
-                exam = utils.Exam(image, model, solutions[model],
+            if (model is not None and
+                (model in solutions or exam_data.survey_mode)):
+                if not exam_data.survey_mode:
+                    sol = solutions[model]
+                else:
+                    sol = []
+                exam = utils.Exam(image, model, sol,
                                   valid_student_ids, im_id, options.save_stats,
                                   exam_data.score_weights,
                                   interface.save_capture)
@@ -295,7 +300,8 @@ def main():
             interface.update_text(exam.get_student_id_and_name(), False)
             if exam.score is not None:
                 interface.update_status(exam.score, exam.model, exam.im_id,
-                                        flip=False)
+                                        flip=False,
+                                        survey_mode=exam_data.survey_mode)
             interface.set_review_toolbar(True)
             while continue_waiting:
                 event, event_info = interface.wait_event_review_mode()
@@ -366,7 +372,8 @@ def main():
                             interface.show_capture(exam.image.image_drawn,
                                                    False)
                             interface.update_status(exam.score, exam.model,
-                                                    exam.im_id, flip=True)
+                                             exam.im_id, flip=True,
+                                             survey_mode=exam_data.survey_mode)
                     else:
                         manual_points.append(event_info)
                         exam.image.draw_corner(event_info)
@@ -382,9 +389,10 @@ def main():
                                         exam.solutions = solutions[exam.model]
                                         exam.grade()
                                         interface.update_status(exam.score,
-                                                                exam.model,
-                                                                exam.im_id,
-                                                                flip=False)
+                                             exam.model,
+                                             exam.im_id,
+                                             flip=False,
+                                             survey_mode=exam_data.survey_mode)
                             else:
                                 exam.image.clean_drawn_image()
                                 interface.set_statusbar_message(('Manual '

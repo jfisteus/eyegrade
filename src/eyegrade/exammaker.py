@@ -69,7 +69,7 @@ class ExamMaker(object):
                  table_width=None, table_height=None, table_scale=1.0,
                  id_box_width=None,
                  force_config_overwrite=False, score_weights=None,
-                 left_to_right_numbering=False):
+                 left_to_right_numbering=False, survey_mode=False):
         """
            Class able to create exams. One object is enough for all models.
 
@@ -79,6 +79,7 @@ class ExamMaker(object):
         template = utils.read_file(template_filename)
         self.parts = re_split_template.split(template)
         self.left_to_right_numbering = left_to_right_numbering
+        self.survey_mode = survey_mode
         self.output_file = output_file
         self.exam_questions = None
         id_label, self.id_num_digits = id_num_digits(self.parts)
@@ -138,7 +139,7 @@ class ExamMaker(object):
             if model != '0' and not model in self.exam_config.models:
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
-            if model != '0':
+            if model != '0' and not self.survey_mode:
                 if (self.exam_config is None or
                     not model in self.exam_config.permutations or
                     (model in self.exam_config.permutations and shuffle)):
@@ -190,6 +191,9 @@ class ExamMaker(object):
                     self.exam_config.left_to_right_numbering):
                     raise EyegradeException('Incoherent question numbering',
                                             key='incoherent_exam_config')
+                if self.survey_mode != self.exam_config.survey_mode:
+                    raise EyegradeException('Incoherent survey mode value',
+                                            key='incoherent_exam_config')
             except IOError:
                 self._new_exam_config()
 
@@ -198,6 +202,7 @@ class ExamMaker(object):
         self.exam_config.num_questions = self.num_questions
         self.exam_config.id_num_digits = self.id_num_digits
         self.exam_config.left_to_right_numbering = self.left_to_right_numbering
+        self.exam_config.survey_mode = self.survey_mode
 
     def _compute_table_size(self):
         """Computes a size for the table such as it is more or less square.

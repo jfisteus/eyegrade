@@ -91,6 +91,10 @@ def read_cmd_options():
                       action='store_true', default=False,
                       help=('number questions from left to right instead of '
                             'up to bottom'))
+    parser.add_option('--survey-mode',
+                      dest='survey_mode',
+                      action='store_true', default=False,
+                      help=('this is a survey instead of an exam'))
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
@@ -204,7 +208,8 @@ def create_exam():
                                 options.table_scale, options.id_box_width,
                                 options.force_config_overwrite,
                                 score_weights,
-                                options.left_to_right_numbering)
+                                options.left_to_right_numbering,
+                                options.survey_mode)
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:

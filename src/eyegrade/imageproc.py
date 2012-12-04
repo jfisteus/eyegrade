@@ -298,13 +298,15 @@ class ExamCapture(object):
                         if correct is not None:
                             if correct[base + i]:
                                 color = color_good
-                            else:
+                            elif solutions:
                                 color = color_bad
+                            else:
+                                color = color_dot
                         draw_cell_highlight(self.image_drawn,
                                             self.centers[base + i][d - 1],
                                             self.diagonals[base + i][d - 1],
                                             color)
-                    if len(solutions) > 0 and not correct[base + i]:
+                    if solutions and not correct[base + i]:
                         color = color_blank if d == 0 else color_dot
                         radius = 5 if d == 0 else 3
                         ans = solutions[base + i]

@@ -519,7 +519,7 @@ class Exam(object):
         undet = 0
         self.correct = []
         for i in range(0, len(self.image.decisions)):
-            if len(self.solutions) > 0 and self.image.decisions[i] > 0:
+            if self.solutions and self.image.decisions[i] > 0:
                 if self.solutions[i] == self.image.decisions[i]:
                     good += 1
                     self.correct.append(True)
@@ -727,6 +727,7 @@ class ExamConfig(object):
             self.models = []
             self.score_weights = None
             self.left_to_right_numbering = False
+            self.survey_mode = None
 
     def set_solutions(self, model, solutions):
         if self.solutions is None:
@@ -803,6 +804,10 @@ class ExamConfig(object):
                        exam_data.getboolean('exam', 'left-to-right-numbering')
         else:
             self.left_to_right_numbering = False
+        if exam_data.has_option('exam', 'survey-mode'):
+            self.survey_mode = exam_data.getboolean('exam', 'survey-mode')
+        else:
+            self.survey_mode = False
         self.models.sort()
 
     def save(self, filename):
@@ -812,6 +817,8 @@ class ExamConfig(object):
         data.append('id-num-digits: %d'%self.id_num_digits)
         if self.left_to_right_numbering:
             data.append('left-to-right-numbering: yes')
+        if self.survey_mode:
+            data.append('survey-mode: yes')
         if self.score_weights is not None:
             data.append('correct-weight: %.16f'%self.score_weights[0])
             data.append('incorrect-weight: %.16f'%self.score_weights[1])
