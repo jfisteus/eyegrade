@@ -25,6 +25,52 @@ from PyQt4.QtCore import Qt, QTimer
 
 from eyegrade.utils import resource_path
 
+
+class ToolbarManager(object):
+    """Creates and manages the toolbar buttons."""
+
+    _action_data = [
+        ('snapshot', 'snapshot.svg', 'Snapshot'),
+        ('manual_detect', 'manual_detect.svg', 'Set exam bounds manually'),
+        ('next_id', 'next_id.svg', 'Next student id'),
+        ('edit_id', 'edit_id.svg', 'Edit student id'),
+        ('save', 'save.svg', 'Save the current exam'),
+        ('discard', 'discard.svg', 'Discard the current capture'),
+        ('exit', 'exit.svg', 'Exit'),
+        ]
+
+    def __init__(self, toolbar, window):
+        """Creates a manager for the given toolbar object."""
+        self.toolbar = toolbar
+        self.window = window
+        self.actions = {}
+        for key, icon, tooltip in ToolbarManager._action_data:
+            self._add_action(key, icon, tooltip)
+
+    def set_search_mode(self):
+        self.actions['snapshot'].setEnabled(True)
+        self.actions['manual_detect'].setEnabled(True)
+        self.actions['next_id'].setEnabled(False)
+        self.actions['edit_id'].setEnabled(False)
+        self.actions['save'].setEnabled(False)
+        self.actions['discard'].setEnabled(False)
+        self.actions['exit'].setEnabled(True)
+
+    def set_review_mode(self):
+        self.actions['snapshot'].setEnabled(False)
+        self.actions['manual_detect'].setEnabled(False)
+        self.actions['next_id'].setEnabled(True)
+        self.actions['edit_id'].setEnabled(True)
+        self.actions['save'].setEnabled(True)
+        self.actions['discard'].setEnabled(True)
+        self.actions['exit'].setEnabled(True)
+
+    def _add_action(self, action_name, icon_file, tooltip):
+        action = QAction(QIcon(resource_path(icon_file)), tooltip, self.window)
+        self.actions[action_name] = action
+        self.toolbar.addAction(action)
+
+
 class CamView(QWidget):
     def __init__(self, parent=None):
         super(CamView, self).__init__(parent)
@@ -54,8 +100,12 @@ class CenterView(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.camview = CamView(parent=self)
-        self.label_up = QLabel('Test 1 <img src="%s" height="16" width="16">'\
-                               %resource_path('../icons-src/correct.svg'))
+        self.label_up = QLabel(('<img src="%s" height="16" width="16"> 5 '
+                                '<img src="%s" height="16" width="16"> 7 '
+                                '<img src="%s" height="16" width="16"> 3')\
+                               %(resource_path('correct.svg'),
+                                 resource_path('incorrect.svg'),
+                                 resource_path('unanswered.svg')))
         self.label_down = QLabel('Test 2')
         layout.addWidget(self.camview)
         layout.addWidget(self.label_up)
@@ -70,11 +120,12 @@ class MainWindow(QMainWindow):
         self.center_view = CenterView()
         self.setCentralWidget(self.center_view)
         self.setWindowTitle("Test cam")
+        toolbar = self.addToolBar('Eyegrade Toolbar')
+        self.toolbar_manager = ToolbarManager(toolbar, self)
+        self.toolbar_manager.set_search_mode()
         self.adjustSize()
         self.setFixedSize(self.sizeHint())
-        self.toolbar = self.addToolBar('Eyegrade Toolbar')
-        self.toolbar.addAction(QAction(QIcon(resource_path('save.png')),
-                                       'Save', self))
+
         ## timer = QTimer(self)
         ## timer.timeout.connect(self.cam_view.new_frame)
         ## timer.setInterval(100)
