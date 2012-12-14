@@ -164,9 +164,11 @@ class CenterView(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.camview = CamView(parent=self)
-        self.label_up = QLabel(('<img src="%s" height="16" width="16"> 5 '
-                                '<img src="%s" height="16" width="16"> 7 '
-                                '<img src="%s" height="16" width="16"> 3')\
+        self.label_up = QLabel(('<span style="white-space: pre">'
+                                '<img src="%s" height="22" width="22"> 5   '
+                                '<img src="%s" height="22" width="22"> 7   '
+                                '<img src="%s" height="22" width="22"> 3'
+                                '</span>')\
                                %(resource_path('correct.svg'),
                                  resource_path('incorrect.svg'),
                                  resource_path('unanswered.svg')))
