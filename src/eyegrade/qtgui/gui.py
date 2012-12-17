@@ -67,10 +67,11 @@ class ActionsManager(object):
                              action_lists['grading'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
+        self.set_manual_detect_enabled(False)
 
     def set_search_mode(self):
         self.actions_grading['snapshot'].setEnabled(True)
-        self.actions_grading['manual_detect'].setEnabled(True)
+        ## self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['next_id'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
@@ -80,13 +81,16 @@ class ActionsManager(object):
 
     def set_review_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
-        self.actions_grading['manual_detect'].setEnabled(False)
+        ## self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['next_id'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(True)
         self.actions_grading['save'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['close'].setEnabled(True)
         self.menus['grading'].setEnabled(True)
+
+    def set_manual_detect_enabled(self, enabled):
+        self.actions_grading['manual_detect'].setEnabled(enabled)
 
     def set_session_closed_mode(self):
         for key in self.actions_grading:
@@ -159,23 +163,48 @@ class CamView(QWidget):
 
 
 class CenterView(QWidget):
+    img_correct = '<img src="%s" height="22" width="22">'%\
+                  resource_path('correct.svg')
+    img_incorrect = '<img src="%s" height="22" width="22">'%\
+                    resource_path('incorrect.svg')
+    img_unanswered = '<img src="%s" height="22" width="22">'%\
+                     resource_path('unanswered.svg')
+
     def __init__(self, parent=None):
         super(CenterView, self).__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.camview = CamView(parent=self)
-        self.label_up = QLabel(('<span style="white-space: pre">'
-                                '<img src="%s" height="22" width="22"> 5   '
-                                '<img src="%s" height="22" width="22"> 7   '
-                                '<img src="%s" height="22" width="22"> 3'
-                                '</span>')\
-                               %(resource_path('correct.svg'),
-                                 resource_path('incorrect.svg'),
-                                 resource_path('unanswered.svg')))
-        self.label_down = QLabel('Test 2')
+        self.label_up = QLabel()
+        self.label_down = QLabel()
         layout.addWidget(self.camview)
         layout.addWidget(self.label_up)
         layout.addWidget(self.label_down)
+
+    def update_status(self, score, model=None, seq_num=None, survey_mode=False):
+        parts = []
+        if score is not None:
+            if not survey_mode:
+                correct, incorrect, blank, indet, score, max_score = score
+                parts.append(CenterView.img_correct)
+                parts.append(str(correct) + '  ')
+                parts.append(CenterView.img_incorrect)
+                parts.append(str(incorrect) + '  ')
+                parts.append(CenterView.img_unanswered)
+                parts.append(str(blank) + '  ')
+                if score is not None and max_score is not None:
+                    parts.append('Score: %.2f / %.2f  '%(score, max_score))
+            else:
+                parts.append('[Survey mode on]  ')
+        if model is not None:
+            parts.append('Model: ' + model + '  ')
+        if seq_num is not None:
+            parts.append('Num.: ' + str(seq_num) + '  ')
+        self.label_down.setText(('<span style="white-space: pre">'
+                                 + ' '.join(parts) + '</span>'))
+
+    def update_text_up(self, text):
+        self.label_up.setText(text)
 
 
 class MainWindow(QMainWindow):
@@ -186,8 +215,6 @@ class MainWindow(QMainWindow):
         self.center_view = CenterView()
         self.setCentralWidget(self.center_view)
         self.setWindowTitle("Test cam")
-        self.actions_manager = ActionsManager(self)
-        self.actions_manager.set_search_mode()
         self.adjustSize()
         self.setFixedSize(self.sizeHint())
 
@@ -197,9 +224,41 @@ class MainWindow(QMainWindow):
         ## timer.start(500)
 
 
+class Interface(object):
+    def __init__(self, id_enabled, id_list_enabled):
+        self.id_enabled = id_enabled
+        self.id_list_enabled = id_list_enabled
+        self.last_score = None
+        self.last_model = None
+        self.manual_detect_enabled = False
+        self.window = MainWindow()
+        self.actions_manager = ActionsManager(self.window)
+        self.actions_manager.set_search_mode()
+        self.window.show()
+
+    def set_manual_detect_enabled(self, enabled):
+        self.manual_detect_enabled = enabled
+        self.actions_manager.set_manual_detect_enabled(enabled)
+
+    def activate_search_mode(self):
+        self.actions_manager.set_search_mode()
+
+    def activate_review_mode(self):
+        self.actions_manager.set_review_mode()
+
+    def update_status(self, score, model=None, seq_num=None, survey_mode=False):
+        self.window.center_view.update_status(score, model=model,
+                                              seq_num=seq_num,
+                                              survey_mode=survey_mode)
+
+    def update_text_up(self, text):
+        self.window.center_view.update_text_up(text)
+
+
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
+    interface = Interface(True, True)
+    interface.update_status((8, 9, 2, 0, 8.0, 10.0), model='A', seq_num=23)
+    interface.update_text_up('100099999 Bastian Baltasar Bux')
     sys.exit(app.exec_())
