@@ -23,7 +23,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
 
 from PyQt4.QtCore import Qt, QTimer
 
-from eyegrade.utils import resource_path
+from eyegrade.utils import resource_path, EyegradeException
 
 
 class ActionsManager(object):
@@ -96,6 +96,18 @@ class ActionsManager(object):
         for key in self.actions_grading:
             self.actions_grading[key].setEnabled(False)
         self.menus['grading'].setEnabled(False)
+
+    def register_listener(self, key, listener):
+        actions = None
+        if key[0] == 'session':
+            actions = self.actions_session
+        elif key[1] == 'grading':
+            actions = self.actions_grading
+        if actions:
+            assert key[1] in actions
+            actions[key[1]].triggered.connect(listener)
+        else:
+            assert False, 'Undefined listener key: {0}'.format(key)
 
     def _add_action(self, action_name, icon_file, tooltip, group, actions_list):
         action = self._create_action(action_name, icon_file, tooltip)
@@ -251,8 +263,31 @@ class Interface(object):
                                               seq_num=seq_num,
                                               survey_mode=survey_mode)
 
-    def update_text_up(self, text):
+    def update_text(self, text):
         self.window.center_view.update_text_up(text)
+
+    def register_listeners(self, listeners):
+        """Registers a dictionary of listeners for the events of the gui.
+
+        The listeners are specified as a dictionary with pairs
+        event_key->listener. Keys are tuples of strings such as
+        ('action', 'session', 'close').
+
+        """
+        for key, listener in listeners:
+            self.register_listener(key, listener)
+
+    def register_listener(self, key, listener):
+        """Registers a single listener for the events of the gui.
+
+        Keys are tuples of strings such as ('action', 'session',
+        'close').
+
+        """
+        if key[0] == 'actions':
+            self.actions_manager.register_listener(key[1:], listener)
+        else:
+            assert False, 'Unknown event key {0}'.format(key)
 
 
 if __name__ == '__main__':
@@ -260,5 +295,9 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     interface = Interface(True, True)
     interface.update_status((8, 9, 2, 0, 8.0, 10.0), model='A', seq_num=23)
-    interface.update_text_up('100099999 Bastian Baltasar Bux')
+    interface.update_text('100099999 Bastian Baltasar Bux')
+    def sample_listener(self):
+        print 'In listener'
+    interface.register_listener(('actions', 'session', 'close'),
+                                sample_listener)
     sys.exit(app.exec_())
