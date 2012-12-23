@@ -16,34 +16,87 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+import os.path
+
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QSizePolicy, QApplication, QVBoxLayout,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
-                         QComboBox,)
+                         QComboBox, QFileDialog, QHBoxLayout, QPushButton,
+                         QMessageBox,)
 
 from PyQt4.QtCore import Qt, QTimer
 
 from eyegrade.utils import resource_path, EyegradeException
 
+_filter_exam_config = 'Exam configuration (*.eye)'
+_filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
+
+
+class OpenFileWidget(QWidget):
+    """Dialog with a text field and a button to open a file selector."""
+    def __init__(self, parent, select_directory=False, name_filter='',
+                 minimum_width=200, title=''):
+        super(OpenFileWidget, self).__init__(parent)
+        self.select_directory = select_directory
+        self.name_filter = name_filter
+        self.title = title
+        layout = QHBoxLayout(self)
+        self.setLayout(layout)
+        self.filename_widget = QLineEdit(self)
+        self.filename_widget.setMinimumWidth(minimum_width)
+        self.button = QPushButton(QIcon(resource_path('open_file.svg')), '',
+                                  parent=self)
+        self.button.clicked.connect(self._open_dialog)
+        layout.addWidget(self.filename_widget)
+        layout.addWidget(self.button)
+
+    def text(self):
+        return self.filename_widget.text()
+
+    def setEnabled(self, enabled):
+        self.filename_widget.setEnabled(enabled)
+        self.button.setEnabled(enabled)
+
+    def _open_dialog(self, value):
+        if self.select_directory:
+            directory = \
+                QFileDialog.getExistingDirectory(self, self.title, '',
+                                            (QFileDialog.ShowDirsOnly
+                                             | QFileDialog.DontResolveSymlinks))
+            if directory:
+                self.filename_widget.setText(directory)
+        else:
+            filename = QFileDialog.getOpenFileName(self, self.title, '',
+                                                   self.name_filter)
+            if filename:
+                self.filename_widget.setText(filename)
+
 
 class DialogNewSession(QDialog):
-    """Dialog to receive parameters for creating a new grading session."""
+    """Dialog to receive parameters for creating a new grading session.
+
+    Example (replace `parent` by the parent widget):
+
+    dialog = DialogNewSession(parent)
+    values = dialog.exec_()
+
+    """
     def __init__(self, parent):
         super(DialogNewSession, self).__init__(parent)
         self.setWindowTitle('New session')
         layout = QFormLayout()
         self.setLayout(layout)
-        self.directory_w = QLineEdit(self)
-        self.directory_w.setMinimumWidth(200)
-        self.config_file_w = QLineEdit(self)
-        self.config_file_w.setMinimumWidth(200)
+        self.directory_w = OpenFileWidget(self, select_directory=True,
+                                 title='Select or create an empty directory')
+        self.config_file_w = OpenFileWidget(self,
+                                 title='Select the exam configuration file',
+                                 name_filter=_filter_exam_config)
         self.use_id_list_w = QComboBox(self)
         self.use_id_list_w.addItems(['Yes', 'No'])
         self.use_id_list_w.currentIndexChanged.connect(self._id_list_listener)
-        self.id_list_w = QLineEdit(self)
-        self.id_list_w.setMinimumWidth(200)
+        self.id_list_w = OpenFileWidget(self, name_filter=_filter_student_list)
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
         buttons.accepted.connect(self.accept)
@@ -54,7 +107,7 @@ class DialogNewSession(QDialog):
         layout.addRow('Student list:', self.id_list_w)
         layout.addRow(buttons)
 
-    def get_values(self):
+    def _get_values(self):
         values = {}
         values['directory'] = str(self.directory_w.text()).strip()
         values['config'] = str(self.config_file_w.text()).strip()
@@ -62,6 +115,50 @@ class DialogNewSession(QDialog):
             values['id_list'] = str(self.id_list_w.text()).strip()
         else:
             values['id_list'] = None
+        # Check the values (the files must exist, etc.)
+        if not os.path.isdir(values['directory']):
+            QMessageBox.critical(self, 'Error',
+                          'The directory does not exist or is not a directory.')
+            return None
+        dir_content = os.listdir(values['directory'])
+        if dir_content:
+            if 'eyegrade.cfg' in dir_content:
+                QMessageBox.critical(self, 'Error',
+                            ('The directory already contains a session. '
+                             'Choose another directory or create a new one.'))
+                return None
+            else:
+                result = QMessageBox.question(self, 'Warning',
+                            ('The directory is not empty. '
+                             'Are you sure you want to create a session here?'),
+                            QMessageBox.Yes | QMessageBox.No,
+                            QMessageBox.No)
+                if result == QMessageBox.No:
+                    return None
+        if not os.path.isfile(values['config']):
+            QMessageBox.critical(self, 'Error',
+                                 ('The exam configuration file does not'
+                                  'exist or is not a regular file.'))
+            return None
+        if (values['id_list'] is not None
+              and not os.path.isfile(values['id_list'])):
+            QMessageBox.critical(self, 'Error',
+                                 ('The student list file does not'
+                                  'exist or is not a regular file.'))
+            return None
+        return values
+
+    def exec_(self):
+        finish = False
+        while not finish:
+            result = super(DialogNewSession, self).exec_()
+            if result == QDialog.Accepted:
+                values = self._get_values()
+                if values is not None:
+                    finish = True
+            else:
+                values = None
+                finish = True
         return values
 
     def _id_list_listener(self, index):
@@ -316,7 +413,6 @@ class Interface(object):
         self.window = MainWindow()
         self.actions_manager = ActionsManager(self.window)
         self.actions_manager.set_no_session_mode()
-        self._set_internal_listeners()
         self.window.show()
 
     def run(self):
@@ -348,7 +444,7 @@ class Interface(object):
         ('action', 'session', 'close').
 
         """
-        for key, listener in listeners:
+        for key, listener in listeners.iteritems():
             self.register_listener(key, listener)
 
     def register_listener(self, key, listener):
@@ -379,14 +475,17 @@ class Interface(object):
         """
         self.window.center_view.display_capture(ipl_image)
 
-    def _dialog_new_session(self):
-        dialog = DialogNewSession(self.window)
-        dialog.exec_()
-        print dialog.get_values()
+    def dialog_new_session(self):
+        """Displays a new session dialog.
 
-    def _set_internal_listeners(self):
-        self.register_listener(('actions', 'session', 'new'),
-                               self._dialog_new_session)
+        The data introduced by the user is returned as a dictionary with
+        keys `directory`, `config` and `id_list`. `id_list` may be None.
+
+        The return value is None if the user cancels the dialog.
+
+        """
+        dialog = DialogNewSession(self.window)
+        return dialog.exec_()
 
 
 if __name__ == '__main__':
