@@ -19,11 +19,56 @@
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QSizePolicy, QApplication, QVBoxLayout,
-                         QLabel, QIcon, QAction, QMenu,)
+                         QLabel, QIcon, QAction, QMenu, QDialog,
+                         QFormLayout, QLineEdit, QDialogButtonBox,
+                         QComboBox,)
 
 from PyQt4.QtCore import Qt, QTimer
 
 from eyegrade.utils import resource_path, EyegradeException
+
+
+class DialogNewSession(QDialog):
+    """Dialog to receive parameters for creating a new grading session."""
+    def __init__(self, parent):
+        super(DialogNewSession, self).__init__(parent)
+        self.setWindowTitle('New session')
+        layout = QFormLayout()
+        self.setLayout(layout)
+        self.directory_w = QLineEdit(self)
+        self.directory_w.setMinimumWidth(200)
+        self.config_file_w = QLineEdit(self)
+        self.config_file_w.setMinimumWidth(200)
+        self.use_id_list_w = QComboBox(self)
+        self.use_id_list_w.addItems(['Yes', 'No'])
+        self.use_id_list_w.currentIndexChanged.connect(self._id_list_listener)
+        self.id_list_w = QLineEdit(self)
+        self.id_list_w.setMinimumWidth(200)
+        buttons = QDialogButtonBox((QDialogButtonBox.Ok
+                                    | QDialogButtonBox.Cancel))
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addRow('Directory:', self.directory_w)
+        layout.addRow('Exam configuration file:', self.config_file_w)
+        layout.addRow('Load student list:', self.use_id_list_w)
+        layout.addRow('Student list:', self.id_list_w)
+        layout.addRow(buttons)
+
+    def get_values(self):
+        values = {}
+        values['directory'] = str(self.directory_w.text()).strip()
+        values['config'] = str(self.config_file_w.text()).strip()
+        if self.use_id_list_w.currentIndex == 0:
+            values['id_list'] = str(self.id_list_w.text()).strip()
+        else:
+            values['id_list'] = None
+        return values
+
+    def _id_list_listener(self, index):
+        if index == 0:
+            self.id_list_w.setEnabled(True)
+        else:
+            self.id_list_w.setEnabled(False)
 
 
 class ActionsManager(object):
@@ -78,6 +123,10 @@ class ActionsManager(object):
         self.actions_grading['discard'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.menus['grading'].setEnabled(True)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
 
     def set_review_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
@@ -88,14 +137,22 @@ class ActionsManager(object):
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['close'].setEnabled(True)
         self.menus['grading'].setEnabled(True)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
 
-    def set_manual_detect_enabled(self, enabled):
-        self.actions_grading['manual_detect'].setEnabled(enabled)
-
-    def set_session_closed_mode(self):
+    def set_no_session_mode(self):
         for key in self.actions_grading:
             self.actions_grading[key].setEnabled(False)
         self.menus['grading'].setEnabled(False)
+        self.actions_session['new'].setEnabled(True)
+        self.actions_session['open'].setEnabled(True)
+        self.actions_session['close'].setEnabled(False)
+        self.actions_session['exit'].setEnabled(True)
+
+    def set_manual_detect_enabled(self, enabled):
+        self.actions_grading['manual_detect'].setEnabled(enabled)
 
     def register_listener(self, key, listener):
         actions = None
@@ -148,6 +205,8 @@ class ActionsManager(object):
         for action in action_lists['grading']:
             self.toolbar.addAction(action)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actions_session['new'])
+        self.toolbar.addAction(self.actions_session['open'])
         self.toolbar.addAction(self.actions_session['close'])
 
 
@@ -163,15 +222,16 @@ class CamView(QWidget):
         painter = QPainter(self)
         painter.drawImage(event.rect(), self.image)
 
-    def new_frame(self):
-        self._capture_image()
-        self.update()
+    def display_capture(self, ipl_image):
+        """Displays a captured image in the window.
 
-    ## def _capture_image(self):
-    ##     cvimage = cv.QueryFrame(self.cam)
-    ##     self.image = QImage(cvimage.tostring(),
-    ##                         cvimage.width, cvimage.height,
-    ##                         QImage.Format_RGB888).rgbSwapped()
+        The image is in the OpenCV IPL format.
+
+        """
+        self.image = QImage(ipl_image.tostring(),
+                            ipl_image.width, ipl_image.height,
+                            QImage.Format_RGB888).rgbSwapped()
+        self.update()
 
 
 class CenterView(QWidget):
@@ -218,6 +278,14 @@ class CenterView(QWidget):
     def update_text_up(self, text):
         self.label_up.setText(text)
 
+    def display_capture(self, ipl_image):
+        """Displays a captured image in the window.
+
+        The image is in the OpenCV IPL format.
+
+        """
+        self.camview.display_capture(ipl_image)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -226,7 +294,8 @@ class MainWindow(QMainWindow):
         self.setSizePolicy(policy)
         self.center_view = CenterView()
         self.setCentralWidget(self.center_view)
-        self.setWindowTitle("Test cam")
+        self.setWindowTitle("Eyegrade")
+        self.setWindowIcon(QIcon(resource_path('logo.svg')))
         self.adjustSize()
         self.setFixedSize(self.sizeHint())
 
@@ -237,7 +306,8 @@ class MainWindow(QMainWindow):
 
 
 class Interface(object):
-    def __init__(self, id_enabled, id_list_enabled):
+    def __init__(self, id_enabled, id_list_enabled, argv):
+        self.app = QApplication(argv)
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
         self.last_score = None
@@ -245,8 +315,12 @@ class Interface(object):
         self.manual_detect_enabled = False
         self.window = MainWindow()
         self.actions_manager = ActionsManager(self.window)
-        self.actions_manager.set_search_mode()
+        self.actions_manager.set_no_session_mode()
+        self._set_internal_listeners()
         self.window.show()
+
+    def run(self):
+        return self.app.exec_()
 
     def set_manual_detect_enabled(self, enabled):
         self.manual_detect_enabled = enabled
@@ -289,15 +363,39 @@ class Interface(object):
         else:
             assert False, 'Unknown event key {0}'.format(key)
 
+    def register_timer(self, time_delta, callback):
+        """Registers a callback function to be run after time_delta ms."""
+        timer = QTimer(self.window)
+        timer.setSingleShot(True)
+        timer.timeout.connect(callback)
+        timer.setInterval(time_delta)
+        timer.start()
+
+    def display_capture(self, ipl_image):
+        """Displays a captured image in the window.
+
+        The image is in the OpenCV IPL format.
+
+        """
+        self.window.center_view.display_capture(ipl_image)
+
+    def _dialog_new_session(self):
+        dialog = DialogNewSession(self.window)
+        dialog.exec_()
+        print dialog.get_values()
+
+    def _set_internal_listeners(self):
+        self.register_listener(('actions', 'session', 'new'),
+                               self._dialog_new_session)
+
 
 if __name__ == '__main__':
     import sys
-    app = QApplication(sys.argv)
-    interface = Interface(True, True)
+    interface = Interface(True, True, sys.argv)
     interface.update_status((8, 9, 2, 0, 8.0, 10.0), model='A', seq_num=23)
     interface.update_text('100099999 Bastian Baltasar Bux')
     def sample_listener(self):
         print 'In listener'
     interface.register_listener(('actions', 'session', 'close'),
                                 sample_listener)
-    sys.exit(app.exec_())
+    sys.exit(interface.run())
