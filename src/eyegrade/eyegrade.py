@@ -177,6 +177,7 @@ class GradingSession(object):
         self.exam = None
         self.latest_graded_exam = None
         self.latest_image = None
+        self.manual_detection_mode = False
         self.interface.update_text('', 'Searching...')
         self.interface.register_timer(50, self._next_search)
         self.next_capture = time.time() + 0.05
@@ -311,13 +312,40 @@ class GradingSession(object):
             self.interface.enable_manual_detect(True)
         else:
             self.exam = self.latest_graded_exam
-            self.exam.lock_capture()
-            self.exam.draw_answers()
             if self.valid_student_ids:
                 self.exam.reset_student_id_filter(False)
             else:
                 self.exam.reset_student_id_editor()
+            self.exam.image.clean_drawn_image()
+            self.exam.lock_capture()
+            self.exam.draw_answers()
         self._start_review_mode()
+
+    def _mouse_pressed(self, point):
+        """Callback called when the mouse is pressed inside a capture."""
+        if self.mode == GradingSession.mode_review:
+            if not self.manual_detection_mode:
+                self._mouse_pressed_change_answer(point)
+            else:
+                self._mouse_pressed_manual_detection(point)
+
+    def _digit_pressed(self, digit_string):
+        """Callback called when a digit is pressed."""
+        if self.mode == GradingSession.mode_review:
+            pass
+
+    def _mouse_pressed_change_answer(self, point):
+        cell = self.exam.image.cell_clicked(point)
+        if cell is not None:
+            question, answer = cell
+            self.exam.toggle_answer(question, answer)
+            self.interface.display_capture(self.exam.image.image_drawn)
+            self.interface.update_status(self.exam.score, self.exam.model,
+                                         self.exam.im_id,
+                                         survey_mode=self.exam_data.survey_mode)
+
+    def _mouse_pressed_manual_detection(self, point):
+        pass
 
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
@@ -353,6 +381,8 @@ class GradingSession(object):
             ('actions', 'session', 'open'): self._open_session,
             ('actions', 'session', 'close'): self._close_session,
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
+            ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
+            ('window', 'key_pressed', 'digit'): self._digit_pressed,
         }
         self.interface.register_listeners(listeners)
 

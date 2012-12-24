@@ -345,6 +345,28 @@ class ExamCapture(object):
                 self.centers.append(row_centers)
                 self.diagonals.append(row_diagonals)
 
+    def cell_clicked(self, point):
+        """Determines the cell to which the given point corresponds.
+
+        Returns (row, column) or None if no cell corresponds.
+
+        """
+        min_dst = None
+        clicked_row = None
+        clicked_col = None
+        for i, row in enumerate(self.centers):
+            for j, center in enumerate(row):
+                dst = distance(point, center)
+                if min_dst is None or dst < min_dst:
+                    min_dst = dst
+                    clicked_row = i
+                    clicked_col = j
+        if (min_dst is not None and
+            min_dst <= self.diagonals[clicked_row][clicked_col] / 2):
+            return (clicked_row, clicked_col + 1)
+        else:
+            return None
+
     def _set_left_to_right(self):
         """Sets left to right order in decisions and cell geometry."""
         centers2 = []

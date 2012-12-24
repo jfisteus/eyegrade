@@ -226,7 +226,6 @@ class ActionsManager(object):
         self.actions_session['exit'].setEnabled(True)
 
     def set_review_mode(self):
-        print 'setting review mode'
         self.actions_grading['snapshot'].setEnabled(False)
         ## self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['next_id'].setEnabled(True)
@@ -319,6 +318,7 @@ class CamView(QWidget):
         self.setFixedSize(640, 480)
         self.display_wait_image()
         self.logo = QPixmap(resource_path('logo.svg'))
+        self.mouse_listener = None
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -341,6 +341,18 @@ class CamView(QWidget):
         self.image = QImage(640, 480, QImage.Format_RGB888)
         self.image.fill(Qt.darkBlue)
         self.update()
+
+    def register_mouse_pressed_listener(self, listener):
+        """Registers a function to receive a mouse clicked event.
+
+        The listener must receive as parameter a tuple (x, y).
+
+        """
+        self.mouse_listener = listener
+
+    def mousePressEvent(self, event):
+        if self.mouse_listener:
+            self.mouse_listener((event.x(), event.y()))
 
 
 class CenterView(QWidget):
@@ -402,6 +414,24 @@ class CenterView(QWidget):
         """Displays the default image instead of a camera capture."""
         self.camview.display_wait_image()
 
+    def register_listener(self, key, listener):
+        """Registers listeners for the center view.
+
+        Available listeners are:
+
+        - ('camview', 'mouse_pressed'): mouse pressed in the camview
+          area. The listener receives the coordinates (x, y) as a
+          tuple.
+
+        """
+        if key[0] == 'camview':
+            if key[1] == 'mouse_pressed':
+                self.camview.register_mouse_pressed_listener(listener)
+            else:
+                assert False, 'Undefined listener key: {0}'.format(key)
+        else:
+            assert False, 'Undefined listener key: {0}'.format(key)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -414,11 +444,26 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(resource_path('logo.svg')))
         self.adjustSize()
         self.setFixedSize(self.sizeHint())
+        self.digit_key_listener = None
 
         ## timer = QTimer(self)
         ## timer.timeout.connect(self.cam_view.new_frame)
         ## timer.setInterval(100)
         ## timer.start(500)
+
+    def keyPressEvent(self, event):
+        if (self.digit_key_listener
+            and event.key() >= Qt.Key_0 and event.key() <= Qt.Key_9):
+            self.digit_key_listener(event.text())
+
+    def register_listener(self, key, listener):
+        if key[0] == 'key_pressed':
+            if key[1] == 'digit':
+                self.digit_key_listener = listener
+            else:
+                assert False, 'Undefined listener key: {0}'.format(key)
+        else:
+            assert False, 'Undefined listener key: {0}'.format(key)
 
 
 class Interface(object):
@@ -500,6 +545,10 @@ class Interface(object):
         """
         if key[0] == 'actions':
             self.actions_manager.register_listener(key[1:], listener)
+        elif key[0] == 'center_view':
+            self.window.center_view.register_listener(key[1:], listener)
+        elif key[0] == 'window':
+            self.window.register_listener(key[1:], listener)
         else:
             assert False, 'Unknown event key {0}'.format(key)
 
