@@ -210,11 +210,10 @@ class ActionsManager(object):
                              action_lists['grading'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
-        self.set_manual_detect_enabled(False)
 
     def set_search_mode(self):
         self.actions_grading['snapshot'].setEnabled(True)
-        ## self.actions_grading['manual_detect'].setEnabled(True)
+        self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['next_id'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
@@ -227,6 +226,7 @@ class ActionsManager(object):
         self.actions_session['exit'].setEnabled(True)
 
     def set_review_mode(self):
+        print 'setting review mode'
         self.actions_grading['snapshot'].setEnabled(False)
         ## self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['next_id'].setEnabled(True)
@@ -249,14 +249,19 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(False)
         self.actions_session['exit'].setEnabled(True)
 
-    def set_manual_detect_enabled(self, enabled):
+    def enable_manual_detect(self, enabled):
+        """Enables or disables the manual detection mode.
+
+        If `enable` is True, it is enabled. Otherwise, it is disabled.
+
+        """
         self.actions_grading['manual_detect'].setEnabled(enabled)
 
     def register_listener(self, key, listener):
         actions = None
         if key[0] == 'session':
             actions = self.actions_session
-        elif key[1] == 'grading':
+        elif key[0] == 'grading':
             actions = self.actions_grading
         if actions:
             assert key[1] in actions
@@ -448,15 +453,27 @@ class Interface(object):
         self.update_text_up('')
         self.show_version()
 
+    def enable_manual_detect(self, enabled):
+        """Enables or disables the manual detection mode.
+
+        If `enable` is True, it is enabled. Otherwise, it is disabled.
+
+        """
+        self.actions_manager.enable_manual_detect(enabled)
+
     def update_status(self, score, model=None, seq_num=None, survey_mode=False):
         self.window.center_view.update_status(score, model=model,
                                               seq_num=seq_num,
                                               survey_mode=survey_mode)
 
     def update_text_up(self, text):
+        if text is None:
+            text = ''
         self.window.center_view.update_text_up(text)
 
     def update_text_down(self, text):
+        if text is None:
+            text = ''
         self.window.center_view.update_text_down(text)
 
     def update_text(self, text_up, text_down):

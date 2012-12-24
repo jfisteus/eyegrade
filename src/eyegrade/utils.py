@@ -486,7 +486,8 @@ regexp_seqnum = re.compile('\{seq-number\}')
 
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids,
-                 im_id, save_stats, score_weights, save_image_function=None):
+                 im_id, score_weights, save_image_func=None,
+                 save_stats=False):
         self.image = image
         self.model = model
         self.solutions = solutions
@@ -511,7 +512,7 @@ class Exam(object):
                 self.ids_rank = None
         self.locked = False
         self.score_weights = score_weights
-        self.save_image_function = save_image_function
+        self.save_image_function = save_image_func
 
     def grade(self):
         good = 0

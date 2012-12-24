@@ -15,6 +15,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from __future__ import division
 
 import sys
 import os
@@ -32,6 +33,9 @@ utils.EyegradeException.register_error('no_camera',
     'There is no suitable webcam. Eyegrade needs a webcam to work.\n'
     'If your computer already has a camera, check that it is not being\n'
     'used by another application.')
+
+param_fps = 8
+capture_period = 1.0 / param_fps
 
 class PerformanceProfiler(object):
     def __init__(self):
@@ -137,9 +141,10 @@ def cell_clicked(image, point):
     else:
         return None
 
-def dump_camera_buffer(camera):
-    if camera is not None:
-        for i in range(0, 6):
+def dump_camera_buffer(camera, delay_suffered):
+    if camera is not None and delay_suffered > 0.1:
+        frames_to_drop = min(8, int(1 + (delay_suffered - 0.1) / 0.04))
+        for i in range(0, frames_to_drop):
             imageproc.capture(camera, False)
 
 def select_camera(options, config):
@@ -168,21 +173,81 @@ class GradingSession(object):
 
     def _start_search_mode(self):
         self.mode = GradingSession.mode_search
+        self.interface.activate_search_mode()
+        self.exam = None
+        self.latest_graded_exam = None
+        self.latest_image = None
         self.interface.update_text('', 'Searching...')
-        self.interface.register_timer(25, self._next_search)
+        self.interface.register_timer(50, self._next_search)
+        self.next_capture = time.time() + 0.05
+
+    def _start_review_mode(self):
+        self.mode = GradingSession.mode_review
+        self.interface.activate_review_mode()
+        self.interface.display_capture(self.exam.image.image_drawn)
+        self.interface.update_text_up(self.exam.get_student_id_and_name())
+        if self.exam.score is not None:
+            self.interface.update_status(self.exam.score,
+                                         model=self.exam.model,
+                                         seq_num=self.exam.im_id,
+                                         survey_mode=self.exam_data.survey_mode)
 
     def _next_search(self):
         if self.mode != GradingSession.mode_search:
             return
-        ## print time.time()
-        ## dump_camera_buffer(self.imageproc_context.camera)
-        image = imageproc.ExamCapture([(4, 10), (4, 10)],
+        image = imageproc.ExamCapture(self.exam_data.dimensions,
                                       self.imageproc_context,
                                       self.imageproc_options)
-        ## image.detect_safe()
-        ## image.draw_status()
-        self.interface.display_capture(image.image_drawn)
-        self.interface.register_timer(50, self._next_search)
+        self.latest_image = image
+        exam = self._process_capture(image)
+        if exam is None or not image.success:
+            if exam is not None:
+                exam.draw_answers()
+            else:
+                image.draw_status()
+            self.interface.display_capture(image.image_drawn)
+            self._schedule_next_capture()
+        else:
+            exam.lock_capture()
+            exam.draw_answers()
+            self.exam = exam
+            self._start_review_mode()
+
+    def _schedule_next_capture(self):
+        """Schedules the next image capture and registers the timer.
+
+        Call it from search mode, after an image has been processed.
+
+        """
+        current_time = time.time()
+        self.next_capture += capture_period
+        if current_time > self.next_capture:
+            dump_camera_buffer(self.imageproc_context.camera,
+                               current_time - self.next_capture)
+            wait = 0.010
+            self.next_capture = time.time() + 0.010
+        else:
+            wait = self.next_capture - current_time
+        self.interface.register_timer(int(wait * 1000), self._next_search)
+
+    def _process_capture(self, image):
+        """Processes a captured image."""
+        image.detect_safe()
+        exam = None
+        if image.status['infobits']:
+            model = utils.decode_model(image.bits)
+            if model is not None and (model in self.exam_data.solutions
+                                      or self.exam_data.survey_mode):
+                if not self.exam_data.survey_mode:
+                    sol = self.exam_data.solutions[model]
+                else:
+                    sol = []
+                exam = utils.Exam(image, model, sol, self.valid_student_ids,
+                                  self.image_id, self.exam_data.score_weights,
+                                  save_image_func=None)
+                exam.grade()
+                self.latest_graded_exam = exam
+        return exam
 
     def _new_session(self):
         """Callback for when the new session action is selected."""
@@ -227,6 +292,33 @@ class GradingSession(object):
         self.answers_file = None
         self.interface.activate_no_session_mode()
 
+    def _action_snapshot(self):
+        """Callback for the snapshot action."""
+        if self.latest_graded_exam is None:
+            if self.latest_image is None:
+                return
+            image = self.latest_image
+            image.clean_drawn_image()
+            if image.status['infobits']:
+                model = utils.decode_model(image.bits)
+            else:
+                model = None
+            self.exam = utils.Exam(image, model, {}, self.valid_student_ids,
+                                   self.image_id, self.exam_data.score_weights,
+                                   save_image_func=None)
+            self.exam.grade()
+            self.exam.lock_capture()
+            self.interface.enable_manual_detect(True)
+        else:
+            self.exam = self.latest_graded_exam
+            self.exam.lock_capture()
+            self.exam.draw_answers()
+            if self.valid_student_ids:
+                self.exam.reset_student_id_filter(False)
+            else:
+                self.exam.reset_student_id_editor()
+        self._start_review_mode()
+
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
         exam_data = self.exam_data
@@ -252,14 +344,15 @@ class GradingSession(object):
         if self.imageproc_context.camera is None:
             self.interface.show_error('No camera found. Connect a camera.')
             return
+        self.image_id = 1
         self._start_search_mode()
-        self.interface.activate_search_mode()
 
     def _register_listeners(self):
         listeners = {
             ('actions', 'session', 'new'): self._new_session,
             ('actions', 'session', 'open'): self._open_session,
             ('actions', 'session', 'close'): self._close_session,
+            ('actions', 'grading', 'snapshot'): self._action_snapshot,
         }
         self.interface.register_listeners(listeners)
 
