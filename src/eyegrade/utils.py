@@ -728,6 +728,7 @@ class ExamConfig(object):
             self.score_weights = None
             self.left_to_right_numbering = False
             self.survey_mode = None
+            self.session = {}
 
     def set_solutions(self, model, solutions):
         if self.solutions is None:
@@ -809,6 +810,25 @@ class ExamConfig(object):
         else:
             self.survey_mode = False
         self.models.sort()
+        # Load the session if it is in the file:
+        self.session = {}
+        if exam_data.has_section('session'):
+            if exam_data.has_option('session', 'is-session'):
+                self.session['is-session'] = \
+                           exam_data.getboolean('session', 'is-session')
+            else:
+                self.session['is-session'] = False
+            if exam_data.has_option('session', 'student-ids-file'):
+                self.session['student-ids-file'] = \
+                           exam_data.get('session', 'student-ids-file')
+            else:
+                self.session['student-ids-file'] = None
+            if exam_data.has_option('session', 'save-filename-pattern'):
+                self.session['save-filename-pattern'] = \
+                           exam_data.get('session', 'save-filename-pattern')
+            elif self.session['is-session']:
+                raise Exception(('Exam config must contain a '
+                                 'save-filename-pattern entry in [session]'))
 
     def save(self, filename):
         data = []
@@ -823,6 +843,16 @@ class ExamConfig(object):
             data.append('correct-weight: %.16f'%self.score_weights[0])
             data.append('incorrect-weight: %.16f'%self.score_weights[1])
             data.append('blank-weight: %.16f'%self.score_weights[2])
+        if len(self.session) != {} and self.session['is-session']:
+            data.append('')
+            data.append('[session]')
+            data.append('is-session: yes')
+            if 'student-ids-file' in self.session:
+                data.append('student-ids-file: %s'\
+                            %self.session['student-ids-file'])
+            if 'save-filename-pattern' in self.session:
+                data.append('save-filename-pattern: %s'\
+                            %self.session['save-filename-pattern'])
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')

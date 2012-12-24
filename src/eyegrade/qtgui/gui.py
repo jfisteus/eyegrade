@@ -24,11 +24,11 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
-                         QMessageBox,)
+                         QMessageBox, QPixmap,)
 
 from PyQt4.QtCore import Qt, QTimer
 
-from eyegrade.utils import resource_path, EyegradeException
+from eyegrade.utils import resource_path, program_name, version, web_location
 
 _filter_exam_config = 'Exam configuration (*.eye)'
 _filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
@@ -111,7 +111,8 @@ class DialogNewSession(QDialog):
         values = {}
         values['directory'] = str(self.directory_w.text()).strip()
         values['config'] = str(self.config_file_w.text()).strip()
-        if self.use_id_list_w.currentIndex == 0:
+        print self.use_id_list_w.currentIndex()
+        if self.use_id_list_w.currentIndex() == 0:
             values['id_list'] = str(self.id_list_w.text()).strip()
         else:
             values['id_list'] = None
@@ -122,7 +123,7 @@ class DialogNewSession(QDialog):
             return None
         dir_content = os.listdir(values['directory'])
         if dir_content:
-            if 'eyegrade.cfg' in dir_content:
+            if 'session.eye' in dir_content:
                 QMessageBox.critical(self, 'Error',
                             ('The directory already contains a session. '
                              'Choose another directory or create a new one.'))
@@ -310,10 +311,9 @@ class ActionsManager(object):
 class CamView(QWidget):
     def __init__(self, parent=None):
         super(CamView, self).__init__(parent)
-        self.image = QImage(640, 480, QImage.Format_RGB888)
-        self.image.fill(Qt.darkBlue)
         self.setFixedSize(640, 480)
-#        self.cam = cv.CaptureFromCAM(0)
+        self.display_wait_image()
+        self.logo = QPixmap(resource_path('logo.svg'))
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -328,6 +328,13 @@ class CamView(QWidget):
         self.image = QImage(ipl_image.tostring(),
                             ipl_image.width, ipl_image.height,
                             QImage.Format_RGB888).rgbSwapped()
+        painter = QPainter(self.image)
+        painter.drawPixmap(600, 440, 36, 36, self.logo)
+        self.update()
+
+    def display_wait_image(self):
+        self.image = QImage(640, 480, QImage.Format_RGB888)
+        self.image.fill(Qt.darkBlue)
         self.update()
 
 
@@ -375,6 +382,9 @@ class CenterView(QWidget):
     def update_text_up(self, text):
         self.label_up.setText(text)
 
+    def update_text_down(self, text):
+        self.label_down.setText(text)
+
     def display_capture(self, ipl_image):
         """Displays a captured image in the window.
 
@@ -382,6 +392,10 @@ class CenterView(QWidget):
 
         """
         self.camview.display_capture(ipl_image)
+
+    def display_wait_image(self):
+        """Displays the default image instead of a camera capture."""
+        self.camview.display_wait_image()
 
 
 class MainWindow(QMainWindow):
@@ -412,7 +426,7 @@ class Interface(object):
         self.manual_detect_enabled = False
         self.window = MainWindow()
         self.actions_manager = ActionsManager(self.window)
-        self.actions_manager.set_no_session_mode()
+        self.activate_no_session_mode()
         self.window.show()
 
     def run(self):
@@ -428,13 +442,26 @@ class Interface(object):
     def activate_review_mode(self):
         self.actions_manager.set_review_mode()
 
+    def activate_no_session_mode(self):
+        self.actions_manager.set_no_session_mode()
+        self.display_wait_image()
+        self.update_text_up('')
+        self.show_version()
+
     def update_status(self, score, model=None, seq_num=None, survey_mode=False):
         self.window.center_view.update_status(score, model=model,
                                               seq_num=seq_num,
                                               survey_mode=survey_mode)
 
-    def update_text(self, text):
+    def update_text_up(self, text):
         self.window.center_view.update_text_up(text)
+
+    def update_text_down(self, text):
+        self.window.center_view.update_text_down(text)
+
+    def update_text(self, text_up, text_down):
+        self.window.center_view.update_text_up(text_up)
+        self.window.center_view.update_text_down(text_down)
 
     def register_listeners(self, listeners):
         """Registers a dictionary of listeners for the events of the gui.
@@ -475,6 +502,10 @@ class Interface(object):
         """
         self.window.center_view.display_capture(ipl_image)
 
+    def display_wait_image(self):
+        """Displays the default image instead of a camera capture."""
+        self.window.center_view.display_wait_image()
+
     def dialog_new_session(self):
         """Displays a new session dialog.
 
@@ -486,6 +517,30 @@ class Interface(object):
         """
         dialog = DialogNewSession(self.window)
         return dialog.exec_()
+
+    def dialog_open_session(self):
+        """Displays an open session dialog.
+
+        The filename of the session file is returned or None.
+
+        """
+        filename = QFileDialog.getOpenFileName(self.window,
+                                               'Select the session file',
+                                               '', _filter_exam_config)
+        return str(filename) if filename else None
+
+    def show_error(self, message, title='Error'):
+        """Displays an error dialog with the given message.
+
+        The method blocks until the user closes the dialog.
+
+        """
+        QMessageBox.critical(self.window, title, message)
+
+    def show_version(self):
+        version_line = '{0} {1} - <a href="{2}">{2}</a>'\
+                       .format(program_name, version, web_location)
+        self.update_text_down(version_line)
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ import time
 # Local imports
 import imageproc
 import utils
-import gui
+import qtgui.gui as gui
 
 param_max_wait_time = 0.15 # seconds
 
@@ -149,286 +149,405 @@ def select_camera(options, config):
         camera = options.camera_dev
     return camera
 
-def main():
-    options = read_cmd_options()
-    config = utils.read_config()
-    save_pattern = config['save-filename-pattern']
 
-    exam_data = utils.ExamConfig(options.ex_data_filename)
-    solutions = exam_data.solutions
-    if options.accept_model_0:
-        solutions['0'] = exam_data.num_questions * [1]
-    dimensions = exam_data.dimensions
-    id_num_digits = exam_data.id_num_digits
-    read_id = (id_num_digits > 0)
-    save_pattern = os.path.join(options.output_dir, save_pattern)
-    if options.answers_filename is not None:
-        answers_file = options.answers_filename
-    else:
-        answers_file = 'eyegrade-answers.csv'
-        answers_file = os.path.join(options.output_dir, answers_file)
+class GradingSession(object):
+    """Manages a grading session."""
 
-    im_id = options.start_id
-    valid_student_ids = None
-    if options.ids_file is not None:
-        valid_student_ids = utils.read_student_ids(filename=options.ids_file,
-                                                   with_names=True)
+    mode_no_session = 0
+    mode_search = 1
+    mode_review = 2
 
-    interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
+    def __init__(self, interface):
+        self.interface = interface
+        ## self.imageproc_context = imageproc.ExamCaptureContext()
+        ## self.imageproc_options = imageproc.ExamCapture.get_default_options()
+        ## self.imageproc_context.init_camera(0)
+        self.mode = GradingSession.mode_no_session
+        self.config = utils.read_config()
+        self._register_listeners()
 
-    profiler = PerformanceProfiler()
+    def _start_search_mode(self):
+        self.mode = GradingSession.mode_search
+        self.interface.update_text('', 'Searching...')
+        self.interface.register_timer(25, self._next_search)
 
-    # Initialize options
-    imageproc_options = imageproc.ExamCapture.get_default_options()
-    imageproc_options['logging-dir'] = options.output_dir
-    if read_id:
-        imageproc_options['read-id'] = True
-        imageproc_options['id-num-digits'] = id_num_digits
-    if options.debug:
-        imageproc_options['show-status'] = True
-        imageproc_options['error-logging'] = True
-    if config['error-logging']:
-        imageproc_options['error-logging'] = True
-    if not options.fixed_hough:
-        imageproc_context = imageproc.ExamCaptureContext()
-    else:
-        imageproc_context = imageproc.ExamCaptureContext(options.fixed_hough)
+    def _next_search(self):
+        if self.mode != GradingSession.mode_search:
+            return
+        ## print time.time()
+        ## dump_camera_buffer(self.imageproc_context.camera)
+        image = imageproc.ExamCapture([(4, 10), (4, 10)],
+                                      self.imageproc_context,
+                                      self.imageproc_options)
+        ## image.detect_safe()
+        ## image.draw_status()
+        self.interface.display_capture(image.image_drawn)
+        self.interface.register_timer(50, self._next_search)
 
-    # Initialize capture source
-    if options.proc_file is not None:
-        imageproc_options['capture-from-file'] = True
-        imageproc_options['capture-proc-file'] = options.proc_file
-    elif options.raw_file is not None:
-        imageproc_options['capture-from-file'] = True
-        imageproc_options['capture-raw-file'] = options.raw_file
-    else:
-        imageproc_context.init_camera(select_camera(options, config))
-        if imageproc_context.camera is None:
-            raise utils.EyegradeException('No camera found!', key='no_camera')
-    imageproc_options['left-to-right-numbering'] = \
-                                           exam_data.left_to_right_numbering
-
-    # Program main loop
-    lock_mode = not options.adjust
-    last_time = time.time()
-    interface.update_text('Searching...', False)
-    interface.set_statusbar_message(utils.program_name + ' ' + utils.version
-                                    + ' - ' + utils.web_location)
-    interface.set_search_toolbar(True)
-    latest_graded_exam = None
-    while True:
-        override_id_mode = False
-        exam = None
-        model = None
-        manual_detection_mode = False
-        profiler.count_capture()
-        image = imageproc.ExamCapture(dimensions, imageproc_context,
-                                      imageproc_options)
-        image.detect_safe()
-        success = image.success
-        if image.status['infobits']:
-            model = utils.decode_model(image.bits,
-                                       accept_model_0=options.accept_model_0)
-            if (model is not None and
-                (model in solutions or exam_data.survey_mode)):
-                if not exam_data.survey_mode:
-                    sol = solutions[model]
-                else:
-                    sol = []
-                exam = utils.Exam(image, model, sol,
-                                  valid_student_ids, im_id, options.save_stats,
-                                  exam_data.score_weights,
-                                  interface.save_capture)
-                exam.grade()
-                latest_graded_exam = exam
+    def _new_session(self):
+        """Callback for when the new session action is selected."""
+        values = self.interface.dialog_new_session()
+        if values is not None:
+            # Save the exam config file augmented with session information
+            self.exam_data = utils.ExamConfig(values['config'])
+            self.exam_data.session['is-session'] = True
+            if values['id_list']:
+                self.exam_data.session['student-ids-file'] = values['id_list']
             else:
-                success = False
+                self.exam_data.session['student-ids-file'] = None
+            self.exam_data.session['save-filename-pattern'] = \
+                self.config['save-filename-pattern']
+            filename = os.path.join(values['directory'], 'session.eye')
+            self.exam_data.save(filename)
+            self.session_dir = values['directory']
+            self._start_session()
 
-        interface.set_manual_detect_enabled(False)
-        events = interface.events_search_mode()
-        for event, event_info in events:
-            if event == gui.event_quit:
-                sys.exit(0)
-            elif event == gui.event_debug_proc and options.debug:
-                imageproc_options['show-image-proc'] = \
-                    not imageproc_options['show-image-proc']
-            elif event == gui.event_debug_lines and options.debug:
-                imageproc_options['show-lines'] = \
-                    not imageproc_options['show-lines']
-            elif event == gui.event_snapshot:
-                if latest_graded_exam is None:
-                    exam = utils.Exam(image, model, {}, valid_student_ids,
-                                      im_id, options.save_stats,
-                                      exam_data.score_weights,
-                                      interface.save_capture)
-                    exam.grade()
-                    interface.set_manual_detect_enabled(True)
-                else:
-                    exam = latest_graded_exam
-                success = True
-                if options.ids_file is not None:
-                    exam.reset_student_id_filter(False)
-                else:
-                    exam.reset_student_id_editor()
-                    override_id_mode = True
-            elif event == gui.event_manual_detection:
-                exam = utils.Exam(image, model, {}, valid_student_ids, im_id,
-                                  options.save_stats, exam_data.score_weights,
-                                  interface.save_capture)
-                exam.grade()
-                interface.set_manual_detect_enabled(True)
-                # Set the event to repeat again in lock_mode
-                interface.enqueue_event((gui.event_manual_detection, None))
-                success = True
-                if options.ids_file is not None:
-                    exam.reset_student_id_filter(False)
-                else:
-                    exam.reset_student_id_editor()
-                    override_id_mode = True
-            elif event == gui.event_lock:
-                lock_mode = True
+    def _open_session(self):
+        """Callback for when the open session action is selected."""
+        filename = self.interface.dialog_open_session()
+        if not filename:
+            return
+        self.exam_data = utils.ExamConfig(filename)
+        if (self.exam_data.session == {}
+            or not self.exam_data.session['is-session']):
+            self.interface.show_error(('The file you selected contains no '
+                                       'valid session.'))
+            return
+        self.session_dir = os.path.dirname(filename)
+        self._start_session()
 
-        # Enter review mode if the capture was succesfully read or the
-        # image was locked by the user
-        if success and lock_mode:
-            continue_waiting = True
-            manual_detection_mode = False
-            manual_points = []
-            exam.lock_capture()
-            exam.draw_answers()
-            interface.show_capture(exam.image.image_drawn, False)
-            interface.update_text(exam.get_student_id_and_name(), False)
-            if exam.score is not None:
-                interface.update_status(exam.score, exam.model, exam.im_id,
-                                        flip=False,
-                                        survey_mode=exam_data.survey_mode)
-            interface.set_review_toolbar(True)
-            while continue_waiting:
-                event, event_info = interface.wait_event_review_mode()
-                if event == gui.event_quit:
-                    sys.exit(0)
-                elif event == gui.event_cancel_frame:
-                    continue_waiting = False
-                elif event == gui.event_save:
-                    stats = profiler.finish_exam(exam)
-                    exam.save_image(save_pattern)
-                    exam.save_answers(answers_file, config['csv-dialect'],
-                                      stats)
-                    if options.debug:
-                        exam.save_debug_images(save_pattern)
-                    im_id += 1
-                    continue_waiting = False
-                elif event == gui.event_manual_id:
-                    override_id_mode = True
-                    exam.reset_student_id_editor()
-                    exam.draw_answers()
-                    interface.show_capture(exam.image.image_drawn, False)
-                    interface.update_text(exam.get_student_id_and_name())
-                elif (event == gui.event_next_id
-                      or event == gui.event_previous_id):
-                    if not override_id_mode and options.ids_file is not None:
-                        if len(exam.student_id_filter) == 0:
-                            if event == gui.event_next_id:
-                                exam.try_next_student_id()
-                            else:
-                                exam.try_previous_student_id()
-                        else:
-                            exam.reset_student_id_filter()
-                        profiler.count_student_id_change()
-                        exam.draw_answers()
-                        interface.show_capture(exam.image.image_drawn, False)
-                        interface.update_text(exam.get_student_id_and_name())
-                elif event == gui.event_id_digit:
-                    if override_id_mode:
-                        exam.student_id_editor(event_info)
-                    elif options.ids_file is not None:
-                        exam.filter_student_id(event_info)
-                    profiler.count_student_id_change()
-                    exam.draw_answers()
-                    interface.show_capture(exam.image.image_drawn, False)
-                    interface.update_text(exam.get_student_id_and_name())
-                elif event == gui.event_debug_proc and options.debug:
-                    imageproc_options['show-image-proc'] = \
-                        not imageproc_options['show-image-proc']
-                    continue_waiting = False
-                elif event == gui.event_debug_lines and options.debug:
-                    imageproc_options['show-lines'] = \
-                        not imageproc_options['show-lines']
-                    continue_waiting = False
-                elif event == gui.event_manual_detection:
-                    exam.image.clean_drawn_image()
-                    interface.show_capture(exam.image.image_drawn, False)
-                    interface.update_text(('Manual detection: click on the '
-                                           'outer corners of the answer '
-                                           'box(es)'))
-                    manual_detection_mode = True
-                    manual_points = []
-                elif event == gui.event_click:
-                    if not manual_detection_mode:
-                        cell = cell_clicked(exam.image, event_info)
-                        if cell is not None:
-                            question, answer = cell
-                            exam.toggle_answer(question, answer)
-                            interface.show_capture(exam.image.image_drawn,
-                                                   False)
-                            interface.update_status(exam.score, exam.model,
-                                             exam.im_id, flip=True,
-                                             survey_mode=exam_data.survey_mode)
-                    else:
-                        manual_points.append(event_info)
-                        exam.image.draw_corner(event_info)
-                        interface.show_capture(exam.image.image_drawn, True)
-                        if len(manual_points) == 4 * len(exam.image.boxes_dim):
-                            corner_matrixes = imageproc.process_box_corners(
-                                manual_points, exam.image.boxes_dim)
-                            if corner_matrixes != []:
-                                exam.image.detect_manual(corner_matrixes)
-                                if exam.image.status['infobits']:
-                                    exam.model = utils.decode_model(image.bits)
-                                    if exam.model is not None:
-                                        exam.solutions = solutions[exam.model]
-                                        exam.grade()
-                                        interface.update_status(exam.score,
-                                             exam.model,
-                                             exam.im_id,
-                                             flip=False,
-                                             survey_mode=exam_data.survey_mode)
-                            else:
-                                exam.image.clean_drawn_image()
-                                interface.set_statusbar_message(('Manual '
-                                                                 'detection '
-                                                                 'failed!'),
-                                                                False)
-                            exam.draw_answers()
-                            interface.show_capture(exam.image.image_drawn,
-                                                   False)
-                            interface.update_text('', True)
-                            manual_detection_mode = False
-            dump_camera_buffer(imageproc_context.camera)
-            interface.update_text('Searching...', False)
-            interface.update_status(None, flip=False)
-            interface.set_search_toolbar(True)
-            latest_graded_exam = None
-            if imageproc_options['capture-from-file']:
-                sys.exit(0)
+    def _close_session(self):
+        """Callback that closes the current session."""
+        self.mode = GradingSession.mode_no_session
+        self.exam_data = None
+        self.valid_student_ids = None
+        self.imageproc_options = None
+        self.imageproc_context = None
+        self.save_pattern = None
+        self.answers_file = None
+        self.interface.activate_no_session_mode()
+
+    def _start_session(self):
+        """Starts a session (either a new one or one that has been loaded)."""
+        exam_data = self.exam_data
+        session_cfg = exam_data.session
+        self.save_pattern = os.path.join(self.session_dir,
+                                         session_cfg['save-filename-pattern'])
+        self.answers_file = os.path.join(self.session_dir,
+                                         'eyegrade-answers.csv')
+        if exam_data.session['student-ids-file'] is not None:
+            self.valid_student_ids = utils.read_student_ids( \
+                filename=exam_data.session['student-ids-file'],
+                with_names=True)
         else:
-            if exam is not None:
-                exam.draw_answers()
-            else:
-                image.draw_status()
-            interface.show_capture(image.image_drawn)
-            current_time = time.time()
-            diff = current_time - last_time
-            if current_time > last_time and diff < param_max_wait_time:
-                interface.delay(param_max_wait_time - diff)
-                last_time += 1
-            else:
-                if diff > 3 * param_max_wait_time:
-                    dump_camera_buffer(imageproc_context.camera)
-                last_time = current_time
-            if imageproc_options['capture-from-file']:
-                interface.wait_key()
-                sys.exit(1)
+            self.valid_student_ids = None
+        self.imageproc_options = imageproc.ExamCapture.get_default_options()
+        if exam_data.id_num_digits and exam_data.id_num_digits > 0:
+            self.imageproc_options['read-id'] = True
+            self.imageproc_options['id-num-digits'] = exam_data.id_num_digits
+        self.imageproc_options['left-to-right-numbering'] = \
+                                            exam_data.left_to_right_numbering
+        self.imageproc_context = imageproc.ExamCaptureContext()
+        self.imageproc_context.init_camera(self.config['camera-dev'])
+        if self.imageproc_context.camera is None:
+            self.interface.show_error('No camera found. Connect a camera.')
+            return
+        self._start_search_mode()
+        self.interface.activate_search_mode()
+
+    def _register_listeners(self):
+        listeners = {
+            ('actions', 'session', 'new'): self._new_session,
+            ('actions', 'session', 'open'): self._open_session,
+            ('actions', 'session', 'close'): self._close_session,
+        }
+        self.interface.register_listeners(listeners)
+
+
+def main():
+    interface = gui.Interface(False, False, sys.argv)
+    session = GradingSession(interface)
+    interface.run()
+
+    ## options = read_cmd_options()
+    ## config = utils.read_config()
+    ## save_pattern = config['save-filename-pattern']
+
+    ## exam_data = utils.ExamConfig(options.ex_data_filename)
+    ## solutions = exam_data.solutions
+    ## if options.accept_model_0:
+    ##     solutions['0'] = exam_data.num_questions * [1]
+    ## dimensions = exam_data.dimensions
+    ## id_num_digits = exam_data.id_num_digits
+    ## read_id = (id_num_digits > 0)
+    ## save_pattern = os.path.join(options.output_dir, save_pattern)
+    ## if options.answers_filename is not None:
+    ##     answers_file = options.answers_filename
+    ## else:
+    ##     answers_file = 'eyegrade-answers.csv'
+    ##     answers_file = os.path.join(options.output_dir, answers_file)
+
+    ## im_id = options.start_id
+    ## valid_student_ids = None
+    ## if options.ids_file is not None:
+    ##     valid_student_ids = utils.read_student_ids(filename=options.ids_file,
+    ##                                                with_names=True)
+
+    ## interface = gui.PygameInterface((640, 480), read_id, options.ids_file)
+
+    ## profiler = PerformanceProfiler()
+
+    ## # Initialize options
+    ## imageproc_options = imageproc.ExamCapture.get_default_options()
+    ## imageproc_options['logging-dir'] = options.output_dir
+    ## if read_id:
+    ##     imageproc_options['read-id'] = True
+    ##     imageproc_options['id-num-digits'] = id_num_digits
+    ## if options.debug:
+    ##     imageproc_options['show-status'] = True
+    ##     imageproc_options['error-logging'] = True
+    ## if config['error-logging']:
+    ##     imageproc_options['error-logging'] = True
+    ## if not options.fixed_hough:
+    ##     imageproc_context = imageproc.ExamCaptureContext()
+    ## else:
+    ##     imageproc_context = imageproc.ExamCaptureContext(options.fixed_hough)
+
+    ## # Initialize capture source
+    ## if options.proc_file is not None:
+    ##     imageproc_options['capture-from-file'] = True
+    ##     imageproc_options['capture-proc-file'] = options.proc_file
+    ## elif options.raw_file is not None:
+    ##     imageproc_options['capture-from-file'] = True
+    ##     imageproc_options['capture-raw-file'] = options.raw_file
+    ## else:
+    ##     imageproc_context.init_camera(select_camera(options, config))
+    ##     if imageproc_context.camera is None:
+    ##         raise utils.EyegradeException('No camera found!', key='no_camera')
+    ## imageproc_options['left-to-right-numbering'] = \
+    ##                                        exam_data.left_to_right_numbering
+
+    ## # Program main loop
+    ## lock_mode = not options.adjust
+    ## last_time = time.time()
+    ## interface.update_text('Searching...', False)
+    ## interface.set_statusbar_message(utils.program_name + ' ' + utils.version
+    ##                                 + ' - ' + utils.web_location)
+    ## interface.set_search_toolbar(True)
+    ## latest_graded_exam = None
+    ## while True:
+    ##     override_id_mode = False
+    ##     exam = None
+    ##     model = None
+    ##     manual_detection_mode = False
+    ##     profiler.count_capture()
+    ##     image = imageproc.ExamCapture(dimensions, imageproc_context,
+    ##                                   imageproc_options)
+    ##     image.detect_safe()
+    ##     success = image.success
+    ##     if image.status['infobits']:
+    ##         model = utils.decode_model(image.bits,
+    ##                                    accept_model_0=options.accept_model_0)
+    ##         if (model is not None and
+    ##             (model in solutions or exam_data.survey_mode)):
+    ##             if not exam_data.survey_mode:
+    ##                 sol = solutions[model]
+    ##             else:
+    ##                 sol = []
+    ##             exam = utils.Exam(image, model, sol,
+    ##                               valid_student_ids, im_id, options.save_stats,
+    ##                               exam_data.score_weights,
+    ##                               interface.save_capture)
+    ##             exam.grade()
+    ##             latest_graded_exam = exam
+    ##         else:
+    ##             success = False
+
+    ##     interface.set_manual_detect_enabled(False)
+    ##     events = interface.events_search_mode()
+    ##     for event, event_info in events:
+    ##         if event == gui.event_quit:
+    ##             sys.exit(0)
+    ##         elif event == gui.event_debug_proc and options.debug:
+    ##             imageproc_options['show-image-proc'] = \
+    ##                 not imageproc_options['show-image-proc']
+    ##         elif event == gui.event_debug_lines and options.debug:
+    ##             imageproc_options['show-lines'] = \
+    ##                 not imageproc_options['show-lines']
+    ##         elif event == gui.event_snapshot:
+    ##             if latest_graded_exam is None:
+    ##                 exam = utils.Exam(image, model, {}, valid_student_ids,
+    ##                                   im_id, options.save_stats,
+    ##                                   exam_data.score_weights,
+    ##                                   interface.save_capture)
+    ##                 exam.grade()
+    ##                 interface.set_manual_detect_enabled(True)
+    ##             else:
+    ##                 exam = latest_graded_exam
+    ##             success = True
+    ##             if options.ids_file is not None:
+    ##                 exam.reset_student_id_filter(False)
+    ##             else:
+    ##                 exam.reset_student_id_editor()
+    ##                 override_id_mode = True
+    ##         elif event == gui.event_manual_detection:
+    ##             exam = utils.Exam(image, model, {}, valid_student_ids, im_id,
+    ##                               options.save_stats, exam_data.score_weights,
+    ##                               interface.save_capture)
+    ##             exam.grade()
+    ##             interface.set_manual_detect_enabled(True)
+    ##             # Set the event to repeat again in lock_mode
+    ##             interface.enqueue_event((gui.event_manual_detection, None))
+    ##             success = True
+    ##             if options.ids_file is not None:
+    ##                 exam.reset_student_id_filter(False)
+    ##             else:
+    ##                 exam.reset_student_id_editor()
+    ##                 override_id_mode = True
+    ##         elif event == gui.event_lock:
+    ##             lock_mode = True
+
+    ##     # Enter review mode if the capture was succesfully read or the
+    ##     # image was locked by the user
+    ##     if success and lock_mode:
+    ##         continue_waiting = True
+    ##         manual_detection_mode = False
+    ##         manual_points = []
+    ##         exam.lock_capture()
+    ##         exam.draw_answers()
+    ##         interface.show_capture(exam.image.image_drawn, False)
+    ##         interface.update_text(exam.get_student_id_and_name(), False)
+    ##         if exam.score is not None:
+    ##             interface.update_status(exam.score, exam.model, exam.im_id,
+    ##                                     flip=False,
+    ##                                     survey_mode=exam_data.survey_mode)
+    ##         interface.set_review_toolbar(True)
+    ##         while continue_waiting:
+    ##             event, event_info = interface.wait_event_review_mode()
+    ##             if event == gui.event_quit:
+    ##                 sys.exit(0)
+    ##             elif event == gui.event_cancel_frame:
+    ##                 continue_waiting = False
+    ##             elif event == gui.event_save:
+    ##                 stats = profiler.finish_exam(exam)
+    ##                 exam.save_image(save_pattern)
+    ##                 exam.save_answers(answers_file, config['csv-dialect'],
+    ##                                   stats)
+    ##                 if options.debug:
+    ##                     exam.save_debug_images(save_pattern)
+    ##                 im_id += 1
+    ##                 continue_waiting = False
+    ##             elif event == gui.event_manual_id:
+    ##                 override_id_mode = True
+    ##                 exam.reset_student_id_editor()
+    ##                 exam.draw_answers()
+    ##                 interface.show_capture(exam.image.image_drawn, False)
+    ##                 interface.update_text(exam.get_student_id_and_name())
+    ##             elif (event == gui.event_next_id
+    ##                   or event == gui.event_previous_id):
+    ##                 if not override_id_mode and options.ids_file is not None:
+    ##                     if len(exam.student_id_filter) == 0:
+    ##                         if event == gui.event_next_id:
+    ##                             exam.try_next_student_id()
+    ##                         else:
+    ##                             exam.try_previous_student_id()
+    ##                     else:
+    ##                         exam.reset_student_id_filter()
+    ##                     profiler.count_student_id_change()
+    ##                     exam.draw_answers()
+    ##                     interface.show_capture(exam.image.image_drawn, False)
+    ##                     interface.update_text(exam.get_student_id_and_name())
+    ##             elif event == gui.event_id_digit:
+    ##                 if override_id_mode:
+    ##                     exam.student_id_editor(event_info)
+    ##                 elif options.ids_file is not None:
+    ##                     exam.filter_student_id(event_info)
+    ##                 profiler.count_student_id_change()
+    ##                 exam.draw_answers()
+    ##                 interface.show_capture(exam.image.image_drawn, False)
+    ##                 interface.update_text(exam.get_student_id_and_name())
+    ##             elif event == gui.event_debug_proc and options.debug:
+    ##                 imageproc_options['show-image-proc'] = \
+    ##                     not imageproc_options['show-image-proc']
+    ##                 continue_waiting = False
+    ##             elif event == gui.event_debug_lines and options.debug:
+    ##                 imageproc_options['show-lines'] = \
+    ##                     not imageproc_options['show-lines']
+    ##                 continue_waiting = False
+    ##             elif event == gui.event_manual_detection:
+    ##                 exam.image.clean_drawn_image()
+    ##                 interface.show_capture(exam.image.image_drawn, False)
+    ##                 interface.update_text(('Manual detection: click on the '
+    ##                                        'outer corners of the answer '
+    ##                                        'box(es)'))
+    ##                 manual_detection_mode = True
+    ##                 manual_points = []
+    ##             elif event == gui.event_click:
+    ##                 if not manual_detection_mode:
+    ##                     cell = cell_clicked(exam.image, event_info)
+    ##                     if cell is not None:
+    ##                         question, answer = cell
+    ##                         exam.toggle_answer(question, answer)
+    ##                         interface.show_capture(exam.image.image_drawn,
+    ##                                                False)
+    ##                         interface.update_status(exam.score, exam.model,
+    ##                                          exam.im_id, flip=True,
+    ##                                          survey_mode=exam_data.survey_mode)
+    ##                 else:
+    ##                     manual_points.append(event_info)
+    ##                     exam.image.draw_corner(event_info)
+    ##                     interface.show_capture(exam.image.image_drawn, True)
+    ##                     if len(manual_points) == 4 * len(exam.image.boxes_dim):
+    ##                         corner_matrixes = imageproc.process_box_corners(
+    ##                             manual_points, exam.image.boxes_dim)
+    ##                         if corner_matrixes != []:
+    ##                             exam.image.detect_manual(corner_matrixes)
+    ##                             if exam.image.status['infobits']:
+    ##                                 exam.model = utils.decode_model(image.bits)
+    ##                                 if exam.model is not None:
+    ##                                     exam.solutions = solutions[exam.model]
+    ##                                     exam.grade()
+    ##                                     interface.update_status(exam.score,
+    ##                                          exam.model,
+    ##                                          exam.im_id,
+    ##                                          flip=False,
+    ##                                          survey_mode=exam_data.survey_mode)
+    ##                         else:
+    ##                             exam.image.clean_drawn_image()
+    ##                             interface.set_statusbar_message(('Manual '
+    ##                                                              'detection '
+    ##                                                              'failed!'),
+    ##                                                             False)
+    ##                         exam.draw_answers()
+    ##                         interface.show_capture(exam.image.image_drawn,
+    ##                                                False)
+    ##                         interface.update_text('', True)
+    ##                         manual_detection_mode = False
+    ##         dump_camera_buffer(imageproc_context.camera)
+    ##         interface.update_text('Searching...', False)
+    ##         interface.update_status(None, flip=False)
+    ##         interface.set_search_toolbar(True)
+    ##         latest_graded_exam = None
+    ##         if imageproc_options['capture-from-file']:
+    ##             sys.exit(0)
+    ##     else:
+    ##         if exam is not None:
+    ##             exam.draw_answers()
+    ##         else:
+    ##             image.draw_status()
+    ##         interface.show_capture(image.image_drawn)
+    ##         current_time = time.time()
+    ##         diff = current_time - last_time
+    ##         if current_time > last_time and diff < param_max_wait_time:
+    ##             interface.delay(param_max_wait_time - diff)
+    ##             last_time += 1
+    ##         else:
+    ##             if diff > 3 * param_max_wait_time:
+    ##                 dump_camera_buffer(imageproc_context.camera)
+    ##             last_time = current_time
+    ##         if imageproc_options['capture-from-file']:
+    ##             interface.wait_key()
+    ##             sys.exit(1)
 
 if __name__ == '__main__':
     try:
