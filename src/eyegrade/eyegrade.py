@@ -312,6 +312,17 @@ class GradingSession(object):
         self.answers_file = None
         self.interface.activate_no_session_mode()
 
+    def _exit_application(self):
+        """Callback for when the user wants to exit the application."""
+        if (self.mode == GradingSession.mode_review
+            or self.mode == GradingSession.mode_manual_detect):
+            if not self.interface.show_warning( \
+                ('The current capture has not been saved and will be lost. '
+                 'Are you sure you want to exit the application?'),
+                is_question=True):
+                return False
+        return True
+
     def _action_snapshot(self):
         """Callback for the snapshot action."""
         if self.latest_graded_exam is None:
@@ -460,6 +471,7 @@ class GradingSession(object):
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'key_pressed', 'digit'): self._digit_pressed,
+            ('window', 'exit'): self._exit_application,
         }
         self.interface.register_listeners(listeners)
 

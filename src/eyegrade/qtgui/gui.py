@@ -456,11 +456,7 @@ class MainWindow(QMainWindow):
         self.adjustSize()
         self.setFixedSize(self.sizeHint())
         self.digit_key_listener = None
-
-        ## timer = QTimer(self)
-        ## timer.timeout.connect(self.cam_view.new_frame)
-        ## timer.setInterval(100)
-        ## timer.start(500)
+        self.exit_listener = False
 
     def keyPressEvent(self, event):
         if (self.digit_key_listener
@@ -473,8 +469,19 @@ class MainWindow(QMainWindow):
                 self.digit_key_listener = listener
             else:
                 assert False, 'Undefined listener key: {0}'.format(key)
+        elif key[0] == 'exit':
+            self.exit_listener = listener
         else:
             assert False, 'Undefined listener key: {0}'.format(key)
+
+    def closeEvent(self, event):
+        accept = True
+        if self.exit_listener is not None:
+            accept = self.exit_listener()
+        if accept:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class Interface(object):
@@ -489,6 +496,8 @@ class Interface(object):
         self.actions_manager = ActionsManager(self.window)
         self.activate_no_session_mode()
         self.window.show()
+        self.register_listener(('actions', 'session', 'exit'),
+                               self.window.close)
 
     def run(self):
         return self.app.exec_()
