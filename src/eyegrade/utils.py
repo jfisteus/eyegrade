@@ -497,8 +497,6 @@ class Exam(object):
         self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
         self.student_names = valid_student_ids
-        self.student_id_filter = []
-        self.student_id_manual = []
         if self.image.options['read-id']:
             self.student_id = self.decide_student_id(valid_student_ids)
         else:
@@ -507,12 +505,12 @@ class Exam(object):
             self.student_id = '-1'
             if valid_student_ids is not None:
                 self.ids_rank = [(0, sid) for sid in valid_student_ids]
-                self.ids_rank_pos = -1
             else:
                 self.ids_rank = None
         self.locked = False
         self.score_weights = score_weights
         self.save_image_function = save_image_func
+        self.extra_student_names = {}
 
     def grade(self):
         good = 0
@@ -549,14 +547,14 @@ class Exam(object):
                                 self.score[3], self.im_id)
 
     def save_image(self, filename_pattern):
-        filename = self.__saved_image_name(filename_pattern)
+        filename = self._saved_image_name(filename_pattern)
         if self.save_image_function:
             self.save_image_function(filename)
         else:
             raise Exception('No save image function declared in utils.Exam')
 
     def save_debug_images(self, filename_pattern):
-        filename = self.__saved_image_name(filename_pattern)
+        filename = self._saved_image_name(filename_pattern)
         if self.save_image_function:
             self.save_image_function(filename + '-raw', self.image.image_raw)
             self.save_image_function(filename + '-proc', self.image.image_proc)
@@ -593,9 +591,6 @@ class Exam(object):
         self.image.clean_drawn_image()
         self.draw_answers()
 
-    def invalidate_id(self):
-        self.__update_student_id(None)
-
     def num_manual_changes(self):
         return len([d1 for (d1, d2) in \
                         zip(self.original_decisions, self.image.decisions) \
@@ -606,59 +601,16 @@ class Exam(object):
         self.ids_rank = None
         if self.image.id is not None:
             if valid_student_ids is not None:
-                ids_rank = [(self.__id_rank(sid, self.image.id_scores), sid) \
+                ids_rank = [(self._id_rank(sid, self.image.id_scores), sid) \
                                 for sid in valid_student_ids]
                 self.ids_rank = sorted(ids_rank, reverse = True)
                 student_id = self.ids_rank[0][1]
                 self.image.id = student_id
-                self.ids_rank_pos = 0
             else:
                 student_id = self.image.id
         elif valid_student_ids is not None:
             self.ids_rank = [(0.0, sid) for sid in valid_student_ids]
         return student_id
-
-    def try_next_student_id(self):
-        if self.ids_rank is not None \
-                and self.ids_rank_pos < len(self.ids_rank) - 1:
-            self.ids_rank_pos += 1
-            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
-
-    def try_previous_student_id(self):
-        if self.ids_rank is not None \
-                and self.ids_rank_pos >= 1:
-            self.ids_rank_pos -= 1
-            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
-
-    def filter_student_id(self, digit):
-        if self.ids_rank is not None:
-            self.student_id_filter.append(digit)
-            ids = [sid for sid in self.ids_rank \
-                       if ''.join(self.student_id_filter) in sid[1]]
-            if len(ids) > 0:
-                self.__update_student_id(ids[0][1])
-            else:
-                self.__update_student_id(None)
-                self.student_id_filter = []
-                self.ids_rank_pos = -1
-
-    def reset_student_id_filter(self, show_first = True):
-        self.student_id_filter = []
-        if show_first:
-            self.ids_rank_pos = 0
-            self.__update_student_id(self.ids_rank[0][1])
-        else:
-            self.ids_rank_pos = -1
-            self.__update_student_id(None)
-
-    def student_id_editor(self, digit):
-        self.student_id_manual.append(digit)
-        sid = ''.join(self.student_id_manual)
-        self.__update_student_id(sid)
-
-    def reset_student_id_editor(self):
-        self.student_id_manual = []
-        self.__update_student_id(None)
 
     def lock_capture(self):
         self.locked = True
@@ -672,32 +624,58 @@ class Exam(object):
 
     def get_student_id_and_name(self):
         if self.student_id != '-1':
-            if (self.student_names is not None and
-                self.student_id in self.student_names and
-                self.student_names[self.student_id] is not None):
-                return ' '.join((self.student_id,
-                                 self.student_names[self.student_id]))
-            else:
-                return self.student_id
+            return self._student_id_and_name(self.student_id)
         else:
             return None
 
-    def __id_rank(self, student_id, scores):
-        rank = 0.0
-        for i in range(len(student_id)):
-            rank += scores[i][int(student_id[i])]
-        return rank
+    def ranked_student_ids_and_names(self):
+        """Returns the list of student ids and names ranked.
 
-    def __update_student_id(self, new_id):
+        Each entry is a string with student id and name. They are ranked
+        according to their probability to be the actual student id. The most
+        probable is the first in the list.
+
+        """
+        return [self._student_id_and_name(student_id) \
+                for rank, student_id in self.ids_rank]
+
+    def update_student_id(self, new_id, name=None):
+        """Updates the student id of the current exam.
+
+        If a student name is given and there is no name for the
+        student, this name is added to the list of extra student
+        names, with validity only for this exam.
+
+        """
         if new_id is None or new_id == '-1':
             self.image.id = None
             self.student_id = '-1'
         else:
             self.image.id = new_id
             self.student_id = new_id
-        self.image.clean_drawn_image()
+        if name is not None and (self.student_names is None
+                                 or new_id not in self.student_names):
+            self.extra_student_names[new_id] = name
+        elif name is None and new_id in self.extra_student_names:
+            del self.extra_student_names[new_id]
 
-    def __saved_image_name(self, filename_pattern):
+    def _student_id_and_name(self, student_id):
+        if (self.student_names is not None and
+            student_id in self.student_names and
+            self.student_names[student_id] is not None):
+            return ' '.join((student_id, self.student_names[student_id]))
+        elif student_id in self.extra_student_names:
+            return ' '.join((student_id, self.extra_student_names[student_id]))
+        else:
+            return student_id
+
+    def _id_rank(self, student_id, scores):
+        rank = 0.0
+        for i in range(len(student_id)):
+            rank += scores[i][int(student_id[i])]
+        return rank
+
+    def _saved_image_name(self, filename_pattern):
         if self.student_id != '-1':
             sid = self.student_id
         else:

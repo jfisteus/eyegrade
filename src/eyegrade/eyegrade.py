@@ -341,10 +341,6 @@ class GradingSession(object):
             self.exam.lock_capture()
         else:
             self.exam = self.latest_graded_exam
-            if self.valid_student_ids:
-                self.exam.reset_student_id_filter(False)
-            else:
-                self.exam.reset_student_id_editor()
             self.exam.image.clean_drawn_image()
             self.exam.lock_capture()
             self.exam.draw_answers()
@@ -370,13 +366,27 @@ class GradingSession(object):
                                    self.valid_student_ids,
                                    self.image_id, self.exam_data.score_weights,
                                    save_image_func=self.interface.save_capture)
-            if self.valid_student_ids:
-                self.exam.reset_student_id_filter(False)
-            else:
-                self.exam.reset_student_id_editor()
             self.exam.lock_capture()
         self.exam.image.clean_drawn_image()
         self._start_manual_detect_mode()
+
+    def _action_edit_id(self):
+        """Callback for the edit student id action."""
+        if self.mode != GradingSession.mode_review:
+            return
+        students = self.exam.ranked_student_ids_and_names()
+        student = self.interface.dialog_student_id(students)
+        if student is not None:
+            if student == '':
+                self.exam.update_student_id(None)
+            else:
+                student_id, name = self._parse_student(student)
+                if student_id is not None:
+                    self.exam.update_student_id(student_id, name=name)
+                else:
+                    self.interface.show_error( \
+                        'You typed and incorrect student id.')
+            self.interface.update_text_up(self.exam.get_student_id_and_name())
 
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
@@ -460,6 +470,29 @@ class GradingSession(object):
         else:
             return []
 
+    def _parse_student(self, student):
+        """Parses a string with student id (first) and student name.
+
+        Returns the tuple (student_id, student_name).  If the student
+        id is not valid (incorrect length or contains non-digits)
+        returns (None, None). The returned name is None if not present
+        in the parsed string.
+
+        """
+        student_id = None
+        name = None
+        parts = [p for p in student.split(' ') if p.strip()]
+        if len(parts) > 0:
+            student_id = parts[0]
+            if len(parts) > 1:
+                name = ' '.join(parts[1:])
+            if (len(student_id) != self.exam_data.id_num_digits
+                or not min([c.isdigit() for c in student_id])):
+                student_id = None
+        if student_id is None:
+            name = None
+        return student_id, name
+
     def _register_listeners(self):
         listeners = {
             ('actions', 'session', 'new'): self._new_session,
@@ -469,6 +502,7 @@ class GradingSession(object):
             ('actions', 'grading', 'discard'): self._action_discard,
             ('actions', 'grading', 'save'): self._action_save,
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
+            ('actions', 'grading', 'edit_id'): self._action_edit_id,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'key_pressed', 'digit'): self._digit_pressed,
             ('window', 'exit'): self._exit_application,

@@ -74,6 +74,46 @@ class OpenFileWidget(QWidget):
                 self.filename_widget.setText(filename)
 
 
+class DialogStudentId(QDialog):
+    """Dialog to change the student id.
+
+    Example (replace `parent` by the parent widget):
+
+    dialog = DialogStudentId(parent)
+    id = dialog.exec_()
+
+    """
+    def __init__(self, parent, students):
+        super(DialogStudentId, self).__init__(parent)
+        self.setWindowTitle('Change the student id')
+        layout = QFormLayout()
+        self.setLayout(layout)
+        self.combo = QComboBox(parent)
+        self.combo.setEditable(True)
+        self.combo.setAutoCompletion(True)
+        for student in students:
+            self.combo.addItem(student)
+        buttons = QDialogButtonBox((QDialogButtonBox.Ok
+                                    | QDialogButtonBox.Cancel))
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addRow('Student id:', self.combo)
+        layout.addRow(buttons)
+
+    def exec_(self):
+        """Shows the dialog and waits until it is closed.
+
+        Returns the text of the option selected by the user, or None if
+        the dialog is cancelled.
+
+        """
+        result = super(DialogStudentId, self).exec_()
+        if result == QDialog.Accepted:
+            return str(self.combo.currentText())
+        else:
+            return None
+
+
 class DialogNewSession(QDialog):
     """Dialog to receive parameters for creating a new grading session.
 
@@ -611,6 +651,18 @@ class Interface(object):
 
         """
         dialog = DialogNewSession(self.window)
+        return dialog.exec_()
+
+    def dialog_student_id(self, student_ids):
+        """Displays a dialog to change the student id.
+
+        A string with the option selected by the user (possibly
+        student id and name) is returned.
+
+        The return value is None if the user cancels the dialog.
+
+        """
+        dialog = DialogStudentId(self.window, student_ids)
         return dialog.exec_()
 
     def dialog_open_session(self):
