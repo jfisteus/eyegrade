@@ -218,7 +218,6 @@ class ActionsManager(object):
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(False)
-        self.actions_session['close'].setEnabled(True)
         self.menus['grading'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -227,12 +226,24 @@ class ActionsManager(object):
 
     def set_review_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
-        ## self.actions_grading['manual_detect'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['next_id'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(True)
         self.actions_grading['save'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
+        self.menus['grading'].setEnabled(True)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
+
+    def set_manual_detect_mode(self):
+        self.actions_grading['snapshot'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(True)
+        self.actions_grading['next_id'].setEnabled(False)
+        self.actions_grading['edit_id'].setEnabled(False)
+        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['discard'].setEnabled(True)
         self.menus['grading'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -491,6 +502,9 @@ class Interface(object):
 
     def activate_review_mode(self):
         self.actions_manager.set_review_mode()
+
+    def activate_manual_detect_mode(self):
+        self.actions_manager.set_manual_detect_mode()
 
     def activate_no_session_mode(self):
         self.actions_manager.set_no_session_mode()

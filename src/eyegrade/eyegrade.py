@@ -161,6 +161,7 @@ class GradingSession(object):
     mode_no_session = 0
     mode_search = 1
     mode_review = 2
+    mode_manual_detect = 3
 
     def __init__(self, interface):
         self.interface = interface
@@ -177,9 +178,9 @@ class GradingSession(object):
         self.exam = None
         self.latest_graded_exam = None
         self.latest_image = None
-        self.manual_detection_mode = False
         self.interface.update_text('', 'Searching...')
         self.interface.register_timer(50, self._next_search)
+        dump_camera_buffer(self.imageproc_context.camera, 1.0)
         self.next_capture = time.time() + 0.05
 
     def _start_review_mode(self):
@@ -192,6 +193,19 @@ class GradingSession(object):
                                          model=self.exam.model,
                                          seq_num=self.exam.im_id,
                                          survey_mode=self.exam_data.survey_mode)
+        else:
+            self.interface.update_text_down('')
+        if not self.exam.image.status['infobits']:
+            self.interface.enable_manual_detect(True)
+
+    def _start_manual_detect_mode(self):
+        self.mode = GradingSession.mode_manual_detect
+        self.interface.activate_manual_detect_mode()
+        self.interface.display_capture(self.exam.image.image_drawn)
+        self.interface.update_text_up('')
+        self.interface.update_text_down( \
+            'Manual detection: click on the outer corners of the answer tables')
+        self.manual_points = []
 
     def _next_search(self):
         if self.mode != GradingSession.mode_search:
@@ -239,11 +253,8 @@ class GradingSession(object):
             model = utils.decode_model(image.bits)
             if model is not None and (model in self.exam_data.solutions
                                       or self.exam_data.survey_mode):
-                if not self.exam_data.survey_mode:
-                    sol = self.exam_data.solutions[model]
-                else:
-                    sol = []
-                exam = utils.Exam(image, model, sol, self.valid_student_ids,
+                exam = utils.Exam(image, model, self._solutions(model),
+                                  self.valid_student_ids,
                                   self.image_id, self.exam_data.score_weights,
                                   save_image_func=self.interface.save_capture)
                 exam.grade()
@@ -284,7 +295,8 @@ class GradingSession(object):
 
     def _close_session(self):
         """Callback that closes the current session."""
-        if self.mode == GradingSession.mode_review:
+        if (self.mode == GradingSession.mode_review
+            or self.mode == GradingSession.mode_manual_detect):
             if not self.interface.show_warning( \
                 ('The current capture has not been saved and will be lost. '
                  'Are you sure you want to close this session?'),
@@ -316,7 +328,6 @@ class GradingSession(object):
                                    save_image_func=self.interface.save_capture)
             self.exam.grade()
             self.exam.lock_capture()
-            self.interface.enable_manual_detect(True)
         else:
             self.exam = self.latest_graded_exam
             if self.valid_student_ids:
@@ -339,13 +350,29 @@ class GradingSession(object):
         self.image_id += 1
         self._start_search_mode()
 
+    def _action_manual_detect(self):
+        """Callback for the manual detection action."""
+        from_search_mode = self.mode == GradingSession.mode_search
+        if from_search_mode:
+            # Take the current snapshot and go to review mode
+            self.exam = utils.Exam(self.latest_image, None, {},
+                                   self.valid_student_ids,
+                                   self.image_id, self.exam_data.score_weights,
+                                   save_image_func=self.interface.save_capture)
+            if self.valid_student_ids:
+                self.exam.reset_student_id_filter(False)
+            else:
+                self.exam.reset_student_id_editor()
+            self.exam.lock_capture()
+        self.exam.image.clean_drawn_image()
+        self._start_manual_detect_mode()
+
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
         if self.mode == GradingSession.mode_review:
-            if not self.manual_detection_mode:
-                self._mouse_pressed_change_answer(point)
-            else:
-                self._mouse_pressed_manual_detection(point)
+            self._mouse_pressed_change_answer(point)
+        elif self.mode == GradingSession.mode_manual_detect:
+            self._mouse_pressed_manual_detection(point)
 
     def _digit_pressed(self, digit_string):
         """Callback called when a digit is pressed."""
@@ -363,7 +390,29 @@ class GradingSession(object):
                                          survey_mode=self.exam_data.survey_mode)
 
     def _mouse_pressed_manual_detection(self, point):
-        pass
+        success = False
+        self.manual_points.append(point)
+        self.exam.image.draw_corner(point)
+        self.interface.display_capture(self.exam.image.image_drawn)
+        if len(self.manual_points) == 4 * len(self.exam.image.boxes_dim):
+            corner_matrixes = imageproc.process_box_corners(
+                self.manual_points, self.exam.image.boxes_dim)
+            if corner_matrixes != []:
+                self.exam.image.detect_manual(corner_matrixes)
+                if self.exam.image.status['infobits']:
+                    self.exam.model = utils.decode_model(self.exam.image.bits)
+                    if self.exam.model is not None:
+                        self.exam.solutions = self._solutions(self.exam.model)
+                        self.exam.grade()
+                        self.exam.draw_answers()
+                        self.interface.update_status( \
+                            self.exam.score, self.exam.model, self.exam.im_id,
+                            survey_mode=self.exam_data.survey_mode)
+                        success = True
+            if not success:
+                self.exam.image.clean_drawn_image()
+                self.interface.show_error('Manual detection failed!')
+            self._start_review_mode()
 
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
@@ -393,6 +442,13 @@ class GradingSession(object):
         self.image_id = 1
         self._start_search_mode()
 
+    def _solutions(self, model):
+        """Returns the solutions for the given model, or []."""
+        if not self.exam_data.survey_mode:
+            return self.exam_data.solutions[model]
+        else:
+            return []
+
     def _register_listeners(self):
         listeners = {
             ('actions', 'session', 'new'): self._new_session,
@@ -401,6 +457,7 @@ class GradingSession(object):
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
             ('actions', 'grading', 'discard'): self._action_discard,
             ('actions', 'grading', 'save'): self._action_save,
+            ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'key_pressed', 'digit'): self._digit_pressed,
         }
