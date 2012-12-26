@@ -245,7 +245,7 @@ class GradingSession(object):
                     sol = []
                 exam = utils.Exam(image, model, sol, self.valid_student_ids,
                                   self.image_id, self.exam_data.score_weights,
-                                  save_image_func=None)
+                                  save_image_func=self.interface.save_capture)
                 exam.grade()
                 self.latest_graded_exam = exam
         return exam
@@ -284,6 +284,13 @@ class GradingSession(object):
 
     def _close_session(self):
         """Callback that closes the current session."""
+        if self.mode == GradingSession.mode_review:
+            if not self.interface.show_warning( \
+                ('The current capture has not been saved and will be lost. '
+                 'Are you sure you want to close this session?'),
+                is_question=True):
+                return
+        self.imageproc_context.close_camera()
         self.mode = GradingSession.mode_no_session
         self.exam_data = None
         self.valid_student_ids = None
@@ -306,7 +313,7 @@ class GradingSession(object):
                 model = None
             self.exam = utils.Exam(image, model, {}, self.valid_student_ids,
                                    self.image_id, self.exam_data.score_weights,
-                                   save_image_func=None)
+                                   save_image_func=self.interface.save_capture)
             self.exam.grade()
             self.exam.lock_capture()
             self.interface.enable_manual_detect(True)
@@ -320,6 +327,17 @@ class GradingSession(object):
             self.exam.lock_capture()
             self.exam.draw_answers()
         self._start_review_mode()
+
+    def _action_discard(self):
+        """Callback for cancelling the current capture."""
+        self._start_search_mode()
+
+    def _action_save(self):
+        """Callback for saving the current capture."""
+        self.exam.save_image(self.save_pattern)
+        self.exam.save_answers(self.answers_file, self.config['csv-dialect'])
+        self.image_id += 1
+        self._start_search_mode()
 
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
@@ -381,6 +399,8 @@ class GradingSession(object):
             ('actions', 'session', 'open'): self._open_session,
             ('actions', 'session', 'close'): self._close_session,
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
+            ('actions', 'grading', 'discard'): self._action_discard,
+            ('actions', 'grading', 'save'): self._action_save,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'key_pressed', 'digit'): self._digit_pressed,
         }

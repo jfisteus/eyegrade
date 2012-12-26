@@ -551,7 +551,7 @@ class Exam(object):
     def save_image(self, filename_pattern):
         filename = self.__saved_image_name(filename_pattern)
         if self.save_image_function:
-            self.save_image_function(filename, self.image.image_drawn)
+            self.save_image_function(filename)
         else:
             raise Exception('No save image function declared in utils.Exam')
 

@@ -525,6 +525,9 @@ class ExamCaptureContext:
     def notify_success(self):
         self.failures_in_a_row = 0
 
+    def close_camera(self):
+        self.camera = None
+
     def __try_next_camera(self, cur_camera_id):
         camera = None
         camera_id = -1

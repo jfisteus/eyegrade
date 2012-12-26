@@ -568,6 +568,12 @@ class Interface(object):
         """
         self.window.center_view.display_capture(ipl_image)
 
+    def save_capture(self, filename):
+        """Saves the current capture and its annotations to the given file."""
+        pixmap = QPixmap(self.window.center_view.size())
+        self.window.center_view.render(pixmap)
+        pixmap.save(filename)
+
     def display_wait_image(self):
         """Displays the default image instead of a camera capture."""
         self.window.center_view.display_wait_image()
@@ -602,6 +608,27 @@ class Interface(object):
 
         """
         QMessageBox.critical(self.window, title, message)
+
+    def show_warning(self, message, title='Warning', is_question=True):
+        """Displays a warning dialog.
+
+        Returns True if the the user accepts and False otherwise.
+
+        """
+        if not is_question:
+            result = QMessageBox.warning(self.window, 'Warning', message)
+            if result == QMessageBox.Ok:
+                return True
+            else:
+                return False
+        else:
+            result = QMessageBox.warning(self.window, 'Warning', message,
+                                         QMessageBox.Yes | QMessageBox.No,
+                                         QMessageBox.No)
+            if result == QMessageBox.Yes:
+                return True
+            else:
+                return False
 
     def show_version(self):
         version_line = '{0} {1} - <a href="{2}">{2}</a>'\
