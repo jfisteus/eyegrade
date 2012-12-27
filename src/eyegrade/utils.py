@@ -155,7 +155,7 @@ data_dir = guess_data_dir()
 def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 
-def read_results(filename, permutations = {}):
+def read_results(filename, permutations = {}, allow_question_mark=False):
     """Parses an eyegrade results file.
 
        Results are returned as a list of dictionaries with the keys
@@ -165,7 +165,8 @@ def read_results(filename, permutations = {}):
     """
     results = __read_results_file(filename)
     for result in results:
-        result['model'] = check_model_letter(result['model'])
+        result['model'] = check_model_letter(result['model'],
+                                       allow_question_mark=allow_question_mark)
         result['good'] = int(result['good'])
         result['bad'] = int(result['bad'])
         result['unknown'] = int(result['unknown'])
@@ -203,9 +204,17 @@ def write_results(results, filename, csv_dialect, append=False):
     if filename is not None:
         file_.close()
 
-def check_model_letter(model):
+def check_model_letter(model, allow_question_mark=False):
+    """Checks if a model letter is correct.
+
+    The special value '?' is considered valid only if the parameter
+    `allow_question_mark` is set.
+
+    """
     if re_model_letter.match(model):
         return model.upper()
+    elif allow_question_mark and model == '?':
+        return '?'
     else:
         raise Exception('Incorrect model letter: ' + model)
 

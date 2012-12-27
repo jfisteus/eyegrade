@@ -442,7 +442,12 @@ class ProgramManager(object):
         if self.imageproc_context.camera is None:
             self.interface.show_error('No camera found. Connect a camera.')
             return
-        self.image_id = 1
+        if not os.path.isfile(self.answers_file):
+            self.image_id = 1
+        else:
+            results = utils.read_results(self.answers_file,
+                                         allow_question_mark=True)
+            self.image_id = 1 + max([int(r['seq-num']) for r in results])
         self._start_search_mode()
 
     def _solutions(self, model):
