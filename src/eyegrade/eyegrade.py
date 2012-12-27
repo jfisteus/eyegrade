@@ -110,6 +110,17 @@ def select_camera(options, config):
     return camera
 
 
+class ImageDetectTask(object):
+    def __init__(self, image):
+        self.image = image
+
+    def run(self):
+        from PyQt4.QtCore import QThread
+        print 'processing starts', QThread.currentThreadId()
+        self.image.detect_safe()
+        print 'processing ends'
+
+
 class GradingSession(object):
     """Manages a grading session."""
 
@@ -169,6 +180,12 @@ class GradingSession(object):
                                       self.imageproc_context,
                                       self.imageproc_options)
         self.latest_image = image
+        task = ImageDetectTask(image)
+        self.interface.run_worker(task, self._after_image_detection)
+
+    def _after_image_detection(self):
+        print 'Image processed'
+        image = self.latest_image
         exam = self._process_capture(image)
         if exam is None or not image.success:
             if exam is not None:
@@ -202,7 +219,6 @@ class GradingSession(object):
 
     def _process_capture(self, image):
         """Processes a captured image."""
-        image.detect_safe()
         exam = None
         if image.status['infobits']:
             model = utils.decode_model(image.bits)

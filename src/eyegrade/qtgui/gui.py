@@ -27,7 +27,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QMessageBox, QPixmap, QCompleter,
                          QSortFilterProxyModel, QKeySequence,)
 
-from PyQt4.QtCore import Qt, QTimer
+from PyQt4.QtCore import Qt, QTimer, QThread
 
 from eyegrade.utils import resource_path, program_name, version, web_location
 
@@ -134,6 +134,26 @@ class DialogStudentId(QDialog):
             return unicode(self.combo.currentText())
         else:
             return None
+
+
+class Worker(QThread):
+    """Generic worker class for spawning a task to other thread."""
+
+    def __init__(self, task, parent):
+        """Inits a new worker.
+
+        The `task` must be an object that implements a `run()` method.
+
+        """
+        super(Worker, self).__init__(parent)
+        self.task = task
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        """Run the task."""
+        self.task.run()
 
 
 class DialogNewSession(QDialog):
@@ -734,6 +754,19 @@ class Interface(object):
         version_line = '{0} {1} - <a href="{2}">{2}</a>'\
                        .format(program_name, version, web_location)
         self.update_text_down(version_line)
+
+    def run_worker(self, task, callback):
+        """Runs a task in another thread.
+
+        The `task` must be an object that implements a `run()`
+        method. Completion is notified to the given `callback` function.
+
+        """
+        self.worker = Worker(task, self.window)
+        self.worker.finished.connect(callback)
+        print 'about to start', QThread.currentThreadId()
+        self.worker.start()
+        print 'start() finishes'
 
 
 if __name__ == '__main__':
