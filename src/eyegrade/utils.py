@@ -592,11 +592,6 @@ class Exam(object):
         self.image.clean_drawn_image()
         self.draw_answers()
 
-    def num_manual_changes(self):
-        return len([d1 for (d1, d2) in \
-                        zip(self.original_decisions, self.image.decisions) \
-                        if d1 != d2])
-
     def decide_student_id(self, valid_student_ids):
         student_id = '-1'
         self.ids_rank = None
@@ -684,6 +679,7 @@ class Exam(object):
         filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
         filename = regexp_id.sub(sid, filename)
         return filename
+
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
