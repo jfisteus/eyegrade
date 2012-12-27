@@ -495,7 +495,6 @@ class Exam(object):
         self.im_id = im_id
         self.correct = None
         self.score = None
-        self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
         self.student_names = valid_student_ids
         if self.image.options['read-id']:
