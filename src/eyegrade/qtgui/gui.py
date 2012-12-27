@@ -24,7 +24,8 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
-                         QMessageBox, QPixmap,)
+                         QMessageBox, QPixmap, QCompleter,
+                         QSortFilterProxyModel,)
 
 from PyQt4.QtCore import Qt, QTimer
 
@@ -74,6 +75,41 @@ class OpenFileWidget(QWidget):
                 self.filename_widget.setText(filename)
 
 
+class CompletingComboBox(QComboBox):
+    """An editable combo box that filters and autocompletes."""
+    def __init__(self, parent=None):
+        super(CompletingComboBox, self).__init__(parent)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setEditable(True)
+        self.filter = QSortFilterProxyModel(self)
+        self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.filter.setSourceModel(self.model())
+        self.completer = QCompleter(self.filter, self)
+        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        self.setCompleter(self.completer)
+        self.lineEdit().textEdited[unicode]\
+            .connect(self.filter.setFilterFixedString)
+        self.completer.activated.connect(self._completer_activated)
+        self.currentIndexChanged.connect(self._index_changed)
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Tab):
+            model = self.completer.completionModel()
+            self.setEditText(model.index(0, 0).data().toString())
+            self.lineEdit().selectAll()
+            self.hidePopup()
+        else:
+            super(CompletingComboBox, self).keyPressEvent(event)
+
+    def _index_changed(self, index):
+        self.lineEdit().selectAll()
+
+    def _completer_activated(self, text):
+        if text:
+            index = self.findText(text)
+            self.setCurrentIndex(index)
+
+
 class DialogStudentId(QDialog):
     """Dialog to change the student id.
 
@@ -88,11 +124,13 @@ class DialogStudentId(QDialog):
         self.setWindowTitle('Change the student id')
         layout = QFormLayout()
         self.setLayout(layout)
-        self.combo = QComboBox(parent)
+        self.combo = CompletingComboBox(parent)
         self.combo.setEditable(True)
         self.combo.setAutoCompletion(True)
         for student in students:
             self.combo.addItem(student)
+        self.combo.lineEdit().selectAll()
+        self.combo.showPopup()
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
         buttons.accepted.connect(self.accept)
@@ -109,7 +147,7 @@ class DialogStudentId(QDialog):
         """
         result = super(DialogStudentId, self).exec_()
         if result == QDialog.Accepted:
-            return str(self.combo.currentText())
+            return unicode(self.combo.currentText())
         else:
             return None
 
@@ -214,7 +252,6 @@ class ActionsManager(object):
     _actions_grading_data = [
         ('snapshot', 'snapshot.svg', 'Sna&pshot'),
         ('manual_detect', 'manual_detect.svg', '&Manual bounds'),
-        ('next_id', 'next_id.svg', '&Next student id'),
         ('edit_id', 'edit_id.svg', '&Edit student id'),
         ('save', 'save.svg', '&Save capture'),
         ('discard', 'discard.svg', '&Discard capture'),
@@ -253,7 +290,6 @@ class ActionsManager(object):
     def set_search_mode(self):
         self.actions_grading['snapshot'].setEnabled(True)
         self.actions_grading['manual_detect'].setEnabled(True)
-        self.actions_grading['next_id'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(False)
@@ -266,7 +302,6 @@ class ActionsManager(object):
     def set_review_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
-        self.actions_grading['next_id'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(True)
         self.actions_grading['save'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
@@ -279,7 +314,6 @@ class ActionsManager(object):
     def set_manual_detect_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(True)
-        self.actions_grading['next_id'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(True)
