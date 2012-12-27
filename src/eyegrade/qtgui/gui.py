@@ -79,7 +79,6 @@ class CompletingComboBox(QComboBox):
     """An editable combo box that filters and autocompletes."""
     def __init__(self, parent=None):
         super(CompletingComboBox, self).__init__(parent)
-        self.setFocusPolicy(Qt.StrongFocus)
         self.setEditable(True)
         self.filter = QSortFilterProxyModel(self)
         self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
@@ -89,25 +88,10 @@ class CompletingComboBox(QComboBox):
         self.setCompleter(self.completer)
         self.lineEdit().textEdited[unicode]\
             .connect(self.filter.setFilterFixedString)
-        self.completer.activated.connect(self._completer_activated)
         self.currentIndexChanged.connect(self._index_changed)
-
-    def keyPressEvent(self, event):
-        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Tab):
-            model = self.completer.completionModel()
-            self.setEditText(model.index(0, 0).data().toString())
-            self.lineEdit().selectAll()
-            self.hidePopup()
-        else:
-            super(CompletingComboBox, self).keyPressEvent(event)
 
     def _index_changed(self, index):
         self.lineEdit().selectAll()
-
-    def _completer_activated(self, text):
-        if text:
-            index = self.findText(text)
-            self.setCurrentIndex(index)
 
 
 class DialogStudentId(QDialog):
@@ -124,7 +108,7 @@ class DialogStudentId(QDialog):
         self.setWindowTitle('Change the student id')
         layout = QFormLayout()
         self.setLayout(layout)
-        self.combo = CompletingComboBox(parent)
+        self.combo = CompletingComboBox(self)
         self.combo.setEditable(True)
         self.combo.setAutoCompletion(True)
         for student in students:

@@ -486,7 +486,8 @@ class GradingSession(object):
             student_id = parts[0]
             if len(parts) > 1:
                 name = ' '.join(parts[1:])
-            if (len(student_id) != self.exam_data.id_num_digits
+            if (self.exam_data.id_num_digits > 0
+                and len(student_id) != self.exam_data.id_num_digits
                 or not min([c.isdigit() for c in student_id])):
                 student_id = None
         if student_id is None:
