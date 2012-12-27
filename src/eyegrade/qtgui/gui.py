@@ -149,11 +149,10 @@ class DialogNewSession(QDialog):
 
     def _get_values(self):
         values = {}
-        values['directory'] = str(self.directory_w.text()).strip()
-        values['config'] = str(self.config_file_w.text()).strip()
-        print self.use_id_list_w.currentIndex()
+        values['directory'] = unicode(self.directory_w.text()).strip()
+        values['config'] = unicode(self.config_file_w.text()).strip()
         if self.use_id_list_w.currentIndex() == 0:
-            values['id_list'] = str(self.id_list_w.text()).strip()
+            values['id_list'] = unicode(self.id_list_w.text()).strip()
         else:
             values['id_list'] = None
         # Check the values (the files must exist, etc.)
