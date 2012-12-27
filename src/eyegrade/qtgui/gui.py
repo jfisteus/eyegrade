@@ -250,6 +250,8 @@ class ActionsManager(object):
         ]
 
     _actions_help_data = [
+        ('help', None, 'Online &Help', None),
+        ('website', None, '&Website', None),
         ('about', None, '&About', None),
         ]
 
@@ -261,13 +263,17 @@ class ActionsManager(object):
         self.menus = {}
         self.actions_grading = {}
         self.actions_session = {}
-        action_lists = {'session': [], 'grading': []}
+        self.actions_help = {}
+        action_lists = {'session': [], 'grading': [], 'help': []}
         for key, icon, text, shortcut in ActionsManager._actions_session_data:
             self._add_action(key, icon, text, shortcut, self.actions_session,
                              action_lists['session'])
         for key, icon, text, shortcut in ActionsManager._actions_grading_data:
             self._add_action(key, icon, text, shortcut, self.actions_grading,
                              action_lists['grading'])
+        for key, icon, text, shortcut in ActionsManager._actions_help_data:
+            self._add_action(key, icon, text, shortcut, self.actions_help,
+                             action_lists['help'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
 
@@ -330,6 +336,8 @@ class ActionsManager(object):
             actions = self.actions_session
         elif key[0] == 'grading':
             actions = self.actions_grading
+        elif key[0] == 'help':
+            actions = self.actions_help
         if actions:
             assert key[1] in actions
             actions[key[1]].triggered.connect(listener)
@@ -342,10 +350,6 @@ class ActionsManager(object):
         if not action.isSeparator():
             group[action_name] = action
         actions_list.append(action)
-
-    def _populate_menu(self, menu, actions_data):
-        for key, icon, text, shortcut in actions_data:
-            menu.addAction(self._create_action(key, icon, text, shortcut))
 
     def _create_action(self, action_name, icon_file, text, shortcut):
         if action_name == '*separator*':
@@ -364,15 +368,16 @@ class ActionsManager(object):
     def _populate_menubar(self, action_lists):
         self.menus['session'] = QMenu('&Session', self.menubar)
         self.menus['grading'] = QMenu('&Grading', self.menubar)
+        self.menus['help'] = QMenu('&Help', self.menubar)
         self.menubar.addMenu(self.menus['session'])
         self.menubar.addMenu(self.menus['grading'])
+        self.menubar.addMenu(self.menus['help'])
         for action in action_lists['session']:
             self.menus['session'].addAction(action)
         for action in action_lists['grading']:
             self.menus['grading'].addAction(action)
-        help_menu = QMenu('&Help', self.menubar)
-        self.menubar.addMenu(help_menu)
-        self._populate_menu(help_menu, ActionsManager._actions_help_data)
+        for action in action_lists['help']:
+            self.menus['help'].addAction(action)
 
     def _populate_toolbar(self, action_lists):
         for action in action_lists['grading']:

@@ -29,6 +29,7 @@ import io
 
 program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
+help_location = 'http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/'
 version = '0.1.17'
 version_status = 'alpha'
 

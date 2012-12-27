@@ -21,6 +21,7 @@ import sys
 import os
 from optparse import OptionParser
 import time
+import webbrowser
 
 # Local imports
 import imageproc
@@ -388,6 +389,14 @@ class GradingSession(object):
                         'You typed and incorrect student id.')
             self.interface.update_text_up(self.exam.get_student_id_and_name())
 
+    def _action_help(self):
+        """Callback for the help action."""
+        webbrowser.open(utils.help_location, new=2)
+
+    def _action_website(self):
+        """Callback for the website action."""
+        webbrowser.open(utils.web_location, new=2)
+
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
         if self.mode == GradingSession.mode_review:
@@ -504,8 +513,9 @@ class GradingSession(object):
             ('actions', 'grading', 'save'): self._action_save,
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('actions', 'grading', 'edit_id'): self._action_edit_id,
+            ('actions', 'help', 'help'): self._action_help,
+            ('actions', 'help', 'website'): self._action_website,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
-            ('window', 'key_pressed', 'digit'): self._digit_pressed,
             ('window', 'exit'): self._exit_application,
         }
         self.interface.register_listeners(listeners)
