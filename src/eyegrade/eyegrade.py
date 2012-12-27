@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2013 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -111,17 +111,15 @@ def select_camera(options, config):
 
 
 class ImageDetectTask(object):
+    """Used for running image detection in another thread."""
     def __init__(self, image):
         self.image = image
 
     def run(self):
-        from PyQt4.QtCore import QThread
-        print 'processing starts', QThread.currentThreadId()
         self.image.detect_safe()
-        print 'processing ends'
 
 
-class GradingSession(object):
+class ProgramManager(object):
     """Manages a grading session."""
 
     mode_no_session = 0
@@ -131,15 +129,16 @@ class GradingSession(object):
 
     def __init__(self, interface):
         self.interface = interface
-        ## self.imageproc_context = imageproc.ExamCaptureContext()
-        ## self.imageproc_options = imageproc.ExamCapture.get_default_options()
-        ## self.imageproc_context.init_camera(0)
-        self.mode = GradingSession.mode_no_session
+        self.mode = ProgramManager.mode_no_session
         self.config = utils.read_config()
         self._register_listeners()
 
+    def run(self):
+        """Starts the program manager."""
+        self.interface.run()
+
     def _start_search_mode(self):
-        self.mode = GradingSession.mode_search
+        self.mode = ProgramManager.mode_search
         self.interface.activate_search_mode()
         self.exam = None
         self.latest_graded_exam = None
@@ -150,7 +149,7 @@ class GradingSession(object):
         self.next_capture = time.time() + 0.05
 
     def _start_review_mode(self):
-        self.mode = GradingSession.mode_review
+        self.mode = ProgramManager.mode_review
         self.interface.activate_review_mode()
         self.interface.display_capture(self.exam.image.image_drawn)
         self.interface.update_text_up(self.exam.get_student_id_and_name())
@@ -165,7 +164,7 @@ class GradingSession(object):
             self.interface.enable_manual_detect(True)
 
     def _start_manual_detect_mode(self):
-        self.mode = GradingSession.mode_manual_detect
+        self.mode = ProgramManager.mode_manual_detect
         self.interface.activate_manual_detect_mode()
         self.interface.display_capture(self.exam.image.image_drawn)
         self.interface.update_text_up('')
@@ -174,18 +173,22 @@ class GradingSession(object):
         self.manual_points = []
 
     def _next_search(self):
-        if self.mode != GradingSession.mode_search:
+        if self.mode != ProgramManager.mode_search:
             return
         image = imageproc.ExamCapture(self.exam_data.dimensions,
                                       self.imageproc_context,
                                       self.imageproc_options)
-        self.latest_image = image
+        self.current_image = image
         task = ImageDetectTask(image)
         self.interface.run_worker(task, self._after_image_detection)
 
     def _after_image_detection(self):
-        print 'Image processed'
-        image = self.latest_image
+        image = self.current_image
+        self.current_image = None
+        if self.mode != ProgramManager.mode_search:
+            # The user switched to other mode while the image was processed
+            return
+        self.latest_image = image
         exam = self._process_capture(image)
         if exam is None or not image.success:
             if exam is not None:
@@ -266,15 +269,15 @@ class GradingSession(object):
 
     def _close_session(self):
         """Callback that closes the current session."""
-        if (self.mode == GradingSession.mode_review
-            or self.mode == GradingSession.mode_manual_detect):
+        if (self.mode == ProgramManager.mode_review
+            or self.mode == ProgramManager.mode_manual_detect):
             if not self.interface.show_warning( \
                 ('The current capture has not been saved and will be lost. '
                  'Are you sure you want to close this session?'),
                 is_question=True):
                 return
         self.imageproc_context.close_camera()
-        self.mode = GradingSession.mode_no_session
+        self.mode = ProgramManager.mode_no_session
         self.exam_data = None
         self.valid_student_ids = None
         self.imageproc_options = None
@@ -285,8 +288,8 @@ class GradingSession(object):
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
-        if (self.mode == GradingSession.mode_review
-            or self.mode == GradingSession.mode_manual_detect):
+        if (self.mode == ProgramManager.mode_review
+            or self.mode == ProgramManager.mode_manual_detect):
             if not self.interface.show_warning( \
                 ('The current capture has not been saved and will be lost. '
                  'Are you sure you want to exit the application?'),
@@ -330,7 +333,7 @@ class GradingSession(object):
 
     def _action_manual_detect(self):
         """Callback for the manual detection action."""
-        from_search_mode = self.mode == GradingSession.mode_search
+        from_search_mode = self.mode == ProgramManager.mode_search
         if from_search_mode:
             # Take the current snapshot and go to review mode
             self.exam = utils.Exam(self.latest_image, None, {},
@@ -343,7 +346,7 @@ class GradingSession(object):
 
     def _action_edit_id(self):
         """Callback for the edit student id action."""
-        if self.mode != GradingSession.mode_review:
+        if self.mode != ProgramManager.mode_review:
             return
         students = self.exam.ranked_student_ids_and_names()
         student = self.interface.dialog_student_id(students)
@@ -369,14 +372,14 @@ class GradingSession(object):
 
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
-        if self.mode == GradingSession.mode_review:
+        if self.mode == ProgramManager.mode_review:
             self._mouse_pressed_change_answer(point)
-        elif self.mode == GradingSession.mode_manual_detect:
+        elif self.mode == ProgramManager.mode_manual_detect:
             self._mouse_pressed_manual_detection(point)
 
     def _digit_pressed(self, digit_string):
         """Callback called when a digit is pressed."""
-        if self.mode == GradingSession.mode_review:
+        if self.mode == ProgramManager.mode_review:
             pass
 
     def _mouse_pressed_change_answer(self, point):
@@ -493,8 +496,8 @@ class GradingSession(object):
 
 def main():
     interface = gui.Interface(False, False, sys.argv)
-    session = GradingSession(interface)
-    interface.run()
+    manager = ProgramManager(interface)
+    manager.run()
 
 if __name__ == '__main__':
     try:

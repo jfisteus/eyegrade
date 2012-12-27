@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2012 Jesus Arias Fisteus
+# Copyright (C) 2012-2013 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -764,18 +764,4 @@ class Interface(object):
         """
         self.worker = Worker(task, self.window)
         self.worker.finished.connect(callback)
-        print 'about to start', QThread.currentThreadId()
         self.worker.start()
-        print 'start() finishes'
-
-
-if __name__ == '__main__':
-    import sys
-    interface = Interface(True, True, sys.argv)
-    interface.update_status((8, 9, 2, 0, 8.0, 10.0), model='A', seq_num=23)
-    interface.update_text('100099999 Bastian Baltasar Bux')
-    def sample_listener(self):
-        print 'In listener'
-    interface.register_listener(('actions', 'session', 'close'),
-                                sample_listener)
-    sys.exit(interface.run())
