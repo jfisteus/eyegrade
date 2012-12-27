@@ -25,7 +25,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
                          QMessageBox, QPixmap, QCompleter,
-                         QSortFilterProxyModel,)
+                         QSortFilterProxyModel, QKeySequence,)
 
 from PyQt4.QtCore import Qt, QTimer
 
@@ -234,23 +234,23 @@ class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
-        ('snapshot', 'snapshot.svg', 'Sna&pshot'),
-        ('manual_detect', 'manual_detect.svg', '&Manual bounds'),
-        ('edit_id', 'edit_id.svg', '&Edit student id'),
-        ('save', 'save.svg', '&Save capture'),
-        ('discard', 'discard.svg', '&Discard capture'),
+        ('snapshot', 'snapshot.svg', 'Sna&pshot', Qt.Key_S),
+        ('manual_detect', 'manual_detect.svg', '&Manual bounds', Qt.Key_M),
+        ('edit_id', 'edit_id.svg', '&Edit student id', Qt.Key_I),
+        ('save', 'save.svg', '&Save capture', Qt.Key_Space),
+        ('discard', 'discard.svg', '&Discard capture', Qt.Key_Backspace),
         ]
 
     _actions_session_data = [
-        ('new', 'new.svg', '&New session'),
-        ('open', 'open.svg', '&Open session'),
-        ('close', 'close.svg', '&Close session'),
-        ('*separator*', None, None),
-        ('exit', 'exit.svg', '&Exit'),
+        ('new', 'new.svg', '&New session', None),
+        ('open', 'open.svg', '&Open session', None),
+        ('close', 'close.svg', '&Close session', None),
+        ('*separator*', None, None, None),
+        ('exit', 'exit.svg', '&Exit', None),
         ]
 
     _actions_help_data = [
-        ('about', None, '&About'),
+        ('about', None, '&About', None),
         ]
 
     def __init__(self, window):
@@ -262,11 +262,11 @@ class ActionsManager(object):
         self.actions_grading = {}
         self.actions_session = {}
         action_lists = {'session': [], 'grading': []}
-        for key, icon, tooltip in ActionsManager._actions_session_data:
-            self._add_action(key, icon, tooltip, self.actions_session,
+        for key, icon, text, shortcut in ActionsManager._actions_session_data:
+            self._add_action(key, icon, text, shortcut, self.actions_session,
                              action_lists['session'])
-        for key, icon, tooltip in ActionsManager._actions_grading_data:
-            self._add_action(key, icon, tooltip, self.actions_grading,
+        for key, icon, text, shortcut in ActionsManager._actions_grading_data:
+            self._add_action(key, icon, text, shortcut, self.actions_grading,
                              action_lists['grading'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
@@ -336,26 +336,29 @@ class ActionsManager(object):
         else:
             assert False, 'Undefined listener key: {0}'.format(key)
 
-    def _add_action(self, action_name, icon_file, tooltip, group, actions_list):
-        action = self._create_action(action_name, icon_file, tooltip)
+    def _add_action(self, action_name, icon_file, text, shortcut,
+                    group, actions_list):
+        action = self._create_action(action_name, icon_file, text, shortcut)
         if not action.isSeparator():
             group[action_name] = action
         actions_list.append(action)
 
     def _populate_menu(self, menu, actions_data):
-        for key, icon, tooltip in actions_data:
-            menu.addAction(self._create_action(key, icon, tooltip))
+        for key, icon, text, shortcut in actions_data:
+            menu.addAction(self._create_action(key, icon, text, shortcut))
 
-    def _create_action(self, action_name, icon_file, tooltip):
+    def _create_action(self, action_name, icon_file, text, shortcut):
         if action_name == '*separator*':
             action = QAction(self.window)
             action.setSeparator(True)
         else:
             if icon_file:
                 action = QAction(QIcon(resource_path(icon_file)),
-                                 tooltip, self.window)
+                                 text, self.window)
             else:
-                action = QAction(tooltip, self.window)
+                action = QAction(text, self.window)
+        if shortcut is not None:
+            action.setShortcut(QKeySequence(shortcut))
         return action
 
     def _populate_menubar(self, action_lists):
