@@ -87,6 +87,8 @@ class ProgramManager(object):
         self.interface = interface
         self.mode = ProgramManager.mode_no_session
         self.config = utils.read_config()
+        self.imageproc_context = \
+              imageproc.ExamCaptureContext(camera_id=self.config['camera-dev'])
         self._register_listeners()
 
     def run(self):
@@ -237,7 +239,6 @@ class ProgramManager(object):
         self.exam_data = None
         self.valid_student_ids = None
         self.imageproc_options = None
-        self.imageproc_context = None
         self.save_pattern = None
         self.answers_file = None
         self.interface.activate_no_session_mode()
@@ -393,10 +394,10 @@ class ProgramManager(object):
             self.imageproc_options['id-num-digits'] = exam_data.id_num_digits
         self.imageproc_options['left-to-right-numbering'] = \
                                             exam_data.left_to_right_numbering
-        self.imageproc_context = imageproc.ExamCaptureContext()
-        self.imageproc_context.init_camera(self.config['camera-dev'])
+        self.imageproc_context.open_camera()
         if self.imageproc_context.camera is None:
-            self.interface.show_error('No camera found. Connect a camera.')
+            self.interface.show_error(('No camera found. Connect a camera and '
+                                      'try to start the session again.'))
             return
         if not os.path.isfile(self.answers_file):
             self.image_id = 1

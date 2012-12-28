@@ -81,6 +81,7 @@ param_error_image_pattern = 'error-%s.png'
 
 font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
+
 class ExamCapture(object):
 
     default_options = {
@@ -463,12 +464,20 @@ class ExamCapture(object):
         point1 = round_point((x0 + done_ratio * width, y0 + height))
         cv.Rectangle(self.image_drawn, point0, point1, color, cv.CV_FILLED)
 
+
 class ExamCaptureContext:
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 
     """
-    def __init__(self, fixed_hough_threshold=None):
+    def __init__(self, camera_id=-1, fixed_hough_threshold=None):
+        """Creates a new camera capture context.
+
+        A default initial camera can be specified with `camera_id` (an
+        integer). Pass -1 (the default value) for letting this object
+        choose the first available camera.
+
+        """
         if not fixed_hough_threshold:
             self.hough_thresholds = param_hough_thresholds
         else:
@@ -476,20 +485,27 @@ class ExamCaptureContext:
         self.hough_thresholds_idx = 0
         self.failures_in_a_row = 0
         self.camera = None
+        self.camera_id = camera_id
 
-    def init_camera(self, camera_id):
-        """Initializes the camera device.
+    def open_camera(self, camera_id=None):
+        """Initializes the last camera device used, or `camera_id`.
 
-           If the given camera_id is -1, camera ids are tested one by
-           until one works.
+        If no camera has been used in the past, the initial camera id
+        received in the constructor is used.  Returns True if there is
+        success. If a camera is already open, it does nothing and
+        returns True. If the camera does not work anymore, it tries
+        with other cameras.
 
         """
-        self.camera = None
-        if camera_id != -1:
-            self.camera = self.__try_camera(camera_id)
+        if camera_id is not None:
             self.camera_id = camera_id
+            if self.camera is not None:
+                self.close_camera()
         if self.camera is None:
-            self.camera, self.camera_id = self.__try_next_camera(-1)
+            if self.camera_id is not None and self.camera_id != -1:
+                self.camera = self._try_camera(self.camera_id)
+            if self.camera is None:
+                self.camera, self.camera_id = self._try_next_camera(-1)
         return self.camera is not None
 
     def next_camera(self):
@@ -502,7 +518,7 @@ class ExamCaptureContext:
 
         if self.camera is not None:
             del self.camera
-        camera, camera_id = self.__try_next_camera(self.camera_id)
+        camera, camera_id = self._try_next_camera(self.camera_id)
         if camera is not None:
             self.camera, self.camera_id = camera, camera_id
             return True
@@ -526,26 +542,47 @@ class ExamCaptureContext:
         self.failures_in_a_row = 0
 
     def close_camera(self):
+        """Closes the current camera.
+
+        The same camera will be opened again when open_camera() is called.
+
+        """
+        del self.camera
         self.camera = None
 
-    def __try_next_camera(self, cur_camera_id):
+    def capture(self, clone=False):
+        """Returns a capture.
+
+        If `clone` is True, the image returned is a copy of the
+        original.  Use this option if you plan to modify the image or
+        store it for later, because the buffer of the original image
+        will be reused by OpenCV por the next capture.
+
+        """
+        if self.camera is not None:
+            return capture(self.camera, clone=clone)
+        else:
+            return None
+
+    def _try_next_camera(self, cur_camera_id):
         camera = None
         camera_id = -1
         for i in range(cur_camera_id + 1, 10) + range(0, cur_camera_id + 1):
             print "Trying camera", i
-            camera = self.__try_camera(i)
+            camera = self._try_camera(i)
             if camera is not None:
                 camera_id = i
                 break
         return (camera, camera_id)
 
-    def __try_camera(self, camera_id):
+    def _try_camera(self, camera_id):
         cam = cv.CaptureFromCAM(camera_id)
         image = cv.QueryFrame(cam)
         if image is not None:
             return cam
         else:
             return None
+
 
 def init_camera(input_dev = -1):
     return cv.CaptureFromCAM(input_dev)
