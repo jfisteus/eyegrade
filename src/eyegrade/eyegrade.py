@@ -19,7 +19,6 @@ from __future__ import division
 
 import sys
 import os
-from optparse import OptionParser
 import time
 import webbrowser
 
@@ -35,49 +34,6 @@ utils.EyegradeException.register_error('no_camera',
 
 param_fps = 8
 capture_period = 1.0 / param_fps
-
-def read_cmd_options():
-    parser = OptionParser(usage = 'usage: %prog [options] EXAM_CONFIG_FILE',
-                          version = utils.program_name + ' ' + utils.version)
-    parser.add_option('-a', '--answers-file', dest = 'answers_filename',
-                      help = 'write students answers to FILENAME')
-    parser.add_option('-s', '--start-id', dest = 'start_id', type = 'int',
-                      help = 'start at the given exam id',
-                      default = 1)
-    parser.add_option('-o', '--output-dir', dest = 'output_dir', default = '.',
-                      help = 'store captured images at the given directory')
-    parser.add_option('-d', '--debug', action='store_true', dest = 'debug',
-                      default = False, help = 'activate debugging features')
-    parser.add_option('-c', '--camera', type='int', dest = 'camera_dev',
-                      help = 'camera device to be selected (-1 for default)')
-    parser.add_option('--stats', action='store_true', dest = 'save_stats',
-                      default = False,
-                      help = 'save performance stats to the answers file')
-    parser.add_option('-l', '--id-list', dest = 'ids_file', default = None,
-                      help = 'file with the list of valid student ids')
-    parser.add_option('--capture-raw', dest = 'raw_file', default = None,
-                      help = 'capture from raw file')
-    parser.add_option('--capture-proc', dest = 'proc_file', default = None,
-                      help = 'capture from pre-processed file')
-    parser.add_option('--fixed-hough', dest = 'fixed_hough', default = None,
-                      type = 'int', help = 'fixed Hough transform threshold')
-    parser.add_option('-f', '--ajust-first', action='store_true',
-                      dest = 'adjust', default = False,
-                      help = 'don\'t lock on an exam until SPC is pressed')
-    parser.add_option('--accept-model-0', action='store_true',
-                      dest = 'accept_model_0', default = False,
-                      help = 'accept model 0 as a valid exam model')
-
-    (options, args) = parser.parse_args()
-    if len(args) == 1:
-        options.ex_data_filename = args[0]
-    elif len(args) == 0:
-        parser.error('Exam configuration file required')
-    elif len(args) > 1:
-        parser.error('Too many input command-line parameters')
-    if options.raw_file is not None and options.proc_file is not None:
-        parser.error('--capture-raw and --capture-proc are mutually exclusive')
-    return options
 
 def cell_clicked(image, point):
     min_dst = None
