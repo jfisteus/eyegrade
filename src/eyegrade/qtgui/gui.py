@@ -17,6 +17,7 @@
 #
 
 import os.path
+import time
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
@@ -27,7 +28,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QMessageBox, QPixmap, QCompleter,
                          QSortFilterProxyModel, QKeySequence,)
 
-from PyQt4.QtCore import Qt, QTimer, QThread
+from PyQt4.QtCore import Qt, QTimer, QThread, pyqtSignal
 
 from eyegrade.utils import resource_path, program_name, version, web_location
 
@@ -250,6 +251,98 @@ class DialogNewSession(QDialog):
             self.id_list_w.setEnabled(False)
 
 
+class DialogCameraSelection(QDialog):
+    """Shows a dialog that allows choosing a camera.
+
+    Example (replace `parent` by the parent widget):
+
+    dialog = DialogNewSession(parent)
+    values = dialog.exec_()
+
+    At the end of the dialog, the chosen camera is automatically
+    set in the context object.
+
+    """
+    capture_period = 0.1
+    camera_error = pyqtSignal()
+
+    def __init__(self, capture_context, parent):
+        """Initializes the dialog.
+
+        `capture_context` is the imageproc.ExamCaptureContext object
+        to be used.
+
+        """
+        super(DialogCameraSelection, self).__init__(parent)
+        self.capture_context = capture_context
+        self.setWindowTitle('Select a camera')
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        self.camview = CamView((320, 240), self)
+        self.label = QLabel(self)
+        self.button = QPushButton('Try next camera')
+        self.button.clicked.connect(self._next_camera)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(self.camview)
+        layout.addWidget(self.label)
+        layout.addWidget(self.button)
+        layout.addWidget(buttons)
+        self.camera_error.connect(self._show_camera_error,
+                                  type=Qt.QueuedConnection)
+        self.timer = None
+
+    def __del__(self):
+        if self.timer is not None:
+            self.timer.stop()
+        self.capture_context.close_camera()
+
+    def exec_(self):
+        success = self.capture_context.open_camera()
+        if success:
+            self._update_camera_label()
+            self.timer = QTimer(self)
+            self.timer.setSingleShot(False)
+            self.timer.timeout.connect(self._next_capture)
+            self.timer.setInterval(DialogCameraSelection.capture_period)
+            self.timer.start()
+        else:
+            self.camera_error.emit()
+        return super(DialogCameraSelection, self).exec_()
+
+    def _show_camera_error(self):
+        QMessageBox.critical(self, 'Camera not available',
+                             'No camera is available.')
+        self.reject()
+
+    def _next_camera(self):
+        current_camera = self.capture_context.current_camera_id()
+        success = self.capture_context.next_camera()
+        if not success:
+            self.camera_error.emit()
+        elif self.capture_context.current_camera_id() == current_camera:
+            QMessageBox.critical(self, 'No more cameras',
+                                 'No more cameras are available.')
+        else:
+            self._update_camera_label()
+
+    def _update_camera_label(self):
+        camera_id = self.capture_context.current_camera_id()
+        if camera_id is not None and camera_id >= 0:
+            self.label.setText('<center>Current camera: {}</center>'\
+                               .format(camera_id))
+        else:
+            self.label.setText('<center>No camera</center>')
+
+    def _next_capture(self):
+        if not self.isVisible():
+            self.timer.stop()
+            self.capture_context.close_camera()
+        else:
+            image = self.capture_context.capture(resize=(320, 240))
+            self.camview.display_capture(image)
+
+
 class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
@@ -269,6 +362,10 @@ class ActionsManager(object):
         ('exit', 'exit.svg', '&Exit', None),
         ]
 
+    _actions_tools_data = [
+        ('camera', 'camera.svg', 'Select &camera', None),
+        ]
+
     _actions_help_data = [
         ('help', None, 'Online &Help', None),
         ('website', None, '&Website', None),
@@ -283,14 +380,18 @@ class ActionsManager(object):
         self.menus = {}
         self.actions_grading = {}
         self.actions_session = {}
+        self.actions_tools = {}
         self.actions_help = {}
-        action_lists = {'session': [], 'grading': [], 'help': []}
+        action_lists = {'session': [], 'grading': [], 'tools': [], 'help': []}
         for key, icon, text, shortcut in ActionsManager._actions_session_data:
             self._add_action(key, icon, text, shortcut, self.actions_session,
                              action_lists['session'])
         for key, icon, text, shortcut in ActionsManager._actions_grading_data:
             self._add_action(key, icon, text, shortcut, self.actions_grading,
                              action_lists['grading'])
+        for key, icon, text, shortcut in ActionsManager._actions_tools_data:
+            self._add_action(key, icon, text, shortcut, self.actions_tools,
+                             action_lists['tools'])
         for key, icon, text, shortcut in ActionsManager._actions_help_data:
             self._add_action(key, icon, text, shortcut, self.actions_help,
                              action_lists['help'])
@@ -308,6 +409,7 @@ class ActionsManager(object):
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(False)
 
     def set_review_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
@@ -320,6 +422,7 @@ class ActionsManager(object):
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(False)
 
     def set_manual_detect_mode(self):
         self.actions_grading['snapshot'].setEnabled(False)
@@ -332,6 +435,7 @@ class ActionsManager(object):
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(False)
 
     def set_no_session_mode(self):
         for key in self.actions_grading:
@@ -341,6 +445,7 @@ class ActionsManager(object):
         self.actions_session['open'].setEnabled(True)
         self.actions_session['close'].setEnabled(False)
         self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(True)
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
@@ -356,6 +461,8 @@ class ActionsManager(object):
             actions = self.actions_session
         elif key[0] == 'grading':
             actions = self.actions_grading
+        elif key[0] == 'tools':
+            actions = self.actions_tools
         elif key[0] == 'help':
             actions = self.actions_help
         if actions:
@@ -388,14 +495,18 @@ class ActionsManager(object):
     def _populate_menubar(self, action_lists):
         self.menus['session'] = QMenu('&Session', self.menubar)
         self.menus['grading'] = QMenu('&Grading', self.menubar)
+        self.menus['tools'] = QMenu('&Tools', self.menubar)
         self.menus['help'] = QMenu('&Help', self.menubar)
         self.menubar.addMenu(self.menus['session'])
         self.menubar.addMenu(self.menus['grading'])
+        self.menubar.addMenu(self.menus['tools'])
         self.menubar.addMenu(self.menus['help'])
         for action in action_lists['session']:
             self.menus['session'].addAction(action)
         for action in action_lists['grading']:
             self.menus['grading'].addAction(action)
+        for action in action_lists['tools']:
+            self.menus['tools'].addAction(action)
         for action in action_lists['help']:
             self.menus['help'].addAction(action)
 
@@ -409,11 +520,14 @@ class ActionsManager(object):
 
 
 class CamView(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, size, parent, draw_logo=False):
         super(CamView, self).__init__(parent)
-        self.setFixedSize(640, 480)
+        self.setFixedSize(*size)
         self.display_wait_image()
-        self.logo = QPixmap(resource_path('logo.svg'))
+        if draw_logo:
+            self.logo = QPixmap(resource_path('logo.svg'))
+        else:
+            self.logo = None
         self.mouse_listener = None
 
     def paintEvent(self, event):
@@ -429,12 +543,15 @@ class CamView(QWidget):
         self.image = QImage(ipl_image.tostring(),
                             ipl_image.width, ipl_image.height,
                             QImage.Format_RGB888).rgbSwapped()
-        painter = QPainter(self.image)
-        painter.drawPixmap(600, 440, 36, 36, self.logo)
+        if self.logo is not None:
+            painter = QPainter(self.image)
+            painter.drawPixmap(ipl_image.width - 40, ipl_image.height - 40,
+                               36, 36, self.logo)
         self.update()
 
     def display_wait_image(self):
-        self.image = QImage(640, 480, QImage.Format_RGB888)
+        size = self.size()
+        self.image = QImage(size.width(), size.height(), QImage.Format_RGB888)
         self.image.fill(Qt.darkBlue)
         self.update()
 
@@ -463,7 +580,7 @@ class CenterView(QWidget):
         super(CenterView, self).__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self.camview = CamView(parent=self)
+        self.camview = CamView((640, 480), self, draw_logo=True)
         self.label_up = QLabel()
         self.label_down = QLabel()
         layout.addWidget(self.camview)
@@ -720,6 +837,16 @@ class Interface(object):
                                                'Select the session file',
                                                '', _filter_exam_config)
         return str(filename) if filename else None
+
+    def dialog_camera_selection(self, capture_context):
+        """Displays a camera selection dialog.
+
+        `capture_context` is the imageproc.ExamCaptureContext object
+        to be used.
+
+        """
+        dialog = DialogCameraSelection(capture_context, self.window)
+        return dialog.exec_()
 
     def show_error(self, message, title='Error'):
         """Displays an error dialog with the given message.

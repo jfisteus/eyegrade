@@ -508,6 +508,13 @@ class ExamCaptureContext:
                 self.camera, self.camera_id = self._try_next_camera(-1)
         return self.camera is not None
 
+    def current_camera_id(self):
+        """Returns the id (integer) of the current camera or None."""
+        if self.camera_id >= 0:
+            return self.camera_id
+        else:
+            return None
+
     def next_camera(self):
         """Selects the next camera available.
 
@@ -550,7 +557,7 @@ class ExamCaptureContext:
         del self.camera
         self.camera = None
 
-    def capture(self, clone=False):
+    def capture(self, clone=False, resize=None):
         """Returns a capture.
 
         If `clone` is True, the image returned is a copy of the
@@ -558,11 +565,20 @@ class ExamCaptureContext:
         store it for later, because the buffer of the original image
         will be reused by OpenCV por the next capture.
 
+        `resize` is a tuple (width, height). If it is not None, then
+        the image is scaled to that size. Scaling implies a new copy
+        regardless the value of `clone`.
+
         """
+        image = None
+        if resize is not None:
+            # The image will be cloned when resizing
+            clone = False
         if self.camera is not None:
-            return capture(self.camera, clone=clone)
-        else:
-            return None
+            image = capture(self.camera, clone=clone)
+            if resize is not None:
+                image = resize_image(image, resize)
+        return image
 
     def _try_next_camera(self, cur_camera_id):
         camera = None
@@ -593,6 +609,11 @@ def capture(camera, clone = False):
         return cv.CloneImage(image)
     else:
         return image
+
+def resize_image(image, size):
+    new_image = cv.CreateImage(size, image.depth, image.nChannels)
+    cv.Resize(image, new_image, interpolation=cv.CV_INTER_AREA)
+    return new_image
 
 def pre_process(image):
     gray = rgb_to_gray(image)

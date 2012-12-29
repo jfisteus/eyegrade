@@ -323,6 +323,10 @@ class ProgramManager(object):
                         'You typed and incorrect student id.')
             self.interface.update_text_up(self.exam.get_student_id_and_name())
 
+    def _action_camera_selection(self):
+        """Callback for opening the camera selection dialog."""
+        self.interface.dialog_camera_selection(self.imageproc_context)
+
     def _action_help(self):
         """Callback for the help action."""
         webbrowser.open(utils.help_location, new=2)
@@ -466,6 +470,7 @@ class ProgramManager(object):
             ('actions', 'grading', 'save'): self._action_save,
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('actions', 'grading', 'edit_id'): self._action_edit_id,
+            ('actions', 'tools', 'camera'): self._action_camera_selection,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
