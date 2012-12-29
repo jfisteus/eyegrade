@@ -183,14 +183,18 @@ class ProgramManager(object):
         exam = None
         if image.status['infobits']:
             model = utils.decode_model(image.bits)
-            if model is not None and (model in self.exam_data.solutions
-                                      or self.exam_data.survey_mode):
-                exam = utils.Exam(image, model, self._solutions(model),
+            if model is not None:
+                if (model in self.exam_data.solutions
+                    or self.exam_data.survey_mode):
+                    exam = utils.Exam(image, model, self._solutions(model),
                                   self.valid_student_ids,
                                   self.image_id, self.exam_data.score_weights,
                                   save_image_func=self.interface.save_capture)
-                exam.grade()
-                self.latest_graded_exam = exam
+                    exam.grade()
+                    self.latest_graded_exam = exam
+                elif model not in self.exam_data.solutions:
+                    msg = 'There are no solutions for model {0}.'.format(model)
+                    self.interface.show_error(msg)
         return exam
 
     def _new_session(self):
@@ -363,12 +367,18 @@ class ProgramManager(object):
                     self.exam.model = utils.decode_model(self.exam.image.bits)
                     if self.exam.model is not None:
                         self.exam.solutions = self._solutions(self.exam.model)
-                        self.exam.grade()
-                        self.exam.draw_answers()
-                        self.interface.update_status( \
-                            self.exam.score, self.exam.model, self.exam.im_id,
-                            survey_mode=self.exam_data.survey_mode)
-                        success = True
+                        if self.exam.solutions is None:
+                            msg = 'There are no solutions for model {0}.'\
+                                  .format(self.exam.model)
+                            self.interface.show_error(msg)
+                        else:
+                            self.exam.grade()
+                            self.exam.draw_answers()
+                            self.interface.update_status( \
+                                self.exam.score, self.exam.model,
+                                self.exam.im_id,
+                                survey_mode=self.exam_data.survey_mode)
+                            success = True
             if not success:
                 self.exam.image.clean_drawn_image()
                 self.interface.show_error('Manual detection failed!')
@@ -408,9 +418,17 @@ class ProgramManager(object):
         self._start_search_mode()
 
     def _solutions(self, model):
-        """Returns the solutions for the given model, or []."""
+        """Returns the solutions for the given model.
+
+        If in survey mode it returns []. If there are no solutions for
+        this, model it returns None.
+
+        """
         if not self.exam_data.survey_mode:
-            return self.exam_data.solutions[model]
+            if model in self.exam_data.solutions:
+                return self.exam_data.solutions[model]
+            else:
+                return None
         else:
             return []
 
