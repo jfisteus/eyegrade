@@ -17,7 +17,6 @@
 #
 
 import os.path
-import time
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
@@ -26,7 +25,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
                          QMessageBox, QPixmap, QCompleter,
-                         QSortFilterProxyModel, QKeySequence,)
+                         QSortFilterProxyModel, QKeySequence, QColor,)
 
 from PyQt4.QtCore import Qt, QTimer, QThread, pyqtSignal
 
@@ -35,6 +34,7 @@ from eyegrade.utils import resource_path, program_name, version, web_location
 _filter_exam_config = 'Exam configuration (*.eye)'
 _filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
 
+color_eyegrade_blue = QColor(32, 73, 124)
 
 class OpenFileWidget(QWidget):
     """Dialog with a text field and a button to open a file selector."""
@@ -278,7 +278,7 @@ class DialogCameraSelection(QDialog):
         self.setWindowTitle('Select a camera')
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        self.camview = CamView((320, 240), self)
+        self.camview = CamView((320, 240), self, border=True)
         self.label = QLabel(self)
         self.button = QPushButton('Try next camera')
         self.button.clicked.connect(self._next_camera)
@@ -520,9 +520,15 @@ class ActionsManager(object):
 
 
 class CamView(QWidget):
-    def __init__(self, size, parent, draw_logo=False):
+    def __init__(self, size, parent, draw_logo=False, border=False):
         super(CamView, self).__init__(parent)
-        self.setFixedSize(*size)
+        if not border:
+            fixed_size = size
+        else:
+            fixed_size = (size[0] + 10, size[1] + 10)
+        self.setFixedSize(*fixed_size)
+        self.border = border
+        self.image_size = size
         self.display_wait_image()
         if draw_logo:
             self.logo = QPixmap(resource_path('logo.svg'))
@@ -532,7 +538,14 @@ class CamView(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawImage(event.rect(), self.image)
+        if self.border:
+            size = self.size()
+            painter.setPen(color_eyegrade_blue)
+            painter.drawRoundedRect(0, 0, size.width() - 2, size.height() - 2,
+                                    10, 10)
+            painter.drawImage(5, 5, self.image)
+        else:
+            painter.drawImage(event.rect(), self.image)
 
     def display_capture(self, ipl_image):
         """Displays a captured image in the window.
@@ -550,8 +563,8 @@ class CamView(QWidget):
         self.update()
 
     def display_wait_image(self):
-        size = self.size()
-        self.image = QImage(size.width(), size.height(), QImage.Format_RGB888)
+        self.image = QImage(self.image_size[0], self.image_size[1],
+                            QImage.Format_RGB888)
         self.image.fill(Qt.darkBlue)
         self.update()
 

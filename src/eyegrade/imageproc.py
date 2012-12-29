@@ -584,7 +584,6 @@ class ExamCaptureContext:
         camera = None
         camera_id = -1
         for i in range(cur_camera_id + 1, 10) + range(0, cur_camera_id + 1):
-            print "Trying camera", i
             camera = self._try_camera(i)
             if camera is not None:
                 camera_id = i
