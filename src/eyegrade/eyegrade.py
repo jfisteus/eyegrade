@@ -89,6 +89,7 @@ class ProgramManager(object):
         self.config = utils.read_config()
         self.imageproc_context = \
               imageproc.ExamCaptureContext(camera_id=self.config['camera-dev'])
+        self.imageproc_options = None
         self._register_listeners()
 
     def run(self):
@@ -335,6 +336,14 @@ class ProgramManager(object):
         """Callback for the website action."""
         webbrowser.open(utils.web_location, new=2)
 
+    def _action_debug_changed(self):
+        """Callback for the checkable actions in the debug options menu."""
+        if self.imageproc_options is not None:
+            self.imageproc_options['show-lines'] = \
+                   self.interface.is_action_checked(('tools', 'lines'))
+            self.imageproc_options['show-image-proc'] = \
+                   self.interface.is_action_checked(('tools', 'processed'))
+
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
         if self.mode == ProgramManager.mode_review:
@@ -408,6 +417,8 @@ class ProgramManager(object):
             self.imageproc_options['id-num-digits'] = exam_data.id_num_digits
         self.imageproc_options['left-to-right-numbering'] = \
                                             exam_data.left_to_right_numbering
+        # Set the debug options in imageproc_options:
+        self._action_debug_changed()
         self.imageproc_context.open_camera()
         if self.imageproc_context.camera is None:
             self.interface.show_error(('No camera found. Connect a camera and '
@@ -471,6 +482,8 @@ class ProgramManager(object):
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('actions', 'grading', 'edit_id'): self._action_edit_id,
             ('actions', 'tools', 'camera'): self._action_camera_selection,
+            ('actions', 'tools', 'lines'): self._action_debug_changed,
+            ('actions', 'tools', 'processed'): self._action_debug_changed,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,

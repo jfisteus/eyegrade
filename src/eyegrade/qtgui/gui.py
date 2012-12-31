@@ -372,6 +372,11 @@ class ActionsManager(object):
         ('about', None, '&About', None),
         ]
 
+    _actions_debug_data = [
+        ('+lines', None, 'Show &lines', None),
+        ('+processed', None, 'Show &processed image', None),
+        ]
+
     def __init__(self, window):
         """Creates a manager for the given toolbar object."""
         self.window = window
@@ -397,6 +402,7 @@ class ActionsManager(object):
                              action_lists['help'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
+        self._add_debug_actions()
 
     def set_search_mode(self):
         self.actions_grading['snapshot'].setEnabled(True)
@@ -456,24 +462,40 @@ class ActionsManager(object):
         self.actions_grading['manual_detect'].setEnabled(enabled)
 
     def register_listener(self, key, listener):
-        actions = None
-        if key[0] == 'session':
-            actions = self.actions_session
-        elif key[0] == 'grading':
-            actions = self.actions_grading
-        elif key[0] == 'tools':
-            actions = self.actions_tools
-        elif key[0] == 'help':
-            actions = self.actions_help
-        if actions:
-            assert key[1] in actions
-            actions[key[1]].triggered.connect(listener)
-        else:
-            assert False, 'Undefined listener key: {0}'.format(key)
+        actions = self._select_action_group(key[0])
+        assert key[1] in actions
+        actions[key[1]].triggered.connect(listener)
+
+    def is_action_checked(self, key):
+        """For checkabel actions, returns whether the action is checked.
+
+        Action keys are tuples such as ('tools', 'lines').
+
+        """
+        actions = self._select_action_group(key[0])
+        assert key[1] in actions
+        assert actions[key[1]].isCheckable()
+        return actions[key[1]].isChecked()
+
+    def _select_action_group(self, key):
+        if key == 'session':
+            return self.actions_session
+        elif key == 'grading':
+            return self.actions_grading
+        elif key == 'tools':
+            return self.actions_tools
+        elif key == 'help':
+            return self.actions_help
+        assert False, 'Undefined action group key: {0}.format(key)'
 
     def _add_action(self, action_name, icon_file, text, shortcut,
                     group, actions_list):
         action = self._create_action(action_name, icon_file, text, shortcut)
+        if action_name.startswith('+'):
+            if action_name.startswith('++'):
+                action_name = action_name[2:]
+            else:
+                action_name = action_name[1:]
         if not action.isSeparator():
             group[action_name] = action
         actions_list.append(action)
@@ -490,6 +512,10 @@ class ActionsManager(object):
                 action = QAction(text, self.window)
         if shortcut is not None:
             action.setShortcut(QKeySequence(shortcut))
+        if action_name.startswith('+'):
+            action.setCheckable(True)
+            if action_name.startswith('++'):
+                action.setChecked(True)
         return action
 
     def _populate_menubar(self, action_lists):
@@ -517,6 +543,16 @@ class ActionsManager(object):
         self.toolbar.addAction(self.actions_session['new'])
         self.toolbar.addAction(self.actions_session['open'])
         self.toolbar.addAction(self.actions_session['close'])
+
+    def _add_debug_actions(self):
+        actions_list = []
+        for key, icon, text, shortcut in ActionsManager._actions_debug_data:
+            self._add_action(key, icon, text, shortcut, self.actions_tools,
+                             actions_list)
+        menu = QMenu('&Debug options', self.menus['tools'])
+        for action in actions_list:
+            menu.addAction(action)
+        self.menus['tools'].addMenu(menu)
 
 
 class CamView(QWidget):
@@ -789,6 +825,14 @@ class Interface(object):
             self.window.register_listener(key[1:], listener)
         else:
             assert False, 'Unknown event key {0}'.format(key)
+
+    def is_action_checked(self, action_key):
+        """For checkabel actions, returns whether the action is checked.
+
+        Action keys are tuples such as ('tools', 'lines').
+
+        """
+        return self.actions_manager.is_action_checked(action_key)
 
     def register_timer(self, time_delta, callback):
         """Registers a callback function to be run after time_delta ms."""
