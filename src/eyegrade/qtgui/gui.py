@@ -29,7 +29,8 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
 
 from PyQt4.QtCore import Qt, QTimer, QThread, pyqtSignal
 
-from eyegrade.utils import resource_path, program_name, version, web_location
+from eyegrade.utils import (resource_path, program_name, version, web_location,
+                            source_location)
 
 _filter_exam_config = 'Exam configuration (*.eye)'
 _filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
@@ -341,6 +342,64 @@ class DialogCameraSelection(QDialog):
         else:
             image = self.capture_context.capture(resize=(320, 240))
             self.camview.display_capture(image)
+
+
+class DialogAbout(QDialog):
+    """About dialog.
+
+    Example (replace `parent` by the parent widget):
+
+    dialog = DialogAbout(parent)
+    values = dialog.exec_()
+
+    """
+    def __init__(self, parent):
+        super(DialogAbout, self).__init__(parent)
+        text = \
+             """
+             <center>
+             <p><img src='{0}' width='64'> <br>
+             {1} {2} <br>
+             (c) 2010-2013 Jesus Arias Fisteus <br>
+             <a href='{3}'>{3}</a> <br>
+             <a href='{4}'>{4}</a>
+
+             <p>
+             This program is free software: you can redistribute it<br>
+             and/or modify it under the terms of the GNU General<br>
+             Public License as published by the Free Software<br>
+             Foundation, either version 3 of the License, or (at your<br>
+             option) any later version.
+             </p>
+             <p>
+             This program is distributed in the hope that it will be<br>
+             useful, but WITHOUT ANY WARRANTY; without even the<br>
+             implied warranty of MERCHANTABILITY or FITNESS FOR A<br>
+             PARTICULAR PURPOSE. See the GNU General Public License<br>
+             for more details.
+             </p>
+             <p>
+             You should have received a copy of the GNU General Public<br>
+             License along with this program.  If not, see<br>
+             <a href='http://www.gnu.org/licenses/gpl.txt'>
+             http://www.gnu.org/licenses/gpl.txt</a>.
+             </p>
+             </center>
+             """.format(resource_path('logo.svg'), program_name, version,
+                        web_location, source_location)
+        self.setWindowTitle('About')
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        label = QLabel(text)
+        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
+                                       | Qt.LinksAccessibleByMouse
+                                       | Qt.TextBrowserInteraction
+                                       | Qt.TextSelectableByKeyboard
+                                       | Qt.TextSelectableByMouse))
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(QLabel(text))
+        layout.addWidget(buttons)
 
 
 class ActionsManager(object):
@@ -749,6 +808,8 @@ class Interface(object):
         self.window.show()
         self.register_listener(('actions', 'session', 'exit'),
                                self.window.close)
+        self.register_listener(('actions', 'help', 'about'),
+                               self.show_about_dialog)
 
     def run(self):
         return self.app.exec_()
@@ -936,7 +997,7 @@ class Interface(object):
 
     def show_version(self):
         version_line = '{0} {1} - <a href="{2}">{2}</a>'\
-                       .format(program_name, version, web_location)
+               .format(program_name, version, web_location)
         self.update_text_down(version_line)
 
     def run_worker(self, task, callback):
@@ -949,3 +1010,7 @@ class Interface(object):
         self.worker = Worker(task, self.window)
         self.worker.finished.connect(callback)
         self.worker.start()
+
+    def show_about_dialog(self):
+        dialog = DialogAbout(self.window)
+        dialog.exec_()
