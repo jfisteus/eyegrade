@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2013 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@ import codecs
 import sys
 import random
 import re
-import copy
 import io
 
 program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
+source_location = 'https://github.com/jfisteus/eyegrade'
+help_location = 'http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/'
 version = '0.1.17'
 version_status = 'alpha'
 
@@ -155,7 +156,7 @@ data_dir = guess_data_dir()
 def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 
-def read_results(filename, permutations = {}):
+def read_results(filename, permutations = {}, allow_question_mark=False):
     """Parses an eyegrade results file.
 
        Results are returned as a list of dictionaries with the keys
@@ -165,7 +166,8 @@ def read_results(filename, permutations = {}):
     """
     results = __read_results_file(filename)
     for result in results:
-        result['model'] = check_model_letter(result['model'])
+        result['model'] = check_model_letter(result['model'],
+                                       allow_question_mark=allow_question_mark)
         result['good'] = int(result['good'])
         result['bad'] = int(result['bad'])
         result['unknown'] = int(result['unknown'])
@@ -203,9 +205,17 @@ def write_results(results, filename, csv_dialect, append=False):
     if filename is not None:
         file_.close()
 
-def check_model_letter(model):
+def check_model_letter(model, allow_question_mark=False):
+    """Checks if a model letter is correct.
+
+    The special value '?' is considered valid only if the parameter
+    `allow_question_mark` is set.
+
+    """
     if re_model_letter.match(model):
         return model.upper()
+    elif allow_question_mark and model == '?':
+        return '?'
     else:
         raise Exception('Incorrect model letter: ' + model)
 
@@ -486,18 +496,16 @@ regexp_seqnum = re.compile('\{seq-number\}')
 
 class Exam(object):
     def __init__(self, image, model, solutions, valid_student_ids,
-                 im_id, save_stats, score_weights, save_image_function=None):
+                 im_id, score_weights, save_image_func=None,
+                 save_stats=False):
         self.image = image
         self.model = model
         self.solutions = solutions
         self.im_id = im_id
         self.correct = None
         self.score = None
-        self.original_decisions = copy.copy(self.image.decisions)
         self.save_stats = save_stats
         self.student_names = valid_student_ids
-        self.student_id_filter = []
-        self.student_id_manual = []
         if self.image.options['read-id']:
             self.student_id = self.decide_student_id(valid_student_ids)
         else:
@@ -506,12 +514,12 @@ class Exam(object):
             self.student_id = '-1'
             if valid_student_ids is not None:
                 self.ids_rank = [(0, sid) for sid in valid_student_ids]
-                self.ids_rank_pos = -1
             else:
                 self.ids_rank = None
         self.locked = False
         self.score_weights = score_weights
-        self.save_image_function = save_image_function
+        self.save_image_function = save_image_func
+        self.extra_student_names = {}
 
     def grade(self):
         good = 0
@@ -548,14 +556,14 @@ class Exam(object):
                                 self.score[3], self.im_id)
 
     def save_image(self, filename_pattern):
-        filename = self.__saved_image_name(filename_pattern)
+        filename = self._saved_image_name(filename_pattern)
         if self.save_image_function:
-            self.save_image_function(filename, self.image.image_drawn)
+            self.save_image_function(filename)
         else:
             raise Exception('No save image function declared in utils.Exam')
 
     def save_debug_images(self, filename_pattern):
-        filename = self.__saved_image_name(filename_pattern)
+        filename = self._saved_image_name(filename_pattern)
         if self.save_image_function:
             self.save_image_function(filename + '-raw', self.image.image_raw)
             self.save_image_function(filename + '-proc', self.image.image_proc)
@@ -592,72 +600,21 @@ class Exam(object):
         self.image.clean_drawn_image()
         self.draw_answers()
 
-    def invalidate_id(self):
-        self.__update_student_id(None)
-
-    def num_manual_changes(self):
-        return len([d1 for (d1, d2) in \
-                        zip(self.original_decisions, self.image.decisions) \
-                        if d1 != d2])
-
     def decide_student_id(self, valid_student_ids):
         student_id = '-1'
         self.ids_rank = None
         if self.image.id is not None:
             if valid_student_ids is not None:
-                ids_rank = [(self.__id_rank(sid, self.image.id_scores), sid) \
+                ids_rank = [(self._id_rank(sid, self.image.id_scores), sid) \
                                 for sid in valid_student_ids]
                 self.ids_rank = sorted(ids_rank, reverse = True)
                 student_id = self.ids_rank[0][1]
                 self.image.id = student_id
-                self.ids_rank_pos = 0
             else:
                 student_id = self.image.id
         elif valid_student_ids is not None:
             self.ids_rank = [(0.0, sid) for sid in valid_student_ids]
         return student_id
-
-    def try_next_student_id(self):
-        if self.ids_rank is not None \
-                and self.ids_rank_pos < len(self.ids_rank) - 1:
-            self.ids_rank_pos += 1
-            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
-
-    def try_previous_student_id(self):
-        if self.ids_rank is not None \
-                and self.ids_rank_pos >= 1:
-            self.ids_rank_pos -= 1
-            self.__update_student_id(self.ids_rank[self.ids_rank_pos][1])
-
-    def filter_student_id(self, digit):
-        if self.ids_rank is not None:
-            self.student_id_filter.append(digit)
-            ids = [sid for sid in self.ids_rank \
-                       if ''.join(self.student_id_filter) in sid[1]]
-            if len(ids) > 0:
-                self.__update_student_id(ids[0][1])
-            else:
-                self.__update_student_id(None)
-                self.student_id_filter = []
-                self.ids_rank_pos = -1
-
-    def reset_student_id_filter(self, show_first = True):
-        self.student_id_filter = []
-        if show_first:
-            self.ids_rank_pos = 0
-            self.__update_student_id(self.ids_rank[0][1])
-        else:
-            self.ids_rank_pos = -1
-            self.__update_student_id(None)
-
-    def student_id_editor(self, digit):
-        self.student_id_manual.append(digit)
-        sid = ''.join(self.student_id_manual)
-        self.__update_student_id(sid)
-
-    def reset_student_id_editor(self):
-        self.student_id_manual = []
-        self.__update_student_id(None)
 
     def lock_capture(self):
         self.locked = True
@@ -671,32 +628,58 @@ class Exam(object):
 
     def get_student_id_and_name(self):
         if self.student_id != '-1':
-            if (self.student_names is not None and
-                self.student_id in self.student_names and
-                self.student_names[self.student_id] is not None):
-                return ' '.join((self.student_id,
-                                 self.student_names[self.student_id]))
-            else:
-                return self.student_id
+            return self._student_id_and_name(self.student_id)
         else:
             return None
 
-    def __id_rank(self, student_id, scores):
-        rank = 0.0
-        for i in range(len(student_id)):
-            rank += scores[i][int(student_id[i])]
-        return rank
+    def ranked_student_ids_and_names(self):
+        """Returns the list of student ids and names ranked.
 
-    def __update_student_id(self, new_id):
+        Each entry is a string with student id and name. They are ranked
+        according to their probability to be the actual student id. The most
+        probable is the first in the list.
+
+        """
+        return [self._student_id_and_name(student_id) \
+                for rank, student_id in self.ids_rank]
+
+    def update_student_id(self, new_id, name=None):
+        """Updates the student id of the current exam.
+
+        If a student name is given and there is no name for the
+        student, this name is added to the list of extra student
+        names, with validity only for this exam.
+
+        """
         if new_id is None or new_id == '-1':
             self.image.id = None
             self.student_id = '-1'
         else:
             self.image.id = new_id
             self.student_id = new_id
-        self.image.clean_drawn_image()
+        if name is not None and (self.student_names is None
+                                 or new_id not in self.student_names):
+            self.extra_student_names[new_id] = name
+        elif name is None and new_id in self.extra_student_names:
+            del self.extra_student_names[new_id]
 
-    def __saved_image_name(self, filename_pattern):
+    def _student_id_and_name(self, student_id):
+        if (self.student_names is not None and
+            student_id in self.student_names and
+            self.student_names[student_id] is not None):
+            return ' '.join((student_id, self.student_names[student_id]))
+        elif student_id in self.extra_student_names:
+            return ' '.join((student_id, self.extra_student_names[student_id]))
+        else:
+            return student_id
+
+    def _id_rank(self, student_id, scores):
+        rank = 0.0
+        for i in range(len(student_id)):
+            rank += scores[i][int(student_id[i])]
+        return rank
+
+    def _saved_image_name(self, filename_pattern):
         if self.student_id != '-1':
             sid = self.student_id
         else:
@@ -704,6 +687,7 @@ class Exam(object):
         filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
         filename = regexp_id.sub(sid, filename)
         return filename
+
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
@@ -728,6 +712,7 @@ class ExamConfig(object):
             self.score_weights = None
             self.left_to_right_numbering = False
             self.survey_mode = None
+            self.session = {}
 
     def set_solutions(self, model, solutions):
         if self.solutions is None:
@@ -809,6 +794,25 @@ class ExamConfig(object):
         else:
             self.survey_mode = False
         self.models.sort()
+        # Load the session if it is in the file:
+        self.session = {}
+        if exam_data.has_section('session'):
+            if exam_data.has_option('session', 'is-session'):
+                self.session['is-session'] = \
+                           exam_data.getboolean('session', 'is-session')
+            else:
+                self.session['is-session'] = False
+            if exam_data.has_option('session', 'student-ids-file'):
+                self.session['student-ids-file'] = \
+                           exam_data.get('session', 'student-ids-file')
+            else:
+                self.session['student-ids-file'] = None
+            if exam_data.has_option('session', 'save-filename-pattern'):
+                self.session['save-filename-pattern'] = \
+                           exam_data.get('session', 'save-filename-pattern')
+            elif self.session['is-session']:
+                raise Exception(('Exam config must contain a '
+                                 'save-filename-pattern entry in [session]'))
 
     def save(self, filename):
         data = []
@@ -823,6 +827,16 @@ class ExamConfig(object):
             data.append('correct-weight: %.16f'%self.score_weights[0])
             data.append('incorrect-weight: %.16f'%self.score_weights[1])
             data.append('blank-weight: %.16f'%self.score_weights[2])
+        if len(self.session) != {} and self.session['is-session']:
+            data.append('')
+            data.append('[session]')
+            data.append('is-session: yes')
+            if 'student-ids-file' in self.session:
+                data.append('student-ids-file: %s'\
+                            %self.session['student-ids-file'])
+            if 'save-filename-pattern' in self.session:
+                data.append('save-filename-pattern: %s'\
+                            %self.session['save-filename-pattern'])
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')

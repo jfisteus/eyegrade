@@ -13,9 +13,9 @@
    height="241.42645"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
-   sodipodi:docname="edit_id.svg"
-   inkscape:export-filename="../data/next_id.png"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="snapshot.svg"
+   inkscape:export-filename="../data/discard.png"
    inkscape:export-xdpi="11.929099"
    inkscape:export-ydpi="11.929099">
   <defs
@@ -41,6 +41,20 @@
        inkscape:vp_y="0 : 1000 : 0"
        inkscape:vp_x="0 : 0.5 : 1"
        sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3814"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3838"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -49,16 +63,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="469.49278"
-     inkscape:cy="36.950317"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="140.34116"
+     inkscape:cy="79.541595"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-height="707"
      inkscape:window-x="-4"
-     inkscape:window-y="0"
+     inkscape:window-y="-3"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -77,42 +91,38 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-184.209,-94.69696)">
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke:none"
-       id="rect3615"
-       width="241.42645"
-       height="241.42645"
-       x="184.209"
-       y="94.69696" />
     <g
-       id="g4627">
-      <text
-         id="text3685"
-         y="320.00262"
-         x="187.70883"
-         style="font-size:114.82698822px;font-style:normal;font-weight:normal;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-         xml:space="preserve"><tspan
-           y="320.00262"
-           x="187.70883"
-           id="tspan3687"
-           sodipodi:role="line">id</tspan></text>
-      <g
-         transform="matrix(0.45104866,0.30702686,-0.38168922,0.66326085,175.20897,-92.217348)"
-         id="g3778">
-        <path
-           style="fill:#ffffff;fill-opacity:1;stroke:none"
-           d="m 352.53125,-34.3125 0,228.28125 11.625,21.75 30.75,0 11.65625,-21.75 0,-228.25 -54.03125,-0.03125 z m 54.03125,0.03125 0.59375,0 -0.59375,-0.03125 0,0.03125 z m -39.34375,255.71875 12.3125,23.03125 12.3125,-23.03125 -24.625,0 z"
-           transform="translate(184.209,94.69696)"
-           id="path3726-8" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           d="m 551.35186,85.051981 0,198.571429"
-           id="path3751" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           d="m 572.78043,85.051981 0,198.571429"
-           id="path3751-4" />
-      </g>
+       id="g3879"
+       style="stroke:#20497c;stroke-opacity:1">
+      <rect
+         ry="10"
+         rx="10"
+         transform="translate(184.209,94.69696)"
+         y="67.140739"
+         x="17.142857"
+         height="135.71428"
+         width="208.57143"
+         id="rect3873"
+         style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="translate(189.209,76.125534)"
+         d="m 142.85715,153.56931 a 26.428572,26.428572 0 1 1 -52.857148,0 26.428572,26.428572 0 1 1 52.857148,0 z"
+         sodipodi:ry="26.428572"
+         sodipodi:rx="26.428572"
+         sodipodi:cy="153.56931"
+         sodipodi:cx="116.42857"
+         id="path3875"
+         style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="arc" />
+      <rect
+         ry="10"
+         rx="10"
+         y="120.40913"
+         x="325.63757"
+         height="40"
+         width="67.14286"
+         id="rect3877"
+         style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
   </g>
 </svg>

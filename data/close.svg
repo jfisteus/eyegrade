@@ -13,11 +13,11 @@
    height="241.42645"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
-   sodipodi:docname="unanswered.svg"
-   inkscape:export-filename="../data/unanswered.png"
-   inkscape:export-xdpi="7.4556866"
-   inkscape:export-ydpi="7.4556866">
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="close.svg"
+   inkscape:export-filename="../data/next_id.png"
+   inkscape:export-xdpi="11.929099"
+   inkscape:export-ydpi="11.929099">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -36,16 +36,21 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="-1.131634"
-     inkscape:cy="99.396214"
+     inkscape:cx="139.86114"
+     inkscape:cy="58.625716"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     showgrid="false"
+     showgrid="true"
      inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-height="707"
      inkscape:window-x="-4"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1"
+     inkscape:snap-global="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3760" />
+  </sodipodi:namedview>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -54,7 +59,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -62,20 +67,26 @@
      inkscape:label="Capa 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-182.83762,-85.646194)">
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke:none"
-       id="rect3615"
-       width="241.42645"
-       height="241.42645"
-       x="182.83762"
-       y="85.646194" />
-    <rect
-       style="fill:none;stroke:#ffffff;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="rect2817"
-       width="152.53304"
-       height="152.53304"
-       x="231.32494"
-       y="153.3264" />
+     transform="translate(-184.209,-94.69696)">
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path2990"
+       sodipodi:cx="-3.0304577"
+       sodipodi:cy="141.42136"
+       sodipodi:rx="96.97464"
+       sodipodi:ry="96.97464"
+       d="m 93.944182,141.42136 a 96.97464,96.97464 0 1 1 -193.949282,0 96.97464,96.97464 0 1 1 193.949282,0 z"
+       transform="translate(308.45776,74.696959)" />
+    <path
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 265.4273,176.11832 80,80"
+       id="path3762"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 345.4273,176.11832 -80,80"
+       id="path3764"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
