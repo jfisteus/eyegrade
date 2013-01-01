@@ -336,6 +336,10 @@ class ProgramManager(object):
         """Callback for the website action."""
         webbrowser.open(utils.web_location, new=2)
 
+    def _action_source_code(self):
+        """Callback for the website action."""
+        webbrowser.open(utils.source_location, new=2)
+
     def _action_debug_changed(self):
         """Callback for the checkable actions in the debug options menu."""
         if self.imageproc_options is not None:
@@ -486,6 +490,7 @@ class ProgramManager(object):
             ('actions', 'tools', 'processed'): self._action_debug_changed,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
+            ('actions', 'help', 'source'): self._action_source_code,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'exit'): self._exit_application,
         }

@@ -428,6 +428,7 @@ class ActionsManager(object):
     _actions_help_data = [
         ('help', None, 'Online &Help', None),
         ('website', None, '&Website', None),
+        ('source', None, '&Source code at GitHub', None),
         ('about', None, '&About', None),
         ]
 
