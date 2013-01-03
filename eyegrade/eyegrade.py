@@ -410,9 +410,14 @@ class ProgramManager(object):
         self.answers_file = os.path.join(self.session_dir,
                                          'eyegrade-answers.csv')
         if exam_data.session['student-ids-file'] is not None:
-            self.valid_student_ids = utils.read_student_ids( \
-                filename=exam_data.session['student-ids-file'],
-                with_names=True)
+            try:
+                self.valid_student_ids = utils.read_student_ids( \
+                    filename=exam_data.session['student-ids-file'],
+                    with_names=True)
+            except IOError:
+                self.interface.show_error(('The student list cannot be read: '
+                                      + exam_data.session['student-ids-file']))
+                return
         else:
             self.valid_student_ids = None
         self.imageproc_options = imageproc.ExamCapture.get_default_options()
