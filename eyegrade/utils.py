@@ -515,7 +515,7 @@ class Exam(object):
             if valid_student_ids is not None:
                 self.ids_rank = [(0, sid) for sid in valid_student_ids]
             else:
-                self.ids_rank = None
+                self.ids_rank = []
         self.locked = False
         self.score_weights = score_weights
         self.save_image_function = save_image_func
@@ -602,7 +602,7 @@ class Exam(object):
 
     def decide_student_id(self, valid_student_ids):
         student_id = '-1'
-        self.ids_rank = None
+        self.ids_rank = []
         if self.image.id is not None:
             if valid_student_ids is not None:
                 ids_rank = [(self._id_rank(sid, self.image.id_scores), sid) \
