@@ -25,12 +25,14 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
                          QMessageBox, QPixmap, QCompleter,
-                         QSortFilterProxyModel, QKeySequence, QColor,)
+                         QSortFilterProxyModel, QKeySequence, QColor,
+                         QWizard, QWizardPage, QListWidget, QAbstractItemView,)
 
 from PyQt4.QtCore import Qt, QTimer, QThread, pyqtSignal
 
 from eyegrade.utils import (resource_path, program_name, version, web_location,
                             source_location)
+import eyegrade.utils as utils
 
 _filter_exam_config = 'Exam configuration (*.eye)'
 _filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
@@ -40,11 +42,12 @@ color_eyegrade_blue = QColor(32, 73, 124)
 class OpenFileWidget(QWidget):
     """Dialog with a text field and a button to open a file selector."""
     def __init__(self, parent, select_directory=False, name_filter='',
-                 minimum_width=200, title=''):
+                 minimum_width=200, title='', check_file_function=None):
         super(OpenFileWidget, self).__init__(parent)
         self.select_directory = select_directory
         self.name_filter = name_filter
         self.title = title
+        self._check_file = check_file_function
         layout = QHBoxLayout(self)
         self.setLayout(layout)
         self.filename_widget = QLineEdit(self)
@@ -54,6 +57,7 @@ class OpenFileWidget(QWidget):
         self.button.clicked.connect(self._open_dialog)
         layout.addWidget(self.filename_widget)
         layout.addWidget(self.button)
+        self.last_validated_value = None
 
     def text(self):
         return self.filename_widget.text()
@@ -62,19 +66,138 @@ class OpenFileWidget(QWidget):
         self.filename_widget.setEnabled(enabled)
         self.button.setEnabled(enabled)
 
+    def is_validated(self):
+        """Returns True if the value equals the latest validated value.
+
+        This way, the file needs not to be validated again if it has not been
+        changed since the last validation.
+
+        """
+        return self.last_validated_value == self.filename_widget.text()
+
+    def check_value(self, filename=None):
+        """Checks the file and returns True if it is valid.
+
+        If it is not valid, shows an error message. It the validation function
+        has not been set (it is None), returns always True.
+
+        If `filename` is None, the internal value is used instead.
+
+        """
+        if filename is None:
+            filename = self.text()
+        valid = True
+        if self._check_file is not None:
+            valid, msg = self._check_file(filename)
+        if not valid:
+            QMessageBox.critical(self, 'Error', msg)
+        else:
+            self.last_validated_value = filename
+        return valid
+
     def _open_dialog(self, value):
         if self.select_directory:
-            directory = \
+            filename = \
                 QFileDialog.getExistingDirectory(self, self.title, '',
                                             (QFileDialog.ShowDirsOnly
                                              | QFileDialog.DontResolveSymlinks))
-            if directory:
-                self.filename_widget.setText(directory)
         else:
             filename = QFileDialog.getOpenFileName(self, self.title, '',
                                                    self.name_filter)
-            if filename:
+        if filename:
+            valid = self.check_value(filename=filename)
+            if valid:
                 self.filename_widget.setText(filename)
+
+
+class MultipleFilesWidget(QWidget):
+    """Widget that allows the selection of multiple files."""
+    def __init__(self, title, file_name_filter='', check_file_function=None):
+        """Creates a new widget for selecting multiple files.
+
+        - `title`: title of the file selection dialog that is opened
+          when the user clicks on 'Add File'.
+
+        - `file_name_filter`: filter to use for the selection of files
+          (See the documentation of QFileDialog).
+
+        - `check_file_function`: function that receives a file name and
+          returns True if its contents are correct. If None, files are
+          not checked. An error dialog is shown for the files that are
+          not correct. The rest are just added.
+
+        """
+        super(MultipleFilesWidget, self).__init__()
+        self.title = title
+        self.file_name_filter = file_name_filter
+        self._check_file = check_file_function
+        self.file_list = QListWidget()
+        self.file_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        button_add = QPushButton('Add files')
+        self.button_remove = QPushButton('Remove selected')
+        self.button_remove.setEnabled(False)
+        buttons = QWidget()
+        buttons_layout = QVBoxLayout()
+        buttons_layout.setAlignment(Qt.AlignTop)
+        buttons.setLayout(buttons_layout)
+        buttons_layout.addWidget(button_add)
+        buttons_layout.addWidget(self.button_remove)
+        main_layout = QHBoxLayout()
+        self.setLayout(main_layout)
+        main_layout.addWidget(self.file_list)
+        main_layout.addWidget(buttons)
+        button_add.clicked.connect(self._add_files)
+        self.button_remove.clicked.connect(self._remove_files)
+        self.file_list.selectionModel().selectionChanged.connect( \
+                                                       self._selection_changed)
+
+    def get_files(self):
+        """Returns the list of selected file names."""
+        files = []
+        model = self.file_list.model()
+        count = model.rowCount()
+        for i in range(0, count):
+            index = model.index(i, 0)
+            files.append(unicode(model.data(index).toString()))
+        return files
+
+    def _add_files(self):
+        file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
+                                                   self.file_name_filter)
+        erroneous_files = []
+        model = self.file_list.model()
+        for file_name in file_list_q:
+            valid = True
+            if self._check_file is not None:
+                valid, msg = self._check_file(file_name)
+            if valid:
+                # Check if the file is already in the list:
+                match = model.match(model.index(0, 0), 0, file_name, 1,
+                                    Qt.MatchExactly)
+                if len(match) == 0:
+                    self.file_list.addItem(file_name)
+            else:
+                erroneous_files.append(unicode(file_name))
+        if len(erroneous_files) > 0:
+            files = '<br>'.join(erroneous_files)
+            QMessageBox.critical(self, 'Error',
+                                 ('The following files are not valid:<br><br>'
+                                  + files))
+
+    def _remove_files(self):
+        ranges = self.file_list.selectionModel().selection()
+        model = self.file_list.model()
+        to_remove = []
+        for r in ranges:
+            to_remove.extend(range(r.top(), r.bottom() + 1))
+        for row in sorted(to_remove, reverse=True):
+            model.removeRow(row)
+
+    def _selection_changed(self, deselected, selected):
+        if len(self.file_list.selectionModel().selection()) > 0:
+            self.button_remove.setEnabled(True)
+        else:
+            self.button_remove.setEnabled(False)
 
 
 class CompletingComboBox(QComboBox):
@@ -158,98 +281,142 @@ class Worker(QThread):
         self.task.run()
 
 
-class DialogNewSession(QDialog):
-    """Dialog to receive parameters for creating a new grading session.
+class NewSessionPageInitial(QWizardPage):
+    """First page of WizardNewSession.
 
-    Example (replace `parent` by the parent widget):
+    It asks for the directory in which the session has to be stored and
+    the exam config file.
 
-    dialog = DialogNewSession(parent)
-    values = dialog.exec_()
+    """
+    def __init__(self):
+        super(NewSessionPageInitial, self).__init__()
+        self.setTitle('Directory and exam configuration')
+        self.setSubTitle(('Select or create an empty directory in which you '
+                          'want to store the session, '
+                          'and the exam configuration file.'))
+        self.directory = OpenFileWidget(self, select_directory=True,
+                            title='Select or create an empty directory',
+                            check_file_function=self._check_directory)
+        self.config_file = OpenFileWidget(self,
+                            title='Select the exam configuration file',
+                            name_filter=_filter_exam_config,
+                            check_file_function=self._check_exam_config_file)
+        self.registerField('directory*', self.directory.filename_widget)
+        self.registerField('config_file*', self.config_file.filename_widget)
+        layout = QFormLayout(self)
+        self.setLayout(layout)
+        layout.addRow('Directory:', self.directory)
+        layout.addRow('Exam configuration file:', self.config_file)
+
+    def validatePage(self):
+        """Called by QWizardPage to check the values of this page."""
+        if not self.directory.is_validated():
+            ok_dir = self.directory.check_value()
+        else:
+            ok_dir = True
+        if not self.config_file.is_validated():
+            ok_config = self.config_file.check_value()
+        else:
+            ok_config = True
+        return ok_dir and ok_config
+
+    def _check_directory(self, dir_name):
+        valid = True
+        msg = ''
+        if not os.path.isdir(dir_name):
+            valid = False
+            msg = 'The directory does not exist or is not a directory.'
+        else:
+            dir_content = os.listdir(dir_name)
+            if dir_content:
+                valid = False
+                msg = ('The directory is not empty. '
+                       'Choose another directory or create a new one.')
+        return valid, msg
+
+    def _check_exam_config_file(self, file_name):
+        valid = True
+        msg = ''
+        if not os.path.exists(file_name):
+            valid = False
+            msg = 'The exam configuration file does not exist.'
+        elif not os.path.isfile(file_name):
+            valid = False
+            msg = 'The exam configuration file is not a regular file.'
+        else:
+            try:
+                utils.ExamConfig(filename=file_name)
+            except IOError:
+                valid = False
+                msg = 'The exam configuration file cannot be read.'
+            except Exception as e:
+                valid = False
+                msg = 'The exam configuration file contains errors'
+                if str(e):
+                    msg += ':<br><br>' + str(e)
+                else:
+                    msg += '.'
+        return valid, msg
+
+
+class WizardNewSession(QWizard):
+    """Wizard for the creation of a new session.
+
+    It asks for a directory in which to store the session, the .eye file,
+    student lists and scores for correct/incorrect answers.
 
     """
     def __init__(self, parent):
-        super(DialogNewSession, self).__init__(parent)
-        self.setWindowTitle('New session')
-        layout = QFormLayout()
-        self.setLayout(layout)
-        self.directory_w = OpenFileWidget(self, select_directory=True,
-                                 title='Select or create an empty directory')
-        self.config_file_w = OpenFileWidget(self,
-                                 title='Select the exam configuration file',
-                                 name_filter=_filter_exam_config)
-        self.use_id_list_w = QComboBox(self)
-        self.use_id_list_w.addItems(['Yes', 'No'])
-        self.use_id_list_w.currentIndexChanged.connect(self._id_list_listener)
-        self.id_list_w = OpenFileWidget(self, name_filter=_filter_student_list)
-        buttons = QDialogButtonBox((QDialogButtonBox.Ok
-                                    | QDialogButtonBox.Cancel))
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        layout.addRow('Directory:', self.directory_w)
-        layout.addRow('Exam configuration file:', self.config_file_w)
-        layout.addRow('Load student list:', self.use_id_list_w)
-        layout.addRow('Student list:', self.id_list_w)
-        layout.addRow(buttons)
+        super(WizardNewSession, self).__init__(parent)
+        self.setWindowTitle('Create a new session')
+        self.page_initial = self._create_page_initial()
+        self.page_id_files = self._create_page_id_files()
+        self.page_id_files.setFinalPage(True)
+        self.addPage(self.page_initial)
+        self.addPage(self.page_id_files)
 
-    def _get_values(self):
+    def get_directory(self):
+        return unicode(self.page_initial.directory.text())
+
+    def get_config_file(self):
+        return unicode(self.page_initial.config_file.text())
+
+    def student_id_files(self):
+        return self.files_w.get_files()
+
+    def values(self):
         values = {}
-        values['directory'] = unicode(self.directory_w.text()).strip()
-        values['config'] = unicode(self.config_file_w.text()).strip()
-        if self.use_id_list_w.currentIndex() == 0:
-            values['id_list'] = unicode(self.id_list_w.text()).strip()
-        else:
-            values['id_list'] = None
-        # Check the values (the files must exist, etc.)
-        if not os.path.isdir(values['directory']):
-            QMessageBox.critical(self, 'Error',
-                          'The directory does not exist or is not a directory.')
-            return None
-        dir_content = os.listdir(values['directory'])
-        if dir_content:
-            if 'session.eye' in dir_content:
-                QMessageBox.critical(self, 'Error',
-                            ('The directory already contains a session. '
-                             'Choose another directory or create a new one.'))
-                return None
-            else:
-                result = QMessageBox.question(self, 'Warning',
-                            ('The directory is not empty. '
-                             'Are you sure you want to create a session here?'),
-                            QMessageBox.Yes | QMessageBox.No,
-                            QMessageBox.No)
-                if result == QMessageBox.No:
-                    return None
-        if not os.path.isfile(values['config']):
-            QMessageBox.critical(self, 'Error',
-                                 ('The exam configuration file does not'
-                                  'exist or is not a regular file.'))
-            return None
-        if (values['id_list'] is not None
-              and not os.path.isfile(values['id_list'])):
-            QMessageBox.critical(self, 'Error',
-                                 ('The student list file does not'
-                                  'exist or is not a regular file.'))
-            return None
+        values['directory'] = self.get_directory()
+        values['config'] = self.get_config_file()
+        values['id_list_files'] = self.student_id_files()
         return values
 
-    def exec_(self):
-        finish = False
-        while not finish:
-            result = super(DialogNewSession, self).exec_()
-            if result == QDialog.Accepted:
-                values = self._get_values()
-                if values is not None:
-                    finish = True
-            else:
-                values = None
-                finish = True
-        return values
+    def _create_page_initial(self):
+        """Creates the first page, which asks for directory and .eye file."""
+        return NewSessionPageInitial()
 
-    def _id_list_listener(self, index):
-        if index == 0:
-            self.id_list_w.setEnabled(True)
-        else:
-            self.id_list_w.setEnabled(False)
+    def _create_page_id_files(self):
+        """Creates a page for selecting student id files."""
+        page = QWizardPage(self)
+        page.setTitle('Student id files')
+        page.setSubTitle(('You can select zero, one or more files with the '
+                          'list of student ids. Go to the user manual '
+                          'if you don\'t know the format of the files.'))
+        self.files_w = MultipleFilesWidget('Select student list files',
+                              file_name_filter=_filter_student_list,
+                              check_file_function=self._check_student_ids_file)
+        layout = QVBoxLayout()
+        page.setLayout(layout)
+        layout.addWidget(self.files_w)
+        return page
+
+    def _check_student_ids_file(self, file_name):
+        valid = True
+        try:
+            utils.read_student_ids(filename=file_name)
+        except:
+            valid = False
+        return valid, ''
 
 
 class DialogCameraSelection(QDialog):
@@ -931,8 +1098,12 @@ class Interface(object):
         The return value is None if the user cancels the dialog.
 
         """
-        dialog = DialogNewSession(self.window)
-        return dialog.exec_()
+        dialog = WizardNewSession(self.window)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            return dialog.values()
+        else:
+            return None
 
     def dialog_student_id(self, student_ids):
         """Displays a dialog to change the student id.

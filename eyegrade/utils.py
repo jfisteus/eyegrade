@@ -260,6 +260,26 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
         csvfile.close()
     return student_ids
 
+def read_student_ids_multiple(filenames, with_names=False):
+    """Reads student ids from multiple files.
+
+    `filenames` is an iterable of filenames. It may be empty. `with_names`
+    has the same meaning as in `read_student_ids(...)`.
+
+    Returns a combined list or dictionary, depending on the value of
+    `with_names`.
+
+    """
+    if not with_names:
+        st = []
+        for f in filenames:
+            st.extend(read_student_ids(filename=f, with_names=False))
+    else:
+        st = {}
+        for f in filenames:
+            st.update(read_student_ids(filename=f, with_names=True))
+    return st
+
 def mix_results(results_filename, student_list_filename, dump_missing):
     """Returns a list of tuples student_id, good_answers, bad_answers.
 
@@ -802,11 +822,6 @@ class ExamConfig(object):
                            exam_data.getboolean('session', 'is-session')
             else:
                 self.session['is-session'] = False
-            if exam_data.has_option('session', 'student-ids-file'):
-                self.session['student-ids-file'] = \
-                           exam_data.get('session', 'student-ids-file')
-            else:
-                self.session['student-ids-file'] = None
             if exam_data.has_option('session', 'save-filename-pattern'):
                 self.session['save-filename-pattern'] = \
                            exam_data.get('session', 'save-filename-pattern')
@@ -831,9 +846,6 @@ class ExamConfig(object):
             data.append('')
             data.append('[session]')
             data.append('is-session: yes')
-            if 'student-ids-file' in self.session:
-                data.append('student-ids-file: %s'\
-                            %self.session['student-ids-file'])
             if 'save-filename-pattern' in self.session:
                 data.append('save-filename-pattern: %s'\
                             %self.session['save-filename-pattern'])

@@ -19,6 +19,7 @@ from __future__ import division
 
 import sys
 import os
+import shutil
 import time
 import webbrowser
 
@@ -205,12 +206,19 @@ class ProgramManager(object):
             # Save the exam config file augmented with session information
             self.exam_data = utils.ExamConfig(values['config'])
             self.exam_data.session['is-session'] = True
-            if values['id_list']:
-                self.exam_data.session['student-ids-file'] = values['id_list']
-            else:
-                self.exam_data.session['student-ids-file'] = None
             self.exam_data.session['save-filename-pattern'] = \
                 self.config['save-filename-pattern']
+            if values['id_list_files']:
+                dirname = os.path.join(values['directory'], 'student_ids')
+                try:
+                    os.mkdir(dirname)
+                    for name in values['id_list_files']:
+                        ProgramManager._copy_id_list(name, dirname)
+                except IOError as e:
+                    self.interface.show_error(('Input/output error: '
+                                               + e.message))
+                except Exception as e:
+                    self.interface.show_error('Error: ' + e.message)
             filename = os.path.join(values['directory'], 'session.eye')
             self.exam_data.save(filename)
             self.session_dir = values['directory']
@@ -409,17 +417,12 @@ class ProgramManager(object):
                                          session_cfg['save-filename-pattern'])
         self.answers_file = os.path.join(self.session_dir,
                                          'eyegrade-answers.csv')
-        if exam_data.session['student-ids-file'] is not None:
-            try:
-                self.valid_student_ids = utils.read_student_ids( \
-                    filename=exam_data.session['student-ids-file'],
-                    with_names=True)
-            except IOError:
-                self.interface.show_error(('The student list cannot be read: '
-                                      + exam_data.session['student-ids-file']))
-                return
-        else:
-            self.valid_student_ids = None
+        try:
+            self._read_student_ids()
+        except Exception as e:
+            self.interface.show_error(('The student list cannot be read: '
+                                      + str(e)))
+            return
         self.imageproc_options = imageproc.ExamCapture.get_default_options()
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
             self.imageproc_options['read-id'] = True
@@ -500,6 +503,33 @@ class ProgramManager(object):
             ('window', 'exit'): self._exit_application,
         }
         self.interface.register_listeners(listeners)
+
+    def _read_student_ids(self):
+        ids = None
+        dirname = os.path.join(self.session_dir, 'student_ids')
+        if os.path.isdir(dirname):
+            files = [os.path.join(dirname, f) for f in os.listdir(dirname)]
+            if files:
+                ids = utils.read_student_ids_multiple(filenames=files,
+                                                      with_names=True)
+        self.valid_student_ids = ids
+
+    @staticmethod
+    def _copy_id_list(src_file, dst_dir):
+        file_basename = os.path.basename(src_file)
+        dst_file = os.path.join(dst_dir, file_basename)
+        if os.path.exists(dst_file):
+            # Try with other names
+            success = False
+            base, extension = os.path.splitext(dst_file)
+            for i in range(1, 10000):
+                dst_file = '{0}-{1}{2}'.format(base, i, extension)
+                if not os.path.exists(dst_file):
+                    success = True
+                    break
+            if not success:
+                raise Exception('Cannot copy file: ' + src_file)
+        shutil.copy(src_file, dst_file)
 
 
 def main():
