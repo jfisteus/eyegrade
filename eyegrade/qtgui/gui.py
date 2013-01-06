@@ -354,26 +354,6 @@ class DialogComputeScores(QDialog):
         return (score, penalize)
 
 
-class Worker(QThread):
-    """Generic worker class for spawning a task to other thread."""
-
-    def __init__(self, task, parent):
-        """Inits a new worker.
-
-        The `task` must be an object that implements a `run()` method.
-
-        """
-        super(Worker, self).__init__(parent)
-        self.task = task
-
-    def __del__(self):
-        self.wait()
-
-    def run(self):
-        """Run the task."""
-        self.task.run()
-
-
 class NewSessionPageInitial(QWizardPage):
     """First page of WizardNewSession.
 
@@ -398,8 +378,8 @@ class NewSessionPageInitial(QWizardPage):
         self.registerField('config_file*', self.config_file.filename_widget)
         layout = QFormLayout(self)
         self.setLayout(layout)
-        layout.addRow('Directory:', self.directory)
-        layout.addRow('Exam configuration file:', self.config_file)
+        layout.addRow('Directory', self.directory)
+        layout.addRow('Exam configuration file', self.config_file)
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -791,6 +771,26 @@ class DialogAbout(QDialog):
         layout.addWidget(buttons)
 
 
+class Worker(QThread):
+    """Generic worker class for spawning a task to other thread."""
+
+    def __init__(self, task, parent):
+        """Inits a new worker.
+
+        The `task` must be an object that implements a `run()` method.
+
+        """
+        super(Worker, self).__init__(parent)
+        self.task = task
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        """Run the task."""
+        self.task.run()
+
+
 class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
@@ -807,7 +807,7 @@ class ActionsManager(object):
         ('open', 'open.svg', '&Open session', None),
         ('close', 'close.svg', '&Close session', None),
         ('*separator*', None, None, None),
-        ('exit', 'exit.svg', '&Exit', None),
+        ('exit', 'exit.svg', '&Exit', Qt.Key_Escape),
         ]
 
     _actions_tools_data = [
