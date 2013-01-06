@@ -15,6 +15,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from __future__ import division
 
 import os.path
 
@@ -26,9 +27,10 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
                          QMessageBox, QPixmap, QCompleter,
                          QSortFilterProxyModel, QKeySequence, QColor,
-                         QWizard, QWizardPage, QListWidget, QAbstractItemView,)
+                         QWizard, QWizardPage, QListWidget, QAbstractItemView,
+                         QRegExpValidator,)
 
-from PyQt4.QtCore import Qt, QTimer, QThread, pyqtSignal
+from PyQt4.QtCore import Qt, QTimer, QThread, QRegExp, pyqtSignal
 
 from eyegrade.utils import (resource_path, program_name, version, web_location,
                             source_location)
@@ -108,6 +110,23 @@ class OpenFileWidget(QWidget):
             valid = self.check_value(filename=filename)
             if valid:
                 self.filename_widget.setText(filename)
+
+
+class InputScore(QLineEdit):
+    """Allows the user to enter a score."""
+    def __init__(self, parent=None, minimum_width=100, is_positive=True):
+        super(InputScore, self).__init__(parent=parent)
+        self.setMinimumWidth(minimum_width)
+        if is_positive:
+            placeholder = 'e.g.: 2; 2.5; 5/2'
+        else:
+            placeholder = 'e.g.: 0; -1; -1.25; -5/4'
+        self.setPlaceholderText(placeholder)
+        regex = r'((\d*(\.\d+))|(\d+\/\d+))'
+        if not is_positive:
+            regex = '-?' + regex
+        validator = QRegExpValidator(QRegExp(regex))
+        self.setValidator(validator)
 
 
 class MultipleFilesWidget(QWidget):
@@ -318,6 +337,9 @@ class NewSessionPageInitial(QWizardPage):
             ok_config = self.config_file.check_value()
         else:
             ok_config = True
+        if ok_dir and ok_config:
+            self.wizard().exam_config = \
+                           utils.ExamConfig(filename=self.config_file.text())
         return ok_dir and ok_config
 
     def _check_directory(self, dir_name):
@@ -356,7 +378,92 @@ class NewSessionPageInitial(QWizardPage):
                     msg += ':<br><br>' + str(e)
                 else:
                     msg += '.'
+        self.wizard().exam_config_reset()
         return valid, msg
+
+
+class NewSessionPageScores(QWizardPage):
+    """Page of WizardNewSession that asks for the scores for answers."""
+    def __init__(self):
+        super(NewSessionPageScores, self).__init__()
+        self.setTitle('Scores for correct and incorrect answers')
+        self.setSubTitle(('Enter the scores of correct and incorrect '
+                          'answers. The program will compute scores based '
+                          'on them. Setting these scores is optional.'))
+        layout = QFormLayout(self)
+        self.setLayout(layout)
+        self.correct_score = InputScore(is_positive=True)
+        self.incorrect_score = InputScore(is_positive=False)
+        self.blank_score = InputScore(is_positive=False)
+        button_clear = QPushButton('Clear values')
+        button_defaults = QPushButton('Compute default values')
+        layout.addRow('Score for correct answers', self.correct_score)
+        layout.addRow('Score for incorrect answers', self.incorrect_score)
+        layout.addRow('Score for blank answers', self.blank_score)
+        layout.addRow('', button_defaults)
+        layout.addRow('', button_clear)
+        button_clear.clicked.connect(self.clear_values)
+
+    def initializePage(self):
+        """Loads the values from the exam config, if any."""
+        if (self.correct_score.text() or self.correct_score.text()
+            or self.blank_score.text()):
+            # Don't change values if they have been set manually
+            return
+        weights = self.wizard().exam_config.score_weights
+        if weights is not None:
+            self.correct_score.setText(self._format_score(weights[0], True))
+            self.incorrect_score.setText(self._format_score(weights[1], False))
+            self.blank_score.setText(self._format_score(weights[2], False))
+
+    def clear_values(self):
+        self.correct_score.setText('')
+        self.incorrect_score.setText('')
+        self.blank_score.setText('')
+
+    def validatePage(self):
+        """Called by QWizardPage to check the values of this page."""
+        valid = True
+        c_score_str = self.correct_score.text()
+        i_score_str = self.incorrect_score.text()
+        b_score_str = self.blank_score.text()
+        if not c_score_str and (i_score_str or b_score_str):
+            valid= False
+            QMessageBox.critical(self, 'Error',
+                                 'A correct score must be set, or the three '
+                                 'scores must be left empty.')
+        else:
+            if c_score_str:
+                scores = (
+                    NewSessionPageScores._score_from_str(c_score_str, True),
+                    NewSessionPageScores._score_from_str(i_score_str, False),
+                    NewSessionPageScores._score_from_str(b_score_str, False))
+            else:
+                scores = None
+            self.wizard().exam_config.score_weights = scores
+        return valid
+
+    def _format_score(self, value, is_positive):
+        if is_positive:
+            return str(value)
+        else:
+            if value == 0:
+                return '0'
+            else:
+                return '-' + str(value)
+
+    @staticmethod
+    def _score_from_str(value, is_positive):
+        if not value:
+            result = 0.0
+        elif '/' in value:
+            parts = [str(v) for v in value.split('/')]
+            result = int(parts[0].strip()) / int(parts[1].strip())
+        else:
+            result = float(value)
+        if not is_positive and result != 0:
+            result = -result
+        return result
 
 
 class WizardNewSession(QWizard):
@@ -368,17 +475,20 @@ class WizardNewSession(QWizard):
     """
     def __init__(self, parent):
         super(WizardNewSession, self).__init__(parent)
+        self.exam_config = None
         self.setWindowTitle('Create a new session')
         self.page_initial = self._create_page_initial()
         self.page_id_files = self._create_page_id_files()
-        self.page_id_files.setFinalPage(True)
+        self.page_scores = self._create_page_scores()
+        self.page_scores.setFinalPage(True)
         self.addPage(self.page_initial)
         self.addPage(self.page_id_files)
+        self.addPage(self.page_scores)
 
     def get_directory(self):
         return unicode(self.page_initial.directory.text())
 
-    def get_config_file(self):
+    def get_config_file_path(self):
         return unicode(self.page_initial.config_file.text())
 
     def student_id_files(self):
@@ -387,9 +497,14 @@ class WizardNewSession(QWizard):
     def values(self):
         values = {}
         values['directory'] = self.get_directory()
-        values['config'] = self.get_config_file()
+        values['config_file_path'] = self.get_config_file_path()
+        values['config'] = self.exam_config
         values['id_list_files'] = self.student_id_files()
         return values
+
+    def exam_config_reset(self):
+        """Called when the exam config file is set or its value is changed."""
+        self.page_scores.clear_values()
 
     def _create_page_initial(self):
         """Creates the first page, which asks for directory and .eye file."""
@@ -409,6 +524,10 @@ class WizardNewSession(QWizard):
         page.setLayout(layout)
         layout.addWidget(self.files_w)
         return page
+
+    def _create_page_scores(self):
+        """Creates the scores page, which asks for (in)correct scores."""
+        return NewSessionPageScores()
 
     def _check_student_ids_file(self, file_name):
         valid = True

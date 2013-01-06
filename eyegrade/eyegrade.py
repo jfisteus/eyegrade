@@ -204,7 +204,7 @@ class ProgramManager(object):
         values = self.interface.dialog_new_session()
         if values is not None:
             # Save the exam config file augmented with session information
-            self.exam_data = utils.ExamConfig(values['config'])
+            self.exam_data = values['config']
             self.exam_data.session['is-session'] = True
             self.exam_data.session['save-filename-pattern'] = \
                 self.config['save-filename-pattern']
