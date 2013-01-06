@@ -18,6 +18,7 @@
 from __future__ import division
 
 import os.path
+import fractions
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
@@ -28,7 +29,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QMessageBox, QPixmap, QCompleter,
                          QSortFilterProxyModel, QKeySequence, QColor,
                          QWizard, QWizardPage, QListWidget, QAbstractItemView,
-                         QRegExpValidator,)
+                         QRegExpValidator, QCheckBox,)
 
 from PyQt4.QtCore import Qt, QTimer, QThread, QRegExp, pyqtSignal
 
@@ -127,6 +128,28 @@ class InputScore(QLineEdit):
             regex = '-?' + regex
         validator = QRegExpValidator(QRegExp(regex))
         self.setValidator(validator)
+
+    def value(self, force_float=False):
+        """Returns the value as a fractions.Fraction or a float.
+
+        Returns None if the field is empty or the value is not
+        correct.  If `force_float` a float is returned always.
+
+        """
+        value_str = self.text()
+        if '/' in value_str:
+            parts = [int(v) for v in value_str.split('/')]
+            try:
+                value = fractions.Fraction(parts[0], parts[1])
+                if force_float:
+                    value = float(value)
+            except:
+                value = None
+        elif not '.' in value_str:
+            value = fractions.Fraction(int(value_str), 1)
+        else:
+            value = float(value_str)
+        return value
 
 
 class MultipleFilesWidget(QWidget):
@@ -280,6 +303,57 @@ class DialogStudentId(QDialog):
             return None
 
 
+class DialogComputeScores(QDialog):
+    """Dialog to set the parameters to compute scores automatically.
+
+    Example (replace `parent` by the parent widget):
+
+    dialog = DialogComputeScores(parent)
+    max_score, penalize = dialog.exec_()
+
+    """
+    def __init__(self, parent=None):
+        super(DialogComputeScores, self).__init__(parent)
+        self.setWindowTitle('Compute default scores')
+        layout = QFormLayout()
+        self.setLayout(layout)
+        self.score = InputScore(parent=self)
+        self.penalize = QCheckBox('Penalize incorrect answers', self)
+        buttons = QDialogButtonBox((QDialogButtonBox.Ok
+                                    | QDialogButtonBox.Cancel))
+        layout.addRow('Maximum score:', self.score)
+        layout.addRow('Penalizations:', self.penalize)
+        layout.addRow(buttons)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+    def exec_(self):
+        """Shows the dialog and waits until it is closed.
+
+        Returns the tuple (max_score, penalize) or (None, None) if the
+        user cancels.
+
+        """
+        success = False
+        score = None
+        penalize = None
+        while not success:
+            print self.penalize.checkState()
+            result = super(DialogComputeScores, self).exec_()
+            if result == QDialog.Accepted:
+                if self.score.text():
+                    score = self.score.value()
+                    if score is not None and score > 0:
+                        penalize = self.penalize.checkState() == Qt.Checked
+                        success = True
+                if not success:
+                    QMessageBox.critical(self, 'Error', 'Enter a valid score.')
+            else:
+                score, penalize = None, None
+                success = True
+        return (score, penalize)
+
+
 class Worker(QThread):
     """Generic worker class for spawning a task to other thread."""
 
@@ -403,6 +477,7 @@ class NewSessionPageScores(QWizardPage):
         layout.addRow('', button_defaults)
         layout.addRow('', button_clear)
         button_clear.clicked.connect(self.clear_values)
+        button_defaults.clicked.connect(self._compute_default_values)
 
     def initializePage(self):
         """Loads the values from the exam config, if any."""
@@ -420,6 +495,34 @@ class NewSessionPageScores(QWizardPage):
         self.correct_score.setText('')
         self.incorrect_score.setText('')
         self.blank_score.setText('')
+
+    def _compute_default_values(self):
+        dialog = DialogComputeScores(parent=self)
+        score, penalize = dialog.exec_()
+        if score is None:
+            return
+        config = self.wizard().exam_config
+        choices = config.get_num_choices()
+        if config.num_questions and choices and choices > 1:
+            i_score = '0'
+            b_score = '0'
+            if type(score) == fractions.Fraction:
+                c_score = utils.fraction_to_str(score / config.num_questions)
+                if penalize:
+                    i_score = utils.fraction_to_str( \
+                        -score / (choices - 1) / config.num_questions)
+            else:
+                c_score = str(score / config.num_questions)
+                if penalize:
+                    i_score = str(-score / config.num_questions
+                                  / (choices - 1))
+            self.correct_score.setText(c_score)
+            self.incorrect_score.setText(i_score)
+            self.blank_score.setText(b_score)
+        else:
+             QMessageBox.critical(self, 'Error',
+                                 'Automatic scores cannot be computed for '
+                                 'this exam.')
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""

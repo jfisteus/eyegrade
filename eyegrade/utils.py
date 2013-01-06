@@ -742,6 +742,20 @@ class ExamConfig(object):
     def set_permutations(self, model, permutations):
         self.permutations[model] = permutations
 
+    def get_num_choices(self):
+        """Returns the number of choices per question.
+
+        If not all the questions have the same number of choices, or there
+        are no questions, returns None.
+
+        """
+        choices = [dim[0] for dim in self.dimensions]
+        if (len(choices) > 0
+            and choices[0] == min(choices) and choices[0] == max(choices)):
+            return choices[0]
+        else:
+            return None
+
     def read(self, filename=None, file_=None, data=None):
         """Reads exam configuration.
 
@@ -1058,3 +1072,14 @@ class QuestionComponent(object):
             raise Exception('Centered code cannot have width')
         if not self.in_choice and self.text is None:
             raise Exception('Questions must have a text')
+
+def fraction_to_str(fraction):
+    """Returns as a string the given fraction, simplified if possible.
+
+    The return string can be things such as '-5/2', '2', etc.
+
+    """
+    if fraction.denominator != 1:
+        return str(fraction.numerator) + '/' + str(fraction.denominator)
+    else:
+        return str(fraction.numerator)
