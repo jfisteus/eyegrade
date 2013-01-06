@@ -321,8 +321,8 @@ class DialogComputeScores(QDialog):
         self.penalize = QCheckBox('Penalize incorrect answers', self)
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
-        layout.addRow('Maximum score:', self.score)
-        layout.addRow('Penalizations:', self.penalize)
+        layout.addRow('Maximum score', self.score)
+        layout.addRow('Penalizations', self.penalize)
         layout.addRow(buttons)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -521,9 +521,16 @@ class NewSessionPageScores(QWizardPage):
                     NewSessionPageScores._score_from_str(c_score_str, True),
                     NewSessionPageScores._score_from_str(i_score_str, False),
                     NewSessionPageScores._score_from_str(b_score_str, False))
+                if scores[1] < 0 or scores[2] < 0:
+                    # Note that _score_from_str inverts the sign!
+                    valid = False
+                    QMessageBox.critical(self, 'Error',
+                                 'The score for incorrect and blank answers '
+                                 'cannot be greater than 0.')
             else:
                 scores = None
-            self.wizard().exam_config.score_weights = scores
+            if valid:
+                self.wizard().exam_config.score_weights = scores
         return valid
 
     def _format_score(self, value, is_positive):
