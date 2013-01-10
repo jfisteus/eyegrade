@@ -219,6 +219,13 @@ class ProgramManager(object):
                                                + e.message))
                 except Exception as e:
                     self.interface.show_error('Error: ' + e.message)
+            try:
+                dirname = os.path.join(values['directory'], 'captures')
+                os.mkdir(dirname)
+            except IOError as e:
+                self.interface.show_error('Input/output error: ' + e.message)
+            except Exception as e:
+                self.interface.show_error('Error: ' + e.message)
             filename = os.path.join(values['directory'], 'session.eye')
             self.exam_data.save(filename)
             self.session_dir = values['directory']
@@ -229,14 +236,39 @@ class ProgramManager(object):
         filename = self.interface.dialog_open_session()
         if not filename:
             return
-        self.exam_data = utils.ExamConfig(filename)
+        valid, message = self._validate_session(filename)
+        if not valid:
+            self.interface.show_error(message)
+        else:
+            self._start_session()
+
+    def _validate_session(self, filename):
+        """Checks that the given session directory is valid.
+
+        It loads and checks the exam configuration file from
+        `filename` and checks the directories that should be at the
+        directory. The file is stored as self.exam_data, and its directory
+        is stored as self.session_dir.
+
+        Returns (valid, error_message) where exam_data is the exam
+        configuration object, valid is True if the session is valid
+        and error message contains a textal description of the error
+        in case the session is not valid.
+
+        """
+        try:
+            self.exam_data = utils.ExamConfig(filename)
+        except Exception as e:
+            return False, 'Error loading the session: ' + str(e)
         if (self.exam_data.session == {}
             or not self.exam_data.session['is-session']):
-            self.interface.show_error(('The file you selected contains no '
-                                       'valid session.'))
-            return
+            return False, 'The file you selected contains no session marks.'
         self.session_dir = os.path.dirname(filename)
-        self._start_session()
+        students_dir = os.path.join(self.session_dir, 'student_ids')
+        captures_dir = os.path.join(self.session_dir, 'captures')
+        if not os.path.exists(students_dir) or not os.path.exists(captures_dir):
+            return False, 'The session directory has been corrupted.'
+        return True, ''
 
     def _close_session(self):
         """Callback that closes the current session."""
@@ -413,7 +445,7 @@ class ProgramManager(object):
         """Starts a session (either a new one or one that has been loaded)."""
         exam_data = self.exam_data
         session_cfg = exam_data.session
-        self.save_pattern = os.path.join(self.session_dir,
+        self.save_pattern = os.path.join(self.session_dir, 'captures',
                                          session_cfg['save-filename-pattern'])
         self.answers_file = os.path.join(self.session_dir,
                                          'eyegrade-answers.csv')
