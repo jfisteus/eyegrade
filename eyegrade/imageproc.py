@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2013 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ class ExamCapture(object):
             self.options = self.__class__.get_default_options()
         self.context = context
         if not self.options['capture-from-file']:
-            self.image_raw = capture(self.context.camera, True)
+            self.image_raw = self.context.capture(clone=True)
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-raw-file'] is not None:
             self.image_raw = load_image(self.options['capture-raw-file'])
