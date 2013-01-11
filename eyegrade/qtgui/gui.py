@@ -449,27 +449,43 @@ class NewSessionPageScores(QWizardPage):
         self.correct_score = InputScore(is_positive=True)
         self.incorrect_score = InputScore(is_positive=False)
         self.blank_score = InputScore(is_positive=False)
-        button_clear = QPushButton('Clear values')
-        button_defaults = QPushButton('Compute default values')
+        self.button_clear = QPushButton('Clear values')
+        self.button_defaults = QPushButton('Compute default values')
         layout.addRow('Score for correct answers', self.correct_score)
         layout.addRow('Score for incorrect answers', self.incorrect_score)
         layout.addRow('Score for blank answers', self.blank_score)
-        layout.addRow('', button_defaults)
-        layout.addRow('', button_clear)
-        button_clear.clicked.connect(self.clear_values)
-        button_defaults.clicked.connect(self._compute_default_values)
+        layout.addRow('', self.button_defaults)
+        layout.addRow('', self.button_clear)
+        self.button_clear.clicked.connect(self.clear_values)
+        self.button_defaults.clicked.connect(self._compute_default_values)
 
     def initializePage(self):
         """Loads the values from the exam config, if any."""
-        if (self.correct_score.text() or self.correct_score.text()
-            or self.blank_score.text()):
-            # Don't change values if they have been set manually
-            return
-        weights = self.wizard().exam_config.score_weights
-        if weights is not None:
-            self.correct_score.setText(self._format_score(weights[0], True))
-            self.incorrect_score.setText(self._format_score(weights[1], False))
-            self.blank_score.setText(self._format_score(weights[2], False))
+        if (not self.correct_score.text() and not self.correct_score.text()
+            and not self.blank_score.text()):
+            # Change values only if they have been not been set manually
+            weights = self.wizard().exam_config.score_weights
+            if weights is not None:
+                self.correct_score.setText(self._format_score(weights[0],
+                                                              True))
+                self.incorrect_score.setText(self._format_score(weights[1],
+                                                                False))
+                self.blank_score.setText(self._format_score(weights[2], False))
+        # If the exam is a survey, disable all the controls
+        if self.wizard().exam_config.survey_mode:
+            self.correct_score.setEnabled(False)
+            self.incorrect_score.setEnabled(False)
+            self.blank_score.setEnabled(False)
+            self.button_clear.setEnabled(False)
+            self.button_defaults.setEnabled(False)
+        else:
+            # Just in case the exam config changes in the lifetime of this
+            #   wizard.
+            self.correct_score.setEnabled(True)
+            self.incorrect_score.setEnabled(True)
+            self.blank_score.setEnabled(True)
+            self.button_clear.setEnabled(True)
+            self.button_defaults.setEnabled(True)
 
     def clear_values(self):
         self.correct_score.setText('')
