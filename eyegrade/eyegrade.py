@@ -209,17 +209,16 @@ class ProgramManager(object):
             self.exam_data.session['is-session'] = True
             self.exam_data.session['save-filename-pattern'] = \
                 self.config['save-filename-pattern']
-            if values['id_list_files']:
-                dirname = os.path.join(values['directory'], 'student_ids')
-                try:
-                    os.mkdir(dirname)
+            dirname = os.path.join(values['directory'], 'student_ids')
+            try:
+                os.mkdir(dirname)
+                if values['id_list_files']:
                     for name in values['id_list_files']:
                         ProgramManager._copy_id_list(name, dirname)
-                except IOError as e:
-                    self.interface.show_error(('Input/output error: '
-                                               + e.message))
-                except Exception as e:
-                    self.interface.show_error('Error: ' + e.message)
+            except IOError as e:
+                self.interface.show_error('Input/output error: ' + e.message)
+            except Exception as e:
+                self.interface.show_error('Error: ' + e.message)
             try:
                 dirname = os.path.join(values['directory'], 'captures')
                 os.mkdir(dirname)
