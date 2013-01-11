@@ -59,7 +59,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -69,30 +69,18 @@
      id="layer1"
      transform="translate(-184.209,-94.69696)">
     <path
-       style="fill:#20497c;fill-opacity:1;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 120,21.426453 0,199.999997"
-       id="path3824"
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 180,41.426453 0,179.999997 -140,0 0,-120 60,-59.999997 z"
+       id="path3006"
        inkscape:connector-curvature="0"
-       transform="translate(184.209,94.69696)"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:#20497c;fill-opacity:1;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 220,121.42645 -200,0"
-       id="path3826"
-       inkscape:connector-curvature="0"
-       transform="translate(184.209,94.69696)"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:#20497c;fill-opacity:1;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="M 40,41.426453 200,201.42645"
-       id="path3828"
-       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
        transform="translate(184.209,94.69696)" />
     <path
-       style="fill:#20497c;fill-opacity:1;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="M 200,41.426453 40,201.42645"
-       id="path3830"
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 40,101.42645 60,0 0,-59.999997"
+       id="path3010"
        inkscape:connector-curvature="0"
-       transform="translate(184.209,94.69696)" />
+       transform="translate(184.209,94.69696)"
+       sodipodi:nodetypes="ccc" />
   </g>
 </svg>

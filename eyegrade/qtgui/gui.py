@@ -802,10 +802,11 @@ class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
-        ('snapshot', 'snapshot.svg', 'Sna&pshot', Qt.Key_S),
-        ('manual_detect', 'manual_detect.svg', '&Manual bounds', Qt.Key_M),
+        ('snapshot', 'snapshot.svg', '&Capture the current image', Qt.Key_C),
+        ('manual_detect', 'manual_detect.svg',
+         '&Manual detection of answer tables', Qt.Key_M),
         ('edit_id', 'edit_id.svg', '&Edit student id', Qt.Key_I),
-        ('save', 'save.svg', '&Save capture', Qt.Key_Space),
+        ('save', 'save.svg', '&Save and capture next exam', Qt.Key_Space),
         ('discard', 'discard.svg', '&Discard capture', Qt.Key_Backspace),
         ]
 
@@ -866,7 +867,6 @@ class ActionsManager(object):
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(False)
-        self.menus['grading'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
@@ -879,7 +879,6 @@ class ActionsManager(object):
         self.actions_grading['edit_id'].setEnabled(True)
         self.actions_grading['save'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
-        self.menus['grading'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
@@ -892,7 +891,6 @@ class ActionsManager(object):
         self.actions_grading['edit_id'].setEnabled(False)
         self.actions_grading['save'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(True)
-        self.menus['grading'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
@@ -902,7 +900,6 @@ class ActionsManager(object):
     def set_no_session_mode(self):
         for key in self.actions_grading:
             self.actions_grading[key].setEnabled(False)
-        self.menus['grading'].setEnabled(False)
         self.actions_session['new'].setEnabled(True)
         self.actions_session['open'].setEnabled(True)
         self.actions_session['close'].setEnabled(False)

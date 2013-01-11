@@ -153,6 +153,7 @@ class ProgramManager(object):
         if exam is None or not image.success:
             if exam is not None:
                 exam.draw_answers()
+                self.interface.enable_manual_detect(False)
             else:
                 image.draw_status()
             self.interface.display_capture(image.image_drawn)
@@ -301,6 +302,7 @@ class ProgramManager(object):
 
     def _action_snapshot(self):
         """Callback for the snapshot action."""
+        enable_manual_detection = False
         if self.latest_graded_exam is None:
             if self.latest_image is None:
                 return
@@ -320,7 +322,10 @@ class ProgramManager(object):
             self.exam.image.clean_drawn_image()
             self.exam.lock_capture()
             self.exam.draw_answers()
+            enable_manual_detection = True
         self._start_review_mode()
+        if enable_manual_detection:
+            self.interface.enable_manual_detect(True)
 
     def _action_discard(self):
         """Callback for cancelling the current capture."""

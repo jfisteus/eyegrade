@@ -59,7 +59,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -82,31 +82,5 @@
        inkscape:connector-curvature="0"
        transform="translate(184.209,94.69696)"
        sodipodi:nodetypes="cccc" />
-    <g
-       id="g3801">
-      <path
-         inkscape:transform-center-y="0.66238115"
-         inkscape:transform-center-x="1.7504759"
-         transform="matrix(0.49043227,-0.00516784,-0.00516784,-0.49043227,359.18133,157.13966)"
-         d="M -160,41.426452 -184.50962,85.577087 -209.01924,129.72772 -235,86.426452 l -25.98076,-43.30127 50.49038,-0.849363 z"
-         inkscape:randomized="0"
-         inkscape:rounded="0"
-         inkscape:flatsided="false"
-         sodipodi:arg2="0.50677805"
-         sodipodi:arg1="-0.5404195"
-         sodipodi:r2="29.154758"
-         sodipodi:r1="58.309521"
-         sodipodi:cy="71.426453"
-         sodipodi:cx="-210"
-         sodipodi:sides="3"
-         id="path3797"
-         style="fill:#20497c;fill-opacity:1;stroke:none"
-         sodipodi:type="star" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path3799"
-         d="m 255.73158,196.12341 0,-70"
-         style="fill:#20497c;fill-opacity:1;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    </g>
   </g>
 </svg>
