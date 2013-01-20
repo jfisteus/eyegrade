@@ -599,7 +599,7 @@ class Exam(object):
                 self.model if self.model is not None else '?',
                 self.score[0],
                 self.score[1],
-                self.score[3],
+                self.score[4] if self.score[4] is not None else '?',
                 "/".join([str(d) for d in self.image.decisions])]
         if stats is not None and self.save_stats:
             data.extend([stats['time'],
