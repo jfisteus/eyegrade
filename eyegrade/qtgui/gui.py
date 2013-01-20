@@ -137,18 +137,21 @@ class InputScore(QLineEdit):
 
         """
         value_str = self.text()
-        if '/' in value_str:
-            parts = [int(v) for v in value_str.split('/')]
-            try:
-                value = fractions.Fraction(parts[0], parts[1])
-                if force_float:
-                    value = float(value)
-            except:
-                value = None
-        elif not '.' in value_str:
-            value = fractions.Fraction(int(value_str), 1)
+        if value_str:
+            if '/' in value_str:
+                parts = [int(v) for v in value_str.split('/')]
+                try:
+                    value = fractions.Fraction(parts[0], parts[1])
+                    if force_float:
+                        value = float(value)
+                except:
+                    value = None
+            elif not '.' in value_str:
+                value = fractions.Fraction(int(value_str), 1)
+            else:
+                value = float(value_str)
         else:
-            value = float(value_str)
+            value = None
         return value
 
 
@@ -338,7 +341,6 @@ class DialogComputeScores(QDialog):
         score = None
         penalize = None
         while not success:
-            print self.penalize.checkState()
             result = super(DialogComputeScores, self).exec_()
             if result == QDialog.Accepted:
                 if self.score.text():
@@ -523,22 +525,27 @@ class NewSessionPageScores(QWizardPage):
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
         valid = True
-        c_score_str = self.correct_score.text()
-        i_score_str = self.incorrect_score.text()
-        b_score_str = self.blank_score.text()
-        if not c_score_str and (i_score_str or b_score_str):
+        c_score = self.correct_score.value()
+        i_score = self.incorrect_score.value()
+        b_score = self.blank_score.value()
+        if c_score is None and (i_score is not None or b_score is not None):
             valid= False
             QMessageBox.critical(self, 'Error',
                                  'A correct score must be set, or the three '
                                  'scores must be left empty.')
         else:
-            if c_score_str:
-                scores = (
-                    NewSessionPageScores._score_from_str(c_score_str, True),
-                    NewSessionPageScores._score_from_str(i_score_str, False),
-                    NewSessionPageScores._score_from_str(b_score_str, False))
+            if c_score is not None:
+                if i_score is None:
+                    i_score = 0
+                else:
+                    i_score = -i_score
+                if b_score is None:
+                    b_score = 0
+                else:
+                    b_score = -b_score
+                scores = (c_score, i_score, b_score)
                 if scores[1] < 0 or scores[2] < 0:
-                    # Note that _score_from_str inverts the sign!
+                    # Note that the sign is inverted!
                     valid = False
                     QMessageBox.critical(self, 'Error',
                                  'The score for incorrect and blank answers '
@@ -557,19 +564,6 @@ class NewSessionPageScores(QWizardPage):
                 return '0'
             else:
                 return '-' + str(value)
-
-    @staticmethod
-    def _score_from_str(value, is_positive):
-        if not value:
-            result = 0.0
-        elif '/' in value:
-            parts = [str(v) for v in value.split('/')]
-            result = int(parts[0].strip()) / int(parts[1].strip())
-        else:
-            result = float(value)
-        if not is_positive and result != 0:
-            result = -result
-        return result
 
 
 class WizardNewSession(QWizard):

@@ -25,6 +25,7 @@ import sys
 import random
 import re
 import io
+import fractions
 
 program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
@@ -561,9 +562,9 @@ class Exam(object):
                 self.correct.append(False)
         blank = self.image.num_questions - good - bad - undet
         if self.score_weights is not None:
-            score = good * self.score_weights[0] - \
-                bad * self.score_weights[1] - blank * self.score_weights[2]
-            max_score = self.image.num_questions * self.score_weights[0]
+            score = float(good * self.score_weights[0] - \
+                bad * self.score_weights[1] - blank * self.score_weights[2])
+            max_score = float(self.image.num_questions * self.score_weights[0])
         else:
             score = None
             max_score = None
@@ -708,6 +709,8 @@ class Exam(object):
         filename = regexp_id.sub(sid, filename)
         return filename
 
+# A score is a float number or a fraction, e.g.: '0.8' or '4/5'
+_re_score = re.compile(r'^\s*((\d+(\.\d+)?)|(\d+\s*\/\s*\d+))\s*$')
 
 class ExamConfig(object):
     """Class for representing exam configuration. Once an instance has
@@ -853,9 +856,12 @@ class ExamConfig(object):
         if self.survey_mode:
             data.append('survey-mode: yes')
         if self.score_weights is not None:
-            data.append('correct-weight: %.16f'%self.score_weights[0])
-            data.append('incorrect-weight: %.16f'%self.score_weights[1])
-            data.append('blank-weight: %.16f'%self.score_weights[2])
+            data.append(('correct-weight: '
+                         + self._format_weight(self.score_weights[0])))
+            data.append(('incorrect-weight: '
+                         + self._format_weight(self.score_weights[1])))
+            data.append(('blank-weight: '
+                         + self._format_weight(self.score_weights[2])))
         if len(self.session) != {} and self.session['is-session']:
             data.append('')
             data.append('[session]')
@@ -879,6 +885,17 @@ class ExamConfig(object):
         file_ = open(filename, 'w')
         file_.write('\n'.join(data))
         file_.close()
+
+    def _format_weight(self, weight):
+        if type(weight) == fractions.Fraction:
+            if weight.denominator != 1:
+                return '{0}/{1}'.format(weight.numerator, weight.denominator)
+            else:
+                return str(weight.numerator)
+        elif type(weight) == float:
+            return '{:.16f}'.format(weight)
+        else:
+            return str(weight)
 
     def format_dimensions(self):
         return ';'.join(['%d,%d'%(cols, rows) \
@@ -921,13 +938,14 @@ class ExamConfig(object):
     def _parse_score(self, score):
         if score.find('-') != -1:
             raise Exception('Scores in exam config must be positive'%score)
-        parts = score.split('/')
+        if not _re_score.match(score):
+            raise Exception('Bad score value: "{0}"'.format(score))
+        parts = [p.strip() for p in score.split('/')]
         if len(parts) == 1:
             return float(parts[0])
         elif len(parts) == 2:
-            return float(parts[0]) / float(parts[1])
-        else:
-            raise Exception('Bad score value: "%s"'%score)
+            return fractions.Fraction(int(parts[0]), int(parts[1]))
+
 
 def parse_dimensions(text, check_equal_num_choices=False):
     dimensions = []
