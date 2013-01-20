@@ -164,7 +164,7 @@ def read_results(filename, permutations = {}, allow_question_mark=False):
        is provided, answers are un-shuffled.
 
     """
-    results = __read_results_file(filename)
+    results = _read_results_file(filename)
     for result in results:
         result['model'] = check_model_letter(result['model'],
                                        allow_question_mark=allow_question_mark)
@@ -173,7 +173,7 @@ def read_results(filename, permutations = {}, allow_question_mark=False):
         result['unknown'] = int(result['unknown'])
         answers = [int(n) for n in result['answers'].split('/')]
         if len(permutations) > 0:
-            answers = __permute_answers(answers, permutations[result['model']])
+            answers = _permute_answers(answers, permutations[result['model']])
         result['answers'] = answers
     return results
 
@@ -381,7 +381,7 @@ def read_config():
     config['camera-dev'] = int(config['camera-dev'])
     return config
 
-def __read_results_file(filename):
+def _read_results_file(filename):
     csvfile = open(filename, 'rb')
     dialect = csv.Sniffer().sniff(csvfile.read(1024))
     csvfile.seek(0)
@@ -391,7 +391,7 @@ def __read_results_file(filename):
     csvfile.close()
     return entries
 
-def __permute_answers(answers, permutation):
+def _permute_answers(answers, permutation):
     assert(len(answers) == len(permutation))
     permutted = [0] * len(answers)
     for i, option in enumerate(answers):
@@ -421,7 +421,7 @@ def encode_model(model, num_tables, num_answers):
     num_bits = num_tables * num_answers
     if model_num >= 2 ** (num_bits - 1):
         raise Exception('Model number too big given the number of answers')
-    seed = __int_to_bin(model_num, 3, True)
+    seed = _int_to_bin(model_num, 3, True)
     seed[2] = not seed[2]
     seed.append(reduce(lambda x, y: x ^ y, seed))
     seed[2] = not seed[2]
@@ -456,7 +456,7 @@ def decode_model(bit_list, accept_model_0=False):
     else:
         return None
 
-def __int_to_bin(n, num_digits, reverse = False):
+def _int_to_bin(n, num_digits, reverse = False):
     """Returns the binary representation of a number as a list of booleans.
 
        If the number of digits is less than 'num_digits', it is
@@ -784,7 +784,7 @@ class ExamConfig(object):
             self.id_num_digits = exam_data.getint('exam', 'id-num-digits')
         except:
             self.id_num_digits = 0
-        self.__parse_dimensions(exam_data.get('exam', 'dimensions'))
+        self._parse_dimensions(exam_data.get('exam', 'dimensions'))
         self.num_questions = sum(dim[1] for dim in self.dimensions)
         has_solutions = exam_data.has_section('solutions')
         has_permutations = exam_data.has_section('permutations')
@@ -797,19 +797,19 @@ class ExamConfig(object):
                     raise Exception('Incorrect key in exam config: ' + key)
                 model = key[-1].upper()
                 self.models.append(model)
-                self.solutions[model] = self.__parse_solutions(value)
+                self.solutions[model] = self._parse_solutions(value)
                 if has_permutations:
                     key = 'permutations-' + model
                     value = exam_data.get('permutations', key)
-                    self.permutations[model] = self.__parse_permutations(value)
+                    self.permutations[model] = self._parse_permutations(value)
         has_correct_weight = exam_data.has_option('exam', 'correct-weight')
         has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
         has_blank_weight = exam_data.has_option('exam', 'blank-weight')
         if has_correct_weight and has_incorrect_weight:
-            cw = self.__parse_score(exam_data.get('exam', 'correct-weight'))
-            iw = self.__parse_score(exam_data.get('exam', 'incorrect-weight'))
+            cw = self._parse_score(exam_data.get('exam', 'correct-weight'))
+            iw = self._parse_score(exam_data.get('exam', 'incorrect-weight'))
             if has_blank_weight:
-                bw = self.__parse_score(exam_data.get('exam', 'blank-weight'))
+                bw = self._parse_score(exam_data.get('exam', 'blank-weight'))
             else:
                 bw = 0.0
             self.score_weights = (cw, iw, bw)
@@ -888,23 +888,23 @@ class ExamConfig(object):
         return '/'.join([str(n) for n in self.solutions[model]])
 
     def format_permutations(self, model):
-        return '/'.join([self.__format_permutation(p) \
+        return '/'.join([self._format_permutation(p) \
                              for p in self.permutations[model]])
 
-    def __format_permutation(self, permutation):
+    def _format_permutation(self, permutation):
         num_question, options = permutation
         return '%d{%s}'%(num_question, ','.join([str(n) for n in options]))
 
-    def __parse_solutions(self, s):
+    def _parse_solutions(self, s):
         pieces = s.split('/')
         if len(pieces) != self.num_questions:
             raise Exception('Wrong number of solutions')
         return [int(num) for num in pieces]
 
-    def __parse_dimensions(self, s):
+    def _parse_dimensions(self, s):
         self.dimensions, self.num_options = parse_dimensions(s)
 
-    def __parse_permutations(self, s):
+    def _parse_permutations(self, s):
         permutation = []
         pieces = s.split('/')
         if len(pieces) != self.num_questions:
@@ -918,7 +918,7 @@ class ExamConfig(object):
             permutation.append((num_question, options))
         return permutation
 
-    def __parse_score(self, score):
+    def _parse_score(self, score):
         if score.find('-') != -1:
             raise Exception('Scores in exam config must be positive'%score)
         parts = score.split('/')
