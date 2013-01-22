@@ -39,7 +39,7 @@ re_model_letter = re.compile('[0a-zA-Z]')
 csv.register_dialect('tabs', delimiter = '\t')
 
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
-                     'unknown', 'answers']
+                     'score', 'answers']
 
 
 class EyegradeException(Exception):
@@ -171,7 +171,10 @@ def read_results(filename, permutations = {}, allow_question_mark=False):
                                        allow_question_mark=allow_question_mark)
         result['good'] = int(result['good'])
         result['bad'] = int(result['bad'])
-        result['unknown'] = int(result['unknown'])
+        if result['score'] != '?':
+            result['score'] = float(result['score'])
+        else:
+            result['score'] = None
         answers = [int(n) for n in result['answers'].split('/')]
         if len(permutations) > 0:
             answers = _permute_answers(answers, permutations[result['model']])
@@ -200,7 +203,7 @@ def write_results(results, filename, csv_dialect, append=False):
                 result['model'],
                 str(result['good']),
                 str(result['bad']),
-                str(result['unknown']),
+                str(result['score']),
                 '/'.join([str(d) for d in result['answers']])]
         writer.writerow(data)
     if filename is not None:
@@ -560,10 +563,11 @@ class Exam(object):
                 self.correct.append(False)
             else:
                 self.correct.append(False)
-        blank = self.image.num_questions - good - bad - undet
+        blank = self.image.num_questions - good - bad
         if self.score_weights is not None:
-            score = float(good * self.score_weights[0] - \
-                bad * self.score_weights[1] - blank * self.score_weights[2])
+            score = float(good * self.score_weights[0]
+                          - bad * self.score_weights[1]
+                          - blank * self.score_weights[2])
             max_score = float(self.image.num_questions * self.score_weights[0])
         else:
             score = None

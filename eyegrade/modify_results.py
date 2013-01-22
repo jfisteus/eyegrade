@@ -95,6 +95,11 @@ def modify(result, exam_data, invalidate, set_correct):
                     bad += 1
     result['good'] = good
     result['bad'] = bad
+    blank = exam_data.num_questions - good - bad
+    if exam_data.score_weights is not None and result['score'] is not None:
+        result['score'] = float(good * exam_data.score_weights[0]
+                                - bad * exam_data.score_weights[1]
+                                - blank * exam_data.score_weights[2])
 
 def main():
     try:
