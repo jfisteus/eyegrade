@@ -35,6 +35,8 @@ utils.EyegradeException.register_error('no_camera',
 
 param_fps = 8
 capture_period = 1.0 / param_fps
+capture_change_period = 1.0
+capture_change_period_failure = 0.3
 
 def cell_clicked(image, point):
     min_dst = None
@@ -74,6 +76,16 @@ class ImageDetectTask(object):
 
     def run(self):
         self.image.detect_safe()
+
+
+class ImageChangeTask(object):
+    """Used for running image change detection in another thread."""
+    def __init__(self, image, reference_image):
+        self.image = image
+        self.reference_image = reference_image
+
+    def run(self):
+        self.image.exam_detected()
 
 
 class ProgramManager(object):
@@ -122,6 +134,13 @@ class ProgramManager(object):
             self.interface.update_text_down('')
         if not self.exam.image.status['infobits']:
             self.interface.enable_manual_detect(True)
+        # Automatic detection of exam removal to go to the next exam
+        if self.interface.is_action_checked(('tools', 'auto-change')):
+            self._start_auto_change_detection()
+
+    def _start_auto_change_detection(self):
+        self.change_failures = 0
+        self.interface.register_timer(1000, self._next_change_detection)
 
     def _start_manual_detect_mode(self):
         self.mode = ProgramManager.mode_manual_detect
@@ -157,21 +176,66 @@ class ProgramManager(object):
             else:
                 image.draw_status()
             self.interface.display_capture(image.image_drawn)
-            self._schedule_next_capture()
+            self._schedule_next_capture(capture_period, self._next_search)
         else:
             exam.lock_capture()
             exam.draw_answers()
             self.exam = exam
             self._start_review_mode()
 
-    def _schedule_next_capture(self):
+    def _next_change_detection(self):
+        """Used to detect exam removal.
+
+        This method captures an image and launches its analysis.
+        Continuation of work is done at `_after_change_detection`.
+
+        """
+        if (self.mode != ProgramManager.mode_review
+            or not self.interface.is_action_checked(('tools', 'auto-change'))):
+            return
+        dump_camera_buffer(self.imageproc_context.camera, 1.0)
+        image = imageproc.ExamCapture(self.exam_data.dimensions,
+                                      self.imageproc_context,
+                                      self.imageproc_options)
+        self.current_image = image
+        task = ImageChangeTask(image, self.exam.image)
+        self.interface.run_worker(task, self._after_change_detection)
+
+    def _after_change_detection(self):
+        """Continuation of `_next_change_detection`.
+
+        Executed after the image has been processed. This method decides
+        whether the exam has been removed.
+
+        """
+        image = self.current_image
+        self.current_image = None
+        if (self.mode != ProgramManager.mode_review
+            or not self.interface.is_action_checked(('tools', 'auto-change'))):
+            return
+        exam_removed = False
+        if image.exam_detected:
+            period = capture_change_period
+            self.change_failures = 0
+        else:
+            period = capture_change_period_failure
+            self.change_failures += 1
+            if self.change_failures >= 4:
+                exam_removed = True
+        if not exam_removed:
+            self._schedule_next_capture(period, self._next_change_detection)
+        else:
+            self._action_save()
+
+    def _schedule_next_capture(self, period, function):
         """Schedules the next image capture and registers the timer.
 
-        Call it from search mode, after an image has been processed.
+        Call it from search mode, after an image has been processed, or
+        in review mode if automatic exam removal detection is active.
 
         """
         current_time = time.time()
-        self.next_capture += capture_period
+        self.next_capture += period
         if current_time > self.next_capture:
             dump_camera_buffer(self.imageproc_context.camera,
                                current_time - self.next_capture)
@@ -179,7 +243,7 @@ class ProgramManager(object):
             self.next_capture = time.time() + 0.010
         else:
             wait = self.next_capture - current_time
-        self.interface.register_timer(int(wait * 1000), self._next_search)
+        self.interface.register_timer(int(wait * 1000), function)
 
     def _process_capture(self, image):
         """Processes a captured image."""
@@ -392,6 +456,11 @@ class ProgramManager(object):
             self.imageproc_options['show-image-proc'] = \
                    self.interface.is_action_checked(('tools', 'processed'))
 
+    def _action_auto_change_changed(self):
+        """Callback for the checkable 'auto-change' option."""
+        if self.interface.is_action_checked(('tools', 'auto-change')):
+            self._start_auto_change_detection()
+
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
         if self.mode == ProgramManager.mode_review:
@@ -532,6 +601,8 @@ class ProgramManager(object):
             ('actions', 'tools', 'camera'): self._action_camera_selection,
             ('actions', 'tools', 'lines'): self._action_debug_changed,
             ('actions', 'tools', 'processed'): self._action_debug_changed,
+            ('actions', 'tools', 'auto-change'): \
+                                            self._action_auto_change_changed,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
             ('actions', 'help', 'source'): self._action_source_code,
