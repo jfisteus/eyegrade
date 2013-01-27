@@ -830,6 +830,7 @@ class ActionsManager(object):
 
     _actions_tools_data = [
         ('camera', 'camera.svg', 'Select &camera', None),
+        ('+auto-change', None, 'Continue on exam &removal', None),
         ]
 
     _actions_help_data = [

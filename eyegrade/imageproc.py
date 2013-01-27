@@ -252,6 +252,28 @@ class ExamCapture(object):
             self._set_left_to_right()
         self.draw_cell_corners()
 
+    def exam_detected(self):
+        """Checks if the image has an exam.
+
+        Sets `self.exam_detected` to True if an exam is detected.
+
+        """
+        self.exam_detected = False
+        lines = detect_lines(self.image_proc,
+                             self.context.get_hough_threshold())
+        if len(lines) >= 2:
+            axes = detect_boxes(lines, self.boxes_dim)
+            if axes is not None:
+                axes = filter_axes(axes, self.boxes_dim, self.image_raw.width,
+                                   self.image_raw.height,
+                                   self.options['read-id'])
+                corner_matrixes = cell_corners(axes[1][1], axes[0][1],
+                                               self.image_raw.width,
+                                               self.image_raw.height,
+                                               self.boxes_dim)
+                if len(corner_matrixes) > 0:
+                    self.exam_detected = True
+
     def write_error_trace(self, exc_type, exc_value, exc_traceback):
         import datetime
         import re
