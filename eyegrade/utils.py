@@ -866,7 +866,7 @@ class ExamConfig(object):
                          + self._format_weight(self.score_weights[1])))
             data.append(('blank-weight: '
                          + self._format_weight(self.score_weights[2])))
-        if len(self.session) == 0 and self.session['is-session']:
+        if len(self.session) > 0 and self.session['is-session']:
             data.append('')
             data.append('[session]')
             data.append('is-session: yes')
