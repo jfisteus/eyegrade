@@ -897,7 +897,7 @@ class ExamConfig(object):
             else:
                 return str(weight.numerator)
         elif type(weight) == float:
-            return '{:.16f}'.format(weight)
+            return '{0:.16f}'.format(weight)
         else:
             return str(weight)
 

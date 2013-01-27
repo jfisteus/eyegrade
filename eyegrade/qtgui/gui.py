@@ -716,7 +716,7 @@ class DialogCameraSelection(QDialog):
     def _update_camera_label(self):
         camera_id = self.capture_context.current_camera_id()
         if camera_id is not None and camera_id >= 0:
-            self.label.setText('<center>Current camera: {}</center>'\
+            self.label.setText('<center>Current camera: {0}</center>'\
                                .format(camera_id))
         else:
             self.label.setText('<center>No camera</center>')
