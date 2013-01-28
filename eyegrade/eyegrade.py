@@ -135,7 +135,7 @@ class ProgramManager(object):
         if not self.exam.image.status['infobits']:
             self.interface.enable_manual_detect(True)
         # Automatic detection of exam removal to go to the next exam
-        if self.interface.is_action_checked(('tools', 'auto-change')):
+        if self.interface.is_action_checked(('tools', 'auto_change')):
             self._start_auto_change_detection()
 
     def _start_auto_change_detection(self):
@@ -191,7 +191,7 @@ class ProgramManager(object):
 
         """
         if (self.mode != ProgramManager.mode_review
-            or not self.interface.is_action_checked(('tools', 'auto-change'))):
+            or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
         dump_camera_buffer(self.imageproc_context.camera, 1.0)
         image = imageproc.ExamCapture(self.exam_data.dimensions,
@@ -210,8 +210,12 @@ class ProgramManager(object):
         """
         image = self.current_image
         self.current_image = None
+        if image is None:
+            # This needs to be investigated: this case should never
+            # happen, but I saw it happen...
+            return
         if (self.mode != ProgramManager.mode_review
-            or not self.interface.is_action_checked(('tools', 'auto-change'))):
+            or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
         exam_removed = False
         if image.exam_detected:
@@ -457,8 +461,8 @@ class ProgramManager(object):
                    self.interface.is_action_checked(('tools', 'processed'))
 
     def _action_auto_change_changed(self):
-        """Callback for the checkable 'auto-change' option."""
-        if self.interface.is_action_checked(('tools', 'auto-change')):
+        """Callback for the checkable 'auto_change' option."""
+        if self.interface.is_action_checked(('tools', 'auto_change')):
             self._start_auto_change_detection()
 
     def _mouse_pressed(self, point):
@@ -601,7 +605,7 @@ class ProgramManager(object):
             ('actions', 'tools', 'camera'): self._action_camera_selection,
             ('actions', 'tools', 'lines'): self._action_debug_changed,
             ('actions', 'tools', 'processed'): self._action_debug_changed,
-            ('actions', 'tools', 'auto-change'): \
+            ('actions', 'tools', 'auto_change'): \
                                             self._action_auto_change_changed,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,

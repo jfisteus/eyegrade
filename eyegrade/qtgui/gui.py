@@ -830,7 +830,6 @@ class ActionsManager(object):
 
     _actions_tools_data = [
         ('camera', 'camera.svg', 'Select &camera', None),
-        ('+auto-change', None, 'Continue on exam &removal', None),
         ]
 
     _actions_help_data = [
@@ -843,6 +842,10 @@ class ActionsManager(object):
     _actions_debug_data = [
         ('+lines', None, 'Show &lines', None),
         ('+processed', None, 'Show &processed image', None),
+        ]
+
+    _actions_experimental = [
+        ('+auto_change', None, 'Continue on exam &removal', None),
         ]
 
     def __init__(self, window):
@@ -871,6 +874,7 @@ class ActionsManager(object):
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
         self._add_debug_actions()
+        self._add_experimental_actions()
 
     def set_search_mode(self):
         self.actions_grading['snapshot'].setEnabled(True)
@@ -1014,6 +1018,16 @@ class ActionsManager(object):
             self._add_action(key, icon, text, shortcut, self.actions_tools,
                              actions_list)
         menu = QMenu('&Debug options', self.menus['tools'])
+        for action in actions_list:
+            menu.addAction(action)
+        self.menus['tools'].addMenu(menu)
+
+    def _add_experimental_actions(self):
+        actions_list = []
+        for key, icon, text, shortcut in ActionsManager._actions_experimental:
+            self._add_action(key, icon, text, shortcut, self.actions_tools,
+                             actions_list)
+        menu = QMenu('&Experimental', self.menus['tools'])
         for action in actions_list:
             menu.addAction(action)
         self.menus['tools'].addMenu(menu)
