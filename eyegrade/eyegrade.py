@@ -168,6 +168,8 @@ class ProgramManager(object):
             # The user switched to other mode while the image was processed
             return
         self.latest_image = image
+        if image.status['boxes'] and self.imageproc_context.threshold_locked:
+            self.imageproc_context.unlock_threshold()
         exam = self._process_capture(image)
         if exam is None or not image.success:
             if exam is not None:
@@ -229,6 +231,7 @@ class ProgramManager(object):
         if not exam_removed:
             self._schedule_next_capture(period, self._next_change_detection)
         else:
+            self.imageproc_context.lock_threshold()
             self._action_save()
 
     def _schedule_next_capture(self, period, function):
@@ -459,6 +462,8 @@ class ProgramManager(object):
                    self.interface.is_action_checked(('tools', 'lines'))
             self.imageproc_options['show-image-proc'] = \
                    self.interface.is_action_checked(('tools', 'processed'))
+            self.imageproc_options['show-status'] = \
+                   self.interface.is_action_checked(('tools', 'show_status'))
 
     def _action_auto_change_changed(self):
         """Callback for the checkable 'auto_change' option."""
@@ -605,6 +610,7 @@ class ProgramManager(object):
             ('actions', 'tools', 'camera'): self._action_camera_selection,
             ('actions', 'tools', 'lines'): self._action_debug_changed,
             ('actions', 'tools', 'processed'): self._action_debug_changed,
+            ('actions', 'tools', 'show_status'): self._action_debug_changed,
             ('actions', 'tools', 'auto_change'): \
                                             self._action_auto_change_changed,
             ('actions', 'help', 'help'): self._action_help,

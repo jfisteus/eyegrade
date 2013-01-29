@@ -840,6 +840,7 @@ class ActionsManager(object):
         ]
 
     _actions_debug_data = [
+        ('+show_status', None, 'Show &status', None),
         ('+lines', None, 'Show &lines', None),
         ('+processed', None, 'Show &processed image', None),
         ]

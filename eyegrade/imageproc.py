@@ -253,9 +253,11 @@ class ExamCapture(object):
         self.draw_cell_corners()
 
     def exam_detected(self):
-        """Checks if the image has an exam.
+        """Checks if the image has a probable exam.
 
-        Sets `self.exam_detected` to True if an exam is detected.
+        Sets `self.exam_detected` to True if an exam is detected as
+        probable. Right now, it just checks that the proper axes are
+        detected.
 
         """
         self.exam_detected = False
@@ -264,15 +266,7 @@ class ExamCapture(object):
         if len(lines) >= 2:
             axes = detect_boxes(lines, self.boxes_dim)
             if axes is not None:
-                axes = filter_axes(axes, self.boxes_dim, self.image_raw.width,
-                                   self.image_raw.height,
-                                   self.options['read-id'])
-                corner_matrixes = cell_corners(axes[1][1], axes[0][1],
-                                               self.image_raw.width,
-                                               self.image_raw.height,
-                                               self.boxes_dim)
-                if len(corner_matrixes) > 0:
-                    self.exam_detected = True
+                self.exam_detected = True
 
     def write_error_trace(self, exc_type, exc_value, exc_traceback):
         import datetime
@@ -508,6 +502,7 @@ class ExamCaptureContext:
         self.failures_in_a_row = 0
         self.camera = None
         self.camera_id = camera_id
+        self.threshold_locked = False
 
     def open_camera(self, camera_id=None):
         """Initializes the last camera device used, or `camera_id`.
@@ -554,13 +549,21 @@ class ExamCaptureContext:
         else:
             return False
 
+    def lock_threshold(self):
+        self.threshold_locked = True
+
+    def unlock_threshold(self):
+        self.threshold_locked = False
+        self.failures_in_a_row = 0
+
     def get_hough_threshold(self):
         return self.hough_thresholds[self.hough_thresholds_idx]
 
     def next_hough_threshold(self):
-        self.hough_thresholds_idx = (self.hough_thresholds_idx + 1) % \
-            len(self.hough_thresholds)
-        self.failures_in_a_row = 0
+        if not self.threshold_locked:
+            self.hough_thresholds_idx = ((self.hough_thresholds_idx + 1)
+                                         % len(self.hough_thresholds))
+            self.failures_in_a_row = 0
 
     def notify_failure(self):
         self.failures_in_a_row += 1
