@@ -37,6 +37,7 @@ param_fps = 8
 capture_period = 1.0 / param_fps
 capture_change_period = 1.0
 capture_change_period_failure = 0.3
+after_removal_delay = 1.0
 
 def cell_clicked(image, point):
     min_dst = None
@@ -103,6 +104,8 @@ class ProgramManager(object):
         self.imageproc_context = \
               imageproc.ExamCaptureContext(camera_id=self.config['camera-dev'])
         self.imageproc_options = None
+        self.drop_next_capture = False
+        self.dump_buffer = False
         self._register_listeners()
 
     def run(self):
@@ -137,6 +140,7 @@ class ProgramManager(object):
         # Automatic detection of exam removal to go to the next exam
         if self.interface.is_action_checked(('tools', 'auto_change')):
             self._start_auto_change_detection()
+        self.drop_next_capture = False
 
     def _start_auto_change_detection(self):
         self.change_failures = 0
@@ -154,6 +158,10 @@ class ProgramManager(object):
     def _next_search(self):
         if self.mode != ProgramManager.mode_search:
             return
+        if self.dump_buffer:
+            self.dump_buffer = False
+            dump_camera_buffer(self.imageproc_context.camera,
+                               after_removal_delay)
         image = imageproc.ExamCapture(self.exam_data.dimensions,
                                       self.imageproc_context,
                                       self.imageproc_options)
@@ -179,11 +187,19 @@ class ProgramManager(object):
                 image.draw_status()
             self.interface.display_capture(image.image_drawn)
             self._schedule_next_capture(capture_period, self._next_search)
-        else:
+        elif not self.drop_next_capture:
             exam.lock_capture()
             exam.draw_answers()
             self.exam = exam
             self._start_review_mode()
+        else:
+            # Special mode: do not lock until another capture is
+            # available.  Used after auto exam removal detection.
+            exam.draw_answers()
+            self.interface.display_capture(image.image_drawn)
+            self._schedule_next_capture(after_removal_delay, self._next_search)
+            self.drop_next_capture = False
+            self.dump_buffer = True
 
     def _next_change_detection(self):
         """Used to detect exam removal.
@@ -232,6 +248,7 @@ class ProgramManager(object):
             self._schedule_next_capture(period, self._next_change_detection)
         else:
             self.imageproc_context.lock_threshold()
+            self.drop_next_capture = True
             self._action_save()
 
     def _schedule_next_capture(self, period, function):
