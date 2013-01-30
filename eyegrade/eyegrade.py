@@ -114,6 +114,7 @@ class ProgramManager(object):
 
     def _start_search_mode(self):
         self.mode = ProgramManager.mode_search
+        self.from_manual_detection = False
         self.interface.activate_search_mode()
         self.exam = None
         self.latest_graded_exam = None
@@ -143,8 +144,9 @@ class ProgramManager(object):
         self.drop_next_capture = False
 
     def _start_auto_change_detection(self):
-        self.change_failures = 0
-        self.interface.register_timer(1000, self._next_change_detection)
+        if not self.from_manual_detection:
+            self.change_failures = 0
+            self.interface.register_timer(1000, self._next_change_detection)
 
     def _start_manual_detect_mode(self):
         self.mode = ProgramManager.mode_manual_detect
@@ -538,6 +540,7 @@ class ProgramManager(object):
             if not success:
                 self.exam.image.clean_drawn_image()
                 self.interface.show_error('Manual detection failed!')
+            self.from_manual_detection = True
             self._start_review_mode()
 
     def _start_session(self):
