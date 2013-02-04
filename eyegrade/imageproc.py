@@ -64,7 +64,7 @@ param_clear_out_threshold = 0.35
 # decide a cleared answer
 param_clear_in_threshold = 0.2
 
-param_bit_mask_threshold = 0.35
+param_bit_mask_threshold = 0.25
 param_bit_mask_radius_multiplier = 0.333
 param_cell_mask_threshold = 0.6
 
