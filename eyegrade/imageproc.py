@@ -514,6 +514,7 @@ class ExamCaptureContext:
         with other cameras.
 
         """
+        previous_camera = self.camera_id
         if camera_id is not None:
             self.camera_id = camera_id
             if self.camera is not None:
@@ -522,7 +523,11 @@ class ExamCaptureContext:
             if self.camera_id is not None and self.camera_id != -1:
                 self.camera = self._try_camera(self.camera_id)
             if self.camera is None:
-                self.camera, self.camera_id = self._try_next_camera(-1)
+                if previous_camera is not None and previous_camera >= 0:
+                    self.camera_id = previous_camera
+                    self.camera = self._try_camera(previous_camera)
+                    if self.camera is None:
+                        self.camera, self.camera_id = self._try_next_camera(-1)
         return self.camera is not None
 
     def current_camera_id(self):

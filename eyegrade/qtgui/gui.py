@@ -29,7 +29,7 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QMessageBox, QPixmap, QCompleter,
                          QSortFilterProxyModel, QKeySequence, QColor,
                          QWizard, QWizardPage, QListWidget, QAbstractItemView,
-                         QRegExpValidator, QCheckBox,)
+                         QRegExpValidator, QCheckBox, QSpinBox,)
 
 from PyQt4.QtCore import Qt, QTimer, QThread, QRegExp, pyqtSignal
 
@@ -41,6 +41,20 @@ _filter_exam_config = 'Exam configuration (*.eye)'
 _filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
 
 color_eyegrade_blue = QColor(32, 73, 124)
+
+
+class LineContainer(QWidget):
+    """Container that disposes other widgets horizontally."""
+    def __init__(self, parent, *widgets):
+        super(LineContainer, self).__init__(parent)
+        self.layout = QHBoxLayout(self)
+        self.setLayout(self.layout)
+        for widget in widgets:
+            self.add(widget)
+
+    def add(self, widget):
+        self.layout.addWidget(widget)
+
 
 class OpenFileWidget(QWidget):
     """Dialog with a text field and a button to open a file selector."""
@@ -58,8 +72,8 @@ class OpenFileWidget(QWidget):
         self.button = QPushButton(QIcon(resource_path('open_file.svg')), '',
                                   parent=self)
         self.button.clicked.connect(self._open_dialog)
-        layout.addWidget(self.filename_widget)
-        layout.addWidget(self.button)
+        container = LineContainer(self, self.filename_widget, self.button)
+        layout.addWidget(container)
         self.last_validated_value = None
 
     def text(self):
@@ -667,13 +681,15 @@ class DialogCameraSelection(QDialog):
         self.setLayout(layout)
         self.camview = CamView((320, 240), self, border=True)
         self.label = QLabel(self)
-        self.button = QPushButton('Try next camera')
-        self.button.clicked.connect(self._next_camera)
+        self.button = QPushButton('Try this camera')
+        self.camera_selector = QSpinBox(self)
+        container = LineContainer(self, self.camera_selector, self.button)
+        self.button.clicked.connect(self._select_camera)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
         buttons.accepted.connect(self.accept)
         layout.addWidget(self.camview)
         layout.addWidget(self.label)
-        layout.addWidget(self.button)
+        layout.addWidget(container)
         layout.addWidget(buttons)
         self.camera_error.connect(self._show_camera_error,
                                   type=Qt.QueuedConnection)
@@ -702,22 +718,26 @@ class DialogCameraSelection(QDialog):
                              'No camera is available.')
         self.reject()
 
-    def _next_camera(self):
+    def _select_camera(self):
         current_camera = self.capture_context.current_camera_id()
-        success = self.capture_context.next_camera()
-        if not success:
-            self.camera_error.emit()
-        elif self.capture_context.current_camera_id() == current_camera:
-            QMessageBox.critical(self, 'No more cameras',
-                                 'No more cameras are available.')
-        else:
-            self._update_camera_label()
+        new_camera = self.camera_selector.value()
+        if new_camera != current_camera:
+            success = self.capture_context.open_camera(camera_id=new_camera)
+            if not success:
+                self.camera_error.emit()
+            else:
+                self._update_camera_label()
+                camera_id = self.capture_context.current_camera_id()
+                if camera_id != new_camera:
+                    QMessageBox.critical(self, 'Camera not available',
+                              'Camera {0} is not available.'.format(new_camera))
 
     def _update_camera_label(self):
         camera_id = self.capture_context.current_camera_id()
         if camera_id is not None and camera_id >= 0:
-            self.label.setText('<center>Current camera: {0}</center>'\
+            self.label.setText('<center>Viewing camera: {0}</center>'\
                                .format(camera_id))
+            self.camera_selector.setValue(camera_id)
         else:
             self.label.setText('<center>No camera</center>')
 
