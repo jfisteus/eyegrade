@@ -97,7 +97,7 @@ class ProgramManager(object):
     mode_review = 2
     mode_manual_detect = 3
 
-    def __init__(self, interface):
+    def __init__(self, interface, session_file=None):
         self.interface = interface
         self.mode = ProgramManager.mode_no_session
         self.config = utils.read_config()
@@ -107,10 +107,36 @@ class ProgramManager(object):
         self.drop_next_capture = False
         self.dump_buffer = False
         self._register_listeners()
+        if session_file is not None:
+            self._try_session_file(session_file)
 
     def run(self):
         """Starts the program manager."""
         self.interface.run()
+
+    def _try_session_file(self, session_file):
+        if os.path.isdir(session_file):
+            filename = os.path.join(session_file, 'session.eye')
+            if os.path.exists(filename):
+                session_file = filename
+            else:
+                self.interface.show_error('The directory has no Eyegrade '
+                                          'session: ' + session_file,
+                                          'Error opening the session file')
+                return
+        valid, msg = self._validate_session(session_file)
+        if not valid:
+            if self.exam_data and (self.exam_data.session == {}
+                                   or not self.exam_data.session.is_session):
+                # It is not a session file. Start the new session wizard.
+                values = self.interface.dialog_new_session( \
+                                                   config_filename=session_file)
+                if values is not None:
+                    self._new_session_internal(values)
+            else:
+                self.interface.show_error(msg, 'Error opening the session file')
+        else:
+            self._start_session()
 
     def _start_search_mode(self):
         self.mode = ProgramManager.mode_search
@@ -294,32 +320,36 @@ class ProgramManager(object):
         """Callback for when the new session action is selected."""
         values = self.interface.dialog_new_session()
         if values is not None:
-            # Save the exam config file augmented with session information
-            self.exam_data = values['config']
-            self.exam_data.session['is-session'] = True
-            self.exam_data.session['save-filename-pattern'] = \
-                self.config['save-filename-pattern']
-            dirname = os.path.join(values['directory'], 'student_ids')
-            try:
-                os.mkdir(dirname)
-                if values['id_list_files']:
-                    for name in values['id_list_files']:
-                        ProgramManager._copy_id_list(name, dirname)
-            except IOError as e:
-                self.interface.show_error('Input/output error: ' + e.message)
-            except Exception as e:
-                self.interface.show_error('Error: ' + e.message)
-            try:
-                dirname = os.path.join(values['directory'], 'captures')
-                os.mkdir(dirname)
-            except IOError as e:
-                self.interface.show_error('Input/output error: ' + e.message)
-            except Exception as e:
-                self.interface.show_error('Error: ' + e.message)
-            filename = os.path.join(values['directory'], 'session.eye')
-            self.exam_data.save(filename)
-            self.session_dir = values['directory']
-            self._start_session()
+            self._new_session_internal(values)
+
+    def _new_session_internal(self, values):
+        """Callback for when the new session action is selected."""
+        # Save the exam config file augmented with session information
+        self.exam_data = values['config']
+        self.exam_data.session['is-session'] = True
+        self.exam_data.session['save-filename-pattern'] = \
+            self.config['save-filename-pattern']
+        dirname = os.path.join(values['directory'], 'student_ids')
+        try:
+            os.mkdir(dirname)
+            if values['id_list_files']:
+                for name in values['id_list_files']:
+                    ProgramManager._copy_id_list(name, dirname)
+        except IOError as e:
+            self.interface.show_error('Input/output error: ' + e.message)
+        except Exception as e:
+            self.interface.show_error('Error: ' + e.message)
+        try:
+            dirname = os.path.join(values['directory'], 'captures')
+            os.mkdir(dirname)
+        except IOError as e:
+            self.interface.show_error('Input/output error: ' + e.message)
+        except Exception as e:
+            self.interface.show_error('Error: ' + e.message)
+        filename = os.path.join(values['directory'], 'session.eye')
+        self.exam_data.save(filename)
+        self.session_dir = values['directory']
+        self._start_session()
 
     def _open_session(self):
         """Callback for when the open session action is selected."""
@@ -346,6 +376,7 @@ class ProgramManager(object):
         in case the session is not valid.
 
         """
+        self.exam_data = None
         try:
             self.exam_data = utils.ExamConfig(filename)
         except Exception as e:
@@ -670,8 +701,12 @@ class ProgramManager(object):
 
 
 def main():
-    interface = gui.Interface(False, False, sys.argv)
-    manager = ProgramManager(interface)
+    if len(sys.argv) >= 2:
+        filename = sys.argv[1]
+    else:
+        filename = None
+    interface = gui.Interface(False, False, [])
+    manager = ProgramManager(interface, session_file=filename)
     manager.run()
 
 if __name__ == '__main__':

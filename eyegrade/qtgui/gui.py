@@ -79,6 +79,9 @@ class OpenFileWidget(QWidget):
     def text(self):
         return self.filename_widget.text()
 
+    def set_text(self, filename):
+        self.filename_widget.setText(filename)
+
     def setEnabled(self, enabled):
         self.filename_widget.setEnabled(enabled)
         self.button.setEnabled(enabled)
@@ -103,6 +106,7 @@ class OpenFileWidget(QWidget):
         """
         if filename is None:
             filename = self.text()
+        print 'Check_value', filename
         valid = True
         if self._check_file is not None:
             valid, msg = self._check_file(filename)
@@ -377,7 +381,7 @@ class NewSessionPageInitial(QWizardPage):
     the exam config file.
 
     """
-    def __init__(self):
+    def __init__(self, config_filename=None):
         super(NewSessionPageInitial, self).__init__()
         self.setTitle('Directory and exam configuration')
         self.setSubTitle(('Select or create an empty directory in which you '
@@ -390,8 +394,14 @@ class NewSessionPageInitial(QWizardPage):
                             title='Select the exam configuration file',
                             name_filter=_filter_exam_config,
                             check_file_function=self._check_exam_config_file)
+        if config_filename is not None:
+            self.config_file.set_text(config_filename)
         self.registerField('directory*', self.directory.filename_widget)
-        self.registerField('config_file*', self.config_file.filename_widget)
+        if config_filename is None:
+            self.registerField('config_file*', self.config_file.filename_widget)
+        else:
+            # If '*' is used, the next button is not enabled.
+            self.registerField('config_file', self.config_file.filename_widget)
         layout = QFormLayout(self)
         self.setLayout(layout)
         layout.addRow('Directory', self.directory)
@@ -586,12 +596,16 @@ class WizardNewSession(QWizard):
     It asks for a directory in which to store the session, the .eye file,
     student lists and scores for correct/incorrect answers.
 
+    An initial value for the path of the .eye file can be passed as
+    `config_filename`.
+
     """
-    def __init__(self, parent):
+    def __init__(self, parent, config_filename=None):
         super(WizardNewSession, self).__init__(parent)
         self.exam_config = None
         self.setWindowTitle('Create a new session')
-        self.page_initial = self._create_page_initial()
+        self.page_initial = \
+                 self._create_page_initial(config_filename=config_filename)
         self.page_id_files = self._create_page_id_files()
         self.page_scores = self._create_page_scores()
         self.page_scores.setFinalPage(True)
@@ -620,9 +634,9 @@ class WizardNewSession(QWizard):
         """Called when the exam config file is set or its value is changed."""
         self.page_scores.clear_values()
 
-    def _create_page_initial(self):
+    def _create_page_initial(self, config_filename=None):
         """Creates the first page, which asks for directory and .eye file."""
-        return NewSessionPageInitial()
+        return NewSessionPageInitial(config_filename=config_filename)
 
     def _create_page_id_files(self):
         """Creates a page for selecting student id files."""
@@ -1361,8 +1375,11 @@ class Interface(object):
         """Displays the default image instead of a camera capture."""
         self.window.center_view.display_wait_image()
 
-    def dialog_new_session(self):
+    def dialog_new_session(self, config_filename=None):
         """Displays a new session dialog.
+
+        An initial value for the path of the .eye file can be passed as
+        `config_filename`.
 
         The data introduced by the user is returned as a dictionary with
         keys `directory`, `config` and `id_list`. `id_list` may be None.
@@ -1370,7 +1387,7 @@ class Interface(object):
         The return value is None if the user cancels the dialog.
 
         """
-        dialog = WizardNewSession(self.window)
+        dialog = WizardNewSession(self.window, config_filename=config_filename)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             return dialog.values()
