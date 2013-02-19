@@ -6,6 +6,8 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
+This user manual refers to Eyegrade 0.2 and later versions. For the
+0.1.x series see `this other user manual <../user-manual-0.1/>`_.
 
 Installing Eyegrade
 -------------------
@@ -20,15 +22,70 @@ Eyegrade depends on the following free-software projects:
   is needed. Not only the OpenCV library, but also the python bindings
   distributed with it are needed.
 
-- Pygame_: a Python library for building games.
+- Qt_: a multi-platform library for developing graphical user interfaces.
+
+- PyQt_: Python bindings to Qt.
 
 - Tre_: a library for regular expressions. Install version 0.8.0 or
   later.  Both the library and python bindings are needed.
 
 .. _Python: http://www.python.org/
 .. _Opencv: http://opencv.willowgarage.com/wiki/
-.. _Pygame: http://pygame.org/
+.. _Qt: http://qt.digia.com/
+.. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/
 .. _Tre: http://laurikari.net/tre/
+
+
+Upgrading from Eyegrade 0.1.x to Eyegrade 0.2
+.............................................
+
+If you have any version of the Eyegrade 0.1.x series already installed
+in your system, you have to install PyQt_.
+
+In Linux, install the package `python-qt4` and update Eyegrade following
+the instructions at `Updating Eyegrade`_.
+
+In Windows, you can choose one of the following alternatives:
+
+- `Download PyQt
+  <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_:
+  choose the Windows 32 bit installer for your Python version. If you
+  installed Eyegrade following the instructions in the user manual,
+  you have Python 2.6-x86. Instruct the installer to install PyQt in
+  the directory of your python installation.
+
+- Remove your Python installation and install
+  <http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26-pyqt.zip> as
+  instructed at `Installing Python`_.
+
+After that, update Eyegrade following the instructions at `Updating
+Eyegrade`_.
+
+The directory layout of the code of Eyegrade has changed with respect
+to versions 0.1.x. The code is now inside the `eyegrade` subdirectory
+instead of the `src/eyegrade` subdirectory. Therefore, the
+`PYTHONPATH` environment variable should be set to the main directory
+of Eyegrade now, instead of the `src` subdirectory as before. When
+upgrading, remember to update this environment variable if you have
+configured it in your system-wide environment variables.
+
+
+Main changes from versions 0.1.x
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The main changes from Eyegrade 0.1.x to Eyegrade 0.2 you need to be
+aware of are:
+
+- The main program is run now without command line arguments. You'll
+  select the `.eye` file, student lists, webcam to use, etc. from the
+  user interface.
+
+- There is the new concept of a session. A session stores the state of
+  the grading of a given exam. You create a new session when you start
+  to grade the exam. The images of the exams and results are stored in
+  this session as you grade them. You can later resume a session and
+  continue grading it. A session is stored in the directory of your
+  file system that you choose.
 
 
 Installation on GNU/Linux
@@ -49,7 +106,7 @@ bindings for Tre, which have to be installed manually.
 
 Using your favorite package manager (``apt-get``, ``aptitude``,
 ``synaptic``, etc.), install the following packages: ``python`` (check
-that the version is either 2.6 or 2.7), ``python-pygame``,
+that the version is either 2.6 or 2.7), ``python-qt4``,
 ``python-opencv``, ``libavformat53``, ``libtre5``. In older versions
 of Ubuntu and Debian, you might need to install also ``libcv2.1`` (in
 even older versions, the name of this package is ``libcv4`` instead).
@@ -76,10 +133,10 @@ revision system (install the ``git`` package if you do not have it)::
 Note: replace $DIR above with the directory in which you
 want Eyegrade to be installed.
 
-Finally, add the ``$DIR/eyegrade/src`` directory to your ``PYTHONPATH`` and
+Finally, add the ``$DIR/eyegrade`` directory to your ``PYTHONPATH`` and
 check that Eyegrade works::
 
-  export PYTHONPATH=$DIR/eyegrade/src
+  export PYTHONPATH=$DIR/eyegrade
   python -m eyegrade.eyegrade -h
 
 The export command works only in the current terminal. You can make it
@@ -96,7 +153,7 @@ Installation on Microsoft Windows
 You have to follow these three steps, explained in the following
 sections, in order to install Eyegrade in Windows:
 
-1.- Install Python 2.6 (including Pygame and Tre).
+1.- Install Python 2.6 (including PyQt and Tre).
 
 2.- Install OpenCV 2.1.
 
@@ -106,12 +163,12 @@ sections, in order to install Eyegrade in Windows:
 Installing Python
 ~~~~~~~~~~~~~~~~~
 
-The easiest way to install Python, Pygame and Tre in Windows is
+The easiest way to install Python, PyQt and Tre in Windows is
 to download a ZIP file that contains all of them and extract it in
 your file system.
 
 1.- Download the ZIP file from:
-<http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip>.
+<http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26-pyqt.zip>.
 
 2.- Extract it somewhere in your file system (I recommend ``C:\``). A
 directory named ``Python26`` will appear. Be aware that the full path
@@ -203,7 +260,7 @@ Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
 ``C:\``::
 
-    set PYTHONPATH=C:\eyegrade\src
+    set PYTHONPATH=C:\eyegrade
     C:\Python26\python -m eyegrade.eyegrade -h
 
 It should dump a help message. Eyegrade should now be installed. For
@@ -238,22 +295,16 @@ This should work on any platform (Linux, Windows, etc.)
 Grading Exams
 -------------
 
-.. |icon_snapshot| image:: images/snapshot.png
-.. |icon_manual_detect| image:: images/manual_detect.png
-.. |icon_exit| image:: images/exit.png
-.. |icon_save| image:: images/save.png
-.. |icon_discard| image:: images/discard.png
-.. |icon_next_id| image:: images/next_id.png
-.. |icon_edit_id| image:: images/edit_id.png
-
 The main purpose of Eyegrade is grading exams. In order to grade exams,
 you will need:
 
 - The Eyegrade software installed in your computer.
-- The exam configuration file, which specifies the number
-  of questions in the exam, solutions, etc. It is normally named
-  *exam.eye*.
-- A compatible webcam, with minimum resolution 640x480.
+- The exam configuration file, which specifies the number of questions
+  in the exam, solutions, etc. It is normally named with the
+  `.eye`extension, such as `exam.eye`.
+- A compatible webcam, with resolution of at least 640x480. It is
+  better if it is able to focus (manually or automatically) at short
+  distances.
 - The list of students in your class, if you want Eyegrade to
   detect student IDs.
 - The exams to grade.
@@ -262,70 +313,119 @@ you will need:
 Launching Eyegrade
 ..................
 
+This section explains how to run Eyegrade. If it is the first time you
+use Eyegrade, you can try it with the sample file ``exam-A.pdf``
+located inside the directory ``doc/sample-files`` of your installation
+of Eyegrade. Print it. You'll find also in that directory the file
+``exam.eye`` that contains the metadata for this exam. You'll need to
+load this file later from Eyegrade.
+
 Eyegrade can be launched from command line::
 
-    python -m eyegrade.eyegrade exam.eye
+    python -m eyegrade.eyegrade
 
-where ``exam.eye`` is the file that holds the configuration of the
-exam (number of questions, geometry of tables, correct answers, etc.)
-
-Inside the directory ``doc/sample-files`` you can find a sample exam,
-named ``exam-A.pdf``, that you can print for testing the program. The
-corresponding ``exam.eye`` file is also there.
-
-If you want Eyegrade to read student's identity, it is recommended to
-provide it with the list of students in class::
-
-    python -m eyegrade.eyegrade exam.eye -l student-list.csv
-
-
-where ``student-list.csv`` is a tabulator-separated file in which
-there are one line per student. The first column must be the student
-identifier.  The second column (optional) must be the student
-name. Other columns, if present, are ignored.
-
-Eyegrade will start up and show its graphical interface, as shown in
-the next picture:
+This command opens the user interface of Eyegrade:
 
 .. image:: images/main-window.png
    :alt: Eyegrade main window
 
-The interface is quite simple:
+Before beginning to grade exams, especially the first time you run
+Eyegrade, you can check that Eyegrade can access your webcam. In the
+*Tools* menu select the *Select camera* entry:
 
-- The output of the webcam is shown in the main area of the window.
+.. image:: images/camera-selection.png
+   :alt: Select camera dialog
 
-- A toolbar is shown at the right. We will go through the meaning of these
-  buttons later.
+The next step is creating a grading session. Select *New session* in
+the menu *Session*. A multi-step dialog will ask for some data Eyegrade
+needs for creating the session:
 
-- Two status lines are shown at the bottom. They show different pieces
-  of information depending on the currently active mode.
+- Directory and exam configuration: you need to enter here the
+  following information:
+
+  - Directory: select or create a directory for this session. The
+    directory must be empty.
+
+  - Exam configuration file: select the ``.eye`` file associated to
+    this exam. If you printed the sample exam distributed with
+    Eyegrade, use the ``exam.eye`` file from the same directory.
+
+- Student id files: select zero, one or more files that contain the
+  list of students in the class. The files should be plain text and
+  contain a line per student. Each line must have a first field with
+  the student id and, optionally, a second field with the student
+  name. It may have more fields, which Eyegrade will ignore. Fields
+  must be separated by one tabulator character.
+
+- Scores for correct and incorrect answers: this step is optional. If
+  you provide the scores awarded to correct answers (and optionally
+  deducted from incorrect answers), Eyegrade will show the marks of
+  each exam.
+
+After you finish with this dialog, Eyegrade opens the session. It
+shows the image from the webcam and starts scanning for the
+exam. Point the camera to the exam until the image is locked. At this
+point, Eyegrade should show the answers it has detected. Read the
+following sections for further instructions.
+
+
+The session directory
+.....................
+
+A grading session in Eyegrade represents the grading of a specific
+exam for a group of students. For example, you would grade the exams
+for the final exam of all your students in the subject *Computer
+Networks* in just one session. Other exams, such as the re-sit exam of
+the same subject, should go in separate sessions.
+
+Grading sessions are associated to a directory in your computer. You
+select or create this directory when you create a new session.
+Eyegrade stores there all the data belonging to the grading session
+(configuration file, student lists, grades, images of the already
+graded exams, etc.)
+
+You can open again later an existing session with the *Open session*
+option of the *Session* menu. In the file selection dialog that
+appears, select the ``session.eye`` file inside the directory of the
+session you want to open. When you open the session, you can continue
+grading new exams that belong to that session.
 
 
 Application modes
 .................
 
-At a given instant, the application is in one of these two modes:
+At a given instant, the application is in one of these modes:
 
-- *Search mode*: the application continually scans the input from the webcam,
-  looking foir a correct detection of an exam.
+- *No session mode*: no session is opened. You can open an existing
+  session or create a new session.
 
-- *Review mode*: the application shows a still capture of an exam with the
-  result of the grading, so that the user can review the result and
-  fix things if necessary before saving the score of the exam.
+- *Search mode*: a session is open. The application continually scans
+  the input from the webcam, looking for a correct detection of an
+  exam.
 
-- *Manual detection mode*: in the rare cases in which the system is
-  not able to detect the geometry of the exam, you can enter this mode
-  and mark the corners of the answer tables. Eyegrade will be able to
-  detect the tables once you tell it where the corners are.
+- *Review mode*: a session is open. The application shows a still
+  capture of an exam with the result of the grading, so that the user
+  can review it and fix things, if necessary, before saving the score
+  of the exam.
 
-Obviously, the application starts in the *search mode*. When the
-system detects an answer sheet that can be read, it locks the capture
-and enters the *review mode*. Once you save the score of the exam,
-Eyegrade automatically goes back to the *search mode* in order to scan
-the next exam.
+- *Manual detection mode*: a session is open. In the rare cases in
+  which the system is not able to detect the geometry of the exam, you
+  can enter this mode and mark the corners of the answer
+  tables. Eyegrade will be able to detect the tables once you tell it
+  where the corners are.
+
+The application starts with no open session. Once you open or create a
+session, it changes to the *search mode*. When the system detects an
+answer sheet that it can read, it locks the capture and enters the
+*review mode*. Once you save the score of the exam, Eyegrade
+automatically goes back to the *search mode* in order to scan the next
+exam.
 
 You can enter the *manual detection mode* by issuing the appropriate
 command while in the other modes.
+
+From any of the other modes, you can go back to the *no session mode*
+with the *Close session* command in the *Session* menu.
 
 
 The search mode
@@ -343,56 +443,56 @@ Sometimes, Eyegrade is able to detect the answer table but not the ID
 table at the top of it. You can notice that because the detected
 answers are temporary shown on top of the image. At this point, you
 may try further until the ID box is also detected, or just use the
-*snapshot* command (see the table below), which will force the system
-to switch to the *review mode* using the most recent capture in which
-the answer table was detected. You will be able to manually enter the
-missing student id in that mode.
+*Capture the current image* command of the *Grading* menu, which will
+force the system to switch to the *review mode*, using the most recent
+capture in which the answer table was detected. You will be able to
+manually enter the missing student id in that mode.
 
-In rare occasions, Eyegrade could fail event to detect the answer table.
-The *manual detection* command allows you to help the system detect it.
+In rare occasions, Eyegrade could fail event to detect the answer
+table.  The *Manual detection* command of the *Grading menu* allows
+you to help the system detect it.
 
-These are the commands available in the *search mode*:
+These are the commands available in the *search mode*, all of them at
+the *Grading* menu:
 
-- |icon_snapshot| *snapshot* (shortcut 's'): forces the system to
+- *Capture the current image* (shortcut 's'): forces the system to
   enter the *review mode* with the the most recent capture in which
   Eyegrade was able to detect the answer table. If there is no such
   capture, the system just uses the current capture.
 
-- |icon_manual_detect| *manual detection* (shortcut 'm'): the system
+- *Manual detection of answer tables* (shortcut 'm'): the system
   enters the *manual detection mode*, in which you can help the system
   detect the answer table by marking the corners of the answer
   tables. After that, the system will detect the answers of the
   student and automatically enter the *review mode*. See `The manual
   detection mode`_.
 
-- |icon_exit| *exit* (shortcut 'Escape'): Eyegrade terminates. There is
-  no risk of losing data, because the scores of previous exams are
-  already saved in a file.
-
 
 The review mode
 ...............
 
-In the *review mode* you can review and, if necessary, fix the information
-detected by Eyegrade in the current exam. You can review and fix both the
-answers given by the student to each question and the student id. You can
-enter the *review mode* in three different situations:
+In the *review mode* you can review and, if necessary, fix the
+information detected by Eyegrade in the current exam. You can do it on
+both the answers given by the student to each question and the
+student id. You enter the *review mode* in one of the following three
+different situations:
 
 - With the answers of the student and her id detected. This is the
   usual case.  Eyegrade was able to detect the whole exam, and you can
   review the information extracted from it.
 
-- With the answers of the student, but without her id. This is the case
-  when you use the *snapshot* command in the *search mode* because Eyegrade
-  detected the answer table in at least one capture, but not the student
-  id box. In this case, you can review the answers given by the student
-  and manually enter her id.
+- With the answers of the student, but without her id. This is the
+  case when you use the *Capture the current image* command in the
+  *search mode* because Eyegrade detected the answer table in at least
+  one capture, but not the student id box. In this case, you can
+  review the answers given by the student and manually enter her id.
 
 - With neither the answers of the student nor her id. This is the case
-  when you use the *snapshot* command in the *search mode* because Eyegrade
-  was not able to detect anything from the exam. In this situation,
-  you can switch to the *manual detection mode* to help the system
-  detect the answer tables, and manually enter the student id.
+  when you use the *Capture the current image* command in the *search
+  mode* because Eyegrade was not able to detect anything from the
+  exam. In this situation, you can switch to the *manual detection
+  mode* to help the system to detect the answer tables, and manually
+  enter the student id.
 
 The user interface shows, in this mode, a capture of the exam augmented
 with the detected information, as shown in the following image:
@@ -402,27 +502,27 @@ with the detected information, as shown in the following image:
 
 As you can see, the system shows:
 
-- The detected student id, at the upper-left corner, and his name at the
-  bottom, as taken from the student list you provided.
-
-- The sequence number of the exam, just below the student id. This
-  sequence number is automatically incremented by Eyegrade for each
-  exam it scans.
-
 - The answers of the student, with a green circle for correct answers
-  and a red circle for incorrect ones. When the student leaves a
-  question unanswered or provides a wrong answer for it, the correct
-  answer for that question is marked with a small blue dot.
+  and a red circle for the incorrect ones. When the student leaves a
+  question unanswered, or provides a wrong answer for it, the correct
+  answer for that question is marked with a small dot.
 
-- The total number of correct, incorrect and blank answers, at the bottom.
-  This information is also shown on top of the image, at its left-bottom
-  corner.
+- The detected student id, at the bottom of the image, and his name
+  (when the name is provided in the student list files).
 
-- The model of the exam, on top of the image, at the left-bottom. The
-  model is detected from the small black squares that are printed
-  below the answer table.
+- The total number of correct, incorrect and blank answers, at the
+  bottom.  The total score of the exam is also shown if the session is
+  configured with the scores for the answers.
 
-In this mode, you can perform the following actions:
+- The model of the exam. The model is detected from the small black
+  squares that are printed below the answer table.
+
+- The sequence number of this exam. It is incremented with each graded
+  exam.
+
+
+In this mode, you can perform the following actions (see the *Grading*
+menu):
 
 - Modify the answers of the student, if there are mistakes in the
   automatically-detected answers, as explained in `Modifying student
@@ -432,19 +532,20 @@ In this mode, you can perform the following actions:
   recognized a wrong id, as explained in `Modifying the
   student id`_.
 
-- |icon_save| *save* (shortcut 'Space-bar'): saves the grades of this
-  exam as well as the annotated captured image, and enters the *search
-  mode* in order to detect the next exam. **Tip:** before saving, it
-  is better to remove the exam from the sight of the camera to avoid
-  it from being captured again. You can even put the next exam under
-  the camera before saving to speed up the process.
+- *Save and capture next exam* (shortcut 'Space-bar'):
+  saves the grades of this exam as well as the annotated captured
+  image, and enters the *search mode* in order to detect the next
+  exam. **Tip:** before saving, it is better to remove the exam from
+  the sight of the camera to avoid it from being captured again. You
+  can even put the next exam under the camera before saving to speed
+  up the process.
 
-- |icon_discard| *discard* (shortcut 'Backspace'): discards the
-  current capture **without** saving. It is useful, for example, when
-  the capture is not good enough, or when you detect the same exam has
-  already been graded before.
+- *Discard capture* (shortcut 'Backspace'): discards
+  the current capture **without** saving it. It is useful, for
+  example, when the capture is not good enough, or when you discover
+  that the same exam has already been graded before.
 
-- |icon_manual_detect| *manual detection* (shortcut 'm'): the system
+- *Manual detection of answer tables* (shortcut 'm'): the system
   enters the *manual detection mode*, in which you can help the system
   detect the answer table by marking the corners of the answer
   tables. After that, the system will detect the answers of the
@@ -452,16 +553,11 @@ In this mode, you can perform the following actions:
   command is allowed only when the system failed to recognize the
   geometry of the answer tables. See `The manual detection mode`_.
 
-- |icon_exit| *exit* (shortcut 'Escape'): exits Eyegrade **without**
-  saving the current exam. However, there is no risk to loose data
-  from any exam that was saved before.
-
-
 
 Modifying student answers
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The optical recognition system of Eyegrade my fail sometimes, due to
+The optical recognition system of Eyegrade may fail sometimes, due to
 its own limitations, or students filling their exams in messy ways.
 Sometimes, Eyegrade shows a cell in the answer table as marked when it
 is not, or a cell is not marked when it actually is. In addition, if
@@ -488,52 +584,23 @@ scanning the id in an exam, Eyegrade sorts ids of the students in
 class according to the estimated probability of being the id in the
 exam. The one with the most probability is shown.
 
-In the *review mode*, there are several ways to set the student id
-when Eyegrade does not detect it, or detects a wrong one.
+In the *review mode*, you can enter the correct student id when
+Eyegrade does not detect it, or detects a wrong one. When you select
+the *Edit student id* command in the *Grading* menu, a dialog for
+selecting the student id is shown:
 
-- |icon_next_id| *next id* (shortcut 'Tabulator' or 'Down arrow'):
-  selects the next id in the sorted list of ids. When the detected id
-  is wrong, is usual that the correct id is in the next two or three
-  positions of the list, so it may be worth using this command at
-  least a couple of times.
+.. image:: images/change-student-id.png
+   :alt: Dialog for changing the student id
 
-- *previous id* (shortcut 'Up arrow'): selects the previous id in the
-  sorted list of ids. It allows you to go back if you missed the
-  correct id while using the *next id* command.
+The dialog shows the students from the student list sorted by their
+probability (according to the OCR module) of being the student whose
+id is in the exam. You just choose one in the drop-down menu. In
+addition, you can filter students by writing part of their id number
+or their name.
 
-- Type some digits from the correct id: other way of entering the
-  correct id is by typing some consecutive digits of the id. The most
-  probable id from the list of class containing that sequence of
-  digits is selected.  Each time you type a digit, the id is
-  updated. Just type a few digits until you get the id you
-  want. **Tip:** sometimes the first digits of ids are the same for
-  many students in class. Begin typing at a position in which ids are
-  more variable. **Tip:** if you typed some digits but want to cancel
-  your selection or begin again with new digits, use the *next id*
-  or *previous id* commands.
-
-- |icon_edit_id| *edit id* (shortcut 'i'): use this command to
-  manually enter the whole id, digit by digit, from left to
-  right. Just save the exam after entering the last digit. The entered
-  id is not checked against the list of class: you are allowed to
-  enter just any number. This mode is useful only when a student is
-  not in the list of class, or the list of class is not available.
-
-Note that the first two ways to select the student id are available
-only when Eyegrade has the list of class.
-
-**Tip:** when you need to correct an id, first use the *next id*
-option a few times. If after that the correct one does not appear,
-type a sequence of digits of the correct id, until Eyegrade selects
-the correct id.
-
-**Tip:** with the *edit id* command, there is no way to tell Eyegrade
-that you have finished entering it: just save the exam and go to the
-next exam.
-
-**Tip:** if you select *edit id* and make some mistakes when entering
-the id, you can begin to type again from the beginning by selecting
-again the *edit id* command.
+If the student is not in your list, you can also enter in the dialog
+her id number and name. If you do that, follow the same format:
+student id, white space, student name.
 
 
 The manual detection mode
@@ -542,15 +609,16 @@ The manual detection mode
 In some rare occasions, Eyegrade may not be able to detect the answer
 tables. In those cases, you can enter the *manual detection mode* from
 the *search mode* (and also from the *review mode* if you entered that
-mode using the *snapshot* command). When entering the *manual
-detection mode*, the latest capture of the camera will be shown.
+mode using the *Capture the current image* command). When entering the
+*manual detection mode*, the latest capture of the camera will be
+shown.
 
-In this mode, just click with the cursor in the for corners of each
+In this mode, just click with the cursor in the four corners of each
 answer table (a small circle will appear in every location you
 click). The order in which you click on the corners does not
 matter. After having done that, Eyegrade will infer the limits of each
 cell, and based on them it will read the answers of the student and
-the exam model. It will enter the *review mode*.
+the exam model. It will enter then the *review mode*.
 
 The following two images show an example. In the first image, the user
 has selected six corners (notice the small blue circles):
@@ -568,11 +636,11 @@ Note, however, that the student id will not be detected when you use
 this mode. When the system goes back to the *review mode*, set the id
 as explained in `Modifying the student id`_.
 
-At any point of the process, you can use the *manual detection*
-command (shortcut 'm') to reset the selection of corners and start
-again. If you think that the captured image is not good enough, you
-can also use the *discard* command (shortcut 'Backspace') to go again
-to the *search mode*.
+At any point of the process, you can use the *Manual detection of
+answer tables* command (shortcut 'm') to reset the selection of
+corners and start again. If you think that the captured image is not
+good enough, you can also use the *discard* command (shortcut
+'Backspace') to go again to the *search mode*.
 
 **Tip:** in the *manual detection mode*, make sure that the captured
 image shows all the answer tables as well as the exam model squares at
@@ -1035,3 +1103,24 @@ after the exam if the solutions used for grading are found to have an
 error in some questions. If you create the `.eye` manually, you
 probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.
+
+
+Automatic detection of exam removal
+...................................
+
+If the camera in your setup is fixed, that is, you place an exam below
+the camera, review it, remove it and place the next exam, you may want
+Eyegrade to detect that you have removed the exam instead of having to
+click on the *Save and capture next exam command*.
+
+You can activate this experimental feature in the *Tools* menu,
+*Experimental* submenu, option *Continue on exam removal*. When this
+option is checked, Eyegrade saves the current capture and enters the
+*search mode* automatically, after a few seconds of not detecting an
+exam. Before placing the new exam, wait for the system to actually
+enter the *search mode*: if you are too quick, Eyegrade might not
+detect the removal of the exam.
+
+**Tip:** don't use this option if the camera is not fixed, because
+just moving it a little bit may cause Eyegrade to think that the exam
+has been removed.
