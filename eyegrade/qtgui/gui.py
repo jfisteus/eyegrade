@@ -31,7 +31,8 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QWizard, QWizardPage, QListWidget, QAbstractItemView,
                          QRegExpValidator, QCheckBox, QSpinBox,)
 
-from PyQt4.QtCore import Qt, QTimer, QThread, QRegExp, pyqtSignal
+from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool, QRegExp,
+                          QObject, pyqtSignal,)
 
 from eyegrade.utils import (resource_path, program_name, version, web_location,
                             source_location)
@@ -822,24 +823,33 @@ class DialogAbout(QDialog):
         layout.addWidget(buttons)
 
 
-class Worker(QThread):
+class _WorkerSignalEmitter(QObject):
+    """Convenience class for generating signals from a Worker."""
+    finished = pyqtSignal()
+
+
+class Worker(QRunnable):
     """Generic worker class for spawning a task to other thread."""
 
-    def __init__(self, task, parent):
+    def __init__(self, task):
         """Inits a new worker.
 
         The `task` must be an object that implements a `run()` method.
 
         """
-        super(Worker, self).__init__(parent)
+        super(Worker, self).__init__()
         self.task = task
-
-    def __del__(self):
-        self.wait()
+        self.signals = _WorkerSignalEmitter()
 
     def run(self):
-        """Run the task."""
+        """Run the task and emit the signal at its completion."""
         self.task.run()
+        self.signals.finished.emit()
+
+    @property
+    def finished(self):
+        """The `finished` signal as a property."""
+        return self.signals.finished
 
 
 class ActionsManager(object):
@@ -1468,9 +1478,9 @@ class Interface(object):
         method. Completion is notified to the given `callback` function.
 
         """
-        self.worker = Worker(task, self.window)
-        self.worker.finished.connect(callback)
-        self.worker.start()
+        worker = Worker(task)
+        worker.finished.connect(callback)
+        QThreadPool.globalInstance().start(worker)
 
     def show_about_dialog(self):
         dialog = DialogAbout(self.window)
