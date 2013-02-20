@@ -1127,8 +1127,9 @@ class CamView(QWidget):
         The image is in the OpenCV IPL format.
 
         """
-        self.image = QImage(ipl_image.tostring(),
-                            ipl_image.width, ipl_image.height,
+        # It is important to use the variable data to prevent issue #58.
+        data = ipl_image.tostring()
+        self.image = QImage(data, ipl_image.width, ipl_image.height,
                             QImage.Format_RGB888).rgbSwapped()
         if self.logo is not None:
             painter = QPainter(self.image)
