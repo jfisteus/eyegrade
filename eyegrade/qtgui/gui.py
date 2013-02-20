@@ -145,7 +145,7 @@ class InputScore(QLineEdit):
         regex = r'((\d*(\.\d+))|(\d+\/\d+))'
         if not is_positive:
             regex = '-?' + regex
-        validator = QRegExpValidator(QRegExp(regex))
+        validator = QRegExpValidator(QRegExp(regex), self)
         self.setValidator(validator)
 
     def value(self, force_float=False):
@@ -172,6 +172,21 @@ class InputScore(QLineEdit):
         else:
             value = None
         return value
+
+    def setPlaceholderText(self, text):
+        """Proxy for the same method in QLineEdit.
+
+        This method is overridden because some old versions of Qt4 do
+        not provide the method. This proxy method just calls the one
+        from QLineEdit, and fails silently if the method does not
+        exist there.
+
+        """
+        try:
+            super(InputScore, self).setPlaceholderText(text)
+        except AttributeError:
+            # Just do nothing if the version of Qt/PyQt is old...
+            pass
 
 
 class MultipleFilesWidget(QWidget):
