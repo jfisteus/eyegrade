@@ -730,7 +730,7 @@ class DialogCameraSelection(QDialog):
 
     def _show_camera_error(self):
         QMessageBox.critical(self, 'Camera not available',
-                             'No camera is available.')
+                      'Eyegrade has not detected any camera in your system.')
         self.reject()
 
     def _select_camera(self):
