@@ -3,14 +3,18 @@ exams. Needing just a cheap low-end webcam, it aims to be a low-cost
 and portable solution available to everyone, on the contrary to other
 solutions based on scanners.
 
+For more information about Eyegrade you can visit:
+
+- Its website: http://www.it.uc3m.es/jaf/eyegrade/
+- Its blog: http://www.it.uc3m.es/jaf/eyegrade/blog
+- The user manual: http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/
+- Its source code at GitHub: https://github.com/jfisteus/eyegrade
+
 Eyegrade is still alpha. It is fully functional and has been used in
 several courses at Universidad Carlos III de Madrid since 2010.
 Its use is encouraged for tech-savvy people. However, it still
 needs great improvements in its user-friendliness in order to be
-usable for the general public. A work-in-progress user manual is
-available at:
-
-http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/
+usable for the general public.
 
 The program is free software, licensed under the terms of the GNU
 General Public License (GPL) version 3 or any later version.
