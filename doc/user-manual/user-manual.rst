@@ -48,11 +48,11 @@ the instructions at `Updating Eyegrade`_.
 In Windows, you can choose one of the following alternatives:
 
 - `Download PyQt
-  <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_:
-  choose the Windows 32 bit installer for your Python version. If you
-  installed Eyegrade following the instructions in the user manual,
-  you have Python 2.6-x86. Instruct the installer to install PyQt in
-  the directory of your python installation.
+  <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_: if
+  you installed Eyegrade 0.1.x following the instructions in this user
+  manual, you have Python 2.6-x86. Choose that version of the
+  installer of PyQt.  The installer of PyQt will probably detect you
+  Python installation automatically.
 
 - Remove your Python installation and install
   <http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26-pyqt.zip> as
@@ -68,6 +68,9 @@ instead of the `src/eyegrade` subdirectory. Therefore, the
 of Eyegrade now, instead of the `src` subdirectory as before. When
 upgrading, remember to update this environment variable if you have
 configured it in your system-wide environment variables.
+
+If you cannot see the icons of the buttons the first time you run the
+new version of Eyegrade, reboot the computer and try again.
 
 
 Main changes from versions 0.1.x
@@ -153,7 +156,7 @@ Installation on Microsoft Windows
 You have to follow these three steps, explained in the following
 sections, in order to install Eyegrade in Windows:
 
-1.- Install Python 2.6 (including PyQt and Tre).
+1.- Install Python 2.6 (including Tre).
 
 2.- Install OpenCV 2.1.
 
@@ -168,7 +171,7 @@ to download a ZIP file that contains all of them and extract it in
 your file system.
 
 1.- Download the ZIP file from:
-<http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26-pyqt.zip>.
+<http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip>.
 
 2.- Extract it somewhere in your file system (I recommend ``C:\``). A
 directory named ``Python26`` will appear. Be aware that the full path
@@ -187,21 +190,31 @@ If it does not start, you have probably not added it correctly to your
 system PATH. Opening a new console is important because changes in the
 system PATH apply only to newly-opened consoles.
 
-Once in the Python interpreter, the following commands should work::
+Once in the Python interpreter, the following command should work::
 
-    import pygame
     import tre
 
-These commands should not output any message. If they do, there is a
+This command should not output any message. If it does, there is a
 problem with the installation. If *tre* complains about a missing DLL,
 the problem is probably that the installation directory of Python is
 not in the system PATH.
 
 If you already have a Python 2.6 installation and want to use it, you
-must, on that installation of Python: (1) download and install Pygame;
-(2) download and install Tre 0.8.0. You will need Microsoft Visual
-Studio 2008 (the express version is free and works) for this last
-step.
+must, on that installation of Python, download and install Tre
+0.8.0. You will need Microsoft Visual Studio 2008 (the express version
+is free and works) for this last step.
+
+
+Installing PyQt4
+~~~~~~~~~~~~~~~~
+
+`Download PyQt
+<http://www.riverbankcomputing.co.uk/software/pyqt/download>`_. Select
+the Windows 32-bit installer for Python 2.6, event if you have a
+64-bit version of Windows.
+
+Run the installer. From the optional software that the installer
+suggests, you only need to select the *Qt runtime*.
 
 
 Installing OpenCV
@@ -263,14 +276,18 @@ it. For example, if you have installed both Python and Eyegrade at
     set PYTHONPATH=C:\eyegrade
     C:\Python26\python -m eyegrade.eyegrade -h
 
-It should dump a help message. Eyegrade should now be installed. For
-further testing, go to `Launching Eyegrade`_.
+It should dump a help message.
 
 **Tip:** it may be convenient adding C:\Python26 to your system path
 permanently, and adding PYTHONPATH to the system-wide environment
 variables. There are plenty of resources in the Web that explain how
 to do this. For example,
-<http://www.windows7hacker.com/index.php/2010/05/how-to-addedit-environment-variables-in-windows-7/>.
+`<http://www.windows7hacker.com/index.php/2010/05/how-to-addedit-environment-variables-in-windows-7/>`_.
+
+Eyegrade should now be installed. Nevertheless, it might be a good
+idea to reboot now the computer, in order to guarantee that the
+installation of OpenCV and PyQt has completed. After that, go to
+`Launching Eyegrade`_.
 
 
 Installation on Mac OS X
