@@ -51,8 +51,11 @@ In Windows, you can choose one of the following alternatives:
   <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_: if
   you installed Eyegrade 0.1.x following the instructions in this user
   manual, you have Python 2.6-x86. Choose that version of the
-  installer of PyQt.  The installer of PyQt will probably detect you
-  Python installation automatically.
+  installer of PyQt.  Alternatively, there is a copy of the file you
+  need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
+  <http://www.it.uc3m.es/jaf/eyegrade/downloads/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
+  The installer of PyQt will probably detect you Python installation
+  automatically.
 
 - Remove your Python installation and install
   <http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26-pyqt.zip> as
@@ -211,7 +214,9 @@ Installing PyQt4
 `Download PyQt
 <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_. Select
 the Windows 32-bit installer for Python 2.6, event if you have a
-64-bit version of Windows.
+64-bit version of Windows.  Alternatively, there is a copy of the file
+you need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
+<http://www.it.uc3m.es/jaf/eyegrade/downloads/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
 
 Run the installer. From the optional software that the installer
 suggests, you only need to select the *Qt runtime*.
