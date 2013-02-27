@@ -1,3 +1,23 @@
+2013-02-27  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.2.
+
+	* New graphical user interface using PyQt.
+
+	* New concept of grading session.
+
+	* New survey mode. Yet to be integrated in create_exam.
+
+	* Optional left to right numbering instead of top to bottom.
+
+	* Code moved up level up from src to the main directory.
+
+	* New auto-removal detection system (experimental).
+
+	* Storing the score of the exams in the answers file.
+
+	* Answer weights can also be specified as fractions.
+
 2012-11-22  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.1.17.
