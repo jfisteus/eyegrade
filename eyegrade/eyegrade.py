@@ -107,6 +107,7 @@ class ProgramManager(object):
         self.drop_next_capture = False
         self.dump_buffer = False
         self._register_listeners()
+        self.from_manual_detection = False
         if session_file is not None:
             self._try_session_file(session_file)
 

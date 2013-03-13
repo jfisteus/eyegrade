@@ -1,3 +1,10 @@
+2013-03-13  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.2.1.
+
+	* Fix bug #59: accessing an undefined attribute in "continue on
+	exam removal".
+
 2013-02-27  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.2.
