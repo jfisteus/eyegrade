@@ -162,13 +162,21 @@ EyegradeException.register_error('same_num_choices',
     "all the questions of the exam.",
     'There are questions with a different number of choices')
 
-EyegradeException.register_error('error_student_list',
-    'The syntax of the student list is not correct.\n'
+_student_list_message = (
     'The file is expected to contain one line per student.\n'
     'Each line can contain one or more TAB-separated columns.\n'
     'The first column must be the student id (a number).\n'
     'The second column, if present, is interpreted as the student name.\n'
     'The rest of the columns are ignored.')
+
+EyegradeException.register_error('error_student_list',
+    'The syntax of the student list is not correct.\n' + _student_list_message)
+
+EyegradeException.register_error('error_student_id',
+    'At least one student id is not a number.\n' + _student_list_message)
+
+EyegradeException.register_error('error_student_list_encoding',
+    'The student list contains erroneously-encoded characters.')
 
 
 def guess_data_dir():
@@ -279,6 +287,8 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
         reader = csv.reader(io.BytesIO(data), 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
+        for sid in student_ids:
+            _check_student_id(sid)
     else:
         student_ids = {}
         for row in reader:
@@ -286,15 +296,33 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
                 raise EyegradeException('Empty line in student list',
                                         key='error_student_list')
             sid = row[0]
+            _check_student_id(sid)
             if len(row) > 1:
                 name = row[1]
-                student_ids[sid] = unicode(name, config['default-charset'])
+                try:
+                    student_ids[sid] = unicode(name, config['default-charset'])
+                except ValueError:
+                    raise EyegradeException('Error while processing {0} data'\
+                                            .format(config['default-charset']),
+                                            key='error_student_list_encoding')
             else:
                 name = None
                 student_ids[sid] = None
     if csvfile is not None:
         csvfile.close()
     return student_ids
+
+def _check_student_id(student_id):
+    """Checks the student id.
+
+    Raises the appropriate exception in case of error.
+
+    """
+    try:
+        int(student_id)
+    except:
+        raise EyegradeException('Wrong id in student list: ' + student_id,
+                                key='error_student_id')
 
 def read_student_ids_multiple(filenames, with_names=False):
     """Reads student ids from multiple files.
