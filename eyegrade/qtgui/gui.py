@@ -107,7 +107,6 @@ class OpenFileWidget(QWidget):
         """
         if filename is None:
             filename = self.text()
-        print 'Check_value', filename
         valid = True
         if self._check_file is not None:
             valid, msg = self._check_file(filename)
