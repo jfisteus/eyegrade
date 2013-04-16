@@ -40,7 +40,6 @@ def read_cmd_options():
 
 def mix_grades(results_filename, ids_filename, output_filename,
                extra_grades_filename, dump_missing):
-    config = utils.read_config()
     if extra_grades_filename is None:
         results = utils.mix_results(results_filename, ids_filename,
                                     dump_missing)
@@ -52,7 +51,7 @@ def mix_grades(results_filename, ids_filename, output_filename,
         file_ = open(output_filename, 'ab')
     else:
         file_ = sys.stdout
-    utils.write_grades(results, file_, config['csv-dialect'])
+    utils.write_grades(results, file_, utils.config['csv-dialect'])
     if output_filename is not None:
         file_.close()
 

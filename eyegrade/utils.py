@@ -41,6 +41,38 @@ csv.register_dialect('tabs', delimiter = '\t')
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'score', 'answers']
 
+def _read_config():
+    """Reads the general config file and returns the resulting config object.
+
+    Other modules can get the config object by accessing the
+    utils.config variable.
+
+    """
+    config = {'camera-dev': '0',
+              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
+              'csv-dialect': 'tabs',
+              'default-charset': 'utf8', # special value: 'system-default'
+              }
+    parser = ConfigParser.SafeConfigParser()
+    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
+                 os.path.expanduser('~/.camgrade.cfg')])
+    if 'default' in parser.sections():
+        for option in parser.options('default'):
+            config[option] = parser.get('default', option)
+    if not config['csv-dialect'] in csv.list_dialects():
+        config['csv-dialect'] = 'tabs'
+    if 'error-logging' in config and config['error-logging'] == 'yes':
+        config['error-logging'] = True
+    else:
+        config['error-logging'] = False
+    config['camera-dev'] = int(config['camera-dev'])
+    if config['default-charset'] == 'system-default':
+        config['default-charset'] = locale.getpreferredencoding()
+    return config
+
+# The global configuration object:
+config = _read_config()
+
 
 class EyegradeException(Exception):
     """An Eyegrade-specific exception.
@@ -256,7 +288,7 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
             sid = row[0]
             if len(row) > 1:
                 name = row[1]
-                student_ids[sid] = unicode(name, locale.getpreferredencoding())
+                student_ids[sid] = unicode(name, config['default-charset'])
             else:
                 name = None
                 student_ids[sid] = None
@@ -363,28 +395,6 @@ def results_by_id(results):
         id_dict[r['student-id']] = (r['good'], r['bad'])
     return id_dict
 
-def read_config():
-    """Reads the general config file and returns the resulting config object.
-
-    """
-    config = {'camera-dev': '0',
-              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
-              'csv-dialect': 'tabs'}
-    parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
-                 os.path.expanduser('~/.camgrade.cfg')])
-    if 'default' in parser.sections():
-        for option in parser.options('default'):
-            config[option] = parser.get('default', option)
-    if not config['csv-dialect'] in csv.list_dialects():
-        config['csv-dialect'] = 'tabs'
-    if 'error-logging' in config and config['error-logging'] == 'yes':
-        config['error-logging'] = True
-    else:
-        config['error-logging'] = False
-    config['camera-dev'] = int(config['camera-dev'])
-    return config
-
 def _read_results_file(filename):
     csvfile = open(filename, 'rb')
     dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -488,7 +498,7 @@ def read_file(file_name):
     """Returns contents of a file as a Unicode string using terminal locale.
 
     """
-    file_ = codecs.open(file_name, 'r', locale.getpreferredencoding())
+    file_ = codecs.open(file_name, 'r', config['default-charset'])
     data = file_.read()
     file_.close()
     return data
@@ -497,7 +507,7 @@ def write_file(file_name, unicode_text):
     """Writes a Unicode string in a file using terminal locale.
 
     """
-    file_ = codecs.open(file_name, 'w', locale.getpreferredencoding())
+    file_ = codecs.open(file_name, 'w', config['default-charset'])
     file_.write(unicode_text)
     file_.close()
 

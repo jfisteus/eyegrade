@@ -67,12 +67,11 @@ def read_cmd_options():
 
 def modify_results(results_filename, exam_config_filename,
                    output_filename, invalidate, set_correct):
-    config = utils.read_config()
     results = utils.read_results(results_filename)
     exam_data = utils.ExamConfig(exam_config_filename)
     for result in results:
         modify(result, exam_data, invalidate, set_correct)
-    utils.write_results(results, output_filename, config['csv-dialect'])
+    utils.write_results(results, output_filename, utils.config['csv-dialect'])
 
 def modify(result, exam_data, invalidate, set_correct):
     answers = result['answers']
