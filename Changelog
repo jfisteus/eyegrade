@@ -1,3 +1,16 @@
+2013-04-17  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.2.2.
+
+	* Fix bug #14: the student list and the exam template are read by
+	default as UTF-8 data. The latex source of the exams is also
+	written as UTF-8. Before, eyegrade used the character encoding
+	configured in the terminal.
+
+	* Fix issues #54 and #64: the student list is checked more
+	exhaustively than before at the moment it is selected in the
+	session creation wizard.
+
 2013-03-13  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.2.1.
