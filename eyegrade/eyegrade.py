@@ -100,7 +100,7 @@ class ProgramManager(object):
     def __init__(self, interface, session_file=None):
         self.interface = interface
         self.mode = ProgramManager.mode_no_session
-        self.config = utils.read_config()
+        self.config = utils.config
         self.imageproc_context = \
               imageproc.ExamCaptureContext(camera_id=self.config['camera-dev'])
         self.imageproc_options = None

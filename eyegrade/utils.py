@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/'
-version = '0.2.1'
+version = '0.2.2'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
@@ -40,6 +40,38 @@ csv.register_dialect('tabs', delimiter = '\t')
 
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'score', 'answers']
+
+def _read_config():
+    """Reads the general config file and returns the resulting config object.
+
+    Other modules can get the config object by accessing the
+    utils.config variable.
+
+    """
+    config = {'camera-dev': '0',
+              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
+              'csv-dialect': 'tabs',
+              'default-charset': 'utf8', # special value: 'system-default'
+              }
+    parser = ConfigParser.SafeConfigParser()
+    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
+                 os.path.expanduser('~/.camgrade.cfg')])
+    if 'default' in parser.sections():
+        for option in parser.options('default'):
+            config[option] = parser.get('default', option)
+    if not config['csv-dialect'] in csv.list_dialects():
+        config['csv-dialect'] = 'tabs'
+    if 'error-logging' in config and config['error-logging'] == 'yes':
+        config['error-logging'] = True
+    else:
+        config['error-logging'] = False
+    config['camera-dev'] = int(config['camera-dev'])
+    if config['default-charset'] == 'system-default':
+        config['default-charset'] = locale.getpreferredencoding()
+    return config
+
+# The global configuration object:
+config = _read_config()
 
 
 class EyegradeException(Exception):
@@ -130,13 +162,21 @@ EyegradeException.register_error('same_num_choices',
     "all the questions of the exam.",
     'There are questions with a different number of choices')
 
-EyegradeException.register_error('error_student_list',
-    'The syntax of the student list is not correct.\n'
+_student_list_message = (
     'The file is expected to contain one line per student.\n'
     'Each line can contain one or more TAB-separated columns.\n'
     'The first column must be the student id (a number).\n'
     'The second column, if present, is interpreted as the student name.\n'
     'The rest of the columns are ignored.')
+
+EyegradeException.register_error('error_student_list',
+    'The syntax of the student list is not correct.\n' + _student_list_message)
+
+EyegradeException.register_error('error_student_id',
+    'At least one student id is not a number.\n' + _student_list_message)
+
+EyegradeException.register_error('error_student_list_encoding',
+    'The student list contains erroneously-encoded characters.')
 
 
 def guess_data_dir():
@@ -247,6 +287,8 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
         reader = csv.reader(io.BytesIO(data), 'tabs')
     if not with_names:
         student_ids = [row[0] for row in reader]
+        for sid in student_ids:
+            _check_student_id(sid)
     else:
         student_ids = {}
         for row in reader:
@@ -254,15 +296,33 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
                 raise EyegradeException('Empty line in student list',
                                         key='error_student_list')
             sid = row[0]
+            _check_student_id(sid)
             if len(row) > 1:
                 name = row[1]
-                student_ids[sid] = unicode(name, locale.getpreferredencoding())
+                try:
+                    student_ids[sid] = unicode(name, config['default-charset'])
+                except ValueError:
+                    raise EyegradeException('Error while processing {0} data'\
+                                            .format(config['default-charset']),
+                                            key='error_student_list_encoding')
             else:
                 name = None
                 student_ids[sid] = None
     if csvfile is not None:
         csvfile.close()
     return student_ids
+
+def _check_student_id(student_id):
+    """Checks the student id.
+
+    Raises the appropriate exception in case of error.
+
+    """
+    try:
+        int(student_id)
+    except:
+        raise EyegradeException('Wrong id in student list: ' + student_id,
+                                key='error_student_id')
 
 def read_student_ids_multiple(filenames, with_names=False):
     """Reads student ids from multiple files.
@@ -362,28 +422,6 @@ def results_by_id(results):
     for r in results:
         id_dict[r['student-id']] = (r['good'], r['bad'])
     return id_dict
-
-def read_config():
-    """Reads the general config file and returns the resulting config object.
-
-    """
-    config = {'camera-dev': '0',
-              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
-              'csv-dialect': 'tabs'}
-    parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
-                 os.path.expanduser('~/.camgrade.cfg')])
-    if 'default' in parser.sections():
-        for option in parser.options('default'):
-            config[option] = parser.get('default', option)
-    if not config['csv-dialect'] in csv.list_dialects():
-        config['csv-dialect'] = 'tabs'
-    if 'error-logging' in config and config['error-logging'] == 'yes':
-        config['error-logging'] = True
-    else:
-        config['error-logging'] = False
-    config['camera-dev'] = int(config['camera-dev'])
-    return config
 
 def _read_results_file(filename):
     csvfile = open(filename, 'rb')
@@ -488,7 +526,7 @@ def read_file(file_name):
     """Returns contents of a file as a Unicode string using terminal locale.
 
     """
-    file_ = codecs.open(file_name, 'r', locale.getpreferredencoding())
+    file_ = codecs.open(file_name, 'r', config['default-charset'])
     data = file_.read()
     file_.close()
     return data
@@ -497,7 +535,7 @@ def write_file(file_name, unicode_text):
     """Writes a Unicode string in a file using terminal locale.
 
     """
-    file_ = codecs.open(file_name, 'w', locale.getpreferredencoding())
+    file_ = codecs.open(file_name, 'w', config['default-charset'])
     file_.write(unicode_text)
     file_.close()
 

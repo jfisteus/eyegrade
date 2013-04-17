@@ -107,7 +107,6 @@ class OpenFileWidget(QWidget):
         """
         if filename is None:
             filename = self.text()
-        print 'Check_value', filename
         valid = True
         if self._check_file is not None:
             valid, msg = self._check_file(filename)
@@ -243,7 +242,6 @@ class MultipleFilesWidget(QWidget):
     def _add_files(self):
         file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
                                                    self.file_name_filter)
-        erroneous_files = []
         model = self.file_list.model()
         for file_name in file_list_q:
             valid = True
@@ -255,13 +253,6 @@ class MultipleFilesWidget(QWidget):
                                     Qt.MatchExactly)
                 if len(match) == 0:
                     self.file_list.addItem(file_name)
-            else:
-                erroneous_files.append(unicode(file_name))
-        if len(erroneous_files) > 0:
-            files = '<br>'.join(erroneous_files)
-            QMessageBox.critical(self, 'Error',
-                                 ('The following files are not valid:<br><br>'
-                                  + files))
 
     def _remove_files(self):
         ranges = self.file_list.selectionModel().selection()
@@ -676,9 +667,11 @@ class WizardNewSession(QWizard):
     def _check_student_ids_file(self, file_name):
         valid = True
         try:
-            utils.read_student_ids(filename=file_name)
-        except:
+            utils.read_student_ids(filename=file_name, with_names=True)
+        except Exception as e:
             valid = False
+            QMessageBox.critical(self, 'Error in student list',
+                                 file_name + '\n\n' + str(e))
         return valid, ''
 
 
