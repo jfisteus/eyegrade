@@ -1283,6 +1283,7 @@ class Interface(object):
                                self.window.close)
         self.register_listener(('actions', 'help', 'about'),
                                self.show_about_dialog)
+        self._workaround_threadpool_init()
 
     def run(self):
         return self.app.exec_()
@@ -1487,8 +1488,30 @@ class Interface(object):
         method. Completion is notified to the given `callback` function.
 
         """
-        worker = Worker(task)
-        worker.finished.connect(callback)
+        if not self.workaround_threadpool:
+            worker = Worker(task)
+            worker.finished.connect(callback)
+            QThreadPool.globalInstance().start(worker)
+        else:
+            task.run()
+            callback()
+
+    def _workaround_threadpool_init(self):
+        """This is a workaround for some versions of PyQt.
+
+        In some versions, it seems that QThreadPool does not start the task.
+        This function tries to run a thread. If is runs, the workaround
+        mechanism gets disabled.
+
+        """
+        self.workaround_threadpool = True
+        class _WorkaroundThreadpool(QRunnable):
+            def __init__(self, gui):
+                super(_WorkaroundThreadpool, self).__init__()
+                self.gui = gui
+            def run(self):
+                self.gui.workaround_threadpool = False
+        worker = _WorkaroundThreadpool(self)
         QThreadPool.globalInstance().start(worker)
 
     def show_about_dialog(self):
