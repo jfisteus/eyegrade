@@ -309,7 +309,7 @@ class DialogStudentId(QDialog):
         for student in students:
             self.combo.addItem(student)
         self.combo.lineEdit().selectAll()
-        self.combo.showPopup()
+        self.combo.lineEdit().setFocus()
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
         buttons.accepted.connect(self.accept)
