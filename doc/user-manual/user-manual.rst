@@ -113,11 +113,11 @@ bindings for Tre, which have to be installed manually.
 Using your favorite package manager (``apt-get``, ``aptitude``,
 ``synaptic``, etc.), install the following packages: ``python`` (check
 that the version is either 2.6 or 2.7), ``python-qt4``,
-``python-opencv``, ``libavformat53``, ``libtre5``. In older versions
-of Ubuntu and Debian, you might need to install also ``libcv2.1`` (in
-even older versions, the name of this package is ``libcv4`` instead).
-If you can't find ``libavformat53`` in your distribution, use
-``libavformat52`` instead.
+``python-opencv``, ``python-numpy``, ``libavformat53``,
+``libtre5``. In older versions of Ubuntu and Debian, you might need to
+install also ``libcv2.1`` (in even older versions, the name of this
+package is ``libcv4`` instead).  If you can't find ``libavformat53``
+in your distribution, use ``libavformat52`` instead.
 
 Then, you have to install the Python bindings for Tre. First, install
 these two additional packages: ``python-dev``, ``libtre-dev``.
@@ -143,7 +143,7 @@ Finally, add the ``$DIR/eyegrade`` directory to your ``PYTHONPATH`` and
 check that Eyegrade works::
 
   export PYTHONPATH=$DIR/eyegrade
-  python -m eyegrade.eyegrade -h
+  python -m eyegrade.eyegrade
 
 The export command works only in the current terminal. You can make it
 permanent by adding it to your $HOME/.bashrc file (if you use the BASH
@@ -279,7 +279,7 @@ it. For example, if you have installed both Python and Eyegrade at
 ``C:\``::
 
     set PYTHONPATH=C:\eyegrade
-    C:\Python26\python -m eyegrade.eyegrade -h
+    C:\Python26\python -m eyegrade.eyegrade
 
 It should dump a help message.
 
