@@ -1,3 +1,12 @@
+2013-06-12  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.2.4.
+
+	* Fix for issue #67: the edit id dialog sets the focus properly in
+	Windows.
+
+	* Minor fix to the installation guide.
+
 2013-06-03  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.2.3.
