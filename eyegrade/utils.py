@@ -345,7 +345,7 @@ def read_student_ids_multiple(filenames, with_names=False):
     return st
 
 def mix_results(results_filename, student_list_filename, dump_missing):
-    """Returns a list of tuples student_id, good_answers, bad_answers.
+    """Returns a list of tuples student_id, good_answers, bad_answers, score.
 
        Receives the names of the files with results and student list.
        If 'dump_missing' is True, grades of students not in the
@@ -357,15 +357,19 @@ def mix_results(results_filename, student_list_filename, dump_missing):
     ids = read_student_ids(filename=student_list_filename)
     for student_id in ids:
         if student_id in results:
-            mixed_grades.append((student_id, results[student_id][0],
-                                 results[student_id][1]))
+            mixed_grades.append((student_id,
+                                 results[student_id][0],
+                                 results[student_id][1],
+                                 results[student_id][2]))
         else:
             mixed_grades.append((student_id, '', ''))
     if dump_missing:
         for student_id in results:
             if not student_id in ids:
-                mixed_grades.append((student_id, results[student_id][0],
-                                     results[student_id][1]))
+                mixed_grades.append((student_id,
+                                     results[student_id][0],
+                                     results[student_id][1],
+                                     results[student_id][2]))
     return mixed_grades
 
 def mix_results_extra_grades(results_filename, student_list_filename,
@@ -420,7 +424,7 @@ def results_by_id(results):
     """
     id_dict = {}
     for r in results:
-        id_dict[r['student-id']] = (r['good'], r['bad'])
+        id_dict[r['student-id']] = (r['good'], r['bad'], r['score'])
     return id_dict
 
 def _read_results_file(filename):
