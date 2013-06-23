@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/'
-version = '0.2.4'
+version = '0.2.5'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
