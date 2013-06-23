@@ -280,7 +280,7 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     csvfile = None
     if filename is not None:
         csvfile = open(filename, 'rb')
-        reader = csv.reader(csvfile, 'tabs')
+        reader = csv.reader(_UTF8Recoder(csvfile), 'tabs')
     elif file_ is not None:
         reader = csv.reader(file_, 'tabs')
     elif data is not None:
@@ -311,6 +311,30 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     if csvfile is not None:
         csvfile.close()
     return student_ids
+
+
+class _UTF8Recoder:
+    """
+    Iterator that reads an encoded stream and reencodes the input to UTF-8
+    """
+    def __init__(self, file_, encoding=None):
+        if encoding is None:
+            encoding = config['default-charset']
+        self.reader = codecs.getreader(encoding)(file_)
+        self.first_line = True
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        data = self.reader.next().encode('utf-8')
+        if self.first_line:
+            self.first_line = False
+            if (len(data) >= 3 and data[0] == '\xef'
+                and data[1] == '\xbb' and data[2] == '\xbf'):
+                data = data[3:]
+        return data
+
 
 def _check_student_id(student_id):
     """Checks the student id.
