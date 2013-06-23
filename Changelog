@@ -1,3 +1,11 @@
+2013-06-23  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.2.5.
+
+	* Fix for bug #70: problem with UTF-8 student lists with BOM.
+
+	* Dumping scores in the mix_grades script. Closes issue #60.
+
 2013-06-12  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.2.4.

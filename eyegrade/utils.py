@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.it.uc3m.es/jaf/eyegrade/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/'
-version = '0.2.4'
+version = '0.2.5'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
@@ -280,7 +280,7 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     csvfile = None
     if filename is not None:
         csvfile = open(filename, 'rb')
-        reader = csv.reader(csvfile, 'tabs')
+        reader = csv.reader(_UTF8Recoder(csvfile), 'tabs')
     elif file_ is not None:
         reader = csv.reader(file_, 'tabs')
     elif data is not None:
@@ -311,6 +311,30 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     if csvfile is not None:
         csvfile.close()
     return student_ids
+
+
+class _UTF8Recoder:
+    """
+    Iterator that reads an encoded stream and reencodes the input to UTF-8
+    """
+    def __init__(self, file_, encoding=None):
+        if encoding is None:
+            encoding = config['default-charset']
+        self.reader = codecs.getreader(encoding)(file_)
+        self.first_line = True
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        data = self.reader.next().encode('utf-8')
+        if self.first_line:
+            self.first_line = False
+            if (len(data) >= 3 and data[0] == '\xef'
+                and data[1] == '\xbb' and data[2] == '\xbf'):
+                data = data[3:]
+        return data
+
 
 def _check_student_id(student_id):
     """Checks the student id.
@@ -345,7 +369,7 @@ def read_student_ids_multiple(filenames, with_names=False):
     return st
 
 def mix_results(results_filename, student_list_filename, dump_missing):
-    """Returns a list of tuples student_id, good_answers, bad_answers.
+    """Returns a list of tuples student_id, good_answers, bad_answers, score.
 
        Receives the names of the files with results and student list.
        If 'dump_missing' is True, grades of students not in the
@@ -357,15 +381,19 @@ def mix_results(results_filename, student_list_filename, dump_missing):
     ids = read_student_ids(filename=student_list_filename)
     for student_id in ids:
         if student_id in results:
-            mixed_grades.append((student_id, results[student_id][0],
-                                 results[student_id][1]))
+            mixed_grades.append((student_id,
+                                 results[student_id][0],
+                                 results[student_id][1],
+                                 results[student_id][2]))
         else:
             mixed_grades.append((student_id, '', ''))
     if dump_missing:
         for student_id in results:
             if not student_id in ids:
-                mixed_grades.append((student_id, results[student_id][0],
-                                     results[student_id][1]))
+                mixed_grades.append((student_id,
+                                     results[student_id][0],
+                                     results[student_id][1],
+                                     results[student_id][2]))
     return mixed_grades
 
 def mix_results_extra_grades(results_filename, student_list_filename,
@@ -420,7 +448,7 @@ def results_by_id(results):
     """
     id_dict = {}
     for r in results:
-        id_dict[r['student-id']] = (r['good'], r['bad'])
+        id_dict[r['student-id']] = (r['good'], r['bad'], r['score'])
     return id_dict
 
 def _read_results_file(filename):
