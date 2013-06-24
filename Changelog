@@ -1,3 +1,9 @@
+2013-06-25  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.2.6.
+
+	* Fix for bug #71: problem with non-ASCII path names.
+
 2013-06-23  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.2.5.
