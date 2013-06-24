@@ -78,7 +78,7 @@ class OpenFileWidget(QWidget):
         self.last_validated_value = None
 
     def text(self):
-        return self.filename_widget.text()
+        return unicode(self.filename_widget.text())
 
     def set_text(self, filename):
         self.filename_widget.setText(filename)
@@ -94,7 +94,7 @@ class OpenFileWidget(QWidget):
         changed since the last validation.
 
         """
-        return self.last_validated_value == self.filename_widget.text()
+        return self.last_validated_value == self.text()
 
     def check_value(self, filename=None):
         """Checks the file and returns True if it is valid.
@@ -126,6 +126,7 @@ class OpenFileWidget(QWidget):
             filename = QFileDialog.getOpenFileName(self, self.title, '',
                                                    self.name_filter)
         if filename:
+            filename = unicode(filename)
             valid = self.check_value(filename=filename)
             if valid:
                 self.filename_widget.setText(filename)
@@ -246,7 +247,7 @@ class MultipleFilesWidget(QWidget):
         for file_name in file_list_q:
             valid = True
             if self._check_file is not None:
-                valid, msg = self._check_file(file_name)
+                valid, msg = self._check_file(unicode(file_name))
             if valid:
                 # Check if the file is already in the list:
                 match = model.match(model.index(0, 0), 0, file_name, 1,
