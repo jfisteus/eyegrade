@@ -194,6 +194,9 @@ def guess_data_dir():
 
 data_dir = guess_data_dir()
 
+def locale_dir():
+    return os.path.join(data_dir, 'locale')
+
 def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 

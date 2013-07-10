@@ -22,16 +22,20 @@ import os
 import shutil
 import time
 import webbrowser
+import gettext
 
 # Local imports
 import imageproc
 import utils
 import qtgui.gui as gui
 
+t = gettext.translation('eyegrade', utils.locale_dir())
+_ = t.ugettext
+
 utils.EyegradeException.register_error('no_camera',
-    'There is no suitable webcam. Eyegrade needs a webcam to work.\n'
-    'If your computer already has a camera, check that it is not being\n'
-    'used by another application.')
+    _('There is no suitable webcam. Eyegrade needs a webcam to work.\n'
+      'If your computer already has a camera, check that it is not being\n'
+      'used by another application.'))
 
 param_fps = 8
 capture_period = 1.0 / param_fps
@@ -121,9 +125,9 @@ class ProgramManager(object):
             if os.path.exists(filename):
                 session_file = filename
             else:
-                self.interface.show_error('The directory has no Eyegrade '
-                                          'session: ' + session_file,
-                                          'Error opening the session file')
+                self.interface.show_error(_('The directory has no Eyegrade '
+                                            'session') + ': ' + session_file,
+                                          _('Error opening the session file'))
                 return
         valid, msg = self._validate_session(session_file)
         if not valid:
@@ -135,7 +139,8 @@ class ProgramManager(object):
                 if values is not None:
                     self._new_session_internal(values)
             else:
-                self.interface.show_error(msg, 'Error opening the session file')
+                self.interface.show_error(msg,
+                                          _('Error opening the session file'))
         else:
             self._start_session()
 
@@ -146,7 +151,7 @@ class ProgramManager(object):
         self.exam = None
         self.latest_graded_exam = None
         self.latest_image = None
-        self.interface.update_text('', 'Searching...')
+        self.interface.update_text('', _('Searching...'))
         self.interface.register_timer(50, self._next_search)
         dump_camera_buffer(self.imageproc_context.camera, 1.0)
         self.next_capture = time.time() + 0.05
@@ -180,8 +185,8 @@ class ProgramManager(object):
         self.interface.activate_manual_detect_mode()
         self.interface.display_capture(self.exam.image.image_drawn)
         self.interface.update_text_up('')
-        self.interface.update_text_down( \
-            'Manual detection: click on the outer corners of the answer tables')
+        self.interface.update_text_down(_('Manual detection: click on the '
+                                        'outer corners of the answer tables'))
         self.manual_points = []
 
     def _next_search(self):
@@ -313,7 +318,8 @@ class ProgramManager(object):
                     exam.grade()
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
-                    msg = 'There are no solutions for model {0}.'.format(model)
+                    msg = _('There are no solutions for model {0}.')\
+                          .format(model)
                     self.interface.show_error(msg)
         return exam
 
@@ -337,16 +343,18 @@ class ProgramManager(object):
                 for name in values['id_list_files']:
                     ProgramManager._copy_id_list(name, dirname)
         except IOError as e:
-            self.interface.show_error('Input/output error: ' + e.message)
+            self.interface.show_error(_('Input/output error:')
+                                      + ' ' + e.message)
         except Exception as e:
-            self.interface.show_error('Error: ' + e.message)
+            self.interface.show_error(_('Error:') + ' ' + e.message)
         try:
             dirname = os.path.join(values['directory'], 'captures')
             os.mkdir(dirname)
         except IOError as e:
-            self.interface.show_error('Input/output error: ' + e.message)
+            self.interface.show_error(_('Input/output error:')
+                                      + ' ' + e.message)
         except Exception as e:
-            self.interface.show_error('Error: ' + e.message)
+            self.interface.show_error(_('Error:') + ' ' + e.message)
         filename = os.path.join(values['directory'], 'session.eye')
         self.exam_data.save(filename)
         self.session_dir = values['directory']
@@ -381,15 +389,15 @@ class ProgramManager(object):
         try:
             self.exam_data = utils.ExamConfig(filename)
         except Exception as e:
-            return False, 'Error loading the session: ' + str(e)
+            return False, _('Error loading the session') + ': ' + str(e)
         if (self.exam_data.session == {}
             or not self.exam_data.session['is-session']):
-            return False, 'The file you selected contains no session marks.'
+            return False, _('The file you selected contains no session marks.')
         self.session_dir = os.path.dirname(filename)
         students_dir = os.path.join(self.session_dir, 'student_ids')
         captures_dir = os.path.join(self.session_dir, 'captures')
         if not os.path.exists(students_dir) or not os.path.exists(captures_dir):
-            return False, 'The session directory has been corrupted.'
+            return False, _('The session directory has been corrupted.')
         return True, ''
 
     def _close_session(self):
@@ -397,8 +405,8 @@ class ProgramManager(object):
         if (self.mode == ProgramManager.mode_review
             or self.mode == ProgramManager.mode_manual_detect):
             if not self.interface.show_warning( \
-                ('The current capture has not been saved and will be lost. '
-                 'Are you sure you want to close this session?'),
+                _('The current capture has not been saved and will be lost. '
+                  'Are you sure you want to close this session?'),
                 is_question=True):
                 return
         self.imageproc_context.close_camera()
@@ -415,8 +423,8 @@ class ProgramManager(object):
         if (self.mode == ProgramManager.mode_review
             or self.mode == ProgramManager.mode_manual_detect):
             if not self.interface.show_warning( \
-                ('The current capture has not been saved and will be lost. '
-                 'Are you sure you want to exit the application?'),
+                _('The current capture has not been saved and will be lost. '
+                  'Are you sure you want to exit the application?'),
                 is_question=True):
                 return False
         return True
@@ -487,7 +495,7 @@ class ProgramManager(object):
                     self.exam.update_student_id(student_id, name=name)
                 else:
                     self.interface.show_error( \
-                        'You typed and incorrect student id.')
+                        _('You typed and incorrect student id.'))
             self.interface.update_text_up(self.exam.get_student_id_and_name())
 
     def _action_camera_selection(self):
@@ -558,7 +566,7 @@ class ProgramManager(object):
                     if self.exam.model is not None:
                         self.exam.solutions = self._solutions(self.exam.model)
                         if self.exam.solutions is None:
-                            msg = 'There are no solutions for model {0}.'\
+                            msg = _('There are no solutions for model {0}.')\
                                   .format(self.exam.model)
                             self.interface.show_error(msg)
                         else:
@@ -571,7 +579,7 @@ class ProgramManager(object):
                             success = True
             if not success:
                 self.exam.image.clean_drawn_image()
-                self.interface.show_error('Manual detection failed!')
+                self.interface.show_error(_('Manual detection failed'))
             self.from_manual_detection = True
             self._start_review_mode()
 
@@ -586,8 +594,8 @@ class ProgramManager(object):
         try:
             self._read_student_ids()
         except Exception as e:
-            self.interface.show_error(('The student list cannot be read: '
-                                      + str(e)))
+            self.interface.show_error((_('The student list cannot be read')
+                                       + ': ' + str(e)))
             return
         self.imageproc_options = imageproc.ExamCapture.get_default_options()
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
@@ -599,8 +607,8 @@ class ProgramManager(object):
         self._action_debug_changed()
         self.imageproc_context.open_camera()
         if self.imageproc_context.camera is None:
-            self.interface.show_error(('No camera found. Connect a camera and '
-                                      'try to start the session again.'))
+            self.interface.show_error(_('No camera found. Connect a camera and '
+                                        'start the session again.'))
             return
         if not os.path.isfile(self.answers_file):
             self.image_id = 1
@@ -697,7 +705,7 @@ class ProgramManager(object):
                     success = True
                     break
             if not success:
-                raise Exception('Cannot copy file: ' + src_file)
+                raise Exception(_('Cannot copy file') + ': ' + src_file)
         shutil.copy(src_file, dst_file)
 
 
