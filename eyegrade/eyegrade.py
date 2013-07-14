@@ -710,11 +710,22 @@ class ProgramManager(object):
 
 
 def main():
+    # For the translations to work, the initialization of QApplication and
+    # the loading of the translations must be done here instead of the
+    # gui module:
+    #
+    from PyQt4.QtGui import QApplication
+    from PyQt4.QtCore import QTranslator, QLocale, QLibraryInfo
+    app = QApplication(sys.argv)
+    translator = QTranslator()
+    translator.load(QLocale.system(), 'qt', '_',
+                    QLibraryInfo.location(QLibraryInfo.TranslationsPath))
+    app.installTranslator(translator)
     if len(sys.argv) >= 2:
         filename = sys.argv[1]
     else:
         filename = None
-    interface = gui.Interface(False, False, [])
+    interface = gui.Interface(app, False, False, [])
     manager = ProgramManager(interface, session_file=filename)
     manager.run()
 

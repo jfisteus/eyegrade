@@ -23,7 +23,7 @@ import gettext
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
-                         QSizePolicy, QApplication, QVBoxLayout,
+                         QSizePolicy, QVBoxLayout,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
@@ -1277,8 +1277,8 @@ class MainWindow(QMainWindow):
 
 
 class Interface(object):
-    def __init__(self, id_enabled, id_list_enabled, argv):
-        self.app = QApplication(argv)
+    def __init__(self, app, id_enabled, id_list_enabled, argv):
+        self.app = app
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
         self.last_score = None
