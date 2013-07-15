@@ -29,7 +29,7 @@ import imageproc
 import utils
 import qtgui.gui as gui
 
-t = gettext.translation('eyegrade', utils.locale_dir())
+t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
 
 utils.EyegradeException.register_error('no_camera',

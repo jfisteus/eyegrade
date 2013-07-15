@@ -41,7 +41,7 @@ import eyegrade.utils as utils
 
 color_eyegrade_blue = QColor(32, 73, 124)
 
-t = gettext.translation('eyegrade', utils.locale_dir())
+t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
 
 _filter_exam_config = _('Exam configuration (*.eye)')
@@ -124,11 +124,13 @@ class OpenFileWidget(QWidget):
         if self.select_directory:
             filename = \
                 QFileDialog.getExistingDirectory(self, self.title, '',
-                                            (QFileDialog.ShowDirsOnly
-                                             | QFileDialog.DontResolveSymlinks))
+                                        (QFileDialog.ShowDirsOnly
+                                         | QFileDialog.DontResolveSymlinks
+                                         | QFileDialog.DontUseNativeDialog))
         else:
             filename = QFileDialog.getOpenFileName(self, self.title, '',
-                                                   self.name_filter)
+                                              self.name_filter, None,
+                                              QFileDialog.DontUseNativeDialog)
         if filename:
             filename = unicode(filename)
             valid = self.check_value(filename=filename)
@@ -246,7 +248,8 @@ class MultipleFilesWidget(QWidget):
 
     def _add_files(self):
         file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
-                                                   self.file_name_filter)
+                                               self.file_name_filter, None,
+                                               QFileDialog.DontUseNativeDialog)
         model = self.file_list.model()
         for file_name in file_list_q:
             valid = True
@@ -1443,7 +1446,8 @@ class Interface(object):
         """
         filename = QFileDialog.getOpenFileName(self.window,
                                                _('Select the session file'),
-                                               '', _filter_exam_config)
+                                               '', _filter_exam_config, None,
+                                               QFileDialog.DontUseNativeDialog)
         return str(filename) if filename else None
 
     def dialog_camera_selection(self, capture_context):
