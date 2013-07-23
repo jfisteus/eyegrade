@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Eyegrade: grading multiple choice questions with a webcam
 # Copyright (C) 2012-2013 Jesus Arias Fisteus
 #
@@ -20,6 +22,7 @@ from __future__ import division
 import os.path
 import fractions
 import gettext
+import locale
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
@@ -30,7 +33,8 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QMessageBox, QPixmap, QCompleter,
                          QSortFilterProxyModel, QKeySequence, QColor,
                          QWizard, QWizardPage, QListWidget, QAbstractItemView,
-                         QRegExpValidator, QCheckBox, QSpinBox,)
+                         QRegExpValidator, QCheckBox, QSpinBox, QTabWidget,
+                         QScrollArea,)
 
 from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool, QRegExp,
                           QObject, pyqtSignal,)
@@ -47,6 +51,7 @@ _ = t.ugettext
 _filter_exam_config = _('Exam configuration (*.eye)')
 _filter_student_list = _('Student list (*.csv *.tsv *.txt *.lst *.list)')
 
+_tuple_strcoll = lambda x, y: locale.strcoll(x[0], y[0])
 
 class LineContainer(QWidget):
     """Container that disposes other widgets horizontally."""
@@ -793,12 +798,26 @@ class DialogAbout(QDialog):
     """
     def __init__(self, parent):
         super(DialogAbout, self).__init__(parent)
+        self.setWindowTitle(_('About'))
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons.accepted.connect(self.accept)
+        tabs = QTabWidget(parent)
+        tabs.setDocumentMode(True)
+        tabs.addTab(self._create_about_tab(), _('About'))
+        tabs.addTab(self._create_developers_tab(), _('Developers'))
+        tabs.addTab(self._create_translators_tab(), _('Translators'))
+        layout.addWidget(tabs)
+        layout.addWidget(buttons)
+
+    def _create_about_tab(self):
         text = \
-             _("""
+             _(u"""
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2013 Jesus Arias Fisteus <br>
+             (c) 2010-2013 Jesús Arias Fisteus <br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 
@@ -813,31 +832,66 @@ class DialogAbout(QDialog):
              This program is distributed in the hope that it will be<br>
              useful, but WITHOUT ANY WARRANTY; without even the<br>
              implied warranty of MERCHANTABILITY or FITNESS FOR A<br>
-             PARTICULAR PURPOSE. See the GNU General Public License<br>
-             for more details.
+             PARTICULAR PURPOSE. See the GNU General Public<br>
+             License for more details.
              </p>
              <p>
-             You should have received a copy of the GNU General Public<br>
-             License along with this program.  If not, see<br>
+             You should have received a copy of the GNU General<br>
+             Public License along with this program.  If not, see<br>
              <a href='http://www.gnu.org/licenses/gpl.txt'>
              http://www.gnu.org/licenses/gpl.txt</a>.
              </p>
              </center>
              """).format(resource_path('logo.svg'), program_name, version,
                          web_location, source_location)
-        self.setWindowTitle(_('About'))
-        layout = QVBoxLayout(self)
-        self.setLayout(layout)
         label = QLabel(text)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse
                                        | Qt.TextBrowserInteraction
                                        | Qt.TextSelectableByKeyboard
                                        | Qt.TextSelectableByMouse))
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
-        buttons.accepted.connect(self.accept)
-        layout.addWidget(QLabel(text))
-        layout.addWidget(buttons)
+        return label
+
+    def _create_developers_tab(self):
+        text = u"""<center><p><b>{0}:</b></p>
+                   <ul><li>Jesús Arias Fisteus</li></ul>
+                   </center>""".format(_('Lead developers'))
+        label = QLabel(text)
+        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
+                                       | Qt.LinksAccessibleByMouse
+                                       | Qt.TextBrowserInteraction
+                                       | Qt.TextSelectableByKeyboard
+                                       | Qt.TextSelectableByMouse))
+        scroll_area = QScrollArea(self.parent())
+        scroll_area.setWidget(label)
+        return scroll_area
+
+    def _create_translators_tab(self):
+        translators = [
+            (_('Catalan'), []),
+            (_('German'), []),
+            (_('Galician'), [u'Jesús Arias Fisteus']),
+            (_('French'), []),
+            (_('Portuguese'), []),
+            (_('Spanish'), [u'Jesús Arias Fisteus']),
+            ]
+        parts = []
+        for language, names in sorted(translators, cmp=_tuple_strcoll):
+            if names:
+                parts.append(u'<p><b>{0}:</b></p>'.format(language))
+                parts.append(u'<ul>')
+                for name in names:
+                    parts.append(u'<li>{0}</li>'.format(name))
+                parts.append(u'</ul>')
+        label = QLabel(u''.join(parts))
+        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
+                                       | Qt.LinksAccessibleByMouse
+                                       | Qt.TextBrowserInteraction
+                                       | Qt.TextSelectableByKeyboard
+                                       | Qt.TextSelectableByMouse))
+        scroll_area = QScrollArea(self.parent())
+        scroll_area.setWidget(label)
+        return scroll_area
 
 
 class _WorkerSignalEmitter(QObject):
