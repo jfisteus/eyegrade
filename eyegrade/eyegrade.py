@@ -17,8 +17,18 @@
 #
 from __future__ import division
 
-import sys
+# The gettext module needs in Windows an environment variable
+# to be defined before importing the gettext module itself
 import os
+import locale
+if (not os.getenv('LANG')
+    and not os.getenv('LANGUAGE')
+    and not os.getenv('LC_MESSAGES')
+    and not os.getenv('LC_ALL')):
+    lang, enc = locale.getdefaultlocale()
+    os.environ['LANG'] = lang
+
+import sys
 import shutil
 import time
 import webbrowser
