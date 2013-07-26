@@ -868,7 +868,7 @@ class DialogAbout(QDialog):
 
     def _create_translators_tab(self):
         translators = [
-            (_('Catalan'), []),
+            (_('Catalan'), [u'Jaume Barcelo']),
             (_('German'), []),
             (_('Galician'), [u'Jesús Arias Fisteus']),
             (_('French'), []),
