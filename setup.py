@@ -7,7 +7,7 @@ setup(name='eyegrade',
       description='Grading multiple choice questions with a webcam',
       author='Jesus Arias Fisteus',
       author_email='jfisteus@gmail.com',
-      url='http://www.it.uc3m.es/jaf/eyegrade/',
+      url='http://eyegrade.org/',
       packages=['eyegrade', 'eyegrade.qtgui'],
       package_data={'eyegrade': ['data/*']},
     )
