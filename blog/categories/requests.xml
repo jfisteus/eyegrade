@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>The Eyegrade Blog (requests)</title><link>The Eyegrade Blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Tue, 30 Jul 2013 18:40:45 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Requests for Eyegrade 0.3</title><link>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</link><description>&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
+September. There are some features I have in mind, but listening to
+the users from time to time does not harm ;) If there is a feature you
+are especially interested in, just let me know by commenting on this
+post.&lt;/p&gt;
+&lt;p&gt;Apart from some polishing here and there, these are things I'm
+thinking about:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Right now, you can review and fix detection errors in an exam only
+at the moment you scan it. What if you discover an error later on?
+It think it would be great if the interface allowed you to open a
+grading session anytime later and use the same reviewing/fixing
+features.  This feature would probably include a list of students
+and grades in the interface, so that you can quickly access the exam
+of a specific student.&lt;/li&gt;
+&lt;li&gt;A user interface for entering the questions of an exam, creating the
+PDFs, etc. This would probably include dropping LaTeX in favor of
+something else (my main option is the &lt;a class="reference external" href="http://www.reportlab.com/software/opensource/"&gt;ReportLab library&lt;/a&gt;). Using the
+current command-line interface and LaTeX would still be possible,
+but not the preferred method.&lt;/li&gt;
+&lt;li&gt;Making life easier for users that only want to use Eyegrade for
+grading, but not for creating the exams. I include here features
+such as creating a &lt;cite&gt;.eye&lt;/cite&gt; file through guided dialogues or creating
+the PDF of a personalized answer sheet in the user interface.  It's
+about time to close &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/36"&gt;issue 36&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Adapting the user interface for multiple languages. I can start with
+an English, Spanish and Galician interface, and wait for volunteers
+to translate it to other tongues.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I won't have time for all the features in the list, so you can help me
+to prioritize. Of course, you can also request features not in the
+list ;)&lt;/p&gt;</description><category>eyegrade</category><category>requests</category><guid>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item></channel></rss>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+                        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+ <url>
+  <loc>The Eyegrade Blog/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/2013/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/2013/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/archive.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/eyegrade.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/pyqt.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/release.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/requests.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/categories/screenshots.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/galleries/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/galleries/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/galleries/screenshots-new-gui-1/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/galleries/screenshots-new-gui-1/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/galleries/screenshots-new-gui-2/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/galleries/screenshots-new-gui-2/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/listings/</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/listings/hello.py.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/listings/index.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/posts/preview-of-the-improved-new-session-dialog.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/posts/release-eyegrade-0.2.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/about-nikola.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/handbook.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/listings-demo.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/quickref.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/quickstart.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/sampleconfig.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/slides-demo.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>The Eyegrade Blog/stories/theming.html</loc>
+  <lastmod>2013-07-30</lastmod>
+  <priority>0.5000</priority>
+ </url>
+</urlset>

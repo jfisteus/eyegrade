@@ -1,0 +1,34 @@
+.. title: Preview of the improved new-session dialog
+.. slug: preview-of-the-improved-new-session-dialog
+.. date: 2013/01/06 22:49:08
+.. tags: eyegrade, screenshots, pyqt
+.. link:
+.. description:
+
+I've been working on the *new session* dialog. Now it is a wizard with
+three pages. The main novelties are that:
+
+- You can now select more than one student list. All of them are used
+  when detecting the student id.
+
+- You can now enter the scores for correct and incorrect answers. If
+  the exam configuration file already contains the scores, you'll see
+  them as default values. In addition, you can let Eyegrade choose
+  appropriate values for you, by just entering the maximum score of
+  the exam and choosing whether incorrect answers should penalize or
+  not.
+
+You can try the new dialog in the development branch at GitHub, and
+see it this `screenshots gallery </galleries/screenshots-new-gui-2/>`_!
+
+.. figure:: /galleries/screenshots-new-gui-2/screenshot-3.png
+   :class: thumbnail
+   :alt: Screenshot of a page of the new session dialog
+
+This new dialog will appear in the 0.2 release. I have in mind for a
+future release the possibility of entering the exam configuration from
+the new session dialog, as an alternative to reading it from a
+file. This may be handy for users who do not create the exam with the
+command line tools that Eyegrade provides.
+
+Comments and suggestions are welcome.

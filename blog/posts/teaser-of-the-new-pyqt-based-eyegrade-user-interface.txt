@@ -1,0 +1,42 @@
+.. title: Teaser of the new PyQt-based eyegrade user interface
+.. slug: teaser-of-the-new-pyqt-based-eyegrade-user-interface
+.. date: 2013/01/02 13:30:00
+.. tags: eyegrade, screenshots, pyqt
+.. link:
+.. description:
+
+I'm programming from scratch the graphical user interface of
+Eyegrade. The old user interface uses Pygame. It allowed me to build
+the first interface of the program very quickly, but its lack of
+graphical components (buttons, dialogues, menus, etc.) was preventing me
+from programming a more user-friendly interface.  I've decided to use
+`PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/>`_ for the
+new interface. Why PyQt? I programmed a game with Qt in C++ many years
+ago, and I liked the library a lot. With the python bindings, it is
+even easier to use.
+
+The new user interface will be released with Eyegrade 0.2 (hopefully,
+before the end of January). Check the first `screenshots gallery
+</galleries/screenshots-new-gui-1/>`_!
+
+.. figure:: /galleries/screenshots-new-gui-1/screenshot-4.png
+   :class: thumbnail
+   :alt: Screenshot of the new user interface of Eyegrade
+
+Right now the program does more or less the same as the old interface,
+but it will be easier to add new features in the future.
+
+The brave can give it a try before the release (it is available at the
+`development branch of Eyegrade at GitHub
+<https://github.com/jfisteus/eyegrade>`_). Suggestions are welcome
+(just post a comment here or write me an email.) I have tested it only
+in Linux, although it should work in Windows too. If you try it, notice that:
+
+- You need PyQt (package *python-qt4* in Debian and Ubuntu).
+
+- There is no `src` directory anymore. Following the Python
+  conventions, the Python files are now directly under the `eyegrade`
+  subdirectory of the main directory of the project.
+
+- The main program does not receive command line arguments. The `.eye`
+  file and student list are selected at the *new session* dialog.

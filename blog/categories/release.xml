@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>The Eyegrade Blog (release)</title><link>The Eyegrade Blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Tue, 30 Jul 2013 18:40:45 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.2 released!</title><link>The Eyegrade Blog/posts/release-eyegrade-0.2.html</link><description>&lt;p&gt;Eyegrade 0.2 has been released! It features the shiny new PyQt-based
+user interface that I showed in previous posts.&lt;/p&gt;
+&lt;p&gt;The &lt;a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/"&gt;Eyegrade User Manual&lt;/a&gt; contains
+up-to-date instructions for using the new interface. If you have
+Eyegrade 0.1.x installed, you need to install PyQt and change the
+value of an environment variable. See the &lt;a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/#upgrading-from-eyegrade-0-1-x-to-eyegrade-0-2"&gt;section about upgrading
+Eyegrade&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This new user interface will facilitate other usability improvements
+in the future, such as the possibility of reviewing previously graded
+exams, editing the student list, writing grades to disk in several
+orders and formats, etc.&lt;/p&gt;
+&lt;p&gt;If you experience problems with this new version, please let me know
+by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>The Eyegrade Blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item></channel></rss>

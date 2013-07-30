@@ -1,0 +1,26 @@
+.. title: Eyegrade 0.2 released!
+.. slug: release-eyegrade-0.2
+.. date: 2013/02/28 00:15:00
+.. tags: eyegrade, release
+.. link:
+.. description:
+
+Eyegrade 0.2 has been released! It features the shiny new PyQt-based
+user interface that I showed in previous posts.
+
+The `Eyegrade User Manual
+<http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/>`_ contains
+up-to-date instructions for using the new interface. If you have
+Eyegrade 0.1.x installed, you need to install PyQt and change the
+value of an environment variable. See the `section about upgrading
+Eyegrade
+<http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/#upgrading-from-eyegrade-0-1-x-to-eyegrade-0-2>`_.
+
+This new user interface will facilitate other usability improvements
+in the future, such as the possibility of reviewing previously graded
+exams, editing the student list, writing grades to disk in several
+orders and formats, etc.
+
+If you experience problems with this new version, please let me know
+by commenting on this blog or `posting an issue at GitHub
+<https://github.com/jfisteus/eyegrade/issues?sort=created&state=open>`_.

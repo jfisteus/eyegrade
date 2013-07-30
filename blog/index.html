@@ -1,0 +1,247 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta charset="utf-8">
+    <meta name="description" content="Blog for the free software tool Eyegrade">
+    <meta name="author" content="Jesús Arias Fisteus">
+    <title>The Eyegrade Blog | The Eyegrade Blog</title>
+    
+            <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+            <link href="assets/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/rst.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/code.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/theme.css" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js" type="text/javascript"></script>
+    <![endif]-->
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+
+    
+    
+    
+</head>
+<body>
+<!-- Menubar -->
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </a>
+
+            <a class="brand" href=".">
+            The Eyegrade Blog
+            </a>
+            <!-- Everything you want hidden at 940px or less, place within here -->
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    
+            <li><a href="http://eyegrade.org/">Eyegrade web site</a>
+            </li><li><a href="archive.html">Archives</a>
+            </li><li><a href="categories/index.html">Tags</a>
+            </li><li><a href="rss.xml">RSS</a>
+
+                </li></ul>
+                <ul class="nav pull-right">
+                
+                
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End of Menubar -->
+<div class="container-fluid" id="container-fluid">
+    <!--Body content-->
+    <div class="row-fluid">
+    <div class="span2"></div>
+    <div class="span8">
+    
+        <div class="postbox">
+        <h1><a href="posts/requests-for-eyegrade-03.html">Requests for Eyegrade 0.3</a>
+        <small>  
+             Posted: <time class="published" datetime="2013-06-21T18:45:00">2013-06-21 18:45</time>
+        </small></h1>
+        <hr>
+        <p>I'm planning the next major release (0.3) of Eyegrade for
+September. There are some features I have in mind, but listening to
+the users from time to time does not harm ;) If there is a feature you
+are especially interested in, just let me know by commenting on this
+post.</p>
+<p>Apart from some polishing here and there, these are things I'm
+thinking about:</p>
+<ul class="simple">
+<li>Right now, you can review and fix detection errors in an exam only
+at the moment you scan it. What if you discover an error later on?
+It think it would be great if the interface allowed you to open a
+grading session anytime later and use the same reviewing/fixing
+features.  This feature would probably include a list of students
+and grades in the interface, so that you can quickly access the exam
+of a specific student.</li>
+<li>A user interface for entering the questions of an exam, creating the
+PDFs, etc. This would probably include dropping LaTeX in favor of
+something else (my main option is the <a class="reference external" href="http://www.reportlab.com/software/opensource/">ReportLab library</a>). Using the
+current command-line interface and LaTeX would still be possible,
+but not the preferred method.</li>
+<li>Making life easier for users that only want to use Eyegrade for
+grading, but not for creating the exams. I include here features
+such as creating a <cite>.eye</cite> file through guided dialogues or creating
+the PDF of a personalized answer sheet in the user interface.  It's
+about time to close <a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/36">issue 36</a>.</li>
+<li>Adapting the user interface for multiple languages. I can start with
+an English, Spanish and Galician interface, and wait for volunteers
+to translate it to other tongues.</li>
+</ul>
+<p>I won't have time for all the features in the list, so you can help me
+to prioritize. Of course, you can also request features not in the
+list ;)</p>
+            
+    <p>
+        <a href="posts/requests-for-eyegrade-03.html#disqus_thread" data-disqus-identifier="cache/posts/requests-for-eyegrade-03.html">Comments</a>
+
+        </p></div>
+        <div class="postbox">
+        <h1><a href="posts/release-eyegrade-0.2.html">Eyegrade 0.2 released!</a>
+        <small>  
+             Posted: <time class="published" datetime="2013-02-28T00:15:00">2013-02-28 00:15</time>
+        </small></h1>
+        <hr>
+        <p>Eyegrade 0.2 has been released! It features the shiny new PyQt-based
+user interface that I showed in previous posts.</p>
+<p>The <a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/">Eyegrade User Manual</a> contains
+up-to-date instructions for using the new interface. If you have
+Eyegrade 0.1.x installed, you need to install PyQt and change the
+value of an environment variable. See the <a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/#upgrading-from-eyegrade-0-1-x-to-eyegrade-0-2">section about upgrading
+Eyegrade</a>.</p>
+<p>This new user interface will facilitate other usability improvements
+in the future, such as the possibility of reviewing previously graded
+exams, editing the student list, writing grades to disk in several
+orders and formats, etc.</p>
+<p>If you experience problems with this new version, please let me know
+by commenting on this blog or <a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;state=open">posting an issue at GitHub</a>.</p>
+            
+    <p>
+        <a href="posts/release-eyegrade-0.2.html#disqus_thread" data-disqus-identifier="cache/posts/release-eyegrade-0.2.html">Comments</a>
+
+        </p></div>
+        <div class="postbox">
+        <h1><a href="posts/preview-of-the-improved-new-session-dialog.html">Preview of the improved new-session dialog</a>
+        <small>  
+             Posted: <time class="published" datetime="2013-01-06T22:49:08">2013-01-06 22:49</time>
+        </small></h1>
+        <hr>
+        <p>I've been working on the <em>new session</em> dialog. Now it is a wizard with
+three pages. The main novelties are that:</p>
+<ul class="simple">
+<li>You can now select more than one student list. All of them are used
+when detecting the student id.</li>
+<li>You can now enter the scores for correct and incorrect answers. If
+the exam configuration file already contains the scores, you'll see
+them as default values. In addition, you can let Eyegrade choose
+appropriate values for you, by just entering the maximum score of
+the exam and choosing whether incorrect answers should penalize or
+not.</li>
+</ul>
+<p>You can try the new dialog in the development branch at GitHub, and
+see it this <a class="reference external" href="galleries/screenshots-new-gui-2/">screenshots gallery</a>!</p>
+<div class="figure">
+<img alt="Screenshot of a page of the new session dialog" class="thumbnail" src="galleries/screenshots-new-gui-2/screenshot-3.png">
+</div>
+<p>This new dialog will appear in the 0.2 release. I have in mind for a
+future release the possibility of entering the exam configuration from
+the new session dialog, as an alternative to reading it from a
+file. This may be handy for users who do not create the exam with the
+command line tools that Eyegrade provides.</p>
+<p>Comments and suggestions are welcome.</p>
+            
+    <p>
+        <a href="posts/preview-of-the-improved-new-session-dialog.html#disqus_thread" data-disqus-identifier="cache/posts/preview-of-the-improved-new-session-dialog.html">Comments</a>
+
+        </p></div>
+        <div class="postbox">
+        <h1><a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html">Teaser of the new PyQt-based eyegrade user interface</a>
+        <small>  
+             Posted: <time class="published" datetime="2013-01-02T13:30:00">2013-01-02 13:30</time>
+        </small></h1>
+        <hr>
+        <p>I'm programming from scratch the graphical user interface of
+Eyegrade. The old user interface uses Pygame. It allowed me to build
+the first interface of the program very quickly, but its lack of
+graphical components (buttons, dialogues, menus, etc.) was preventing me
+from programming a more user-friendly interface.  I've decided to use
+<a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/">PyQt</a> for the
+new interface. Why PyQt? I programmed a game with Qt in C++ many years
+ago, and I liked the library a lot. With the python bindings, it is
+even easier to use.</p>
+<p>The new user interface will be released with Eyegrade 0.2 (hopefully,
+before the end of January). Check the first <a class="reference external" href="galleries/screenshots-new-gui-1/">screenshots gallery</a>!</p>
+<div class="figure">
+<img alt="Screenshot of the new user interface of Eyegrade" class="thumbnail" src="galleries/screenshots-new-gui-1/screenshot-4.png">
+</div>
+<p>Right now the program does more or less the same as the old interface,
+but it will be easier to add new features in the future.</p>
+<p>The brave can give it a try before the release (it is available at the
+<a class="reference external" href="https://github.com/jfisteus/eyegrade">development branch of Eyegrade at GitHub</a>). Suggestions are welcome
+(just post a comment here or write me an email.) I have tested it only
+in Linux, although it should work in Windows too. If you try it, notice that:</p>
+<ul class="simple">
+<li>You need PyQt (package <em>python-qt4</em> in Debian and Ubuntu).</li>
+<li>There is no <cite>src</cite> directory anymore. Following the Python
+conventions, the Python files are now directly under the <cite>eyegrade</cite>
+subdirectory of the main directory of the project.</li>
+<li>The main program does not receive command line arguments. The <cite>.eye</cite>
+file and student list are selected at the <em>new session</em> dialog.</li>
+</ul>
+            
+    <p>
+        <a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html#disqus_thread" data-disqus-identifier="cache/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html">Comments</a>
+
+        </p></div>
+    
+<div>
+<ul class="pager">
+</ul>
+</div>
+
+    
+       <script type="text/javascript">var disqus_shortname="eyegrade";(function(){var a=document.createElement("script");a.async=true;a.type="text/javascript";a.src="http://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("HEAD")[0]||document.getElementsByTagName("BODY")[0]).appendChild(a)}());</script>
+
+    
+
+
+    </div>
+    </div>
+    <!--End of body content-->
+</div>
+<div class="footerbox">
+    Contents © 2013         <a href="mailto:">Jesús Arias Fisteus</a> - Powered by         <a href="http://nikola.ralsina.com.ar">Nikola</a>
+</div>
+
+    <!-- Social buttons -->
+    <div id="addthisbox" class="addthis_toolbox addthis_peekaboo_style addthis_default_style addthis_label_style addthis_32x32_style">
+    <a class="addthis_button_more">Share</a>
+    <ul><li><a class="addthis_button_facebook"></a>
+    </li><li><a class="addthis_button_google_plusone_share"></a>
+    </li><li><a class="addthis_button_linkedin"></a>
+    </li><li><a class="addthis_button_twitter"></a>
+    </li></ul>
+    </div>
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-4f7088a56bb93798"></script>
+    <!-- End of social buttons -->
+
+
+            <script src="assets/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+            <script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="assets/js/jquery.colorbox-min.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">jQuery("a.image-reference").colorbox({rel:"gal",maxWidth:"80%",maxHeight:"80%",scalePhotos:true});</script>
+</body>
+</html>

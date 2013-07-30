@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>The Eyegrade Blog (eyegrade)</title><link>The Eyegrade Blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Tue, 30 Jul 2013 18:40:45 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Requests for Eyegrade 0.3</title><link>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</link><description>&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
+September. There are some features I have in mind, but listening to
+the users from time to time does not harm ;) If there is a feature you
+are especially interested in, just let me know by commenting on this
+post.&lt;/p&gt;
+&lt;p&gt;Apart from some polishing here and there, these are things I'm
+thinking about:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Right now, you can review and fix detection errors in an exam only
+at the moment you scan it. What if you discover an error later on?
+It think it would be great if the interface allowed you to open a
+grading session anytime later and use the same reviewing/fixing
+features.  This feature would probably include a list of students
+and grades in the interface, so that you can quickly access the exam
+of a specific student.&lt;/li&gt;
+&lt;li&gt;A user interface for entering the questions of an exam, creating the
+PDFs, etc. This would probably include dropping LaTeX in favor of
+something else (my main option is the &lt;a class="reference external" href="http://www.reportlab.com/software/opensource/"&gt;ReportLab library&lt;/a&gt;). Using the
+current command-line interface and LaTeX would still be possible,
+but not the preferred method.&lt;/li&gt;
+&lt;li&gt;Making life easier for users that only want to use Eyegrade for
+grading, but not for creating the exams. I include here features
+such as creating a &lt;cite&gt;.eye&lt;/cite&gt; file through guided dialogues or creating
+the PDF of a personalized answer sheet in the user interface.  It's
+about time to close &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/36"&gt;issue 36&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Adapting the user interface for multiple languages. I can start with
+an English, Spanish and Galician interface, and wait for volunteers
+to translate it to other tongues.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I won't have time for all the features in the list, so you can help me
+to prioritize. Of course, you can also request features not in the
+list ;)&lt;/p&gt;</description><category>eyegrade</category><category>requests</category><guid>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item><item><title>Eyegrade 0.2 released!</title><link>The Eyegrade Blog/posts/release-eyegrade-0.2.html</link><description>&lt;p&gt;Eyegrade 0.2 has been released! It features the shiny new PyQt-based
+user interface that I showed in previous posts.&lt;/p&gt;
+&lt;p&gt;The &lt;a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/"&gt;Eyegrade User Manual&lt;/a&gt; contains
+up-to-date instructions for using the new interface. If you have
+Eyegrade 0.1.x installed, you need to install PyQt and change the
+value of an environment variable. See the &lt;a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/#upgrading-from-eyegrade-0-1-x-to-eyegrade-0-2"&gt;section about upgrading
+Eyegrade&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This new user interface will facilitate other usability improvements
+in the future, such as the possibility of reviewing previously graded
+exams, editing the student list, writing grades to disk in several
+orders and formats, etc.&lt;/p&gt;
+&lt;p&gt;If you experience problems with this new version, please let me know
+by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>The Eyegrade Blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item><item><title>Preview of the improved new-session dialog</title><link>The Eyegrade Blog/posts/preview-of-the-improved-new-session-dialog.html</link><description>&lt;p&gt;I've been working on the &lt;em&gt;new session&lt;/em&gt; dialog. Now it is a wizard with
+three pages. The main novelties are that:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;You can now select more than one student list. All of them are used
+when detecting the student id.&lt;/li&gt;
+&lt;li&gt;You can now enter the scores for correct and incorrect answers. If
+the exam configuration file already contains the scores, you'll see
+them as default values. In addition, you can let Eyegrade choose
+appropriate values for you, by just entering the maximum score of
+the exam and choosing whether incorrect answers should penalize or
+not.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can try the new dialog in the development branch at GitHub, and
+see it this &lt;a class="reference external" href="/galleries/screenshots-new-gui-2/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Screenshot of a page of the new session dialog" class="thumbnail" src="/galleries/screenshots-new-gui-2/screenshot-3.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;This new dialog will appear in the 0.2 release. I have in mind for a
+future release the possibility of entering the exam configuration from
+the new session dialog, as an alternative to reading it from a
+file. This may be handy for users who do not create the exam with the
+command line tools that Eyegrade provides.&lt;/p&gt;
+&lt;p&gt;Comments and suggestions are welcome.&lt;/p&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>The Eyegrade Blog/posts/preview-of-the-improved-new-session-dialog.html</guid><pubDate>Sun, 06 Jan 2013 22:49:08 GMT</pubDate></item><item><title>Teaser of the new PyQt-based eyegrade user interface</title><link>The Eyegrade Blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</link><description>&lt;p&gt;I'm programming from scratch the graphical user interface of
+Eyegrade. The old user interface uses Pygame. It allowed me to build
+the first interface of the program very quickly, but its lack of
+graphical components (buttons, dialogues, menus, etc.) was preventing me
+from programming a more user-friendly interface.  I've decided to use
+&lt;a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/"&gt;PyQt&lt;/a&gt; for the
+new interface. Why PyQt? I programmed a game with Qt in C++ many years
+ago, and I liked the library a lot. With the python bindings, it is
+even easier to use.&lt;/p&gt;
+&lt;p&gt;The new user interface will be released with Eyegrade 0.2 (hopefully,
+before the end of January). Check the first &lt;a class="reference external" href="/galleries/screenshots-new-gui-1/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Screenshot of the new user interface of Eyegrade" class="thumbnail" src="/galleries/screenshots-new-gui-1/screenshot-4.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;Right now the program does more or less the same as the old interface,
+but it will be easier to add new features in the future.&lt;/p&gt;
+&lt;p&gt;The brave can give it a try before the release (it is available at the
+&lt;a class="reference external" href="https://github.com/jfisteus/eyegrade"&gt;development branch of Eyegrade at GitHub&lt;/a&gt;). Suggestions are welcome
+(just post a comment here or write me an email.) I have tested it only
+in Linux, although it should work in Windows too. If you try it, notice that:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;You need PyQt (package &lt;em&gt;python-qt4&lt;/em&gt; in Debian and Ubuntu).&lt;/li&gt;
+&lt;li&gt;There is no &lt;cite&gt;src&lt;/cite&gt; directory anymore. Following the Python
+conventions, the Python files are now directly under the &lt;cite&gt;eyegrade&lt;/cite&gt;
+subdirectory of the main directory of the project.&lt;/li&gt;
+&lt;li&gt;The main program does not receive command line arguments. The &lt;cite&gt;.eye&lt;/cite&gt;
+file and student list are selected at the &lt;em&gt;new session&lt;/em&gt; dialog.&lt;/li&gt;
+&lt;/ul&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>The Eyegrade Blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</guid><pubDate>Wed, 02 Jan 2013 13:30:00 GMT</pubDate></item></channel></rss>
