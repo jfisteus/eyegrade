@@ -1,0 +1,1369 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title>Eyegrade User Manual (versions 0.1.x)</title>
+<meta name="author" content="Jesús Arias Fisteus" />
+<style type="text/css">
+
+/*
+:Authors: Ian Bicking, Michael Foord
+:Contact: fuzzyman@voidspace.org.uk
+:Date: 2005/08/26 
+:Version: 0.1.0
+:Copyright: This stylesheet has been placed in the public domain.
+
+Stylesheet for Docutils.
+Based on ``blue_box.css`` by Ian Bicking
+and ``html4css1.css`` revision 1.46.
+*/
+
+@import url(html4css1.css);
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+em, i {
+  /* Typically serif fonts have much nicer italics */
+  font-family: Times New Roman, Times, serif;
+}
+
+a.target {
+  color: blue;
+}
+
+a.target {
+  color: blue;
+}
+
+a.toc-backref {
+  text-decoration: none;
+  color: black;
+}
+
+a.toc-backref:hover {
+  background-color: inherit;
+}
+
+a:hover {
+  background-color: #cccccc;
+}
+
+div.attention, div.caution, div.danger, div.error, div.hint,
+div.important, div.note, div.tip, div.warning {
+  background-color: #cccccc;
+  padding: 3px;
+  width: 80%;
+}
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title  {
+  text-align: center;
+  background-color: #999999;
+  display: block;
+  margin: 0;
+}
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: #cc0000;
+  font-family: sans-serif;
+  text-align: center;
+  background-color: #999999;
+  display: block;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Helvetica, Arial, sans-serif;
+  border: thin solid black;
+  /* This makes the borders rounded on Mozilla, which pleases me */
+  -moz-border-radius: 8px;
+  padding: 4px;
+}
+
+h1 {
+  background-color: #444499;
+  color: #ffffff;
+  border: medium solid black;
+}
+
+h1 a.toc-backref, h2 a.toc-backref { 
+  color: #ffffff;
+}
+
+h2 {
+  background-color: #666666;
+  color: #ffffff;
+  border: medium solid black;
+}
+
+h3, h4, h5, h6 {
+  background-color: #cccccc;
+  color: #000000;
+}
+
+h3 a.toc-backref, h4 a.toc-backref, h5 a.toc-backref, 
+h6 a.toc-backref { 
+  color: #000000;
+}
+
+h1.title {
+  text-align: center;
+  background-color: #444499;
+  color: #eeeeee;
+  border: thick solid black;
+  -moz-border-radius: 20px;
+}
+
+table.footnote {
+  padding-left: 0.5ex;
+}
+
+table.citation {
+  padding-left: 0.5ex
+}
+
+pre.literal-block, pre.doctest-block {
+  border: thin black solid;
+  padding: 5px;
+}
+
+.image img { border-style : solid;
+            border-width : 2px;
+}
+
+h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
+  font-size: 100%;
+}
+
+code, tt {
+  color: #000066;
+}
+
+</style>
+</head>
+<body>
+<div class="document" id="eyegrade-user-manual">
+<h1 class="title">Eyegrade User Manual (versions 0.1.x)</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>Jesús Arias Fisteus</td></tr>
+</tbody>
+</table>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#installing-eyegrade" id="id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installation-on-gnu-linux" id="id3">1.1&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installation-on-debian-and-ubuntu" id="id4">1.1.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-on-microsoft-windows" id="id5">1.2&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installing-python" id="id6">1.2.1&nbsp;&nbsp;&nbsp;Installing Python</a></li>
+<li><a class="reference internal" href="#installing-opencv" id="id7">1.2.2&nbsp;&nbsp;&nbsp;Installing OpenCV</a></li>
+<li><a class="reference internal" href="#id1" id="id8">1.2.3&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-on-mac-os-x" id="id9">1.3&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></li>
+<li><a class="reference internal" href="#updating-eyegrade" id="id10">1.4&nbsp;&nbsp;&nbsp;Updating Eyegrade</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#grading-exams" id="id11">2&nbsp;&nbsp;&nbsp;Grading Exams</a><ul class="auto-toc">
+<li><a class="reference internal" href="#launching-eyegrade" id="id12">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></li>
+<li><a class="reference internal" href="#application-modes" id="id13">2.2&nbsp;&nbsp;&nbsp;Application modes</a></li>
+<li><a class="reference internal" href="#the-search-mode" id="id14">2.3&nbsp;&nbsp;&nbsp;The search mode</a></li>
+<li><a class="reference internal" href="#the-review-mode" id="id15">2.4&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
+<li><a class="reference internal" href="#modifying-student-answers" id="id16">2.4.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
+<li><a class="reference internal" href="#modifying-the-student-id" id="id17">2.4.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-manual-detection-mode" id="id18">2.5&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#processing-student-grades" id="id19">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
+<li><a class="reference internal" href="#the-answers-file" id="id20">3.1&nbsp;&nbsp;&nbsp;The answers file</a></li>
+<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id21">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a><ul class="auto-toc">
+<li><a class="reference internal" href="#exporting-a-listing-for-a-subset-of-students" id="id22">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#editing-exams" id="id23">4&nbsp;&nbsp;&nbsp;Editing exams</a></li>
+<li><a class="reference internal" href="#advanced-features" id="id24">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#webcam-selection" id="id25">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
+<li><a class="reference internal" href="#mixing-manually-graded-questions" id="id26">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></li>
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id27">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id28">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This user manual refers to the old Eyegrade versions 0.1.x. The
+documentation for the latest version of Eyegrade is available at
+<a class="reference external" href="../user-manual/">this other user manual</a>.</p>
+<div class="section" id="installing-eyegrade">
+<h1><a class="toc-backref" href="#id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h1>
+<p>Eyegrade depends on the following free-software projects:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.python.org/">Python</a>: the run-time environment and standard library for the
+execution Python programs. Eyegrade is known to work with Python
+2.6.</li>
+<li><a class="reference external" href="http://opencv.willowgarage.com/wiki/">Opencv</a>: a widely used computer-vision library. Version 2.0 or later
+is needed. Not only the OpenCV library, but also the python bindings
+distributed with it are needed.</li>
+<li><a class="reference external" href="http://pygame.org/">Pygame</a>: a Python library for building games.</li>
+<li><a class="reference external" href="http://laurikari.net/tre/">Tre</a>: a library for regular expressions. Install version 0.8.0 or
+later.  Both the library and python bindings are needed.</li>
+</ul>
+<div class="section" id="installation-on-gnu-linux">
+<h2><a class="toc-backref" href="#id3">1.1&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a></h2>
+<p>If your Linux distribution is not very old, it should provide most of
+the needed software packages. Specific instructions for Debian
+GNU/Linux and Ubuntu are provided below.</p>
+<div class="section" id="installation-on-debian-and-ubuntu">
+<h3><a class="toc-backref" href="#id4">1.1.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></h3>
+<p>Almost all the required software packages are already available in
+recent versions of <a class="reference external" href="http://www.debian.org/">Debian GNU/Linux</a> and
+<a class="reference external" href="http://www.ubuntu.com/">Ubuntu</a>. The only exception are the Python
+bindings for Tre, which have to be installed manually.</p>
+<p>Using your favorite package manager (<tt class="docutils literal"><span class="pre">apt-get</span></tt>, <tt class="docutils literal">aptitude</tt>,
+<tt class="docutils literal">synaptic</tt>, etc.), install the following packages: <tt class="docutils literal">python</tt> (check
+that the version is either 2.6 or 2.7), <tt class="docutils literal"><span class="pre">python-pygame</span></tt>,
+<tt class="docutils literal"><span class="pre">python-opencv</span></tt>, <tt class="docutils literal">libavformat53</tt>, <tt class="docutils literal">libtre5</tt>. In older versions
+of Ubuntu and Debian, you might need to install also <tt class="docutils literal">libcv2.1</tt> (in
+even older versions, the name of this package is <tt class="docutils literal">libcv4</tt> instead).
+If you can't find <tt class="docutils literal">libavformat53</tt> in your distribution, use
+<tt class="docutils literal">libavformat52</tt> instead.</p>
+<p>Then, you have to install the Python bindings for Tre. First, install
+these two additional packages: <tt class="docutils literal"><span class="pre">python-dev</span></tt>, <tt class="docutils literal"><span class="pre">libtre-dev</span></tt>.
+Then, from the command line, download, compile and install the Python
+bindings:</p>
+<pre class="literal-block">
+wget http://laurikari.net/tre/tre-0.8.0.tar.gz
+tar xzvf tre-0.8.0.tar.gz
+cd tre-0.8.0/python/
+python setup.py build
+sudo python setup.py install
+</pre>
+<p>Now, you only need to download Eyegrade using the git source code
+revision system (install the <tt class="docutils literal">git</tt> package if you do not have it):</p>
+<pre class="literal-block">
+cd $DIR
+git clone -b master git://github.com/jfisteus/eyegrade.git
+</pre>
+<p>Note: replace $DIR above with the directory in which you
+want Eyegrade to be installed.</p>
+<p>Finally, add the <tt class="docutils literal">$DIR/eyegrade/src</tt> directory to your <tt class="docutils literal">PYTHONPATH</tt> and
+check that Eyegrade works:</p>
+<pre class="literal-block">
+export PYTHONPATH=$DIR/eyegrade/src
+python -m eyegrade.eyegrade -h
+</pre>
+<p>The export command works only in the current terminal. You can make it
+permanent by adding it to your $HOME/.bashrc file (if you use the BASH
+shell).</p>
+<p>That's all! Eyegrade should now be installed. For further testing, go to
+<a class="reference internal" href="#launching-eyegrade">Launching Eyegrade</a>.</p>
+</div>
+</div>
+<div class="section" id="installation-on-microsoft-windows">
+<h2><a class="toc-backref" href="#id5">1.2&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></h2>
+<p>You have to follow these three steps, explained in the following
+sections, in order to install Eyegrade in Windows:</p>
+<p>1.- Install Python 2.6 (including Pygame and Tre).</p>
+<p>2.- Install OpenCV 2.1.</p>
+<p>3.- Install Eyegrade itself.</p>
+<div class="section" id="installing-python">
+<h3><a class="toc-backref" href="#id6">1.2.1&nbsp;&nbsp;&nbsp;Installing Python</a></h3>
+<p>The easiest way to install Python, Pygame and Tre in Windows is
+to download a ZIP file that contains all of them and extract it in
+your file system.</p>
+<p>1.- Download the ZIP file from:
+&lt;<a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip">http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip</a>&gt;.</p>
+<p>2.- Extract it somewhere in your file system (I recommend <tt class="docutils literal">C:\</tt>). A
+directory named <tt class="docutils literal">Python26</tt> will appear. Be aware that the full path
+of the directory where you extract it <em>cannot contain</em> white-spaces.</p>
+<p>3.- Add the main directory (<tt class="docutils literal">Python26</tt>) of your Python installation
+to your system PATH. For example, if you uncompressed Python at <tt class="docutils literal">C:\</tt>,
+add <tt class="docutils literal"><span class="pre">C:\Python26</span></tt> to the system PATH variable.</p>
+<p>You can test your installation by opening a new command line console
+and launching the interactive Python interpreter in it:</p>
+<pre class="literal-block">
+Python
+</pre>
+<p>If it does not start, you have probably not added it correctly to your
+system PATH. Opening a new console is important because changes in the
+system PATH apply only to newly-opened consoles.</p>
+<p>Once in the Python interpreter, the following commands should work:</p>
+<pre class="literal-block">
+import pygame
+import tre
+</pre>
+<p>These commands should not output any message. If they do, there is a
+problem with the installation. If <em>tre</em> complains about a missing DLL,
+the problem is probably that the installation directory of Python is
+not in the system PATH.</p>
+<p>If you already have a Python 2.6 installation and want to use it, you
+must, on that installation of Python: (1) download and install Pygame;
+(2) download and install Tre 0.8.0. You will need Microsoft Visual
+Studio 2008 (the express version is free and works) for this last
+step.</p>
+</div>
+<div class="section" id="installing-opencv">
+<h3><a class="toc-backref" href="#id7">1.2.2&nbsp;&nbsp;&nbsp;Installing OpenCV</a></h3>
+<p>Download the EXE installer of OpenCV 2.1.0 for Windows platforms:
+<a class="reference external" href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.1/OpenCV-2.1.0-win32-vs2008.exe/download">OpenCV-2.1.0-win32-vs2008.exe</a>. There
+is a copy of the same file at <a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/downloads/OpenCV21.exe">OpenCV21.exe</a>.</p>
+<p>Execute the installer. Again, it is better to choose an installation
+path which has no white-spaces in it. The installer will eventually
+ask to put OpenCV in your system PATH. Answer <em>yes for this user</em> or
+<em>yes for all the users</em>.</p>
+<p>In order to test the installation, open a <em>new</em> command prompt window
+(it must necessarily be a new window for the system path to be
+updated). Run the python interpreter as explained in the previous
+section and type in it:</p>
+<pre class="literal-block">
+import cv
+</pre>
+<p>This command should not output any message. If it does, there is a
+problem with the installation.</p>
+</div>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id8">1.2.3&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h3>
+<p>By now, the recommended way to install Eyegrade is through the <a class="reference external" href="http://git-scm.com/">Git
+version control system</a>. This way it will be
+easier to update Eyegrade in the future, when new versions are
+released (see <a class="reference internal" href="#updating-eyegrade">Updating Eyegrade</a>).</p>
+<p>In order to install Eyegrade through Git, follow these steps:</p>
+<p>1.- Download and install Git if you do not have it installed. The
+installer and installation instructions are available at
+&lt;<a class="reference external" href="http://git-scm.com/">http://git-scm.com/</a>&gt;.</p>
+<p>2.- Open a command line prompt (for example, a Git shell), enter the
+directory you want Eyegrade to be installed (again, with no
+white-spaces in it), and type:</p>
+<pre class="literal-block">
+git clone -b master git://github.com/jfisteus/eyegrade.git
+</pre>
+<p>If you prefer not to install Git:</p>
+<p>1.- Go to <a class="reference external" href="https://github.com/jfisteus/eyegrade">the page of Eyegrade at Github</a>, click on the <em>Downloads</em>
+button and select the most recent release. Extract it in your file
+system, in a directory with no white-spaces in its path.</p>
+<p>Once you have Eyegrade installed (either with or without Git), test
+it. For example, if you have installed both Python and Eyegrade at
+<tt class="docutils literal">C:\</tt>:</p>
+<pre class="literal-block">
+set PYTHONPATH=C:\eyegrade\src
+C:\Python26\python -m eyegrade.eyegrade -h
+</pre>
+<p>It should dump a help message. Eyegrade should now be installed. For
+further testing, go to <a class="reference internal" href="#launching-eyegrade">Launching Eyegrade</a>.</p>
+<p><strong>Tip:</strong> it may be convenient adding C:Python26 to your system path
+permanently, and adding PYTHONPATH to the system-wide environment
+variables. There are plenty of resources in the Web that explain how
+to do this. For example,
+&lt;http://www.windows7hacker.com/index.php/2010/05/how-to-addedit-environment-variables-in-windows-7/&gt;.</p>
+</div>
+</div>
+<div class="section" id="installation-on-mac-os-x">
+<h2><a class="toc-backref" href="#id9">1.3&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></h2>
+<p>Sorry, Eyegrade is not currently supported on that platform. Volunteers
+to support the platform are welcome.</p>
+</div>
+<div class="section" id="updating-eyegrade">
+<h2><a class="toc-backref" href="#id10">1.4&nbsp;&nbsp;&nbsp;Updating Eyegrade</a></h2>
+<p>From time to time, a new release of Eyegrade may appear. If you
+installed Eyegrade using Git, updating is simple. Open a command
+prompt window, enter the Eyegrade installation directory and type:</p>
+<pre class="literal-block">
+git pull
+</pre>
+<p>This should work on any platform (Linux, Windows, etc.)</p>
+</div>
+</div>
+<div class="section" id="grading-exams">
+<h1><a class="toc-backref" href="#id11">2&nbsp;&nbsp;&nbsp;Grading Exams</a></h1>
+<p>The main purpose of Eyegrade is grading exams. In order to grade exams,
+you will need:</p>
+<ul class="simple">
+<li>The Eyegrade software installed in your computer.</li>
+<li>The exam configuration file, which specifies the number
+of questions in the exam, solutions, etc. It is normally named
+<em>exam.eye</em>.</li>
+<li>A compatible webcam, with minimum resolution 640x480.</li>
+<li>The list of students in your class, if you want Eyegrade to
+detect student IDs.</li>
+<li>The exams to grade.</li>
+</ul>
+<div class="section" id="launching-eyegrade">
+<h2><a class="toc-backref" href="#id12">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></h2>
+<p>Eyegrade can be launched from command line:</p>
+<pre class="literal-block">
+python -m eyegrade.eyegrade exam.eye
+</pre>
+<p>where <tt class="docutils literal">exam.eye</tt> is the file that holds the configuration of the
+exam (number of questions, geometry of tables, correct answers, etc.)</p>
+<p>Inside the directory <tt class="docutils literal"><span class="pre">doc/sample-files</span></tt> you can find a sample exam,
+named <tt class="docutils literal"><span class="pre">exam-A.pdf</span></tt>, that you can print for testing the program. The
+corresponding <tt class="docutils literal">exam.eye</tt> file is also there.</p>
+<p>If you want Eyegrade to read student's identity, it is recommended to
+provide it with the list of students in class:</p>
+<pre class="literal-block">
+python -m eyegrade.eyegrade exam.eye -l student-list.csv
+</pre>
+<p>where <tt class="docutils literal"><span class="pre">student-list.csv</span></tt> is a tabulator-separated file in which
+there are one line per student. The first column must be the student
+identifier.  The second column (optional) must be the student
+name. Other columns, if present, are ignored.</p>
+<p>Eyegrade will start up and show its graphical interface, as shown in
+the next picture:</p>
+<img alt="Eyegrade main window" src="images/main-window.png" />
+<p>The interface is quite simple:</p>
+<ul class="simple">
+<li>The output of the webcam is shown in the main area of the window.</li>
+<li>A toolbar is shown at the right. We will go through the meaning of these
+buttons later.</li>
+<li>Two status lines are shown at the bottom. They show different pieces
+of information depending on the currently active mode.</li>
+</ul>
+</div>
+<div class="section" id="application-modes">
+<h2><a class="toc-backref" href="#id13">2.2&nbsp;&nbsp;&nbsp;Application modes</a></h2>
+<p>At a given instant, the application is in one of these two modes:</p>
+<ul class="simple">
+<li><em>Search mode</em>: the application continually scans the input from the webcam,
+looking foir a correct detection of an exam.</li>
+<li><em>Review mode</em>: the application shows a still capture of an exam with the
+result of the grading, so that the user can review the result and
+fix things if necessary before saving the score of the exam.</li>
+<li><em>Manual detection mode</em>: in the rare cases in which the system is
+not able to detect the geometry of the exam, you can enter this mode
+and mark the corners of the answer tables. Eyegrade will be able to
+detect the tables once you tell it where the corners are.</li>
+</ul>
+<p>Obviously, the application starts in the <em>search mode</em>. When the
+system detects an answer sheet that can be read, it locks the capture
+and enters the <em>review mode</em>. Once you save the score of the exam,
+Eyegrade automatically goes back to the <em>search mode</em> in order to scan
+the next exam.</p>
+<p>You can enter the <em>manual detection mode</em> by issuing the appropriate
+command while in the other modes.</p>
+</div>
+<div class="section" id="the-search-mode">
+<h2><a class="toc-backref" href="#id14">2.3&nbsp;&nbsp;&nbsp;The search mode</a></h2>
+<p>In the <em>search mode</em>, you have to get the camera to point to the answer table
+of the exam, including, if present, the id box above it and the small squares
+at the bottom.</p>
+<p>Eyegrade will continually scan the input of the webcam until the whole
+exam is correctly detected. At that moment, Eyegrade will switch to the
+<em>review mode</em>.</p>
+<p>Sometimes, Eyegrade is able to detect the answer table but not the ID
+table at the top of it. You can notice that because the detected
+answers are temporary shown on top of the image. At this point, you
+may try further until the ID box is also detected, or just use the
+<em>snapshot</em> command (see the table below), which will force the system
+to switch to the <em>review mode</em> using the most recent capture in which
+the answer table was detected. You will be able to manually enter the
+missing student id in that mode.</p>
+<p>In rare occasions, Eyegrade could fail event to detect the answer table.
+The <em>manual detection</em> command allows you to help the system detect it.</p>
+<p>These are the commands available in the <em>search mode</em>:</p>
+<ul class="simple">
+<li><img alt="icon_snapshot" src="images/snapshot.png" /> <em>snapshot</em> (shortcut 's'): forces the system to
+enter the <em>review mode</em> with the the most recent capture in which
+Eyegrade was able to detect the answer table. If there is no such
+capture, the system just uses the current capture.</li>
+<li><img alt="icon_manual_detect" src="images/manual_detect.png" /> <em>manual detection</em> (shortcut 'm'): the system
+enters the <em>manual detection mode</em>, in which you can help the system
+detect the answer table by marking the corners of the answer
+tables. After that, the system will detect the answers of the
+student and automatically enter the <em>review mode</em>. See <a class="reference internal" href="#the-manual-detection-mode">The manual
+detection mode</a>.</li>
+<li><img alt="icon_exit" src="images/exit.png" /> <em>exit</em> (shortcut 'Escape'): Eyegrade terminates. There is
+no risk of losing data, because the scores of previous exams are
+already saved in a file.</li>
+</ul>
+</div>
+<div class="section" id="the-review-mode">
+<h2><a class="toc-backref" href="#id15">2.4&nbsp;&nbsp;&nbsp;The review mode</a></h2>
+<p>In the <em>review mode</em> you can review and, if necessary, fix the information
+detected by Eyegrade in the current exam. You can review and fix both the
+answers given by the student to each question and the student id. You can
+enter the <em>review mode</em> in three different situations:</p>
+<ul class="simple">
+<li>With the answers of the student and her id detected. This is the
+usual case.  Eyegrade was able to detect the whole exam, and you can
+review the information extracted from it.</li>
+<li>With the answers of the student, but without her id. This is the case
+when you use the <em>snapshot</em> command in the <em>search mode</em> because Eyegrade
+detected the answer table in at least one capture, but not the student
+id box. In this case, you can review the answers given by the student
+and manually enter her id.</li>
+<li>With neither the answers of the student nor her id. This is the case
+when you use the <em>snapshot</em> command in the <em>search mode</em> because Eyegrade
+was not able to detect anything from the exam. In this situation,
+you can switch to the <em>manual detection mode</em> to help the system
+detect the answer tables, and manually enter the student id.</li>
+</ul>
+<p>The user interface shows, in this mode, a capture of the exam augmented
+with the detected information, as shown in the following image:</p>
+<img alt="Eyegrade in the review mode" src="images/review-mode-normal.png" />
+<p>As you can see, the system shows:</p>
+<ul class="simple">
+<li>The detected student id, at the upper-left corner, and his name at the
+bottom, as taken from the student list you provided.</li>
+<li>The sequence number of the exam, just below the student id. This
+sequence number is automatically incremented by Eyegrade for each
+exam it scans.</li>
+<li>The answers of the student, with a green circle for correct answers
+and a red circle for incorrect ones. When the student leaves a
+question unanswered or provides a wrong answer for it, the correct
+answer for that question is marked with a small blue dot.</li>
+<li>The total number of correct, incorrect and blank answers, at the bottom.
+This information is also shown on top of the image, at its left-bottom
+corner.</li>
+<li>The model of the exam, on top of the image, at the left-bottom. The
+model is detected from the small black squares that are printed
+below the answer table.</li>
+</ul>
+<p>In this mode, you can perform the following actions:</p>
+<ul class="simple">
+<li>Modify the answers of the student, if there are mistakes in the
+automatically-detected answers, as explained in <a class="reference internal" href="#modifying-student-answers">Modifying student
+answers</a>.</li>
+<li>Modify the student id, if the system did not recognize it or
+recognized a wrong id, as explained in <a class="reference internal" href="#modifying-the-student-id">Modifying the
+student id</a>.</li>
+<li><img alt="icon_save" src="images/save.png" /> <em>save</em> (shortcut 'Space-bar'): saves the grades of this
+exam as well as the annotated captured image, and enters the <em>search
+mode</em> in order to detect the next exam. <strong>Tip:</strong> before saving, it
+is better to remove the exam from the sight of the camera to avoid
+it from being captured again. You can even put the next exam under
+the camera before saving to speed up the process.</li>
+<li><img alt="icon_discard" src="images/discard.png" /> <em>discard</em> (shortcut 'Backspace'): discards the
+current capture <strong>without</strong> saving. It is useful, for example, when
+the capture is not good enough, or when you detect the same exam has
+already been graded before.</li>
+<li><img alt="icon_manual_detect" src="images/manual_detect.png" /> <em>manual detection</em> (shortcut 'm'): the system
+enters the <em>manual detection mode</em>, in which you can help the system
+detect the answer table by marking the corners of the answer
+tables. After that, the system will detect the answers of the
+student and automatically enter again the <em>review mode</em>. This
+command is allowed only when the system failed to recognize the
+geometry of the answer tables. See <a class="reference internal" href="#the-manual-detection-mode">The manual detection mode</a>.</li>
+<li><img alt="icon_exit" src="images/exit.png" /> <em>exit</em> (shortcut 'Escape'): exits Eyegrade <strong>without</strong>
+saving the current exam. However, there is no risk to loose data
+from any exam that was saved before.</li>
+</ul>
+<div class="section" id="modifying-student-answers">
+<h3><a class="toc-backref" href="#id16">2.4.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
+<p>The optical recognition system of Eyegrade my fail sometimes, due to
+its own limitations, or students filling their exams in messy ways.
+Sometimes, Eyegrade shows a cell in the answer table as marked when it
+is not, or a cell is not marked when it actually is. In addition, if
+Eyegrade thinks that two cells of the same question are marked, it
+will leave that question as blank.</p>
+<p>You are able to fix those mistakes at the <em>review mode</em>. Click on a
+cell of the answer table to change an answer of the student that was
+not correctly detected by Eyegrade: when the student marked a given
+cell, but the system detected the question as blank, or simply showed
+other answer of that question as marked, just click on the cell the
+student actually marked. When the student left a question blank but
+the system did mark one of the cells as the answer, click on that cell
+to clear it. In both cases, Eyegrade will compute the scores again and
+immediately update the information on the screen.</p>
+</div>
+<div class="section" id="modifying-the-student-id">
+<h3><a class="toc-backref" href="#id17">2.4.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
+<p>Normally, you should provide Eyegrade with the list of class, because
+detection of student ids performs much better in that case. When
+scanning the id in an exam, Eyegrade sorts ids of the students in
+class according to the estimated probability of being the id in the
+exam. The one with the most probability is shown.</p>
+<p>In the <em>review mode</em>, there are several ways to set the student id
+when Eyegrade does not detect it, or detects a wrong one.</p>
+<ul class="simple">
+<li><img alt="icon_next_id" src="images/next_id.png" /> <em>next id</em> (shortcut 'Tabulator' or 'Down arrow'):
+selects the next id in the sorted list of ids. When the detected id
+is wrong, is usual that the correct id is in the next two or three
+positions of the list, so it may be worth using this command at
+least a couple of times.</li>
+<li><em>previous id</em> (shortcut 'Up arrow'): selects the previous id in the
+sorted list of ids. It allows you to go back if you missed the
+correct id while using the <em>next id</em> command.</li>
+<li>Type some digits from the correct id: other way of entering the
+correct id is by typing some consecutive digits of the id. The most
+probable id from the list of class containing that sequence of
+digits is selected.  Each time you type a digit, the id is
+updated. Just type a few digits until you get the id you
+want. <strong>Tip:</strong> sometimes the first digits of ids are the same for
+many students in class. Begin typing at a position in which ids are
+more variable. <strong>Tip:</strong> if you typed some digits but want to cancel
+your selection or begin again with new digits, use the <em>next id</em>
+or <em>previous id</em> commands.</li>
+<li><img alt="icon_edit_id" src="images/edit_id.png" /> <em>edit id</em> (shortcut 'i'): use this command to
+manually enter the whole id, digit by digit, from left to
+right. Just save the exam after entering the last digit. The entered
+id is not checked against the list of class: you are allowed to
+enter just any number. This mode is useful only when a student is
+not in the list of class, or the list of class is not available.</li>
+</ul>
+<p>Note that the first two ways to select the student id are available
+only when Eyegrade has the list of class.</p>
+<p><strong>Tip:</strong> when you need to correct an id, first use the <em>next id</em>
+option a few times. If after that the correct one does not appear,
+type a sequence of digits of the correct id, until Eyegrade selects
+the correct id.</p>
+<p><strong>Tip:</strong> with the <em>edit id</em> command, there is no way to tell Eyegrade
+that you have finished entering it: just save the exam and go to the
+next exam.</p>
+<p><strong>Tip:</strong> if you select <em>edit id</em> and make some mistakes when entering
+the id, you can begin to type again from the beginning by selecting
+again the <em>edit id</em> command.</p>
+</div>
+</div>
+<div class="section" id="the-manual-detection-mode">
+<h2><a class="toc-backref" href="#id18">2.5&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
+<p>In some rare occasions, Eyegrade may not be able to detect the answer
+tables. In those cases, you can enter the <em>manual detection mode</em> from
+the <em>search mode</em> (and also from the <em>review mode</em> if you entered that
+mode using the <em>snapshot</em> command). When entering the <em>manual
+detection mode</em>, the latest capture of the camera will be shown.</p>
+<p>In this mode, just click with the cursor in the for corners of each
+answer table (a small circle will appear in every location you
+click). The order in which you click on the corners does not
+matter. After having done that, Eyegrade will infer the limits of each
+cell, and based on them it will read the answers of the student and
+the exam model. It will enter the <em>review mode</em>.</p>
+<p>The following two images show an example. In the first image, the user
+has selected six corners (notice the small blue circles):</p>
+<img alt="Eyegrade in the review mode" src="images/manual-detection-mode.png" />
+<p>After she selects the remaining two corners, the system detects the
+answers and goes back to the <em>review mode</em>:</p>
+<img alt="Eyegrade in the review mode" src="images/manual-detection-mode-2.png" />
+<p>Note, however, that the student id will not be detected when you use
+this mode. When the system goes back to the <em>review mode</em>, set the id
+as explained in <a class="reference internal" href="#modifying-the-student-id">Modifying the student id</a>.</p>
+<p>At any point of the process, you can use the <em>manual detection</em>
+command (shortcut 'm') to reset the selection of corners and start
+again. If you think that the captured image is not good enough, you
+can also use the <em>discard</em> command (shortcut 'Backspace') to go again
+to the <em>search mode</em>.</p>
+<p><strong>Tip:</strong> in the <em>manual detection mode</em>, make sure that the captured
+image shows all the answer tables as well as the exam model squares at
+the bottom.</p>
+</div>
+</div>
+<div class="section" id="processing-student-grades">
+<h1><a class="toc-backref" href="#id19">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
+<p>The output produced by Eyegrade consists of:</p>
+<ul class="simple">
+<li>A file with the scores, named <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt>: it contains
+one line for each graded exam. Each line contains, among other
+things, the student id number, the number of correct and incorrect
+answers, and the answer to every question in the exam.  Student
+grades can be extracted from this file.</li>
+<li>One snapshot of each graded exam, in PNG format: snapshots can be
+used as an evidence to show students. They can be shown to students
+coming to your office to review the exam, or even emailed to every
+student. The default name for those images is the concatenation of
+the student id and exam sequence number, in order to facilitate the
+instructor to locate the snapshot for a specific student.</li>
+</ul>
+<div class="section" id="the-answers-file">
+<h2><a class="toc-backref" href="#id20">3.1&nbsp;&nbsp;&nbsp;The answers file</a></h2>
+<p>The file <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> produced by Eyegrade contains the
+scores in CSV format (with tabulator instead of comma as a separator),
+so that it can be easily imported from other programs such as
+spreadsheets. This is an example of such a file:</p>
+<pre class="literal-block">
+0   100999991       D       9       6       0       1/2/2/4/1/2/2/0/0/3/2/0/3/2/0/4/3/0/1/2
+1   100999997       C       15      1       0       2/4/4/3/1/0/1/2/1/1/0/1/0/4/3/0/1/4/3/4
+2   100800003       D       6       14      0       4/2/2/2/1/2/1/3/2/1/3/1/2/1/3/1/4/1/4/3
+3   100777777       A       7       13      0       3/2/3/2/3/3/2/4/3/1/3/1/4/1/4/2/2/3/4/2
+</pre>
+<p>The columns of this file represent:</p>
+<p>1.- The exam sequence number (the same number the user interface shows
+below the student id in the <em>review mode</em>).</p>
+<p>2.- The student id (or '-1' if the student id is unknown).</p>
+<p>3.- The exam model ('A', 'B', 'C', etc.)</p>
+<p>4.- The number of correct answers.</p>
+<p>5.- The number of incorrect answers.</p>
+<p>6.- The number of undetermined answers (answers marked as blank because
+of the system detecting more than one marked cell).</p>
+<p>7.- The response of the student to each question in the exam, from the
+first question in her model to the last. '0' means a blank
+answer. '1', '2', etc. mean the first choice, second choice, etc., in
+the order they were presented in her exam model.</p>
+<p>Exams are in the same sequence they were graded. See <a class="reference internal" href="#exporting-a-listing-of-scores">Exporting a
+listing of scores</a> to know how to produce a listing of scores in the
+order that best fits your needs.</p>
+<p><strong>Tip:</strong> if you start a new grading session from the same directory,
+the file <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> will not be overwritten. New grades
+will just be appended at the end. Thus, it is safe stopping a grading
+session, closing the application and continuing later. Separate grading
+sessions must be executed from different directories to avoid using
+the same <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> file.</p>
+<p><strong>Tip:</strong> you can edit this file with a text editor if, for example,
+you discover that the same exam was graded more than once (just remove
+the duplicate line).</p>
+</div>
+<div class="section" id="exporting-a-listing-of-scores">
+<h2><a class="toc-backref" href="#id21">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
+<p>You will probably want to import the listing of scores from your
+grade-book. You can easily process <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> to produce
+a CSV-formatted file with three columns: student id, number of correct
+answers and number of incorrect answers, in the order you want. You
+can even produce the listing to for just a subset of the students.</p>
+<p>In order to do that, you need a listing of students whose grades you
+want to list. The listing must be a CSV file in which the first column
+contains the student ids (the rest of the columns will be just
+ignored). Normally, you will use the same listing of students you used
+to run Eyegrade. This is an example of such a file:</p>
+<pre class="literal-block">
+100000333    Baggins, Frodo
+100777777    Bunny, Bugs
+100999997    Bux, Bastian B.
+100999991    Potter, Harry
+100800003    Simpson, Lisa
+</pre>
+<p>This command will produce the listing in a file named
+<tt class="docutils literal"><span class="pre">sorted-listing.csv</span></tt>:</p>
+<pre class="literal-block">
+python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
+</pre>
+<p>The output for the listing above, and the sample file shown in <a class="reference internal" href="#the-answers-file">The
+answers file</a>, would be:</p>
+<pre class="literal-block">
+100000333
+100777777    7      13
+100999997    15     1
+100999991    9      6
+100800003    7      13
+</pre>
+<p>Scores will be in the same order as the student list. The second and third
+columns represent the number of correct and wrong answers, respectively.
+In the example, the first student has those columns empty because there
+is no exam associated to his id.</p>
+<p>Importing the previous file in a spreadsheet should be
+straightforward, because the list of students will now be in the same
+order as your spreadsheet.</p>
+<p>If there are exams in the answers file of students not in your list,
+the default behavior is including them in the listing, after the rest
+of the students. The rationale behind this behavior is apreventing
+accidental losses of student scores. This behavior can be changed (see
+<a class="reference internal" href="#exporting-a-listing-for-a-subset-of-students">Exporting a listing for a subset of students</a>).</p>
+<p>See <a class="reference internal" href="#mixing-manually-graded-questions">Mixing manually-graded questions</a> if you need to produce
+listings in exams combining MCQ questions with manually-graded
+questions.</p>
+<div class="section" id="exporting-a-listing-for-a-subset-of-students">
+<h3><a class="toc-backref" href="#id22">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></h3>
+<p>In order to extract the scores for just a subset of the students,
+create a student list with the ids of the students you want and run
+the program with the <tt class="docutils literal"><span class="pre">-i</span></tt> option:</p>
+<pre class="literal-block">
+python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -i -o sorted-listing.csv
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">-i</span></tt> option makes Eyegrade ignore students that are in the
+answers file but not in the student list. That is, the listing will
+only contain the students that are in the student list you provide.</p>
+<p>This option may be useful, for example, if you examine students coming
+from different classes or groups. With this option you can produce a
+separate listing for each class.</p>
+</div>
+</div>
+</div>
+<div class="section" id="editing-exams">
+<h1><a class="toc-backref" href="#id23">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
+<p>Although you can use any software of your preference to typeset the
+exams, Eyegrade provides a module for doing that in combination to the
+LaTeX document preparation system.</p>
+<p>First, write your questions in an XML document like the following one:</p>
+<blockquote>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+
+&lt;exam xmlns=&quot;http://www.it.uc3m.es/jaf/eyegrade/ns/&quot;
+      xmlns:eye=&quot;http://www.it.uc3m.es/jaf/eyegrade/ns/&quot;&gt;
+
+  &lt;subject&gt;Computers and More&lt;/subject&gt;
+  &lt;degree&gt;An Awesome Degree&lt;/degree&gt;
+  &lt;title&gt;Final examination&lt;/title&gt;
+  &lt;date&gt;January 1st, 2011&lt;/date&gt;
+  &lt;duration&gt;10 min.&lt;/duration&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      What is Python?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;A programming language&lt;/correct&gt;
+      &lt;incorrect&gt;A computer manufacturer&lt;/incorrect&gt;
+      &lt;incorrect&gt;A kind of tree&lt;/incorrect&gt;
+      &lt;incorrect&gt;Who knows!&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      What is a webcam?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;A video camera whose output may be viewed in real
+         time over a network, especially over the Internet.&lt;/correct&gt;
+      &lt;incorrect&gt;A video camera intended to spy on spiders&lt;/incorrect&gt;
+      &lt;incorrect&gt;A kind of fish&lt;/incorrect&gt;
+      &lt;incorrect&gt;Who knows!&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      What is the thing at the right?
+    &lt;/text&gt;
+    &lt;code eye:position=&quot;right&quot; eye:width=&quot;0.4&quot;&gt;for letter in ['a', 'b', 'c']:
+    print letter&lt;/code&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;A computer program&lt;/correct&gt;
+      &lt;incorrect&gt;A recipe&lt;/incorrect&gt;
+      &lt;incorrect&gt;A tree&lt;/incorrect&gt;
+      &lt;incorrect&gt;Who knows!&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      Is the thing in the right a logo?
+    &lt;/text&gt;
+    &lt;figure eye:width=&quot;0.16&quot; eye:position=&quot;right&quot;&gt;sample-logo.eps&lt;/figure&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;Well, it tries to be a logo, to be honest.&lt;/correct&gt;
+      &lt;incorrect&gt;No, it's a tree.&lt;/incorrect&gt;
+      &lt;incorrect&gt;No, it's a perfect square.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Who knows!&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      Which is the capital of Spain?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;Madrid.&lt;/correct&gt;
+      &lt;incorrect&gt;Barcelona.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Paris.&lt;/incorrect&gt;
+      &lt;incorrect&gt;None of the other answers is correct.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      Which is the capital of France?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;Paris.&lt;/correct&gt;
+      &lt;incorrect&gt;Lion.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Madrid.&lt;/incorrect&gt;
+      &lt;incorrect&gt;None of the other answers is correct.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      What does ``hola'' mean in Spanish?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;``Hello''.&lt;/correct&gt;
+      &lt;incorrect&gt;``Bye''.&lt;/incorrect&gt;
+      &lt;incorrect&gt;``Wave''.&lt;/incorrect&gt;
+      &lt;incorrect&gt;``Hola'' is not a word in Spanish.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      How many months has a year?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;12.&lt;/correct&gt;
+      &lt;incorrect&gt;6.&lt;/incorrect&gt;
+      &lt;incorrect&gt;10.&lt;/incorrect&gt;
+      &lt;incorrect&gt;It depends on whether it is a leap year or not.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      Are dolphins mammals?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;Yes.&lt;/correct&gt;
+      &lt;incorrect&gt;No.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Sometimes.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Who knows\ldots.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      Who created Python?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;Guido van Rossum.&lt;/correct&gt;
+      &lt;incorrect&gt;Richard Stallman.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Dennis M. Ritchie.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Jamie Zawinski.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      How is ``Germany'' said in German?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;Deutschland.&lt;/correct&gt;
+      &lt;incorrect&gt;Die Schweiz.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Germany.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Berlin.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+  &lt;question&gt;
+    &lt;text&gt;
+      What is Linux?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;A free-software operating system.&lt;/correct&gt;
+      &lt;incorrect&gt;A river in Spain.&lt;/incorrect&gt;
+      &lt;incorrect&gt;The tallest mountain on Earth.&lt;/incorrect&gt;
+      &lt;incorrect&gt;An Internet company that sells phones.&lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+&lt;/exam&gt;
+</pre>
+</blockquote>
+<p>Then, create a LaTeX template for the exam. This is an example:</p>
+<blockquote>
+<pre class="literal-block">
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{amssymb, amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{multirow}
+
+\usepackage[a4paper, margin=2.5cm, top=2cm, bottom=3cm]{geometry}
+
+\pagestyle{empty}
+
+{{declarations}}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{p{5.2cm}r}
+\multirow{5}{*}[0.35cm]{\scalebox{0.18}{\includegraphics{sample-logo.eps}}} &amp;
+\Large  \textbf{{{subject}}} \\
+&amp; \textbf{{{degree}}} \\
+&amp; \\
+{{date}} &amp; {{title}}. \\
+Duration: {{duration}}
+      &amp; Score: 5 points out of 10 total points for the exam. \\
+
+\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+\emph{There is only one correct answer for each multiple choice
+  question.  Each correct answer adds 1 point.  Each incorrect answer
+  has a penalty of $1/3$ points.  If no answer no score is awarded,
+  neither positive nor negative.}
+
+\vspace{0.5cm}
+
+\begin{center}
+\begin{tabular}{|p{0.8\textwidth}|}
+\hline
+\begin{itemize}
+\item Mark out your answers with an ``X''.
+\item If more than one answer or no answer are selected, the question
+  is considered to be not answered (no score is awarded, neither
+  positive nor negative).
+\item Remember to fill in your name and student ID.
+\end{itemize}
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+
+\begin{center}
+(1) Write your personal data clearly.
+\end{center}
+
+\begin{center}
+\large
+
+\begin{tabular}{|l|p{12cm}|}
+\hline
+Last name:   &amp;  \\
+\hline
+First name: &amp;    \\
+\hline
+Group:   &amp;  \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+
+\begin{center}
+(2) Write down your student ID and cross out your answers with an ``X'':
+\end{center}
+
+\begin{center}
+\large
+\textbf{Model:} {{model}}
+\end{center}
+
+{{id-box(9,ID)}}
+
+{{answer-table}}
+
+\clearpage
+
+{{questions}}
+
+\end{document}
+
+</pre>
+</blockquote>
+<p>In the template, notice that there are some marks within {{ and }}
+that are intended to be replaced by the script with data from the
+exam:</p>
+<ul class="simple">
+<li><cite>{{declarations}}</cite>: the script will put there declarations needed
+for the generate LaTeX file.</li>
+<li><cite>{{subject}}</cite>, <cite>{{degree}}</cite>: name of the subject and degree it
+belongs to. Taken from the XML file with the questions.</li>
+<li><cite>{{title}}</cite>: the title of the exam. Taken from the XML file with the
+questions.</li>
+<li><cite>{{duration}}</cite>: duration of the exam. Taken from the XML file with
+the questions.</li>
+<li><cite>{{model}}</cite>: a letter representing the model of the exam. Each model
+has a different ordering for questions and choices within questions.</li>
+<li><cite>{{id-box(9,ID}}</cite>: replaced by a box for students to fill in their IDs.
+The number of digits and the text to be put at the left of the box are
+specified within the parenthesis.</li>
+<li><cite>{{answer-table}}</cite>: replaced by the table in which students mark out
+their answers.</li>
+<li><cite>{{questions}}</cite>: replaced by the questions of the exam.</li>
+</ul>
+<p>Note that a template is highly reusable for different exams and
+subjects.</p>
+<p>Once the exam file and the template have been created, the script
+<cite>create_exam.py</cite> parses them and generates the exam in LaTeX format:</p>
+<pre class="literal-block">
+python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
+</pre>
+<p>The previous command will create models 0, A and B of the exam with
+names <cite>exam-0.tex</cite>, <cite>exam-A.tex</cite> and <cite>exam-B.tex</cite>. Exam model 0 is a
+special exam in which questions are not reordered. The correct answer
+is always the first choice. Those files can be compiled with LaTeX to
+obtain a PDF that can be printed. In addition, the <tt class="docutils literal">exam.eye</tt> file
+needed to grade the exam is automatically created (or updated if it
+already exists).</p>
+<p>The script <cite>create_exam.py</cite> has other features, like creating just the
+front page of the exam (no questions needed). They can be explored with
+the command-line help of the program:</p>
+<pre class="literal-block">
+python -m eyegrade.create_exam -h
+</pre>
+<p>The answer table can be enlarged or reduced with respect to its
+default size, using the <cite>-S</cite> option and passing a scale factor
+(between 0.1 and 1.0 to reduce it, or greater than 1.0 to enlarge it).
+The following command enlarges the default size in a 50% (factor 1.5):</p>
+<pre class="literal-block">
+python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
+</pre>
+</div>
+<div class="section" id="advanced-features">
+<h1><a class="toc-backref" href="#id24">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
+<div class="section" id="webcam-selection">
+<h2><a class="toc-backref" href="#id25">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
+<p>If your computer has more than one camera (e.g. the internal camera of
+the laptop and an external camera you use to grade the exams),
+Eyegrade will select one of them by default. If the selected camera is
+not the camera you want to use to grade the exams, use the <tt class="docutils literal"><span class="pre">-c</span>
+<span class="pre">&lt;camera-number&gt;</span></tt> option when invoking Eyegrade. Cameras are numbered
+0, 1, 2, 3, etc. Invoke Eyegrade with a different camera number until
+the interface displays the one you want. For example, to select the
+camera numbered as 2:</p>
+<pre class="literal-block">
+python -m eyegrade.eyegrade exam.eye -c 2 -l student-list.csv
+</pre>
+<p>When the number is -1, eyegrade will automatically test different
+camera numbers until it finds one that works. When you select a camera
+number that does not exist or does not work, Eyegrade will also look
+automatically for other camera that works.</p>
+<p>You can configure Eyegrade to always use a specific camera number by
+inserting the option <tt class="docutils literal"><span class="pre">camera-dev</span></tt> in the <tt class="docutils literal">default</tt> section of
+the configuration file:</p>
+<pre class="literal-block">
+## Sample configuration file. Save it as $HOME/.eyegrade.cfg
+[default]
+
+## Default camera device to use (int); -1 for automatic selection.
+camera-dev: 1
+</pre>
+<p>Save it in your user account with name <tt class="docutils literal">.eyegrade.cfg</tt>. In Windows systems,
+your account is at <tt class="docutils literal"><span class="pre">C:\Documents</span> and <span class="pre">Settings\&lt;your_user_name&gt;</span></tt>.</p>
+</div>
+<div class="section" id="mixing-manually-graded-questions">
+<h2><a class="toc-backref" href="#id26">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></h2>
+<p>You may want to mix in the same exam MCQ questions with other type
+of questions that must be graded manually. Even though Eyegrade can
+only grade the MCQ questions of the exam, it can simplify a little
+bit the process of mixing grades.</p>
+<p>First, grade the MCQ exams with Eyegrade. Then, grade the other
+questions <em>without</em> changing the ordering of the exams.</p>
+<p>Create a new CSV file with only one column, which contains the student
+ids of the students that submitted the exam. It will help a lot
+producing this listing in the same order you have graded the
+exams. Such a listing can be trivially obtained from the file
+<tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt>. In Linux, it can be done with just a
+command:</p>
+<pre class="literal-block">
+cut eyegrade-answers.csv -f 2 &gt;extra-marks.csv
+</pre>
+<p>Edit that listing to include the marks of the manually-graded
+questions. Write marks in one or more columns at the right of the
+student id. Having this file the same order of your exams, introducing
+manual marks should be easier, since you do not need to search.  This
+is an example with only one manual mark per exam (just one column):</p>
+<pre class="literal-block">
+100999991   7
+100999997   8
+100800003   5
+100777777   9.5
+</pre>
+<p>The final listing that combines the results of all the questions can
+be produced with <tt class="docutils literal">mix_grades</tt>:</p>
+<pre class="literal-block">
+python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
+</pre>
+<p>The columns with the manual marks would appear at the right in the
+resulting file:</p>
+<pre class="literal-block">
+100000333
+100777777    7      13      9.5
+100999997    15     1       8
+100999991    9      6       7
+100800003    7      13      5
+</pre>
+</div>
+<div class="section" id="creating-the-exams-in-a-word-processor">
+<h2><a class="toc-backref" href="#id27">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<p>The current prototype of Eyegrade require users to know LaTex in order
+to personalize exam templates. This section explains an alternative
+way to create exams compatible with Eyegrade in a word processor such
+as Microsoft Word. If you create your own exams with a word processor,
+you'll need also to edit the <cite>.eye</cite> file manually. See
+<a class="reference internal" href="#manually-editing-the-eye-file">Manually editing the .eye file</a>.</p>
+<p>The objective is emulating the tables that Eyegrade creates so that
+the program can read them. This is an example:</p>
+<img alt="Example answer tables." src="images/example-table.png" />
+<p>You can use as a template this <a class="reference external" href="samples/sample-exam.doc">example MS Word document</a>. It shows an answer table for 20 questions,
+which you can edit in order to customize if for your
+needs. Nevertheless, you should read the rest of this section if you
+are planning to customize the answer table.</p>
+<p>An <em>answer table</em> is a table in which rows represent the questions and
+columns represent the choices. There can be more than one answer
+table, but they have to be side by side (they cannot be placed one
+above the other). The example above show two answer tables. A few
+restrictions have to be taken into account:</p>
+<ul class="simple">
+<li>If there are more than one table, they must be horizontally
+aligned. That is, their top and bottom must be in the same line, and
+their rows must have exactly the same height (see the example above).</li>
+<li>All the rows should have the same height.</li>
+<li>In order to improve the detection process, the length of the
+vertical lines and the length of the horizontal lines should be more
+or less proportionate (e.g. one of them should not be more than a
+30% larger than the other). If there are more than one answer table,
+consider the added length of the horizontal lines of every
+table. The following image illustrates this. The red vertical line
+is not much smaller than the sum of the two horizontal lines.</li>
+</ul>
+<img alt="Example answer tables." src="images/example-table-lengths.png" />
+<ul class="simple">
+<li>If an answer table has less rows than the others, it is better to
+keep the horizontal lines, as shown in the image below:</li>
+</ul>
+<img alt="Example answer tables." src="images/example-table-2.png" />
+<p>The boxes for the student ID number should be above the answer tables,
+not too close but not too far away either (see the example below).
+The width of the student ID table should be comparable to the sum of
+the width of the answer tables (approximately no less than 2/3 of that
+sum, and no more than 3/2). Student IDs with just a few digits (two,
+three, four) can potentially be problematic for wide answer tables.</p>
+<img alt="Example answer tables with student ID box." src="images/example-table-id.png" />
+<p>At the bottom of the answer boxes there must be some black
+squares. They encode the exam model (permutation). In addition, they
+help the system to know whether the detection of the answer tables was
+correct.</p>
+<p>Imagine that there are two more rows at the end of each answer table,
+with the same height as the other rows.  Squares will be either in the
+one above or in the one below, and there must be a square per
+column. Squares should be centered in those imaginary cells. The
+position (above/below) of a square conveys the information read by
+Eyegrade as binary information.</p>
+<p>The exam model is encoded with three squares. Therefore, there can be
+eight different models. The fourth square is a redundancy code for the
+previous three squares. This 4-square pattern is repeated from left to
+right as long as there are columns. The table to which a column
+belongs is not taken into account. For example, if there are two
+answer tables with three columns each, the fourth square (the
+redundancy square) is placed at the first column of the second
+table. The other two columns of the second answer table would contain
+the same squares as the first two columns of the first table.</p>
+<p>The following table show the 4-square pattern for each exam model, as
+they should be placed from left to right:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="19%" />
+<col width="19%" />
+<col width="19%" />
+<col width="19%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Model</td>
+<td colspan="4">&nbsp;</td>
+</tr>
+<tr><td>A</td>
+<td>Down</td>
+<td>Down</td>
+<td>Down</td>
+<td>Up</td>
+</tr>
+<tr><td>B</td>
+<td>Up</td>
+<td>Down</td>
+<td>Down</td>
+<td>Down</td>
+</tr>
+<tr><td>C</td>
+<td>Down</td>
+<td>Up</td>
+<td>Down</td>
+<td>Down</td>
+</tr>
+<tr><td>D</td>
+<td>Up</td>
+<td>Up</td>
+<td>Down</td>
+<td>Up</td>
+</tr>
+<tr><td>E</td>
+<td>Down</td>
+<td>Down</td>
+<td>Up</td>
+<td>Down</td>
+</tr>
+<tr><td>F</td>
+<td>Up</td>
+<td>Down</td>
+<td>Up</td>
+<td>Up</td>
+</tr>
+<tr><td>G</td>
+<td>Down</td>
+<td>Up</td>
+<td>Up</td>
+<td>Up</td>
+</tr>
+<tr><td>H</td>
+<td>Up</td>
+<td>Up</td>
+<td>Up</td>
+<td>Down</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="manually-editing-the-eye-file">
+<h2><a class="toc-backref" href="#id28">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<p>The files that store the configuration of an exam and the correct
+answer for each question are stored with a <cite>.eye</cite> extension. An example
+is shown below:</p>
+<blockquote>
+<pre class="literal-block">
+[exam]
+dimensions: 4,6;4,6
+id-num-digits: 9
+
+[solutions]
+model-A: 4/1/2/1/1/1/2/4/1/2/3/1
+
+[permutations]
+permutations-A: 11{4,3,2,1}/12{1,3,4,2}/5{4,1,3,2}/3{1,4,3,2}/2{1,3,2,4}/9{1,4,3,2}/10{3,1,4,2}/1{3,2,4,1}/8{1,4,2,3}/6{2,1,3,4}/4{3,2,1,4}/7{1,3,2,4}
+
+</pre>
+</blockquote>
+<p>The file is just plain text and can be edited with any text editor. It
+has several sections: <em>exam</em>, <em>solutions</em> and <em>permutations</em>.</p>
+<p>The fields of the <em>exam</em> section are:</p>
+<ul class="simple">
+<li><cite>dimensions</cite>: here the number of answer tables and the number of
+columns and rows in each answer table are configured. For example,
+&quot;4,6;4,6&quot; means that there are two answer tables, both of them with
+geometry &quot;4,6&quot;.  The &quot;4&quot; is the number of columns of the table. The
+&quot;6&quot; is the number of rows. Tables are specified from left to right
+(i.e. the first table geometry corresponds to the left-most table in
+the exam).</li>
+<li><cite>id-num-digits</cite>: number of cells of the table for the student id
+number.  Putting a 0 here means that the id number needs not to be
+read.</li>
+<li><cite>correct-weight</cite>: a number, such as 1.75, that represents the score
+assigned to a correct answer.</li>
+<li><cite>incorrect-weight</cite>: a number that represents the score to be
+substracted for failed answers. Blank answers are not affected by
+this.</li>
+</ul>
+<p>The fields <cite>correct-weight</cite> and <cite>incorrect-weight</cite> are optional. If
+they appear in the file, the program will show the total score in the
+user interface.</p>
+<p>The <em>solutions</em> section specifies the correct answers for each model
+(permutation) of the exam. Models are identified by letters (&quot;A&quot;, &quot;B&quot;,
+etc.). For example:</p>
+<pre class="literal-block">
+model-A: 4/1/2/1/1/1/2/4/1/2/3/1
+model-B: 3/2/1/4/4/2/2/1/4/2/3/3
+</pre>
+<p>In the example above, in the model A, the correct answer for the first
+question is the 4th choice, for the second question is the 1st choice,
+for the third question is the 2nd choice, etc.</p>
+<p>The <em>permutations</em> section has information that allows to know how
+questions and choices have been shuffled with respect to the original
+order. They are used only for extracting statistics or fixing grades
+after the exam if the solutions used for grading are found to have an
+error in some questions. If you create the <cite>.eye</cite> manually, you
+probably want to just remove this section from the file, unless you
+need some of the above-mentioned functions.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

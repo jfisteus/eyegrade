@@ -1,0 +1,142 @@
+#container {
+    width: 98%;
+    margin: 10px auto;
+    background-color: white;
+    color: #333;
+    border: 1px solid gray;
+    font-family: Verdana,Arial,Helvetica,sans-serif;
+    font-size: 11pt;
+}
+
+#top
+{
+    padding: .5em;
+    background-color: #ddd;
+    border-bottom: 1px solid gray;
+}
+
+#top h1
+{
+
+}
+
+#leftnav
+{
+    float: left;
+    width: 160px;
+    margin: 0;
+    padding: 1em;
+}
+
+#leftnav p {
+    margin: 0 0 1em 0;
+}
+
+#rightnav
+{
+    float: right;
+    width: 300px;
+    margin: 1em 2em 0.5em 2em;
+    padding: 1em;
+    border: 1px solid gray;
+    clear:right;
+}
+
+div.news
+{
+    float: right;
+    width: 300px;
+    margin: 0.5em 2em 2em 2em;
+    padding: 1em;
+    border: 1px solid gray;
+    clear:right;
+}
+
+#rightnav p {
+    margin: 0 0 1em 0;
+}
+
+
+#content
+{
+    margin-left: 200px;
+    border-left: 1px solid gray;
+    padding: 1em;
+}
+
+#content-left-aligned
+{
+    padding: 1em;
+}
+
+#footer
+{
+    clear: both;
+    margin: 0;
+    padding: .5em;
+    color: #333;
+    background-color: #ddd;
+    border-top: 1px solid gray;
+}
+
+#content h2 {
+    margin: 0 0 .5em 0;
+}
+
+#menu, .menu
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-current {
+    font-weight: bold;
+}
+
+body {
+    background-color: white;
+}
+
+.float-left {
+    float: left;
+    margin-right: 1em;
+}
+
+#footer a {
+	color: #333;
+}
+
+h1 {
+	font-size: xx-large;
+	font-weight: bold;
+}
+
+table, td {
+    border-width: thin;
+    border-spacing: 0;
+    border-style: solid;
+    border-color: gray;
+    border-collapse: collapse;
+}
+
+td, th {
+    border-width: thin;
+    border-style: solid;
+    padding: 0.5em;
+}
+
+pre.document {
+    border: thin solid #000069;
+    font-size: smaller;
+    padding: 1em;
+}
+
+pre.code {
+    border: thin solid gray;
+}
+
+.youtube {
+    border-left: auto;
+    border-right: auto;
+}

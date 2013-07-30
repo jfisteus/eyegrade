@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE html
+   PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" >
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+  <head >
+    <title >Eyegrade: grading multiple choice questions with a webcam</title>
+    <link rel="stylesheet" type="text/css" href="eyegrade.css" />
+      <link rel="alternate" type="application/rss+xml" title="RSS" href="blog/rss.xml"/>
+  </head>
+  <body >
+
+    <div id="container">
+      <div id="top">
+<!--      <div class="title"> -->
+	<h1 >Eyegrade</h1>
+	<p>Grading multiple choice questions with a webcam</p>
+      </div>
+
+      <div id="leftnav">
+	<ul id="menu">
+	  <li class="menu-current">Main page</li>
+	  <li><a href="blog/">Blog</a></li>
+	  <li><a href="download.html">Download</a></li>
+	  <li><a href="doc/user-manual/">Documentation</a></li>
+	</ul>
+      </div>
+
+<!--
+      <div id="rightnav">
+	<p><img src="doc/user-manual/images/review-mode-normal.png"
+	alt="Eyegrade snapshot" width="320"></p>
+      </div>
+-->
+
+      <div class="news">
+	<p><b>Latest news</b> <a href="blog/rss.xml"><img src="rss-icon.png" height="20"
+	      width="20" alt="RSS news feed"/></a></p>
+	<p>
+	  <a href="blog/">(see more news at the blog)</a>
+	</p>
+	<p>
+	  <b>[Feb 28, 2013]</b>
+	  Eyegrade 0.2 has been released! See the
+	  <a href="blog/posts/release-eyegrade-0.2.html">blog
+	  post</a>.
+	</p>
+      </div>
+
+      <div id="content">
+	<h2>Introduction</h2>
+	<p>
+	  Eyegrade uses a webcam to grade MCQ (multiple choice
+	  question) exams. Needing just a cheap low-end webcam, it
+	  aims to be a low-cost and portable solution available to
+	  everyone, on the contrary to other solutions based on
+	  scanners. The program is free software, licensed under the
+	  terms of
+	  the <a href="http://www.gnu.org/licenses/gpl-3.0.html">GNU
+	  General Public License (GPL) version 3</a> or any later
+	  version.
+	</p>
+
+	<p>
+	  Eyegrade is still alpha. It is fully functional and has been
+	  used in several courses
+	  at <a href="http://www.uc3m.es">Universidad Carlos III de
+	  Madrid</a> since 2010. Its use is encouraged for
+	  tech-savvy people. However, it still needs great
+	  improvements in its user-friendliness in order to be usable
+	  for the general public.
+	</p>
+
+	<p>
+	  Its source code is hosted at <a
+	  href="https://github.com/jfisteus/eyegrade">Github:
+	  jfisteus/eyegrade</a>. Bug reports, feature requests and
+	  pull requests are welcome there.
+	</p>
+
+	<p>
+	  The main features of Eyegrade are:
+	</p>
+	<ul>
+	  <li><b>Exam typesetting:</b> Although you can create your
+	    exams with other tools, Eyegrade integrates an utility to
+	    creating MCQ exams. It is able to create your exams in PDF
+	    format.  Eyegrade can automatically build several versions
+	    of the exam by reordering questions and choices within
+	    questions.</li>
+	  <li><b>Grading exams:</b> Using a webcam, the graphical user
+	    interface of Eyegrade allows you to grade your
+	    exam. Eyegrade is able to recognize not only the answers
+	    to the questions, but also the identity of the student by
+	    using its hand-written digit cognition module. The whole
+	    process is supervised by the user in order to detect and
+	    fix potential errors of the system.</li>
+	  <li><b>Extracting statistics:</b> you can view
+	    question-by-question statistics in order to analyze which
+	    topics are clear to the majority of your students, and
+	    which topics need further work.</li>
+	  <li><b>Exporting grades:</b> grades can be exported in CSV
+	    format, compatible with other programs such as
+	    spreadsheets.</li>
+	</ul>
+
+	<p>
+	  An article describing Eyegrade has been published by the
+	  Journal of Science Education and Technology:
+	</p>
+	<ul>
+	  <li>
+	    Jesus Arias Fisteus, Abelardo Pardo and Norberto
+	    Fernández García, <i>Grading Multiple Choice Exams with
+	      Low-Cost and Portable Computer-Vision
+	      Techniques</i>. Journal of Science Education and
+	    Technology. <a
+	      href="http://dx.doi.org/10.1007/s10956-012-9414-8">doi:10.1007/s10956-012-9414-8</a>
+	  </li>
+	</ul>
+
+	<p>Here is a short demonstration video:</p>
+
+	<iframe class="youtube" width="640" height="480" src="http://www.youtube.com/embed/ajK9JAhsDH0" frameborder="0"></iframe>
+
+      <p>And a screenshot:</p>
+
+	<p><img src="doc/user-manual/images/review-mode-normal.png"
+	alt="Eyegrade screenshot"></p>
+
+      </div>
+
+      <div id="footer">
+	<img src="icon.png" alt="Eyegrade logo" />
+	  <i>Eyegrade</i>, copyright 2010-2012 <a
+	    href="http://www.it.uc3m.es/jaf/index.html">Jesús Arias
+	    Fisteus</a>
+      </div>
+    </div>
+  </body>
+</html>
