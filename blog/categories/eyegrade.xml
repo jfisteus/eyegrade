@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>The Eyegrade Blog (eyegrade)</title><link>The Eyegrade Blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Tue, 30 Jul 2013 18:40:45 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Requests for Eyegrade 0.3</title><link>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</link><description>&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
+<rss version="2.0"><channel><title>The Eyegrade Blog (eyegrade)</title><link>The Eyegrade Blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Wed, 31 Jul 2013 16:55:33 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade moved to a new location</title><link>The Eyegrade Blog/posts/eyegrade-moved-to-a-new-location.html</link><description>&lt;p&gt;I've just moved Eyegrade to a new Web location at &lt;a class="reference external" href="http://eyegrade.org/"&gt;eyegrade.org&lt;/a&gt;. These are the important links:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Project homepage: &lt;a class="reference external" href="http://eyegrade.org/"&gt;http://eyegrade.org/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;User manual: &lt;a class="reference external" href="http://eyegrade.org/doc/user-manual/"&gt;http://eyegrade.org/doc/user-manual/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Blog: &lt;a class="reference external" href="http://eyegrade.org/blog/"&gt;http://eyegrade.org/blog/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;RSS feed: &lt;a class="reference external" href="http://eyegrade.org/blog/rss.xml"&gt;http://eyegrade.org/blog/rss.xml&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Requests for the old addresses will automatically be redirected to the
+new location. However, the old server may be down for some periods of
+August. In fact, the frequent downtimes of the old hosting are one of
+the main reasons for the change. During those downtime periods
+redirections won't work. However, the new addresses will work properly
+even in that case.&lt;/p&gt;
+&lt;p&gt;The new website is hosted at the &lt;a class="reference external" href="http://pages.github.com/"&gt;GitHub Pages&lt;/a&gt; service. My experience so far with this
+service has been very satisfactory. The availability of the website
+with the new hosting will definitely be much better.&lt;/p&gt;</description><category>eyegrade</category><guid>The Eyegrade Blog/posts/eyegrade-moved-to-a-new-location.html</guid><pubDate>Wed, 31 Jul 2013 16:24:35 GMT</pubDate></item><item><title>Requests for Eyegrade 0.3</title><link>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</link><description>&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
 September. There are some features I have in mind, but listening to
 the users from time to time does not harm ;) If there is a feature you
 are especially interested in, just let me know by commenting on this

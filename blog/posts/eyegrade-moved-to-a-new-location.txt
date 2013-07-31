@@ -1,0 +1,29 @@
+.. link:
+.. description:
+.. tags: eyegrade
+.. date: 2013/07/31 16:24:35
+.. title: Eyegrade moved to a new location
+.. slug: eyegrade-moved-to-a-new-location
+
+I've just moved Eyegrade to a new Web location at `eyegrade.org
+<http://eyegrade.org/>`_. These are the important links:
+
+- Project homepage: `<http://eyegrade.org/>`_
+
+- User manual: `<http://eyegrade.org/doc/user-manual/>`_
+
+- Blog: `<http://eyegrade.org/blog/>`_
+
+- RSS feed: `<http://eyegrade.org/blog/rss.xml>`_
+
+Requests for the old addresses will automatically be redirected to the
+new location. However, the old server may be down for some periods of
+August. In fact, the frequent downtimes of the old hosting are one of
+the main reasons for the change. During those downtime periods
+redirections won't work. However, the new addresses will work properly
+even in that case.
+
+The new website is hosted at the `GitHub Pages
+<http://pages.github.com/>`_ service. My experience so far with this
+service has been very satisfactory. The availability of the website
+with the new hosting will definitely be much better.

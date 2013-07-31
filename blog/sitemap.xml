@@ -31,7 +31,7 @@
  </url>
  <url>
   <loc>The Eyegrade Blog/categories/eyegrade.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2013-07-31</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -91,7 +91,7 @@
  </url>
  <url>
   <loc>The Eyegrade Blog/index.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2013-07-31</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -110,6 +110,11 @@
   <priority>0.5000</priority>
  </url>
  <url>
+  <loc>The Eyegrade Blog/posts/eyegrade-moved-to-a-new-location.html</loc>
+  <lastmod>2013-07-31</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
   <loc>The Eyegrade Blog/posts/preview-of-the-improved-new-session-dialog.html</loc>
   <lastmod>2013-07-30</lastmod>
   <priority>0.5000</priority>
@@ -121,7 +126,7 @@
  </url>
  <url>
   <loc>The Eyegrade Blog/posts/requests-for-eyegrade-03.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2013-07-31</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
