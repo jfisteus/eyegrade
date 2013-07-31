@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>The Eyegrade Blog (screenshots)</title><link>The Eyegrade Blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Tue, 30 Jul 2013 18:40:45 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Preview of the improved new-session dialog</title><link>The Eyegrade Blog/posts/preview-of-the-improved-new-session-dialog.html</link><description>&lt;p&gt;I've been working on the &lt;em&gt;new session&lt;/em&gt; dialog. Now it is a wizard with
+<rss version="2.0"><channel><title>The Eyegrade Blog (screenshots)</title><link>http://eyegrade.org/blog</link><description>Blog for the free software tool Eyegrade</description><lastBuildDate>Wed, 31 Jul 2013 17:14:45 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Preview of the improved new-session dialog</title><link>http://eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</link><description>&lt;p&gt;I've been working on the &lt;em&gt;new session&lt;/em&gt; dialog. Now it is a wizard with
 three pages. The main novelties are that:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;You can now select more than one student list. All of them are used
@@ -21,7 +21,7 @@ future release the possibility of entering the exam configuration from
 the new session dialog, as an alternative to reading it from a
 file. This may be handy for users who do not create the exam with the
 command line tools that Eyegrade provides.&lt;/p&gt;
-&lt;p&gt;Comments and suggestions are welcome.&lt;/p&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>The Eyegrade Blog/posts/preview-of-the-improved-new-session-dialog.html</guid><pubDate>Sun, 06 Jan 2013 22:49:08 GMT</pubDate></item><item><title>Teaser of the new PyQt-based eyegrade user interface</title><link>The Eyegrade Blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</link><description>&lt;p&gt;I'm programming from scratch the graphical user interface of
+&lt;p&gt;Comments and suggestions are welcome.&lt;/p&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>http://eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</guid><pubDate>Sun, 06 Jan 2013 22:49:08 GMT</pubDate></item><item><title>Teaser of the new PyQt-based eyegrade user interface</title><link>http://eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</link><description>&lt;p&gt;I'm programming from scratch the graphical user interface of
 Eyegrade. The old user interface uses Pygame. It allowed me to build
 the first interface of the program very quickly, but its lack of
 graphical components (buttons, dialogues, menus, etc.) was preventing me
@@ -48,4 +48,4 @@ conventions, the Python files are now directly under the &lt;cite&gt;eyegrade&lt
 subdirectory of the main directory of the project.&lt;/li&gt;
 &lt;li&gt;The main program does not receive command line arguments. The &lt;cite&gt;.eye&lt;/cite&gt;
 file and student list are selected at the &lt;em&gt;new session&lt;/em&gt; dialog.&lt;/li&gt;
-&lt;/ul&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>The Eyegrade Blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</guid><pubDate>Wed, 02 Jan 2013 13:30:00 GMT</pubDate></item></channel></rss>
+&lt;/ul&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>http://eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</guid><pubDate>Wed, 02 Jan 2013 13:30:00 GMT</pubDate></item></channel></rss>
