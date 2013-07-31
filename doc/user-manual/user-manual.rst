@@ -45,21 +45,15 @@ in your system, you have to install PyQt_.
 In Linux, install the package `python-qt4` and update Eyegrade following
 the instructions at `Updating Eyegrade`_.
 
-In Windows, you can choose one of the following alternatives:
-
-- `Download PyQt
-  <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_: if
-  you installed Eyegrade 0.1.x following the instructions in this user
-  manual, you have Python 2.6-x86. Choose that version of the
-  installer of PyQt.  Alternatively, there is a copy of the file you
-  need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
-  <http://www.it.uc3m.es/jaf/eyegrade/downloads/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
-  The installer of PyQt will probably detect you Python installation
-  automatically.
-
-- Remove your Python installation and install
-  <http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26-pyqt.zip> as
-  instructed at `Installing Python`_.
+In Windows, `Download PyQt
+<http://www.riverbankcomputing.co.uk/software/pyqt/download>`_ and
+install it. If you installed Eyegrade 0.1.x following the instructions
+in this user manual, you have Python 2.6-x86. Choose that version of
+the installer of PyQt.  Alternatively, there is a copy of the file you
+need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
+<https://www.dropbox.com/s/15xnbrj82n9tial/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
+The installer of PyQt will probably detect you Python installation
+automatically.
 
 After that, update Eyegrade following the instructions at `Updating
 Eyegrade`_.
@@ -174,7 +168,7 @@ to download a ZIP file that contains all of them and extract it in
 your file system.
 
 1.- Download the ZIP file from:
-<http://www.it.uc3m.es/jaf/eyegrade/downloads/Python26.zip>.
+`Python26.zip <https://www.dropbox.com/s/y7t4ov23h0gq2zj/Python26.zip>`_.
 
 2.- Extract it somewhere in your file system (I recommend ``C:\``). A
 directory named ``Python26`` will appear. Be aware that the full path
@@ -216,7 +210,7 @@ Installing PyQt4
 the Windows 32-bit installer for Python 2.6, event if you have a
 64-bit version of Windows.  Alternatively, there is a copy of the file
 you need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
-<http://www.it.uc3m.es/jaf/eyegrade/downloads/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
+<https://www.dropbox.com/s/15xnbrj82n9tial/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
 
 Run the installer. From the optional software that the installer
 suggests, you only need to select the *Qt runtime*.
@@ -229,7 +223,7 @@ Download the EXE installer of OpenCV 2.1.0 for Windows platforms:
 `OpenCV-2.1.0-win32-vs2008.exe
 <http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.1/OpenCV-2.1.0-win32-vs2008.exe/download>`_. There
 is a copy of the same file at `OpenCV21.exe
-<http://www.it.uc3m.es/jaf/eyegrade/downloads/OpenCV21.exe>`_.
+<https://www.dropbox.com/s/g1wxm3rcai2qojx/OpenCV21.exe>`_.
 
 Execute the installer. Again, it is better to choose an installation
 path which has no white-spaces in it. The installer will eventually
