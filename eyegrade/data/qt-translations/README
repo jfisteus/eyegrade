@@ -1,0 +1,8 @@
+These files contain translations of the standard Qt messages. The
+translations already installed in your Qt environment take precedence
+over them. They are provided because the official Qt distribution may
+not include translations for some of the languages that Eyegrade
+supports.
+
+These translations have been taken from the Debian musescore package,
+which is licensed under the GPLv2.

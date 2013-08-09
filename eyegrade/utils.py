@@ -197,6 +197,9 @@ data_dir = guess_data_dir()
 def locale_dir():
     return os.path.join(data_dir, 'locale')
 
+def qt_translations_dir():
+    return os.path.join(data_dir, 'qt-translations')
+
 def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 

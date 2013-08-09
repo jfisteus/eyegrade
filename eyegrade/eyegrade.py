@@ -728,8 +728,11 @@ def main():
     from PyQt4.QtCore import QTranslator, QLocale, QLibraryInfo
     app = QApplication(sys.argv)
     translator = QTranslator()
-    translator.load(QLocale.system(), 'qt', '_',
+    success = translator.load(QLocale.system(), 'qt', '_',
                     QLibraryInfo.location(QLibraryInfo.TranslationsPath))
+    if not success:
+        success = translator.load(QLocale.system(), 'qt', '_',
+                                  utils.qt_translations_dir())
     app.installTranslator(translator)
     if len(sys.argv) >= 2:
         filename = sys.argv[1]
