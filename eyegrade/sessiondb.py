@@ -32,70 +32,73 @@ class SessionDB(object):
 
     _table_session = """
         CREATE TABLE Session (
-            dimensions TEXT,
+            dimensions TEXT NOT NULL,
             correct_weight TEXT,
             incorrect_weight TEXT,
             blank_weight TEXT,
-            id_num_digits INTEGER,
-            survey_mode INTEGER,
-            left_to_right_numbering INTEGER,
-            capture_pattern TEXT
+            id_num_digits INTEGER NOT NULL,
+            survey_mode INTEGER NOT NULL,
+            left_to_right_numbering INTEGER NOT NULL,
+            capture_pattern TEXT NOT NULL
         )"""
 
     _table_solutions = """
         CREATE TABLE Solutions (
-            model TEXT,
-            solutions TEXT
+            model TEXT NOT NULL,
+            solutions TEXT NOT NULL
         )"""
 
     _table_permutations = """
         CREATE TABLE Permutations (
-            model TEXT,
-            permutations TEXT
+            model TEXT NOT NULL,
+            permutations TEXT NOT NULL
         )"""
 
     _table_exams = """
         CREATE TABLE Exams (
-            exam_id INTEGER PRIMARY KEY,
+            exam_id INTEGER PRIMARY KEY NOT NULL,
             student INTEGER,
             model TEXT,
             correct INTEGER,
             incorrect INTEGER,
             blank INTEGER,
-            score REAL
+            score REAL,
+            FOREIGN KEY(student) REFERENCES Students(db_id)
         )"""
 
     _table_students = """
         CREATE TABLE Students (
-            db_id INTEGER PRIMARY KEY,
+            db_id INTEGER PRIMARY KEY NOT NULL,
             student_id TEXT,
             name TEXT,
             email TEXT,
-            group_id INTEGER,
-            sequence_num INTEGER
+            group_id INTEGER NOT NULL,
+            sequence_num INTEGER NOT NULL,
+            FOREIGN KEY(group_id) REFERENCES StudentGroups(group_id)
         )"""
 
     _table_student_groups = """
         CREATE TABLE StudentGroups (
-            group_id INTEGER PRIMARY KEY,
-            group_name TEXT
+            group_id INTEGER PRIMARY KEY NOT NULL,
+            group_name TEXT NOT NULL
         )"""
 
     _table_answers = """
         CREATE TABLE Answers (
-            exam_id INTEGER,
-            question INTEGER,
-            answer INTEGER
+            exam_id INTEGER NOT NULL,
+            question INTEGER NOT NULL,
+            answer INTEGER NOT NULL,
+            FOREIGN KEY(exam_id) REFERENCES Exams(exam_id)
         )"""
 
     _table_answer_cells = """
         CREATE TABLE AnswerCells (
-            exam_id INTEGER,
-            question INTEGER,
-            choice INTEGER,
-            center_x INTEGER,
-            center_y INTEGER,
-            diagonal INTEGER,
+            exam_id INTEGER NOT NULL,
+            question INTEGER NOT NULL,
+            choice INTEGER NOT NULL,
+            center_x INTEGER NOT NULL,
+            center_y INTEGER NOT NULL,
+            diagonal INTEGER NOT NULL,
             lux INTEGER,
             luy INTEGER,
             rux INTEGER,
@@ -103,21 +106,23 @@ class SessionDB(object):
             ldx INTEGER,
             ldy INTEGER,
             rdx INTEGER,
-            rdy INTEGER
+            rdy INTEGER,
+            FOREIGN KEY(exam_id) REFERENCES Exams(exam_id)
         )"""
 
     _table_id_cells = """
         CREATE TABLE IdCells (
-            exam_id INTEGER,
-            digit INTEGER,
-            lux INTEGER,
-            luy INTEGER,
-            rux INTEGER,
-            ruy INTEGER,
-            ldx INTEGER,
-            ldy INTEGER,
-            rdx INTEGER,
-            rdy INTEGER
+            exam_id INTEGER NOT NULL,
+            digit INTEGER NOT NULL,
+            lux INTEGER NOT NULL,
+            luy INTEGER NOT NULL,
+            rux INTEGER NOT NULL,
+            ruy INTEGER NOT NULL,
+            ldx INTEGER NOT NULL,
+            ldy INTEGER NOT NULL,
+            rdx INTEGER NOT NULL,
+            rdy INTEGER NOT NULL,
+            FOREIGN KEY(exam_id) REFERENCES Exams(exam_id)
         )"""
 
     def __init__(self, session_file):
@@ -136,6 +141,7 @@ class SessionDB(object):
         self._check_session_directory()
         self.conn = sqlite3.connect(db_file)
         self.conn.row_factory = sqlite3.Row
+        self._enable_foreign_key_constrains()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
         self._compute_num_questions_and_choices()
@@ -375,6 +381,10 @@ class SessionDB(object):
                                data)
             if commit:
                 self.conn.commit()
+
+    def _enable_foreign_key_constrains(self):
+        cursor = self.conn.cursor()
+        cursor.execute('PRAGMA foreign_keys=ON')
 
 
 def check_file_is_sqlite(filename):
