@@ -49,6 +49,7 @@ t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
 
 _filter_exam_config = _('Exam configuration (*.eye)')
+_filter_session_db = _('Eyegrade session (*.eyedb)')
 _filter_student_list = _('Student list (*.csv *.tsv *.txt *.lst *.list)')
 
 _tuple_strcoll = lambda x, y: locale.strcoll(x[0], y[0])
@@ -1235,16 +1236,15 @@ class CenterView(QWidget):
         parts = []
         if score is not None:
             if not survey_mode:
-                correct, incorrect, blank, indet, score, max_score = score
                 parts.append(CenterView.img_correct)
-                parts.append(str(correct) + '  ')
+                parts.append(str(score.correct) + '  ')
                 parts.append(CenterView.img_incorrect)
-                parts.append(str(incorrect) + '  ')
+                parts.append(str(score.incorrect) + '  ')
                 parts.append(CenterView.img_unanswered)
-                parts.append(str(blank) + '  ')
-                if score is not None and max_score is not None:
+                parts.append(str(score.blank) + '  ')
+                if score.score is not None and score.max_score is not None:
                     parts.append(_('Score: {0:.2f} / {1:.2f}')\
-                                 .format(score, max_score))
+                                 .format(score.score, score.max_score))
                     parts.append('  ')
             else:
                 parts.append(_('[Survey mode on]'))
@@ -1500,7 +1500,7 @@ class Interface(object):
         """
         filename = QFileDialog.getOpenFileName(self.window,
                                                _('Select the session file'),
-                                               '', _filter_exam_config, None,
+                                               '', _filter_session_db, None,
                                                QFileDialog.DontUseNativeDialog)
         return str(filename) if filename else None
 

@@ -34,6 +34,7 @@ help_location = 'http://eyegrade.org/doc/user-manual/'
 version = '0.2.6'
 version_status = 'alpha'
 
+re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
 re_model_letter = re.compile('[0a-zA-Z]')
 
 csv.register_dialect('tabs', delimiter = '\t')
@@ -94,9 +95,10 @@ class EyegradeException(Exception):
         to the end of what you provide in `message`.
 
         """
+        self.key = key
         if (key in EyegradeException._error_messages
             or key in EyegradeException._short_messages):
-            parts = ['ERROR: ']
+            parts = []
             if message:
                 parts.append(message)
             elif key in EyegradeException._short_messages:
@@ -122,6 +124,16 @@ class EyegradeException(Exception):
             return self.full_message
         else:
             return super(EyegradeException, self).__str__()
+
+    def __unicode__(self):
+        if self.full_message is not None:
+            if isinstance(self.full_message, unicode):
+                return self.full_message
+            else:
+                return unicode(self.full_message, encoding='utf-8')
+        else:
+            return unicode(super(EyegradeException, self).__str__(),
+                           encoding='utf-8')
 
     @staticmethod
     def register_error(key, detailed_message='', short_message=''):
@@ -281,6 +293,31 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     the function, is used.
 
     """
+    students = read_student_ids_same_order(filename=filename, file_=file_,
+                                           data=data, with_names=with_names)
+    if not with_names:
+        return [s[0] for s in students]
+    else:
+        students_dict = {}
+        for student_id, name, email in students:
+            students_dict[student_id] = name
+        return students_dict
+
+def read_student_ids_same_order(filename=None, file_=None, data=None,
+                                with_names=False):
+    """Reads the list of student IDs from a CSV-formatted file (tab-separated).
+
+    Either 'filename', 'file_' or 'data' must be provided.  'filename'
+    specifies the name of a file to read.  'file_' is a file object
+    instead of a file name.  'data' must be a string that contains the
+    actual content of the config file to be parsed. Only one of them
+    should not be None, although this restriction is not enforced: the
+    first one not to be None, in the same order they are specified in
+    the function, is used.
+
+    Returns the results as a list of tuples (id, name, email).
+
+    """
     assert((filename is not None) or (file_ is not None)
            or (data is not None))
     csvfile = None
@@ -292,28 +329,30 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
     elif data is not None:
         reader = csv.reader(io.BytesIO(data), 'tabs')
     if not with_names:
-        student_ids = [row[0] for row in reader]
+        student_ids = [(row[0], '', '') for row in reader]
         for sid in student_ids:
-            _check_student_id(sid)
+            _check_student_id(sid[0])
     else:
-        student_ids = {}
+        student_ids = []
         for row in reader:
+            name = ''
+            email = ''
             if len(row) == 0:
                 raise EyegradeException('Empty line in student list',
                                         key='error_student_list')
             sid = row[0]
             _check_student_id(sid)
             if len(row) > 1:
-                name = row[1]
                 try:
-                    student_ids[sid] = unicode(name, config['default-charset'])
+                    name = unicode(row[1], config['default-charset'])
                 except ValueError:
                     raise EyegradeException('Error while processing {0} data'\
                                             .format(config['default-charset']),
                                             key='error_student_list_encoding')
-            else:
-                name = None
-                student_ids[sid] = None
+            if len(row) > 2:
+                if _check_email(row[2]):
+                    email = row[2]
+            student_ids.append((sid, name, email))
     if csvfile is not None:
         csvfile.close()
     return student_ids
@@ -353,6 +392,17 @@ def _check_student_id(student_id):
     except:
         raise EyegradeException('Wrong id in student list: ' + student_id,
                                 key='error_student_id')
+
+def _check_email(email):
+    """Checks syntactically an email address.
+
+    Returns True if correct, False if incorrect.
+
+    """
+    if re_email.match(email):
+        return True
+    else:
+        return False
 
 def read_student_ids_multiple(filenames, with_names=False):
     """Reads student ids from multiple files.
@@ -586,146 +636,129 @@ def increment_list(list_):
     """
     return [n + 1 for n in list_]
 
-# Some regular expressions used in class Exam
-regexp_id = re.compile('\{student-id\}')
-regexp_seqnum = re.compile('\{seq-number\}')
+
+class Score(object):
+    def __init__(self, answers, solutions, score_weights):
+        self.correct = None
+        self.incorrect = None
+        self.blank = None
+        self.score = None
+        self.max_score = None
+        self.answers = answers
+        self.solutions = solutions
+        self.score_weights = score_weights
+        if answers and solutions:
+            self.update()
+
+    def update(self):
+        self._count_answers()
+        if self.score_weights is not None:
+            self._compute_score()
+        else:
+            self.score = None
+            self.max_score = None
+
+    def _count_answers(self):
+        self.correct = 0
+        self.incorrect = 0
+        self.blank = 0
+        for answer, solution in zip(self.answers, self.solutions):
+            if answer == 0:
+                self.blank += 1
+            elif answer == solution:
+                self.correct += 1
+            else:
+                self.incorrect += 1
+
+    def _compute_score(self):
+        self.score = float(self.correct * self.score_weights[0]
+                           - self.incorrect * self.score_weights[1]
+                           - self.blank * self.score_weights[2])
+        self.max_score = float(len(self.answers) * self.score_weights[0])
+
+
+class Student(object):
+    def __init__(self, db_id, student_id, name, email, group_id,
+                 sequence_num, is_in_database=False):
+        self.db_id = db_id
+        self.student_id = student_id
+        self.name = name
+        self.email = email
+        self.group_id = group_id
+        self.sequence_num = sequence_num
+        self.is_in_database = is_in_database
+
+    def get_id_and_name(self):
+        if self.name:
+            return ' '.join((self.student_id, self.name))
+        else:
+            return self.student_id
+
+    def __unicode__(self):
+        return u'student: ' + self.get_id_and_name()
+
 
 class Exam(object):
-    def __init__(self, image, model, solutions, valid_student_ids,
-                 im_id, score_weights, save_image_func=None,
-                 save_stats=False):
-        self.image = image
-        self.model = model
-        self.solutions = solutions
-        self.im_id = im_id
-        self.correct = None
-        self.score = None
-        self.save_stats = save_stats
-        self.student_names = valid_student_ids
-        if self.image.options['read-id']:
-            self.student_id = self.decide_student_id(valid_student_ids)
+    def __init__(self, capture_, decisions, solutions, valid_students,
+                 exam_id, score_weights):
+        self.capture = capture_
+        self.decisions = decisions
+        if valid_students is not None:
+            self.students = valid_students
         else:
-            # Allow manual insertion of ID even if OCR detection
-            # is not done
-            self.student_id = '-1'
-            if valid_student_ids is not None:
-                self.ids_rank = [(0, sid) for sid in valid_student_ids]
-            else:
-                self.ids_rank = []
-        self.locked = False
-        self.score_weights = score_weights
-        self.save_image_function = save_image_func
-        self.extra_student_names = {}
+            self.students = {}
+        self.exam_id = exam_id
+        self.score = Score(decisions.answers, solutions, score_weights)
+        rank = self.rank_students()
+        self.decisions.set_students_rank(rank)
+        if len(rank) > 0:
+            self.decisions.set_student(rank[0])
 
-    def grade(self):
-        good = 0
-        bad = 0
-        undet = 0
-        self.correct = []
-        for i in range(0, len(self.image.decisions)):
-            if self.solutions and self.image.decisions[i] > 0:
-                if self.solutions[i] == self.image.decisions[i]:
-                    good += 1
-                    self.correct.append(True)
-                else:
-                    bad += 1
-                    self.correct.append(False)
-            elif self.image.decisions[i] < 0:
-                undet += 1
-                self.correct.append(False)
-            else:
-                self.correct.append(False)
-        blank = self.image.num_questions - good - bad
-        if self.score_weights is not None:
-            score = float(good * self.score_weights[0]
-                          - bad * self.score_weights[1]
-                          - blank * self.score_weights[2])
-            max_score = float(self.image.num_questions * self.score_weights[0])
-        else:
-            score = None
-            max_score = None
-        self.score = (good, bad, blank, undet, score, max_score)
+    def update_grade(self):
+        self.score.update()
+
+    def reset_image(self):
+        self.capture.reset_image()
 
     def draw_answers(self):
-#        good, bad, blank, undet = self.score
-        self.image.draw_answers(self.locked, self.solutions, self.model,
-                                self.correct, self.score[0], self.score[1],
-                                self.score[3], self.im_id)
+        self.capture.draw_answers(self.decisions.answers, self.score.solutions)
 
-    def save_image(self, filename_pattern):
-        filename = self._saved_image_name(filename_pattern)
-        if self.save_image_function:
-            self.save_image_function(filename)
-        else:
-            raise Exception('No save image function declared in utils.Exam')
+    def draw_status(self):
+        self.capture.draw_status()
 
-    def save_debug_images(self, filename_pattern):
-        filename = self._saved_image_name(filename_pattern)
-        if self.save_image_function:
-            self.save_image_function(filename + '-raw', self.image.image_raw)
-            self.save_image_function(filename + '-proc', self.image.image_proc)
-        else:
-            raise Exception('No save image function declared in utils.Exam')
+    def draw_corner(self, point):
+        self.capture.draw_corner(point)
 
-    def save_answers(self, answers_file, csv_dialect, stats = None):
-        f = open(answers_file, "ab")
-        writer = csv.writer(f, dialect = csv_dialect)
-        data = [self.im_id,
-                self.student_id,
-                self.model if self.model is not None else '?',
-                self.score[0],
-                self.score[1],
-                self.score[4] if self.score[4] is not None else '?',
-                "/".join([str(d) for d in self.image.decisions])]
-        if stats is not None and self.save_stats:
-            data.extend([stats['time'],
-                         stats['manual-changes'],
-                         stats['num-captures'],
-                         stats['num-student-id-changes'],
-                         stats['id-ocr-digits-total'],
-                         stats['id-ocr-digits-error'],
-                         stats['id-ocr-detected']])
-        writer.writerow(data)
-        f.close()
+    def get_image_drawn(self):
+        return self.capture.image_drawn
 
     def toggle_answer(self, question, answer):
-        if self.image.decisions[question] == answer:
-            self.image.decisions[question] = 0
+        if self.decisions.answers[question] == answer:
+            self.decisions.change_answer(question, 0)
         else:
-            self.image.decisions[question] = answer
-        self.grade()
-        self.image.clean_drawn_image()
-        self.draw_answers()
+            self.decisions.change_answer(question, answer)
+        self.score.update()
+        self.capture.reset_image()
+        self.capture.draw_answers(self.decisions.answers,
+                                  self.score.solutions)
 
-    def decide_student_id(self, valid_student_ids):
-        student_id = '-1'
-        self.ids_rank = []
-        if self.image.id is not None:
-            if valid_student_ids is not None:
-                ids_rank = [(self._id_rank(sid, self.image.id_scores), sid) \
-                                for sid in valid_student_ids]
-                self.ids_rank = sorted(ids_rank, reverse = True)
-                student_id = self.ids_rank[0][1]
-                self.image.id = student_id
+    def rank_students(self):
+        if self.decisions.detected_id is not None:
+            if self.students:
+                rank = [(self._id_rank(s, self.decisions.id_scores), s) \
+                         for s in self.students.itervalues()]
+                students_rank = [student for score, student \
+                                 in sorted(rank, reverse = True)]
             else:
-                student_id = self.image.id
-        elif valid_student_ids is not None:
-            self.ids_rank = [(0.0, sid) for sid in valid_student_ids]
-        return student_id
-
-    def lock_capture(self):
-        self.locked = True
-
-    def get_student_name(self):
-        if self.student_id != '-1' and self.student_names is not None and \
-                self.student_id in self.student_names:
-            return self.student_names[self.student_id]
+                students_rank = [Student(None, self.decisions.detected_id,
+                                         None, None, None, None)]
         else:
-            return None
+            students_rank = list(self.students.itervalues())
+        return students_rank
 
     def get_student_id_and_name(self):
-        if self.student_id != '-1':
-            return self._student_id_and_name(self.student_id)
+        if self.decisions.student is not None:
+            return self.decisions.student.get_id_and_name()
         else:
             return None
 
@@ -737,8 +770,7 @@ class Exam(object):
         probable is the first in the list.
 
         """
-        return [self._student_id_and_name(student_id) \
-                for rank, student_id in self.ids_rank]
+        return [s.get_id_and_name() for s in self.decisions.students_rank]
 
     def update_student_id(self, new_id, name=None):
         """Updates the student id of the current exam.
@@ -749,41 +781,20 @@ class Exam(object):
 
         """
         if new_id is None or new_id == '-1':
-            self.image.id = None
-            self.student_id = '-1'
+            student = None
+        elif new_id in self.students:
+            student = self.students[new_id]
         else:
-            self.image.id = new_id
-            self.student_id = new_id
-        if name is not None and (self.student_names is None
-                                 or new_id not in self.student_names):
-            self.extra_student_names[new_id] = name
-        elif name is None and new_id in self.extra_student_names:
-            del self.extra_student_names[new_id]
+            student = Student(None, self.decisions.detected_id, name,
+                              None, None, None)
+        self.decisions.set_student(student)
 
-    def _student_id_and_name(self, student_id):
-        if (self.student_names is not None and
-            student_id in self.student_names and
-            self.student_names[student_id] is not None):
-            return ' '.join((student_id, self.student_names[student_id]))
-        elif student_id in self.extra_student_names:
-            return ' '.join((student_id, self.extra_student_names[student_id]))
-        else:
-            return student_id
-
-    def _id_rank(self, student_id, scores):
+    def _id_rank(self, student, scores):
         rank = 0.0
-        for i in range(len(student_id)):
-            rank += scores[i][int(student_id[i])]
+        for i, digit in enumerate(student.student_id):
+            rank += scores[i][int(digit)]
         return rank
 
-    def _saved_image_name(self, filename_pattern):
-        if self.student_id != '-1':
-            sid = self.student_id
-        else:
-            sid = 'noid'
-        filename = regexp_seqnum.sub(str(self.im_id), filename_pattern)
-        filename = regexp_id.sub(sid, filename)
-        return filename
 
 # A score is a float number or a fraction, e.g.: '0.8' or '4/5'
 _re_score = re.compile(r'^\s*((\d+(\.\d+)?)|(\d+\s*\/\s*\d+))\s*$')
@@ -796,7 +807,7 @@ class ExamConfig(object):
 
     re_model = re.compile('model-[0a-zA-Z]')
 
-    def __init__(self, filename = None):
+    def __init__(self, filename=None, capture_pattern=None):
         """Loads data from file if 'filename' is not None. Otherwise,
            default values are assigned to the attributes."""
         if filename is not None:
@@ -805,21 +816,38 @@ class ExamConfig(object):
             self.num_questions = 0
             self.solutions = {}
             self.id_num_digits = 0
+            self.capture_pattern = capture_pattern
             self.dimensions = []
             self.permutations = {}
             self.models = []
             self.score_weights = None
             self.left_to_right_numbering = False
             self.survey_mode = None
-            self.session = {}
 
     def set_solutions(self, model, solutions):
-        if self.solutions is None:
-            self.solutions = {}
+        if not isinstance(solutions, list):
+            solutions = self._parse_solutions(solutions)
         self.solutions[model] = solutions
+        if not model in self.models:
+            self.models.append(model)
 
     def set_permutations(self, model, permutations):
+        if not isinstance(permutations, list):
+            permutations = self._parse_permutations(permutations)
         self.permutations[model] = permutations
+
+    def set_dimensions(self, dimensions):
+        self.dimensions, self.num_options = parse_dimensions(dimensions)
+        self.num_questions = sum(dim[1] for dim in self.dimensions)
+
+    def set_score_weights(self, correct_weight, incorrect_weight, blank_weight):
+        if isinstance(correct_weight, basestring):
+            correct_weight = self._parse_score(correct_weight)
+        if isinstance(incorrect_weight, basestring):
+            incorrect_weight = self._parse_score(incorrect_weight)
+        if isinstance(blank_weight, basestring):
+            blank_weight = self._parse_score(blank_weight)
+        self.score_weights = (correct_weight, incorrect_weight, blank_weight)
 
     def get_num_choices(self):
         """Returns the number of choices per question.
@@ -863,8 +891,7 @@ class ExamConfig(object):
             self.id_num_digits = exam_data.getint('exam', 'id-num-digits')
         except:
             self.id_num_digits = 0
-        self._parse_dimensions(exam_data.get('exam', 'dimensions'))
-        self.num_questions = sum(dim[1] for dim in self.dimensions)
+        self.set_dimensions(exam_data.get('exam', 'dimensions'))
         has_solutions = exam_data.has_section('solutions')
         has_permutations = exam_data.has_section('permutations')
         self.solutions = {}
@@ -907,20 +934,6 @@ class ExamConfig(object):
         else:
             self.survey_mode = False
         self.models.sort()
-        # Load the session if it is in the file:
-        self.session = {}
-        if exam_data.has_section('session'):
-            if exam_data.has_option('session', 'is-session'):
-                self.session['is-session'] = \
-                           exam_data.getboolean('session', 'is-session')
-            else:
-                self.session['is-session'] = False
-            if exam_data.has_option('session', 'save-filename-pattern'):
-                self.session['save-filename-pattern'] = \
-                           exam_data.get('session', 'save-filename-pattern')
-            elif self.session['is-session']:
-                raise Exception(('Exam config must contain a '
-                                 'save-filename-pattern entry in [session]'))
 
     def save(self, filename):
         data = []
@@ -933,18 +946,11 @@ class ExamConfig(object):
             data.append('survey-mode: yes')
         if self.score_weights is not None:
             data.append(('correct-weight: '
-                         + self._format_weight(self.score_weights[0])))
+                         + self.format_weight(self.score_weights[0])))
             data.append(('incorrect-weight: '
-                         + self._format_weight(self.score_weights[1])))
+                         + self.format_weight(self.score_weights[1])))
             data.append(('blank-weight: '
-                         + self._format_weight(self.score_weights[2])))
-        if len(self.session) > 0 and self.session['is-session']:
-            data.append('')
-            data.append('[session]')
-            data.append('is-session: yes')
-            if 'save-filename-pattern' in self.session:
-                data.append('save-filename-pattern: %s'\
-                            %self.session['save-filename-pattern'])
+                         + self.format_weight(self.score_weights[2])))
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')
@@ -962,8 +968,10 @@ class ExamConfig(object):
         file_.write('\n'.join(data))
         file_.close()
 
-    def _format_weight(self, weight):
-        if type(weight) == fractions.Fraction:
+    def format_weight(self, weight):
+        if weight is None:
+            return None
+        elif type(weight) == fractions.Fraction:
             if weight.denominator != 1:
                 return '{0}/{1}'.format(weight.numerator, weight.denominator)
             else:
@@ -993,9 +1001,6 @@ class ExamConfig(object):
         if len(pieces) != self.num_questions:
             raise Exception('Wrong number of solutions')
         return [int(num) for num in pieces]
-
-    def _parse_dimensions(self, s):
-        self.dimensions, self.num_options = parse_dimensions(s)
 
     def _parse_permutations(self, s):
         permutation = []
@@ -1177,3 +1182,16 @@ def fraction_to_str(fraction):
         return str(fraction.numerator) + '/' + str(fraction.denominator)
     else:
         return str(fraction.numerator)
+
+# Regular expressions used for capture filename patterns
+regexp_id = re.compile('\{student-id\}')
+regexp_seqnum = re.compile('\{seq-number\}')
+
+def capture_name(filename_pattern, exam_id, student):
+    if student is not None:
+        sid = student.student_id
+    else:
+        sid = 'noid'
+    filename = regexp_seqnum.sub(str(exam_id), filename_pattern)
+    filename = regexp_id.sub(sid, filename)
+    return filename
