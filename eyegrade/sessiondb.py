@@ -368,13 +368,13 @@ class SessionDB(object):
                 self.conn.commit()
 
     def _store_id_cells(self, exam_id, id_cells, commit=True):
-        data = []
-        for i, cell in enumerate(id_cells):
-            item = (exam_id, i,
-                    cell.plu[0], cell.plu[1], cell.pru[0], cell.pru[1],
-                    cell.pld[0], cell.pld[1], cell.prd[0], cell.prd[1])
-            data.append(item)
-        if len(data) > 0:
+        if id_cells:
+            data = []
+            for i, cell in enumerate(id_cells):
+                item = (exam_id, i,
+                        cell.plu[0], cell.plu[1], cell.pru[0], cell.pru[1],
+                        cell.pld[0], cell.pld[1], cell.prd[0], cell.prd[1])
+                data.append(item)
             cursor = self.conn.cursor()
             cursor.executemany('INSERT INTO IdCells VALUES '
                                '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
