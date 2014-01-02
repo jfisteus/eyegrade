@@ -5,7 +5,7 @@ srcfiles="eyegrade/eyegrade.py eyegrade/qtgui/gui.py"
 languages=$*
 if [ "x$languages" == "x" ]
 then
-    languages="es gl"
+    languages="es gl ca"
 fi
 
 for lang in $languages

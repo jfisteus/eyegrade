@@ -49,6 +49,7 @@ t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
 
 _filter_exam_config = _('Exam configuration (*.eye)')
+_filter_session_db = _('Eyegrade session (*.eyedb)')
 _filter_student_list = _('Student list (*.csv *.tsv *.txt *.lst *.list)')
 
 _tuple_strcoll = lambda x, y: locale.strcoll(x[0], y[0])
@@ -927,11 +928,13 @@ class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
-        ('snapshot', 'snapshot.svg', _('&Capture the current image'), Qt.Key_C),
+        ('snapshot', 'snapshot.svg', _('&Capture the current image'),
+         Qt.Key_C),
         ('manual_detect', 'manual_detect.svg',
          _('&Manual detection of answer tables'), Qt.Key_M),
         ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
-        ('save', 'save.svg', _('&Save and capture next exam'), Qt.Key_Space),
+        ('continue', 'continue.svg', _('Continue to the &next exam'),
+         Qt.Key_Space),
         ('discard', 'discard.svg', _('&Discard capture'), Qt.Key_Backspace),
         ]
 
@@ -996,7 +999,7 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(True)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
-        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(False)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -1008,7 +1011,7 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
-        self.actions_grading['save'].setEnabled(True)
+        self.actions_grading['continue'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -1020,7 +1023,7 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
-        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -1235,16 +1238,15 @@ class CenterView(QWidget):
         parts = []
         if score is not None:
             if not survey_mode:
-                correct, incorrect, blank, indet, score, max_score = score
                 parts.append(CenterView.img_correct)
-                parts.append(str(correct) + '  ')
+                parts.append(str(score.correct) + '  ')
                 parts.append(CenterView.img_incorrect)
-                parts.append(str(incorrect) + '  ')
+                parts.append(str(score.incorrect) + '  ')
                 parts.append(CenterView.img_unanswered)
-                parts.append(str(blank) + '  ')
-                if score is not None and max_score is not None:
+                parts.append(str(score.blank) + '  ')
+                if score.score is not None and score.max_score is not None:
                     parts.append(_('Score: {0:.2f} / {1:.2f}')\
-                                 .format(score, max_score))
+                                 .format(score.score, score.max_score))
                     parts.append('  ')
             else:
                 parts.append(_('[Survey mode on]'))
@@ -1500,7 +1502,7 @@ class Interface(object):
         """
         filename = QFileDialog.getOpenFileName(self.window,
                                                _('Select the session file'),
-                                               '', _filter_exam_config, None,
+                                               '', _filter_session_db, None,
                                                QFileDialog.DontUseNativeDialog)
         return str(filename) if filename else None
 

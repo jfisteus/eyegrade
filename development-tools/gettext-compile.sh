@@ -3,7 +3,7 @@
 languages=$*
 if [ "x$languages" == "x" ]
 then
-    languages="es gl"
+    languages="es gl ca"
 fi
 
 for lang in $languages
