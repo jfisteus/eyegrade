@@ -158,12 +158,7 @@ class SessionDB(object):
         return exams
 
     def store_exam(self, exam_id, capture, decisions, score):
-        if decisions.student is not None:
-            if not decisions.student.is_in_database:
-                self.store_new_student(decisions.student, commit=False)
-            student_db_id = decisions.student.db_id
-        else:
-            student_db_id = None
+        student_db_id = self._student_db_id(decisions.student)
         cursor = self.conn.cursor()
         cursor.execute('INSERT INTO Exams VALUES '
                        '(?, ?, ?, ?, ?, ?, ?)',
@@ -174,7 +169,25 @@ class SessionDB(object):
         self._store_answer_cells(exam_id, capture.answer_cells, commit=False)
         self._store_id_cells(exam_id, capture.id_cells, commit=False)
         self.conn.commit()
-        self._save_captures(exam_id, capture, decisions)
+        self._save_drawn_capture(exam_id, capture, decisions.student)
+        self._save_raw_capture(exam_id, capture, decisions.student)
+
+    def update_answer(self, exam_id, question, new_answer, capture,
+                      decisions, score):
+        self._update_answer(exam_id, question, new_answer, commit=False)
+        self._update_score(exam_id, score, commit=False)
+        self.conn.commit()
+        self._save_drawn_capture(exam_id, capture, decisions.student)
+
+    def update_student(self, exam_id, capture, decisions):
+        new_student_db_id = self._student_db_id(decisions.student)
+        old_student = self._read_student_by_exam(exam_id)
+        cursor = self.conn.cursor()
+        cursor.execute('UPDATE Exams SET student = ? WHERE exam_id = ?',
+                       (new_student_db_id, exam_id))
+        self.conn.commit()
+        self._remove_drawn_capture(exam_id, capture, old_student)
+        self._save_drawn_capture(exam_id, capture, decisions.student)
 
     def store_new_student(self, student, commit=True):
         cursor = self.conn.cursor()
@@ -196,10 +209,7 @@ class SessionDB(object):
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM Students')
         for row in cursor:
-            student = utils.Student(row['db_id'], row['student_id'],
-                                    row['name'], row['email'],
-                                    row['group_id'], row['sequence_num'],
-                                    is_in_database=True)
+            student = _create_student_from_row(row)
             self.students[student.student_id] = student
         return self.students
 
@@ -258,19 +268,44 @@ class SessionDB(object):
             or not os.path.exists(os.path.join(self.session_dir, 'internal'))):
             raise utils.EyegradeException('', key='corrupt_session_dir')
 
-    def _save_captures(self, exam_id, capture, decisions):
+    def _student_db_id(self, student):
+        if student is not None:
+            if not student.is_in_database:
+                self.store_new_student(student, commit=False)
+            student_db_id = student.db_id
+        else:
+            student_db_id = None
+        return student_db_id
+
+    def _save_drawn_capture(self, exam_id, capture, student):
         name = utils.capture_name(self.exam_config.capture_pattern,
-                                  exam_id, decisions.student)
+                                  exam_id, student)
         drawn_name = os.path.join(self.session_dir, 'captures', name)
-        raw_name = os.path.join(self.session_dir, 'internal',
-                                'raw-{0}.png'.format(exam_id))
         if self.capture_save_func:
             self.capture_save_func(drawn_name)
         else:
             capture.save_image_drawn(drawn_name)
+
+    def _remove_drawn_capture(self, exam_id, capture, student):
+        name = utils.capture_name(self.exam_config.capture_pattern,
+                                  exam_id, student)
+        drawn_name = os.path.join(self.session_dir, 'captures', name)
+        if os.path.exists(drawn_name):
+            os.remove(drawn_name)
+
+    def _save_raw_capture(self, exam_id, capture, student):
+        raw_name = os.path.join(self.session_dir, 'internal',
+                                'raw-{0}.png'.format(exam_id))
         capture.save_image_raw(raw_name)
 
-    def _get_cell_geometries(self, exam_id, load_corners=False):
+    def _read_student_by_exam(self, exam_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT * FROM Students '
+                       'INNER JOIN Exams ON Students.db_id = Exams.student '
+                       'WHERE exam_id = ?', (exam_id,))
+        return _create_student_from_row(cursor.fetchone())
+
+    def _read_cell_geometries(self, exam_id, load_corners=False):
         if not load_corners:
             query = ('SELECT question, choice, center_x, center_y, diagonal '
                      'FROM CellGeometries WHERE exam_id = ?')
@@ -314,20 +349,23 @@ class SessionDB(object):
                                               row['permutations'])
         return self.exam_config
 
-    def _change_answer(self, exam_id, question, new_answer):
+    def _update_answer(self, exam_id, question, new_answer, commit=True):
         cursor = self.conn.cursor()
         cursor.execute('UPDATE Answers SET answer = ?'
                        'WHERE exam_id = ? AND question = ?',
                        (new_answer, exam_id, question))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
 
-    def _change_score(self, exam_id, correct, incorrect, blank, score):
+    def _update_score(self, exam_id, score, commit=True):
         cursor = self.conn.cursor()
         cursor.execute('UPDATE Exams SET correct = ?, incorrect = ?,'
                        '                 blank = ?, score = ?'
                        'WHERE exam_id = ?',
-                       (correct, incorrect, blank, score, exam_id))
-        self.conn.commit()
+                       (score.correct, score.incorrect,
+                        score.blank, score.score, exam_id))
+        if commit:
+            self.conn.commit()
 
     def _group_max_seq(self, group_id):
         cursor = self.conn.cursor()
@@ -481,3 +519,8 @@ def _create_student_group(conn, group_name, student_list):
                            ' sequence_num) VALUES '
                             '(?, ?, ?, ?, ?)',
                            internal_list)
+
+def _create_student_from_row(row):
+    return utils.Student(row['db_id'], row['student_id'], row['name'],
+                         row['email'], row['group_id'],
+                         row['sequence_num'], is_in_database=True)
