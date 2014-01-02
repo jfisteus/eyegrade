@@ -928,11 +928,13 @@ class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
-        ('snapshot', 'snapshot.svg', _('&Capture the current image'), Qt.Key_C),
+        ('snapshot', 'snapshot.svg', _('&Capture the current image'),
+         Qt.Key_C),
         ('manual_detect', 'manual_detect.svg',
          _('&Manual detection of answer tables'), Qt.Key_M),
         ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
-        ('continue', 'continue.svg', _('&Capture next exam'), Qt.Key_Space),
+        ('continue', 'continue.svg', _('Continue to the &next exam'),
+         Qt.Key_Space),
         ('discard', 'discard.svg', _('&Discard capture'), Qt.Key_Backspace),
         ]
 

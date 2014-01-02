@@ -305,7 +305,7 @@ class SessionDB(object):
         if not os.path.exists(db_file):
             raise utils.EyegradeException('', key='no_session_db')
         if not check_file_is_sqlite(db_file):
-            raise utils.EyegradeException('', key='no_session_db')
+            raise utils.EyegradeException('', key='session_invalid')
         if (not os.path.exists(os.path.join(self.session_dir, 'captures'))
             or not os.path.exists(os.path.join(self.session_dir, 'internal'))):
             raise utils.EyegradeException('', key='corrupt_session_dir')

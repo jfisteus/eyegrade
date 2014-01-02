@@ -47,11 +47,12 @@ utils.EyegradeException.register_error('no_camera',
       'If your computer already has a camera, check that it is not being\n'
       'used by another application.'))
 utils.EyegradeException.register_error('no_session_db',
-    short_message=_('No session DB file'))
+    short_message=_('Session database file not found'))
 utils.EyegradeException.register_error('session_db_exists',
-    short_message=_('The session DB cannot be created: it already exists'))
+    short_message=_('The session database cannot be created: '
+                    'it already exists'))
 utils.EyegradeException.register_error('session_invalid',
-    short_message=_('The session DB is not a valid session'))
+    short_message=_('The session database is not valid'))
 utils.EyegradeException.register_error('corrupt_session_dir',
     short_message=_('The session directory has been corrupted.'))
 
