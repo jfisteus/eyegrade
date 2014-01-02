@@ -932,7 +932,7 @@ class ActionsManager(object):
         ('manual_detect', 'manual_detect.svg',
          _('&Manual detection of answer tables'), Qt.Key_M),
         ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
-        ('save', 'save.svg', _('&Save and capture next exam'), Qt.Key_Space),
+        ('continue', 'continue.svg', _('&Capture next exam'), Qt.Key_Space),
         ('discard', 'discard.svg', _('&Discard capture'), Qt.Key_Backspace),
         ]
 
@@ -997,7 +997,7 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(True)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
-        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(False)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -1009,7 +1009,7 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
-        self.actions_grading['save'].setEnabled(True)
+        self.actions_grading['continue'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
@@ -1021,7 +1021,7 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
-        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)

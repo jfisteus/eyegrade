@@ -143,6 +143,7 @@ class ProgramManager(object):
         self.interface = interface
         self.mode = ProgramManager.mode_no_session
         self.config = utils.config
+        self.sessiondb = None
         self.imageproc_context = \
             imageproc.ExamDetectorContext(camera_id=self.config['camera-dev'])
         self.imageproc_options = None
@@ -205,6 +206,7 @@ class ProgramManager(object):
         if self.interface.is_action_checked(('tools', 'auto_change')):
             self._start_auto_change_detection()
         self.drop_next_capture = False
+        self._store_exam(self.exam)
 
     def _start_auto_change_detection(self):
         if not self.from_manual_detection:
@@ -317,7 +319,7 @@ class ProgramManager(object):
         else:
             self.imageproc_context.lock_threshold()
             self.drop_next_capture = True
-            self._action_save()
+            self._action_continue()
 
     def _schedule_next_capture(self, period, function):
         """Schedules the next image capture and registers the timer.
@@ -420,13 +422,14 @@ class ProgramManager(object):
 
     def _close_session(self):
         """Callback that closes the current session."""
-        if (self.mode == ProgramManager.mode_review
-            or self.mode == ProgramManager.mode_manual_detect):
+        if self.mode == ProgramManager.mode_manual_detect:
             if not self.interface.show_warning( \
                 _('The current capture has not been saved and will be lost. '
                   'Are you sure you want to close this session?'),
                 is_question=True):
                 return
+        if self.mode == ProgramManager.mode_review:
+            self._store_capture(self.exam)
         self.imageproc_context.close_camera()
         self.sessiondb.save_legacy_answers(self.config['csv-dialect'])
         self.sessiondb.close()
@@ -438,17 +441,20 @@ class ProgramManager(object):
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
-        if (self.mode == ProgramManager.mode_review
-            or self.mode == ProgramManager.mode_manual_detect):
-            if not self.interface.show_warning( \
+        if self.mode == ProgramManager.mode_review:
+            self._store_capture(self.exam)
+            exit = True
+        elif self.mode == ProgramManager.mode_manual_detect:
+            exit = self.interface.show_warning( \
                 _('The current capture has not been saved and will be lost. '
                   'Are you sure you want to exit the application?'),
-                is_question=True):
-                return False
-        if self.sessiondb is not None:
+                is_question=True)
+        else:
+            exit = True
+        if exit and self.sessiondb is not None:
             self.sessiondb.save_legacy_answers(self.config['csv-dialect'])
             self.sessiondb.close()
-        return True
+        return exit
 
     def _action_snapshot(self):
         """Callback for the snapshot action."""
@@ -458,8 +464,7 @@ class ProgramManager(object):
             detector = self.latest_detector
             self.exam = utils.Exam(detector.capture, detector.decisions,
                                    [], self.sessiondb.students,
-                                   self.exam_id, self.exam_data.score_weights,
-                                   save_image_func=self.interface.save_capture)
+                                   self.exam_id, self.exam_data.score_weights)
             self.exam.reset_image()
             enable_manual_detection = True
         else:
@@ -472,12 +477,12 @@ class ProgramManager(object):
 
     def _action_discard(self):
         """Callback for cancelling the current capture."""
+        self.sessiondb.remove_exam(self.exam.exam_id)
         self._start_search_mode()
 
-    def _action_save(self):
+    def _action_continue(self):
         """Callback for saving the current capture."""
-        ## self.exam.save_image(self.save_pattern)
-        self._store_exam(self.exam)
+        self._store_capture(self.exam)
         self.exam_id += 1
         self._start_search_mode()
 
@@ -489,8 +494,7 @@ class ProgramManager(object):
             self.exam = utils.Exam(self.latest_detector.capture,
                                    self.latest_detector.decisions,
                                    [], self.sessiondb.students,
-                                   self.exam_id, self.exam_data.score_weights,
-                                   save_image_func=self.interface.save_capture)
+                                   self.exam_id, self.exam_data.score_weights)
         self.exam.reset_image()
         self._start_manual_detect_mode()
 
@@ -501,16 +505,25 @@ class ProgramManager(object):
         students = self.exam.ranked_student_ids_and_names()
         student = self.interface.dialog_student_id(students)
         if student is not None:
+            updated = False
             if student == '':
                 self.exam.update_student_id(None)
+                updated = True
             else:
                 student_id, name = self._parse_student(student)
                 if student_id is not None:
                     self.exam.update_student_id(student_id, name=name)
+                    updated = True
                 else:
                     self.interface.show_error( \
                         _('You typed and incorrect student id.'))
-            self.interface.update_text_up(self.exam.get_student_id_and_name())
+            if updated:
+                self.interface.update_text_up( \
+                                    self.exam.get_student_id_and_name())
+                self.sessiondb.update_student(self.exam.exam_id,
+                                              self.exam.capture,
+                                              self.exam.decisions,
+                                              store_captures=False)
 
     def _action_camera_selection(self):
         """Callback for opening the camera selection dialog."""
@@ -564,6 +577,10 @@ class ProgramManager(object):
                                         self.exam.decisions.model,
                                         self.exam.exam_id,
                                         survey_mode=self.exam_data.survey_mode)
+            self.sessiondb.update_answer(self.exam.exam_id, question, answer,
+                                         self.exam.capture,
+                                         self.exam.decisions, self.exam.score,
+                                         store_captures=False)
 
     def _mouse_pressed_manual_detection(self, point):
         manager = self.manual_detect_manager
@@ -609,7 +626,13 @@ class ProgramManager(object):
 
     def _store_exam(self, exam):
         self.sessiondb.store_exam(exam.exam_id, exam.capture, exam.decisions,
-                                  exam.score)
+                                  exam.score, store_captures=False)
+        self.sessiondb.save_raw_capture(exam.exam_id, exam.capture,
+                                        exam.decisions.student)
+
+    def _store_capture(self, exam):
+        self.sessiondb.save_drawn_capture(exam.exam_id, exam.capture,
+                                          exam.decisions.student)
 
     def _solutions(self, model):
         """Returns the solutions for the given model.
@@ -657,7 +680,7 @@ class ProgramManager(object):
             ('actions', 'session', 'close'): self._close_session,
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
             ('actions', 'grading', 'discard'): self._action_discard,
-            ('actions', 'grading', 'save'): self._action_save,
+            ('actions', 'grading', 'continue'): self._action_continue,
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('actions', 'grading', 'edit_id'): self._action_edit_id,
             ('actions', 'tools', 'camera'): self._action_camera_selection,
