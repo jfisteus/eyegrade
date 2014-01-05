@@ -104,6 +104,7 @@ class ImageDetectTask(object):
     def run(self):
         self.detector.detect()
         ## self.image.detect_safe()
+        self.detector = None
 
 
 class ImageChangeTask(object):
@@ -114,6 +115,7 @@ class ImageChangeTask(object):
 
     def run(self):
         self.detector.exam_detected()
+        self.detector = None
 
 
 class ManualDetectionManager(object):
