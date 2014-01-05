@@ -102,8 +102,7 @@ class ImageDetectTask(object):
         self.detector = detector
 
     def run(self):
-        self.detector.detect()
-        ## self.image.detect_safe()
+        self.detector.detect_safe()
         self.detector = None
 
 
