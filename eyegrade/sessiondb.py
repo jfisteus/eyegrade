@@ -29,9 +29,19 @@ class SessionDB(object):
     This class encapsulates access functions to the session database.
 
     """
+    DB_SCHEMA_VERSION = 1
+    COMPATIBLE_SCHEMAS = (1, )
+
+    ALTERATION_REVOKE_QUESTION = 1
+    ALTERATION_SET_SOLUTION = 2
+    ALTERATION_ADD_CORRECT = 3
 
     _table_session = """
         CREATE TABLE Session (
+            db_schema_version INTEGER,
+            eyegrade_version STRING,
+            title TEXT,
+            description TEXT,
             dimensions TEXT NOT NULL,
             correct_weight TEXT,
             incorrect_weight TEXT,
@@ -44,13 +54,13 @@ class SessionDB(object):
 
     _table_solutions = """
         CREATE TABLE Solutions (
-            model TEXT NOT NULL,
+            model INTEGER NOT NULL,
             solutions TEXT NOT NULL
         )"""
 
     _table_permutations = """
         CREATE TABLE Permutations (
-            model TEXT NOT NULL,
+            model INTEGER NOT NULL,
             permutations TEXT NOT NULL
         )"""
 
@@ -58,7 +68,7 @@ class SessionDB(object):
         CREATE TABLE Exams (
             exam_id INTEGER PRIMARY KEY NOT NULL,
             student INTEGER,
-            model TEXT,
+            model INTEGER,
             correct INTEGER,
             incorrect INTEGER,
             blank INTEGER,
@@ -125,6 +135,14 @@ class SessionDB(object):
             FOREIGN KEY(exam_id) REFERENCES Exams(exam_id)
         )"""
 
+    _table_alterations = """
+        CREATE TABLE Alterations (
+            type INTEGER NOT NULL,
+            model INTEGER NOT NULL,
+            question INTEGER NOT NULL,
+            choice INTEGER
+        )"""
+
     def __init__(self, session_file):
         """Opens a session database.
 
@@ -142,6 +160,7 @@ class SessionDB(object):
         self.conn = sqlite3.connect(db_file)
         self.conn.row_factory = sqlite3.Row
         self._enable_foreign_key_constrains()
+        self._check_schema()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
         self._compute_num_questions_and_choices()
@@ -150,20 +169,14 @@ class SessionDB(object):
     def close(self):
         self.conn.close()
 
-    def list_exams(self):
-        exams = []
-        cursor = self.conn.cursor()
-        for row in cursor.execute('SELECT * FROM Exams'):
-            exams.append(SessionDB._create_exam_from_db(row))
-        return exams
-
     def store_exam(self, exam_id, capture, decisions, score,
                    store_captures=True):
         student_db_id = self._student_db_id(decisions.student)
         cursor = self.conn.cursor()
         cursor.execute('INSERT INTO Exams VALUES '
                        '(?, ?, ?, ?, ?, ?, ?)',
-                       (exam_id, student_db_id, decisions.model,
+                       (exam_id, student_db_id,
+                        _Adapter.enc_model(decisions.model),
                         score.correct, score.incorrect, score.blank,
                         score.score))
         self._store_answers(exam_id, decisions.answers, commit=False)
@@ -245,7 +258,7 @@ class SessionDB(object):
                 data = [
                     exam['exam_id'],
                     exam['student_id'] if exam['student_id'] else -1,
-                    exam['model'] if exam['model'] else '?',
+                    exam['model'],
                     exam['correct'],
                     exam['incorrect'],
                     exam['score'] if exam['score'] is not None else '?',
@@ -261,6 +274,7 @@ class SessionDB(object):
                                   'FROM Exams '
                                   'LEFT JOIN Students ON student = db_id'):
             exam = dict(row)
+            exam['model'] = _Adapter.dec_model(exam['model'])
             exam['answers'] = self.read_answers(exam['exam_id'])
             yield exam
 
@@ -299,6 +313,18 @@ class SessionDB(object):
                                 'raw-{0}.png'.format(exam_id))
         if os.path.exists(raw_name):
             os.remove(raw_name)
+
+    def _check_schema(self):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT db_schema_version, eyegrade_version '
+                       'FROM Session')
+        row = cursor.fetchone()
+        schema = row['db_schema_version']
+        version = row['eyegrade_version']
+        if not schema in SessionDB.COMPATIBLE_SCHEMAS:
+            raise utils.EyegradeException('', key='incompatible_schema',
+                                        format_params=(utils.program_name,
+                                                       utils.version, version))
 
     def _check_session_directory(self):
         db_file = os.path.join(self.session_dir, 'session.eyedb')
@@ -364,9 +390,10 @@ class SessionDB(object):
             self.exam_config.score_weights = None
         self.exam_config.capture_pattern = row['capture_pattern']
         for row in cursor.execute('SELECT * FROM Solutions'):
-            self.exam_config.set_solutions(row['model'], row['solutions'])
+            self.exam_config.set_solutions(_Adapter.dec_model(row['model']),
+                                           row['solutions'])
         for row in cursor.execute('SELECT * FROM Permutations'):
-            self.exam_config.set_permutations(row['model'],
+            self.exam_config.set_permutations(_Adapter.dec_model(row['model']),
                                               row['permutations'])
         return self.exam_config
 
@@ -446,6 +473,26 @@ class SessionDB(object):
         cursor.execute('PRAGMA foreign_keys=ON')
 
 
+class _Adapter(object):
+    @staticmethod
+    def enc_model(model_letter):
+        if model_letter == '0':
+            return 0
+        elif model_letter is None or model_letter == '?':
+            return -1
+        else:
+            return ord(model_letter) - 64
+
+    @staticmethod
+    def dec_model(model_number):
+        if model_number == 0:
+            return '0'
+        elif model_number == -1:
+            return None
+        else:
+            return chr(64 + model_number)
+
+
 def check_file_is_sqlite(filename):
     try:
         with open(filename, 'r') as f:
@@ -492,6 +539,7 @@ def _create_tables(conn):
     cursor.execute(SessionDB._table_answers)
     cursor.execute(SessionDB._table_answer_cells)
     cursor.execute(SessionDB._table_id_cells)
+    cursor.execute(SessionDB._table_alterations)
     cursor.execute('INSERT INTO StudentGroups VALUES (0, "INSERTED")')
 
 def _save_exam_config(conn, exam_data):
@@ -500,8 +548,11 @@ def _save_exam_config(conn, exam_data):
     else:
         weights = exam_data.score_weights
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO Session VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        (exam_data.format_dimensions(),
+    cursor.execute('INSERT INTO Session '
+                   'VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (SessionDB.DB_SCHEMA_VERSION,
+         utils.version,
+         exam_data.format_dimensions(),
          exam_data.format_weight(weights[0]),
          exam_data.format_weight(weights[1]),
          exam_data.format_weight(weights[2]),
@@ -511,10 +562,12 @@ def _save_exam_config(conn, exam_data):
          exam_data.capture_pattern))
     for model in exam_data.solutions:
         cursor.execute('INSERT INTO Solutions VALUES (?, ?)',
-                       (model, exam_data.format_solutions(model)))
+                       (_Adapter.enc_model(model),
+                        exam_data.format_solutions(model)))
     for model in exam_data.permutations:
         cursor.execute('INSERT INTO Permutations VALUES (?, ?)',
-                      (model, exam_data.format_permutations(model)))
+                      (_Adapter.enc_model(model),
+                       exam_data.format_permutations(model)))
 
 def _save_student_list(conn, students_file):
     students = utils.read_student_ids_same_order(filename=students_file,

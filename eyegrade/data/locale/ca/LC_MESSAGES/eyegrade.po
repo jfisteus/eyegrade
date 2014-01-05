@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-02 16:41+0100\n"
+"POT-Creation-Date: 2014-01-05 01:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,40 +42,48 @@ msgstr "La base de dades de sessió no és correcta"
 msgid "The session directory has been corrupted."
 msgstr "El directory de sessió està corrupte."
 
-#: eyegrade/eyegrade.py:169
+#: eyegrade/eyegrade.py:59
+#, python-brace-format
+msgid ""
+"Incompatible session format. This is {0} version {1} but the session was "
+"created by version {2}"
+msgstr "Format de sessió incompatible. Això és {0} versió {1}, "
+"però la sessió fou creada amb la versió {2}"
+
+#: eyegrade/eyegrade.py:172
 msgid "The directory has no Eyegrade session"
 msgstr "No hi ha cap sessió Eyegrade en el directori"
 
-#: eyegrade/eyegrade.py:171
+#: eyegrade/eyegrade.py:174
 msgid "Error opening the session file"
 msgstr "Error al obrir l'arxiu de la sessió"
 
-#: eyegrade/eyegrade.py:187
+#: eyegrade/eyegrade.py:190
 msgid "Searching..."
 msgstr "Buscant..."
 
-#: eyegrade/eyegrade.py:222
+#: eyegrade/eyegrade.py:225
 msgid "Manual detection: click on the outer corners of the answer tables"
 msgstr "Detecció manual: fes click a les cantonades de les taules de respostes"
 
-#: eyegrade/eyegrade.py:358
+#: eyegrade/eyegrade.py:361
 #, python-brace-format
 msgid "There are no solutions for model {0}."
 msgstr "No hi ha solucions per al model {0}"
 
-#: eyegrade/eyegrade.py:376
+#: eyegrade/eyegrade.py:379
 msgid "Input/output error:"
 msgstr "Error d'entrada/sortida"
 
-#: eyegrade/eyegrade.py:379
+#: eyegrade/eyegrade.py:382
 msgid "Error:"
 msgstr "Error:"
 
-#: eyegrade/eyegrade.py:416 eyegrade/eyegrade.py:421
+#: eyegrade/eyegrade.py:419 eyegrade/eyegrade.py:424
 msgid "Error loading the session"
 msgstr "Error al carregar la sessió"
 
-#: eyegrade/eyegrade.py:428
+#: eyegrade/eyegrade.py:431
 msgid ""
 "The current capture has not been saved and will be lost. Are you sure you "
 "want to close this session?"
@@ -83,7 +91,7 @@ msgstr ""
 "La captura actual no ha estat guardada i es perdrà. Està segur de que vol "
 "tancar la sessió?"
 
-#: eyegrade/eyegrade.py:450
+#: eyegrade/eyegrade.py:453
 msgid ""
 "The current capture has not been saved and will be lost. Are you sure you "
 "want to exit the application?"
@@ -91,15 +99,15 @@ msgstr ""
 "La captura actual no ha estat guardada i es perdrà. Està segur de que vol "
 "sortir del programa?"
 
-#: eyegrade/eyegrade.py:520
+#: eyegrade/eyegrade.py:523
 msgid "You typed and incorrect student id."
 msgstr "L'identificador d'estudiant introduït no és correcte."
 
-#: eyegrade/eyegrade.py:602
+#: eyegrade/eyegrade.py:605
 msgid "Manual detection failed"
 msgstr "Ha fallat la detecció manual"
 
-#: eyegrade/eyegrade.py:622
+#: eyegrade/eyegrade.py:625
 msgid "No camera found. Connect a camera and start the session again."
 msgstr ""
 "No s'ha trobat cap càmara. Connecti'n una i obri la sessió un altre cop."

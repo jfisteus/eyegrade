@@ -55,6 +55,9 @@ utils.EyegradeException.register_error('session_invalid',
     short_message=_('The session database is not valid'))
 utils.EyegradeException.register_error('corrupt_session_dir',
     short_message=_('The session directory has been corrupted.'))
+utils.EyegradeException.register_error('incompatible_schema',
+    short_message=_('Incompatible session format. This is {0} version {1} '
+                    'but the session was created by version {2}'))
 
 param_fps = 8
 capture_period = 1.0 / param_fps
