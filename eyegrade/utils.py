@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://eyegrade.org/doc/user-manual/'
-version = '0.2.6'
+version = '0.2.6+dev'
 version_status = 'alpha'
 
 re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
@@ -87,7 +87,7 @@ class EyegradeException(Exception):
     _error_messages = {}
     _short_messages = {}
 
-    def __init__(self, message, key=None):
+    def __init__(self, message, key=None, format_params=None):
         """Creates a new exception.
 
         If `key` is in `_error_messages`, a prettier version of the
@@ -102,7 +102,11 @@ class EyegradeException(Exception):
             if message:
                 parts.append(message)
             elif key in EyegradeException._short_messages:
-                parts.append(EyegradeException._short_messages[key])
+                short_msg = EyegradeException._short_messages[key]
+                if not format_params:
+                    parts.append(short_msg)
+                else:
+                    parts.append(short_msg.format(*format_params))
             if key in EyegradeException._error_messages:
                 parts.append('\n\n')
                 parts.append(EyegradeException._error_messages[key])
