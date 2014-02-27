@@ -150,14 +150,16 @@ That's all! Eyegrade should now be installed. For further testing, go to
 Installation on Microsoft Windows
 .................................
 
-You have to follow these three steps, explained in the following
-sections, in order to install Eyegrade in Windows:
+You have to follow these steps, explained in the following sections,
+in order to install Eyegrade in Windows:
 
 1.- Install Python 2.6 (including Tre).
 
-2.- Install OpenCV 2.1.
+2.- Install PyQt.
 
-3.- Install Eyegrade itself.
+3.- Install OpenCV 2.1.
+
+4.- Install Eyegrade itself.
 
 
 Installing Python
@@ -263,10 +265,10 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Go to `the page of Eyegrade at Github
-<https://github.com/jfisteus/eyegrade>`_, click on the *Downloads*
-button and select the most recent release. Extract it in your file
-system, in a directory with no white-spaces in its path.
+1.- Download the ZIP file `eyegrade-0.2.6.zip
+<https://www.dropbox.com/s/not05fhwhd4awo3/eyegrade-0.2.6.zip>`_. Extract
+it in your file system, in a directory with no white-spaces in its
+path.
 
 Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
