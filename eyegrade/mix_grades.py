@@ -25,8 +25,12 @@ def read_cmd_options():
     parser = OptionParser(usage = 'usage: %prog [options] <results_filename>'
                                   ' <ids_filename>',
                           version = utils.program_name + ' ' + utils.version)
-    parser.add_option('-x', '--extra-grades', dest='extra_grades', default=None,
-                      help = 'read and mix extra grades from the given file')
+    parser.add_option('-m', '--dump-model', dest='dump_model',
+                      action='store_true', default=False,
+                      help = 'add exam model')
+    parser.add_option('-r', '--round', dest='round_score', default=-1,
+                      type=int,
+                      help='round score to the given number of digits')
     parser.add_option('-o', '--output-file', dest='output_file',
                       default=None, help='store the output in the given file')
     parser.add_option('-i', '--ignore-missing', action='store_false',
@@ -39,14 +43,9 @@ def read_cmd_options():
     return options, args
 
 def mix_grades(results_filename, ids_filename, output_filename,
-               extra_grades_filename, dump_missing):
-    if extra_grades_filename is None:
-        results = utils.mix_results(results_filename, ids_filename,
-                                    dump_missing)
-    else:
-        results = utils.mix_results_extra_grades(results_filename, ids_filename,
-                                                 extra_grades_filename,
-                                                 dump_missing)
+               dump_missing, round_score, dump_model):
+    results = utils.mix_results(results_filename, ids_filename,
+                                dump_missing, round_score, dump_model)
     if output_filename is not None:
         file_ = open(output_filename, 'ab')
     else:
@@ -57,8 +56,8 @@ def mix_grades(results_filename, ids_filename, output_filename,
 
 def main():
     options, args = read_cmd_options()
-    mix_grades(args[0], args[1], options.output_file, options.extra_grades,
-               options.dump_missing)
+    mix_grades(args[0], args[1], options.output_file,
+               options.dump_missing, options.round_score, options.dump_model)
 
 if __name__ == '__main__':
     main()

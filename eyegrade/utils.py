@@ -428,67 +428,52 @@ def read_student_ids_multiple(filenames, with_names=False):
             st.update(read_student_ids(filename=f, with_names=True))
     return st
 
-def mix_results(results_filename, student_list_filename, dump_missing):
+def mix_results(results_filename, student_list_filename, dump_missing,
+                round_score, dump_model):
     """Returns a list of tuples student_id, good_answers, bad_answers, score.
 
-       Receives the names of the files with results and student list.
-       If 'dump_missing' is True, grades of students not in the
+       - Receives the names of the files with results and student list.
+
+       - If 'dump_missing' is True, grades of students not in the
        student list are dumped at the end of the list.
+
+       - If 'round_score' is -1, scores are dumped as they are in the
+       file. If it is another value, it is interpreted as the number of
+       decimal digits to which the the score has to be rounded.
+
+       - If 'dump_model' is True, the exam model is also dumped as
+       another column at the end.
 
     """
     mixed_grades = []
     results = results_by_id(read_results(results_filename))
     ids = read_student_ids(filename=student_list_filename)
     for student_id in ids:
-        if student_id in results:
-            mixed_grades.append((student_id,
-                                 results[student_id][0],
-                                 results[student_id][1],
-                                 results[student_id][2]))
-        else:
-            mixed_grades.append((student_id, '', ''))
+        mixed_grades.append(_student_result(student_id, results,
+                                            round_score, dump_model))
     if dump_missing:
         for student_id in results:
             if not student_id in ids:
-                mixed_grades.append((student_id,
-                                     results[student_id][0],
-                                     results[student_id][1],
-                                     results[student_id][2]))
+                mixed_grades.append(_student_result(student_id, results,
+                                                    dump_model))
     return mixed_grades
 
-def mix_results_extra_grades(results_filename, student_list_filename,
-                             extra_grades_filename, dump_missing):
-    """Returns a list of tuples student_id, good_answers, bad_answers, <extra>
-
-       Receives the names of the files with results and student list.
-       If 'dump_missing' is True, grades of students not in the
-       student list are dumped at the end of the list.
-       <extra> represents as many data as columns 1:... in the extra file
-       (column 0 in that file is the student id).
-
-    """
-    mixed_grades = mix_results(results_filename, student_list_filename,
-                               dump_missing)
-    csvfile = open(extra_grades_filename, 'rb')
-    reader = csv.reader(csvfile, 'tabs')
-    extra_grades = {}
-    for line in reader:
-        if len(line) < 2:
-            raise Exception('Incorrect line in extra grades file')
-        extra_grades[line[0]] = tuple(line[1:])
-    csvfile.close()
-    ids = []
-    for i in range(0, len(mixed_grades)):
-        student_id = mixed_grades[i][0]
-        ids.append(student_id)
-        if student_id in extra_grades:
-            mixed_grades[i] = mixed_grades[i] + extra_grades[student_id]
-    if dump_missing:
-        for student_id in extra_grades:
-            if not student_id in ids:
-                mixed_grades.append(((student_id, 0, 0) +
-                                     extra_grades[student_id]))
-    return mixed_grades
+def _student_result(student_id, results, round_score, dump_model):
+    """Auxiliary funtion for 'mix_results'."""
+    if student_id in results:
+        result = results[student_id]
+        if round_score == -1:
+            score = result['score']
+        else:
+            score = round(result['score'], round_score)
+        parts = [student_id, result['good'], result['bad'], score]
+        model = result['model']
+    else:
+        parts = [student_id, '', '', '']
+        model = ''
+    if dump_model:
+        parts.extend(model)
+    return parts
 
 def write_grades(grades, file_, csv_dialect):
     """Writes the given grades to a file.
@@ -508,7 +493,7 @@ def results_by_id(results):
     """
     id_dict = {}
     for r in results:
-        id_dict[r['student-id']] = (r['good'], r['bad'], r['score'])
+        id_dict[r['student-id']] = r
     return id_dict
 
 def _read_results_file(filename):
