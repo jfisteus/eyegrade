@@ -1043,7 +1043,7 @@ class ActionsManager(object):
         self.actions_tools['camera'].setEnabled(False)
         self._disable_exams_actions()
 
-    def set_review_mode(self):
+    def set_review_from_grading_mode(self):
         self.actions_grading['start'].setEnabled(False)
         self.actions_grading['stop'].setEnabled(True)
         self.actions_grading['snapshot'].setEnabled(False)
@@ -1057,6 +1057,26 @@ class ActionsManager(object):
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
         self._disable_exams_actions()
+
+    def set_review_from_session_mode(self):
+        self.actions_grading['start'].setEnabled(True)
+        self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['snapshot'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(False)
+        self.actions_grading['edit_id'].setEnabled(True)
+        self.actions_grading['continue'].setEnabled(False)
+        self.actions_grading['discard'].setEnabled(False)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(True)
+        self.actions_exams['edit'].setEnabled(True)
+        self.actions_exams['maximize'].setEnabled(True)
+        self.actions_exams['minimize'].setEnabled(True)
+        self.actions_exams['next'].setEnabled(True)
+        self.actions_exams['previous'].setEnabled(True)
+        self.actions_exams['remove'].setEnabled(True)
 
     def set_session_mode(self):
         self.actions_grading['start'].setEnabled(True)
@@ -1408,6 +1428,9 @@ class MainWindow(QMainWindow):
                 assert False, 'Undefined listener key: {0}'.format(key)
         elif key[0] == 'exit':
             self.exit_listener = listener
+        elif key[0] == 'exam':
+            if key[1] == 'selected':
+                self.exams_view.selection_changed.connect(listener)
         else:
             assert False, 'Undefined listener key: {0}'.format(key)
 
@@ -1451,8 +1474,11 @@ class Interface(object):
     def activate_search_mode(self):
         self.actions_manager.set_search_mode()
 
-    def activate_review_mode(self):
-        self.actions_manager.set_review_mode()
+    def activate_review_mode(self, from_grading):
+        if from_grading:
+            self.actions_manager.set_review_from_grading_mode()
+        else:
+            self.actions_manager.set_review_from_session_mode()
 
     def activate_manual_detect_mode(self):
         self.actions_manager.set_manual_detect_mode()

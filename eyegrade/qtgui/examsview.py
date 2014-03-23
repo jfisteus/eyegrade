@@ -24,6 +24,7 @@ from PyQt4.QtGui import (QIcon, QListView, QStandardItemModel,
 
 from PyQt4.QtCore import (QSize, pyqtSignal, pyqtSlot, )
 
+from .. import utils
 
 class ExamIcon(QIcon):
     def __init__(self, exam):
@@ -36,7 +37,7 @@ class ExamImage(QImage):
 
 
 class ThumbnailsView(QListView):
-    selection_changed = pyqtSignal(int)
+    selection_changed = pyqtSignal(utils.Exam)
 
     def __init__(self, parent):
         super(ThumbnailsView, self).__init__(parent)
@@ -70,10 +71,9 @@ class ThumbnailsView(QListView):
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def on_selection(self, selected, deselected):
-        print deselected, selected
         indexes = selected.indexes()
         if len(indexes):
-            self.selection_changed.emit(self.exams[indexes[0].row()].exam_id)
+            self.selection_changed.emit(self.exams[indexes[0].row()])
 
 
 class CaptureView(QWidget):

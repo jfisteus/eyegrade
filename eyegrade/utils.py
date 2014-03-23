@@ -843,6 +843,21 @@ class ExamConfig(object):
         if not model in self.models:
             self.models.append(model)
 
+    def get_solutions(self, model):
+        """Returns the solutions for the given model.
+
+        If in survey mode it returns []. If there are no solutions for
+        this, model it returns None.
+
+        """
+        if not self.survey_mode:
+            if model in self.solutions:
+                return self.solutions[model]
+            else:
+                return None
+        else:
+            return []
+
     def set_permutations(self, model, permutations):
         if not isinstance(permutations, list):
             permutations = self._parse_permutations(permutations)

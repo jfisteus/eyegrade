@@ -229,7 +229,7 @@ class ExamDetector(object):
         if self.options['show-status']:
             self._draw_status_flags()
         self.decisions = capture.ExamDecisions(success, answers, detected_id,
-                                               id_scores, bits)
+                                               id_scores, infobits=bits)
         self.capture = capture.ExamCapture(self.image_to_show, answer_cells,
                                            id_cells, self._compute_progress())
         self.success = success
@@ -257,7 +257,7 @@ class ExamDetector(object):
         detected_id = None
         id_scores = None
         self.decisions = capture.ExamDecisions(success, answers, detected_id,
-                                               id_scores, bits)
+                                               id_scores, infobits=bits)
         self.capture = capture.ExamCapture(self.image_to_show, answer_cells,
                                            id_cells, 1.0)
         self.success = success

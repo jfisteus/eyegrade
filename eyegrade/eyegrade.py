@@ -136,18 +136,75 @@ class ManualDetectionManager(object):
         return self.detector.detect_manual(self.points)
 
 
+class ProgramMode(object):
+    """Represents the mode in which the program is."""
+    no_session = 0
+    session = 1
+    search = 2
+    review_from_session = 3
+    review_from_grading = 4
+    manual_detect = 5
+
+    def __init__(self):
+        self.mode = ProgramMode.no_session
+
+    def in_mode(self, mode):
+        return self.mode == mode
+
+    def in_no_session(self):
+        return self.mode == ProgramMode.no_session
+
+    def in_session(self):
+        return self.mode == ProgramMode.session
+
+    def in_search(self):
+        return self.mode == ProgramMode.search
+
+    def in_review(self):
+        return (self.mode == ProgramMode.review_from_session
+                or self.mode == ProgramMode.review_from_grading)
+
+    def in_review_from_session(self):
+        return self.mode == ProgramMode.review_from_session
+
+    def in_review_from_grading(self):
+        return self.mode == ProgramMode.review_from_grading
+
+    def in_manual_detect(self):
+        return self.mode == ProgramMode.manual_detect
+
+    def in_grading(self):
+        return (self.in_search() or self.in_review_from_grading()
+                or self.in_manual_detect())
+
+    def enter_mode(self, mode):
+        self.mode == mode
+
+    def enter_no_session(self):
+        self.mode = ProgramMode.session
+
+    def enter_session(self):
+        self.mode = ProgramMode.no_session
+
+    def enter_search(self):
+        self.mode = ProgramMode.search
+
+    def enter_review(self):
+        if self.in_grading():
+            self.mode = ProgramMode.review_from_grading
+        else:
+            self.mode = ProgramMode.review_from_session
+
+    def enter_manual_detect(self):
+        self.mode = ProgramMode.manual_detect
+
+
 class ProgramManager(object):
     """Manages a grading session."""
 
-    mode_no_session = 0
-    mode_session = 1
-    mode_search = 2
-    mode_review = 3
-    mode_manual_detect = 4
-
     def __init__(self, interface, session_file=None):
         self.interface = interface
-        self.mode = ProgramManager.mode_no_session
+        self.mode = ProgramMode()
         self.config = utils.config
         self.sessiondb = None
         self.imageproc_context = \
@@ -158,6 +215,7 @@ class ProgramManager(object):
         self._register_listeners()
         self.from_manual_detection = False
         self.manual_detect_manager = None
+        self.exam_changed = False
         if session_file is not None:
             self._try_session_file(session_file)
 
@@ -182,7 +240,7 @@ class ProgramManager(object):
             self.interface.show_error(msg)
 
     def _start_search_mode(self):
-        self.mode = ProgramManager.mode_search
+        self.mode.enter_search()
         self.from_manual_detection = False
         self.interface.activate_search_mode()
         self.exam = None
@@ -195,24 +253,26 @@ class ProgramManager(object):
         self.next_capture = time.time() + 0.05
 
     def _start_review_mode(self):
-        self.mode = ProgramManager.mode_review
-        self.interface.activate_review_mode()
+        if self.mode.in_grading():
+            self._store_exam(self.exam)
+            # Automatic detection of exam removal to go to the next exam
+            if self.interface.is_action_checked(('tools', 'auto_change')):
+                self._start_auto_change_detection()
+            self.drop_next_capture = False
+        self.mode.enter_review()
+        self.exam_changed = False
+        self.interface.activate_review_mode(self.mode.in_review_from_grading())
         self.interface.display_capture(self.exam.get_image_drawn())
         self.interface.update_text_up(self.exam.get_student_id_and_name())
         if self.exam.score is not None:
             self.interface.update_status(self.exam.score,
-                                         model=self.exam.decisions.model,
-                                         seq_num=self.exam.exam_id,
-                                         survey_mode=self.exam_data.survey_mode)
+                                        model=self.exam.decisions.model,
+                                        seq_num=self.exam.exam_id,
+                                        survey_mode=self.exam_data.survey_mode)
         else:
             self.interface.update_text_down('')
         if not self.exam.decisions.model:
             self.interface.enable_manual_detect(True)
-        # Automatic detection of exam removal to go to the next exam
-        if self.interface.is_action_checked(('tools', 'auto_change')):
-            self._start_auto_change_detection()
-        self.drop_next_capture = False
-        self._store_exam(self.exam)
 
     def _start_auto_change_detection(self):
         if not self.from_manual_detection:
@@ -220,7 +280,7 @@ class ProgramManager(object):
             self.interface.register_timer(1000, self._next_change_detection)
 
     def _start_manual_detect_mode(self):
-        self.mode = ProgramManager.mode_manual_detect
+        self.mode.enter_manual_detect()
         self.interface.activate_manual_detect_mode()
         self.interface.display_capture(self.exam.get_image_drawn())
         self.interface.update_text_up('')
@@ -231,7 +291,7 @@ class ProgramManager(object):
                                    self.imageproc_options)
 
     def _next_search(self):
-        if self.mode != ProgramManager.mode_search:
+        if not self.mode.in_search():
             return
         if self.dump_buffer:
             self.dump_buffer = False
@@ -247,7 +307,7 @@ class ProgramManager(object):
     def _after_image_detection(self):
         detector = self.current_detector
         self.current_detector = None
-        if self.mode != ProgramManager.mode_search:
+        if not self.mode.in_search():
             # The user switched to other mode while the image was processed
             return
         self.latest_detector = detector
@@ -284,7 +344,7 @@ class ProgramManager(object):
         Continuation of work is done at `_after_change_detection`.
 
         """
-        if (self.mode != ProgramManager.mode_review
+        if (not self.mode.in_review_from_grading()
             or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
         dump_camera_buffer(self.imageproc_context.camera, 1.0)
@@ -308,7 +368,7 @@ class ProgramManager(object):
             # This needs to be investigated: this case should never
             # happen, but I saw it happen...
             return
-        if (self.mode != ProgramManager.mode_review
+        if (not self.mode.in_review_from_grading()
             or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
         exam_removed = False
@@ -354,7 +414,7 @@ class ProgramManager(object):
                 if (model in self.exam_data.solutions
                     or self.exam_data.survey_mode):
                     exam = utils.Exam(detector.capture, detector.decisions,
-                                      self._solutions(model),
+                                      self.exam_data.get_solutions(model),
                                       self.sessiondb.students,
                                       self.exam_id,
                                       self.exam_data.score_weights)
@@ -428,19 +488,17 @@ class ProgramManager(object):
 
     def _close_session(self):
         """Callback that closes the current session."""
-        if self.mode == ProgramManager.mode_manual_detect:
+        if self.mode.in_manual_detect():
             if not self.interface.show_warning( \
                 _('The current capture has not been saved and will be lost. '
                   'Are you sure you want to close this session?'),
                 is_question=True):
                 return
-        if (self.mode == ProgramManager.mode_search
-            or self.mode == ProgramManager.mode_review
-            or self.mode == ProgramManager.mode_manual_detect):
+        if self.mode.in_grading() or self.mode.in_review_from_session():
             self._stop_grading()
         self.sessiondb.save_legacy_answers(self.config['csv-dialect'])
         self.sessiondb.close()
-        self.mode = ProgramManager.mode_no_session
+        self.mode.enter_no_session()
         self.sessiondb = None
         self.exam_data = None
         self.imageproc_options = None
@@ -448,14 +506,14 @@ class ProgramManager(object):
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
-        if self.mode == ProgramManager.mode_review:
-            self._store_capture(self.exam)
-            exit = True
-        elif self.mode == ProgramManager.mode_manual_detect:
+        if self.mode.in_manual_detect():
             exit = self.interface.show_warning( \
                 _('The current capture has not been saved and will be lost. '
                   'Are you sure you want to exit the application?'),
                 is_question=True)
+        elif self.mode.in_grading() or self.mode.in_review_from_session():
+            self._stop_grading()
+            exit = True
         else:
             exit = True
         if exit and self.sessiondb is not None:
@@ -464,6 +522,8 @@ class ProgramManager(object):
         return exit
 
     def _action_start(self):
+        if self.mode.in_review_from_session():
+            self._stop_grading()
         self._start_grading()
 
     def _action_stop(self):
@@ -502,8 +562,7 @@ class ProgramManager(object):
 
     def _action_manual_detect(self):
         """Callback for the manual detection action."""
-        from_search_mode = self.mode == ProgramManager.mode_search
-        if from_search_mode:
+        if self.mode.in_search():
             # Take the current snapshot and go to review mode
             self.exam = utils.Exam(self.latest_detector.capture,
                                    self.latest_detector.decisions,
@@ -514,7 +573,7 @@ class ProgramManager(object):
 
     def _action_edit_id(self):
         """Callback for the edit student id action."""
-        if self.mode != ProgramManager.mode_review:
+        if not self.mode.in_review():
             return
         students = self.exam.ranked_student_ids_and_names()
         student = self.interface.dialog_student_id(students)
@@ -532,6 +591,7 @@ class ProgramManager(object):
                     self.interface.show_error( \
                         _('You typed and incorrect student id.'))
             if updated:
+                self.exam_changed = True
                 self.interface.update_text_up( \
                                     self.exam.get_student_id_and_name())
                 self.sessiondb.update_student(self.exam.exam_id,
@@ -572,26 +632,22 @@ class ProgramManager(object):
 
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
-        if self.mode == ProgramManager.mode_review:
+        if self.mode.in_review():
             self._mouse_pressed_change_answer(point)
-        elif self.mode == ProgramManager.mode_manual_detect:
+        elif self.mode.in_manual_detect():
             self._mouse_pressed_manual_detection(point)
-
-    def _digit_pressed(self, digit_string):
-        """Callback called when a digit is pressed."""
-        if self.mode == ProgramManager.mode_review:
-            pass
 
     def _mouse_pressed_change_answer(self, point):
         question, answer = self.exam.capture.get_cell_clicked(point)
         if question is not None:
+            self.exam_changed = True
             self.exam.toggle_answer(question, answer)
             self.interface.display_capture(self.exam.get_image_drawn())
             self.interface.update_status(self.exam.score,
                                         self.exam.decisions.model,
                                         self.exam.exam_id,
                                         survey_mode=self.exam_data.survey_mode)
-            self.sessiondb.update_answer(self.exam.exam_id, question, answer,
+            self.sessiondb.update_answer(self.exam.exam_id, question,
                                          self.exam.capture,
                                          self.exam.decisions, self.exam.score,
                                          store_captures=False)
@@ -618,13 +674,22 @@ class ProgramManager(object):
                 self.from_manual_detection = True
                 self._start_review_mode()
 
+    def _exam_selected(self, exam):
+        if self.mode.in_grading() or self.mode.in_review_from_session():
+            self._stop_grading()
+        exam.load_capture()
+        exam.reset_image()
+        exam.draw_answers()
+        self.exam = exam
+        self._start_review_mode()
+
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
         self.interface.add_exams(self.sessiondb.read_exams())
         self._activate_session_mode()
 
     def _activate_session_mode(self):
-        self.mode = ProgramManager.mode_session
+        self.mode.enter_session()
         self.interface.activate_session_mode()
 
     def _start_grading(self):
@@ -647,10 +712,15 @@ class ProgramManager(object):
         self._start_search_mode()
 
     def _stop_grading(self):
-        if self.mode == ProgramManager.mode_review:
+        if self.mode.in_grading():
+            self.imageproc_context.close_camera()
+            if self.mode.in_review_from_grading():
+                self._store_capture(self.exam)
+                self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+        elif self.mode.in_review_from_session() and self.exam_changed:
             self._store_capture(self.exam)
-            self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
-        self.imageproc_context.close_camera()
+            self.exam.clear_capture()
+            self.exam_changed = False
         self._activate_session_mode()
 
     def _store_exam(self, exam):
@@ -662,21 +732,6 @@ class ProgramManager(object):
     def _store_capture(self, exam):
         self.sessiondb.save_drawn_capture(exam.exam_id, exam.capture,
                                           exam.decisions.student)
-
-    def _solutions(self, model):
-        """Returns the solutions for the given model.
-
-        If in survey mode it returns []. If there are no solutions for
-        this, model it returns None.
-
-        """
-        if not self.exam_data.survey_mode:
-            if model in self.exam_data.solutions:
-                return self.exam_data.solutions[model]
-            else:
-                return None
-        else:
-            return []
 
     def _parse_student(self, student):
         """Parses a string with student id (first) and student name.
@@ -725,6 +780,7 @@ class ProgramManager(object):
             ('actions', 'help', 'source'): self._action_source_code,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'exit'): self._exit_application,
+            ('window', 'exam', 'selected'): self._exam_selected,
         }
         self.interface.register_listeners(listeners)
 
