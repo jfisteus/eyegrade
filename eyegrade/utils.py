@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2013 Jesus Arias Fisteus
+# Copyright (C) 2010-2014 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -697,6 +697,14 @@ class Student(object):
             return ' '.join((self.student_id, self.name))
         else:
             return self.student_id
+
+    def get_name_or_id(self):
+        if self.name:
+            return self.name
+        elif self.student_id:
+            return self.student_id
+        else:
+            return ''
 
     def __unicode__(self):
         return u'student: ' + self.get_id_and_name()

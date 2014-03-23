@@ -21,6 +21,7 @@ import os.path
 import csv
 
 import utils
+import capture
 
 
 class SessionDB(object):
@@ -229,6 +230,8 @@ class SessionDB(object):
                        '        :sequence_num)',
                        student.__dict__)
         student.db_id = cursor.lastrowid
+        if student.student_id is not None:
+            self.students[student.student_id] = student
         if commit:
             self.conn.commit()
 
@@ -286,6 +289,48 @@ class SessionDB(object):
                                   (exam_id, )):
             answers[row['question']] = row['answer']
         return answers
+
+    def read_exam(self, exam_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT '
+                       'exam_id, student_id, model, '
+                       'correct, incorrect, blank, score '
+                       'FROM Exams '
+                       'LEFT JOIN Students ON student = db_id '
+                       'WHERE exam_id = ?', (exam_id, ))
+        row = cursor.fetchone()
+        if row is not None:
+            exam = self._exam_from_row(row)
+        else:
+            exam = None
+        return exam
+
+    def read_exams(self):
+        cursor = self.conn.cursor()
+        exams = []
+        for row in cursor.execute('SELECT '
+                                  'exam_id, student_id, model, '
+                                  'correct, incorrect, blank, score '
+                                  'FROM Exams '
+                                  'LEFT JOIN Students ON student = db_id'):
+            exam = self._exam_from_row(row)
+            exams.append(exam)
+        return exams
+
+    def _exam_from_row(self, row):
+        exam = ExamFromDB(row)
+        if row['student_id']:
+            student = self.students[row['student_id']]
+        else:
+            student = None
+        answers = self.read_answers(exam.exam_id)
+        exam.decisions = ExamDecisionsFromDB(answers, student,
+                                             _Adapter.dec_model(row['model']))
+        image_name = utils.capture_name(self.exam_config.capture_pattern,
+                                        exam.exam_id, exam.decisions.student)
+        exam.image_drawn_path = os.path.join(self.session_dir,
+                                             'captures', image_name)
+        return exam
 
     def save_drawn_capture(self, exam_id, capture, student):
         name = utils.capture_name(self.exam_config.capture_pattern,
@@ -471,6 +516,40 @@ class SessionDB(object):
     def _enable_foreign_key_constrains(self):
         cursor = self.conn.cursor()
         cursor.execute('PRAGMA foreign_keys=ON')
+
+
+class ExamFromDB(utils.Exam):
+    def __init__(self, db_dict):
+        self.capture = None
+        self.decisions = None
+        self.valid_students = None
+        self.exam_id = db_dict['exam_id']
+        self.model = db_dict['model']
+        self.score = ScoreFromDB(db_dict['correct'], db_dict['incorrect'],
+                                 db_dict['blank'], db_dict['score'])
+        self.image_drawn_path = None
+
+
+class ScoreFromDB(utils.Score):
+    def __init__(self, correct, incorrect, blank, score):
+        self.correct = correct
+        self.incorrect = incorrect
+        self.blank = blank
+        self.score = score
+        self.max_score = None
+        self.answers = None
+        self.solutions = None
+        self.score_weights = None
+
+
+class ExamDecisionsFromDB(capture.ExamDecisions):
+    def __init__(self, answers, student, model):
+        self.answers = answers
+        self.student = student
+        self.model = model
+        self.detected_id = None
+        self.id_scores = None
+        self.students_rank = []
 
 
 class _Adapter(object):

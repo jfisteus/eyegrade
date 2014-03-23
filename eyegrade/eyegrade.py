@@ -140,9 +140,10 @@ class ProgramManager(object):
     """Manages a grading session."""
 
     mode_no_session = 0
-    mode_search = 1
-    mode_review = 2
-    mode_manual_detect = 3
+    mode_session = 1
+    mode_search = 2
+    mode_review = 3
+    mode_manual_detect = 4
 
     def __init__(self, interface, session_file=None):
         self.interface = interface
@@ -461,6 +462,12 @@ class ProgramManager(object):
             self.sessiondb.close()
         return exit
 
+    def _action_start(self):
+        self._start_grading()
+
+    def _action_stop(self):
+        self._stop_grading()
+
     def _action_snapshot(self):
         """Callback for the snapshot action."""
         if self.latest_graded_exam is None:
@@ -488,6 +495,7 @@ class ProgramManager(object):
     def _action_continue(self):
         """Callback for saving the current capture."""
         self._store_capture(self.exam)
+        self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
         self.exam_id += 1
         self._start_search_mode()
 
@@ -611,6 +619,14 @@ class ProgramManager(object):
 
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
+        self.interface.add_exams(self.sessiondb.read_exams())
+        self._activate_session_mode()
+
+    def _activate_session_mode(self):
+        self.mode = ProgramManager.mode_session
+        self.interface.activate_session_mode()
+
+    def _start_grading(self):
         self.sessiondb.capture_save_func = self.interface.save_capture
         exam_data = self.exam_data
         self.imageproc_options = imageproc.ExamDetector.get_default_options()
@@ -628,6 +644,12 @@ class ProgramManager(object):
             return
         self.exam_id = self.sessiondb.next_exam_id()
         self._start_search_mode()
+
+    def _stop_grading(self):
+        if self.mode == ProgramManager.mode_review:
+            self._store_capture(self.exam)
+            self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+        self._activate_session_mode()
 
     def _store_exam(self, exam):
         self.sessiondb.store_exam(exam.exam_id, exam.capture, exam.decisions,
@@ -683,6 +705,8 @@ class ProgramManager(object):
             ('actions', 'session', 'new'): self._new_session,
             ('actions', 'session', 'open'): self._open_session,
             ('actions', 'session', 'close'): self._close_session,
+            ('actions', 'grading', 'start'): self._action_start,
+            ('actions', 'grading', 'stop'): self._action_stop,
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
             ('actions', 'grading', 'discard'): self._action_discard,
             ('actions', 'grading', 'continue'): self._action_continue,
