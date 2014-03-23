@@ -434,9 +434,10 @@ class ProgramManager(object):
                   'Are you sure you want to close this session?'),
                 is_question=True):
                 return
-        if self.mode == ProgramManager.mode_review:
-            self._store_capture(self.exam)
-        self.imageproc_context.close_camera()
+        if (self.mode == ProgramManager.mode_search
+            or self.mode == ProgramManager.mode_review
+            or self.mode == ProgramManager.mode_manual_detect):
+            self._stop_grading()
         self.sessiondb.save_legacy_answers(self.config['csv-dialect'])
         self.sessiondb.close()
         self.mode = ProgramManager.mode_no_session
@@ -649,6 +650,7 @@ class ProgramManager(object):
         if self.mode == ProgramManager.mode_review:
             self._store_capture(self.exam)
             self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+        self.imageproc_context.close_camera()
         self._activate_session_mode()
 
     def _store_exam(self, exam):
