@@ -164,7 +164,9 @@ class SessionDB(object):
         self._check_schema()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
-        self.default_students_rank = [s for s in self.students.itervalues()]
+        self.default_students_rank = sorted([s for s \
+                                                in self.students.itervalues()],
+                                            key=lambda x: x.name)
         self._compute_num_questions_and_choices()
         self.capture_save_func = None
 

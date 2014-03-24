@@ -782,7 +782,14 @@ class Exam(object):
         probable is the first in the list.
 
         """
-        return [s.get_id_and_name() for s in self.decisions.students_rank]
+        if (len(self.decisions.students_rank) > 0
+            and self.decisions.students_rank[0] != self.decisions.student):
+            rank = list(self.decisions.students_rank)
+            rank.remove(self.decisions.student)
+            rank.insert(0, self.decisions.student)
+        else:
+            rank = self.decisions.students_rank
+        return [s.get_id_and_name() for s in rank]
 
     def update_student_id(self, new_id, name=None):
         """Updates the student id of the current exam.
