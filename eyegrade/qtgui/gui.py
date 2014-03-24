@@ -300,6 +300,7 @@ class CompletingComboBox(QComboBox):
         self.lineEdit().textEdited[unicode]\
             .connect(self.filter.setFilterFixedString)
         self.currentIndexChanged.connect(self._index_changed)
+        self.setAutoCompletion(True)
 
     def _index_changed(self, index):
         self.lineEdit().selectAll()
@@ -320,8 +321,6 @@ class DialogStudentId(QDialog):
         layout = QFormLayout()
         self.setLayout(layout)
         self.combo = CompletingComboBox(self)
-        self.combo.setEditable(True)
-        self.combo.setAutoCompletion(True)
         for student in students:
             self.combo.addItem(student)
         self.combo.lineEdit().selectAll()
