@@ -437,6 +437,7 @@ class ProgramManager(object):
                                                    self.exam_data,
                                                    values['id_list_files'])
                 self.sessiondb = sessiondb.SessionDB(values['directory'])
+                self.sessiondb.capture_save_func = self.interface.save_capture
             except IOError as e:
                 self.interface.show_error(_('Input/output error:')
                                           + ' ' + e.message)
@@ -472,6 +473,7 @@ class ProgramManager(object):
         try:
             self.sessiondb = sessiondb.SessionDB(filename)
             self.exam_data = self.sessiondb.exam_config
+            self.sessiondb.capture_save_func = self.interface.save_capture
             success = True
             message = ''
         except utils.EyegradeException as e:
@@ -693,7 +695,6 @@ class ProgramManager(object):
         self.interface.activate_session_mode()
 
     def _start_grading(self):
-        self.sessiondb.capture_save_func = self.interface.save_capture
         exam_data = self.exam_data
         self.imageproc_options = imageproc.ExamDetector.get_default_options()
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
