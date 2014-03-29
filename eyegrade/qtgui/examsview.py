@@ -18,8 +18,8 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-from PyQt4.QtGui import (QIcon, QListView, QStandardItemModel,
-                         QStandardItem, QWidget, QVBoxLayout,
+from PyQt4.QtGui import (QIcon, QListWidget, QListView, QListWidgetItem,
+                         QWidget, QVBoxLayout,
                          QItemSelection, QImage, QPainter, )
 
 from PyQt4.QtCore import (QSize, pyqtSignal, pyqtSlot, )
@@ -28,15 +28,15 @@ from .. import utils
 
 class ExamIcon(QIcon):
     def __init__(self, exam):
-        super(ExamIcon, self).__init__(exam.image_drawn_path)
+        super(ExamIcon, self).__init__(exam.image_drawn_path())
 
 
 class ExamImage(QImage):
     def __init__(self, exam):
-        super(ExamImage, self).__init__(exam.image_drawn_path)
+        super(ExamImage, self).__init__(exam.image_drawn_path())
 
 
-class ThumbnailsView(QListView):
+class ThumbnailsView(QListWidget):
     selection_changed = pyqtSignal(utils.Exam)
 
     def __init__(self, parent):
@@ -46,9 +46,7 @@ class ThumbnailsView(QListView):
         self.setMovement(QListView.Static)
         self.setUniformItemSizes(True)
         self.setResizeMode(QListView.Adjust)
-        self.model = QStandardItemModel(self)
         self.exams = []
-        self.setModel(self.model)
         self.selectionModel().selectionChanged.connect(self.on_selection)
 
     def add_exams(self, exams):
@@ -56,24 +54,32 @@ class ThumbnailsView(QListView):
             self.add_exam(exam, scroll=False)
 
     def add_exam(self, exam, scroll=True):
-        if exam.decisions.student:
-            label = exam.decisions.student.get_name_or_id()
-        else:
-            label = ''
-        self.model.appendRow([QStandardItem(ExamIcon(exam), label)])
+        self.addItem(self._build_item(exam))
         if scroll:
             self.scrollToBottom()
         self.exams.append(exam)
 
     def clear_exams(self):
-        self.model.clear()
+        self.clear()
         self.exams = []
+
+    def update_exam(self, exam):
+        pos = self.exams.index(exam)
+        self.takeItem(pos)
+        self.insertItem(pos, self._build_item(exam))
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def on_selection(self, selected, deselected):
         indexes = selected.indexes()
         if len(indexes):
             self.selection_changed.emit(self.exams[indexes[0].row()])
+
+    def _build_item(self, exam):
+        if exam.decisions.student:
+            label = exam.decisions.student.get_name_or_id()
+        else:
+            label = ''
+        return QListWidgetItem(ExamIcon(exam), label)
 
 
 class CaptureView(QWidget):

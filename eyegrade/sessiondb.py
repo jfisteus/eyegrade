@@ -565,14 +565,9 @@ class ExamFromDB(utils.Exam):
         self.decisions = ExamDecisionsFromDB(answers, student,
                                          sessiondb.default_students_rank,
                                          _Adapter.dec_model(db_dict['model']))
-        image_name = utils.capture_name(sessiondb.exam_config.capture_pattern,
-                                        self.exam_id, self.decisions.student)
-        image_drawn_path = os.path.join(sessiondb.session_dir,
-                                        'captures', image_name)
         solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
         score_weights = sessiondb.exam_config.score_weights
         self.score = utils.Score(answers, solutions, score_weights)
-        self.image_drawn_path = image_drawn_path
 
     def load_capture(self):
         if self.capture is None:
@@ -581,6 +576,12 @@ class ExamFromDB(utils.Exam):
     def clear_capture(self):
         if self.capture is not None:
             self.capture = None
+
+    def image_drawn_path(self):
+        image_name = utils.capture_name(self.sessiondb.exam_config\
+                                                           .capture_pattern,
+                                        self.exam_id, self.decisions.student)
+        return os.path.join(self.sessiondb.session_dir, 'captures', image_name)
 
 
 class ExamDecisionsFromDB(capture.ExamDecisions):

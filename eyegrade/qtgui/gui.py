@@ -1501,6 +1501,9 @@ class Interface(object):
     def add_exam(self, exam):
         self.window.exams_view.add_exam(exam)
 
+    def update_exam(self, exam):
+        self.window.exams_view.update_exam(exam)
+
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
 

@@ -720,6 +720,7 @@ class ProgramManager(object):
                 self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
         elif self.mode.in_review_from_session() and self.exam_changed:
             self._store_capture(self.exam)
+            self.interface.update_exam(self.exam)
             self.exam.clear_capture()
             self.exam_changed = False
         self._activate_session_mode()
