@@ -105,6 +105,11 @@ class ThumbnailsView(QListWidget):
                 self.setItemSelected(item, True)
                 self.scrollToItem(item)
 
+    def clear_selected_exam(self):
+        items = self.selectedItems()
+        if items:
+            self.setItemSelected(items[0], False)
+
     @pyqtSlot(QItemSelection, QItemSelection)
     def on_selection(self, selected, deselected):
         indexes = selected.indexes()

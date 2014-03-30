@@ -727,6 +727,7 @@ class ProgramManager(object):
                                         'start the session again.'))
             return
         self.exam_id = self.sessiondb.next_exam_id()
+        self.interface.clear_selected_exam()
         self._start_search_mode()
 
     def _stop_grading(self):

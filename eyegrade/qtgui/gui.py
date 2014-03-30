@@ -1513,6 +1513,9 @@ class Interface(object):
     def select_next_exam(self):
         return self.window.exams_view.select_next_exam()
 
+    def clear_selected_exam(self):
+        return self.window.exams_view.clear_selected_exam()
+
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
 
