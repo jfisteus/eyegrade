@@ -36,6 +36,23 @@ class ExamImage(QImage):
         super(ExamImage, self).__init__(exam.image_drawn_path())
 
 
+class ThumbnailsViewItem(QListWidgetItem):
+    def __init__(self, exam):
+        self.exam = exam
+        super(ThumbnailsViewItem, self).__init__(ExamIcon(exam), self._label())
+
+    def update(self):
+        self.setText(self._label())
+        self.setIcon(ExamIcon(self.exam))
+
+    def _label(self):
+        if self.exam.decisions.student:
+            label = self.exam.decisions.student.get_name_or_id()
+        else:
+            label = ''
+        return label
+
+
 class ThumbnailsView(QListWidget):
     selection_changed = pyqtSignal(utils.Exam)
 
@@ -54,7 +71,7 @@ class ThumbnailsView(QListWidget):
             self.add_exam(exam, scroll=False)
 
     def add_exam(self, exam, scroll=True):
-        self.addItem(self._build_item(exam))
+        self.addItem(ThumbnailsViewItem(exam))
         if scroll:
             self.scrollToBottom()
         self.exams.append(exam)
@@ -65,21 +82,34 @@ class ThumbnailsView(QListWidget):
 
     def update_exam(self, exam):
         pos = self.exams.index(exam)
+        self.item(pos).update()
+
+    def remove_exam(self, exam):
+        pos = self.exams.index(exam)
+        del self.exams[pos]
         self.takeItem(pos)
-        self.insertItem(pos, self._build_item(exam))
+
+    def selected_exam(self):
+        items = self.selectedItems()
+        if items:
+            return items[0].exam
+        else:
+            return None
+
+    def select_next_exam(self):
+        current_exam = self.selected_exam()
+        if current_exam is not None:
+            pos = 1 + self.exams.index(current_exam)
+            if pos < len(self.exams):
+                item = self.item(pos)
+                self.setItemSelected(item, True)
+                self.scrollToItem(item)
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def on_selection(self, selected, deselected):
         indexes = selected.indexes()
         if len(indexes):
             self.selection_changed.emit(self.exams[indexes[0].row()])
-
-    def _build_item(self, exam):
-        if exam.decisions.student:
-            label = exam.decisions.student.get_name_or_id()
-        else:
-            label = ''
-        return QListWidgetItem(ExamIcon(exam), label)
 
 
 class CaptureView(QWidget):

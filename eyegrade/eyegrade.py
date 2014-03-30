@@ -551,16 +551,33 @@ class ProgramManager(object):
         self.interface.enable_manual_detect(enable_manual_detection)
 
     def _action_discard(self):
-        """Callback for cancelling the current capture."""
-        self.sessiondb.remove_exam(self.exam.exam_id)
-        self._start_search_mode()
+        """Callback for cancelling/removing the current capture."""
+        if self.mode.in_review_from_grading():
+            self.sessiondb.remove_exam(self.exam.exam_id)
+            self._start_search_mode()
+        elif self.mode.in_review_from_session():
+            remove = self.interface.show_warning( \
+                    _('The current exam will be removed. Are you sure?'),
+                    is_question=True)
+            if remove:
+                self.sessiondb.remove_exam(self.exam.exam_id)
+                self.interface.remove_exam(self.exam)
+                exam = self.interface.selected_exam()
+                if exam is not None:
+                    self._exam_selected(exam)
+                else:
+                    self.exam = None
+                    self._activate_session_mode()
 
     def _action_continue(self):
         """Callback for saving the current capture."""
-        self._store_capture(self.exam)
-        self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
-        self.exam_id += 1
-        self._start_search_mode()
+        if self.mode.in_review_from_grading():
+            self._store_capture(self.exam)
+            self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+            self.exam_id += 1
+            self._start_search_mode()
+        elif self.mode.in_review_from_session():
+            self.interface.select_next_exam()
 
     def _action_manual_detect(self):
         """Callback for the manual detection action."""

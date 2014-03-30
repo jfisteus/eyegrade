@@ -953,7 +953,7 @@ class ActionsManager(object):
         ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
         ('continue', 'continue.svg', _('Continue to the &next exam'),
          Qt.Key_Space),
-        ('discard', 'discard.svg', _('&Discard capture'), Qt.Key_Backspace),
+        ('discard', 'discard.svg', _('&Discard exam'), Qt.Key_Backspace),
         ]
 
     _actions_session_data = [
@@ -1063,8 +1063,8 @@ class ActionsManager(object):
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
-        self.actions_grading['continue'].setEnabled(False)
-        self.actions_grading['discard'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(True)
+        self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
@@ -1503,6 +1503,15 @@ class Interface(object):
 
     def update_exam(self, exam):
         self.window.exams_view.update_exam(exam)
+
+    def remove_exam(self, exam):
+        self.window.exams_view.remove_exam(exam)
+
+    def selected_exam(self):
+        return self.window.exams_view.selected_exam()
+
+    def select_next_exam(self):
+        return self.window.exams_view.select_next_exam()
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
