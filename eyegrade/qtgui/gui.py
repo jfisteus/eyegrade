@@ -946,13 +946,15 @@ class ActionsManager(object):
     _actions_grading_data = [
         ('start', 'start.svg', _('&Start grading'), None),
         ('stop', 'stop.svg', _('S&top grading'), None),
+        ('back', 'back.svg', _('&Back to session home'), None),
+        ('continue', 'continue.svg', _('Continue to the &next exam'),
+         Qt.Key_Space),
+        ('*separator*', None, None, None),
         ('snapshot', 'snapshot.svg', _('&Capture the current image'),
          Qt.Key_C),
         ('manual_detect', 'manual_detect.svg',
          _('&Manual detection of answer tables'), Qt.Key_M),
         ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
-        ('continue', 'continue.svg', _('Continue to the &next exam'),
-         Qt.Key_Space),
         ('discard', 'discard.svg', _('&Discard exam'), Qt.Key_Backspace),
         ]
 
@@ -965,12 +967,7 @@ class ActionsManager(object):
         ]
 
     _actions_exams_data = [
-        ('edit', None, _('&Edit'), None),
-        ('maximize', None, _('Ma&ximize'), None),
-        ('minimize', None, _('&Minimize'), None),
-        ('next', None, _('&Next'), None),
-        ('previous', None, _('&Previous'), None),
-        ('remove', None, _('&Remove'), Qt.Key_Delete),
+        ('search', 'search.svg', _('&Search'), None),
         ]
 
     _actions_tools_data = [
@@ -1030,6 +1027,7 @@ class ActionsManager(object):
     def set_search_mode(self):
         self.actions_grading['start'].setEnabled(False)
         self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(True)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
@@ -1040,11 +1038,13 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
-        self._disable_exams_actions()
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_review_from_grading_mode(self):
         self.actions_grading['start'].setEnabled(False)
         self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
@@ -1055,11 +1055,13 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
-        self._disable_exams_actions()
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_review_from_session_mode(self):
         self.actions_grading['start'].setEnabled(True)
         self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['back'].setEnabled(True)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
@@ -1070,16 +1072,14 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
-        self.actions_exams['edit'].setEnabled(True)
-        self.actions_exams['maximize'].setEnabled(True)
-        self.actions_exams['minimize'].setEnabled(True)
-        self.actions_exams['next'].setEnabled(True)
-        self.actions_exams['previous'].setEnabled(True)
-        self.actions_exams['remove'].setEnabled(True)
+        self.actions_exams['search'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_session_mode(self):
         self.actions_grading['start'].setEnabled(True)
         self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(False)
@@ -1090,16 +1090,14 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
-        self.actions_exams['edit'].setEnabled(True)
-        self.actions_exams['maximize'].setEnabled(True)
-        self.actions_exams['minimize'].setEnabled(True)
-        self.actions_exams['next'].setEnabled(True)
-        self.actions_exams['previous'].setEnabled(True)
-        self.actions_exams['remove'].setEnabled(True)
+        self.actions_exams['search'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_manual_detect_mode(self):
         self.actions_grading['start'].setEnabled(False)
         self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
@@ -1110,7 +1108,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
-        self._disable_exams_actions()
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_no_session_mode(self):
         for key in self.actions_grading:
@@ -1120,15 +1119,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(False)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
-        self._disable_exams_actions()
-
-    def _disable_exams_actions(self):
-        self.actions_exams['edit'].setEnabled(False)
-        self.actions_exams['maximize'].setEnabled(False)
-        self.actions_exams['minimize'].setEnabled(False)
-        self.actions_exams['next'].setEnabled(False)
-        self.actions_exams['previous'].setEnabled(False)
-        self.actions_exams['remove'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
@@ -1220,6 +1212,8 @@ class ActionsManager(object):
     def _populate_toolbar(self, action_lists):
         for action in action_lists['grading']:
             self.toolbar.addAction(action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actions_exams['search'])
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actions_session['new'])
         self.toolbar.addAction(self.actions_session['open'])

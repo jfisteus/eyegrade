@@ -531,6 +531,11 @@ class ProgramManager(object):
     def _action_stop(self):
         self._stop_grading()
 
+    def _action_back(self):
+        if self.mode.in_review_from_session():
+            self.exam = None
+            self._activate_session_mode()
+
     def _action_snapshot(self):
         """Callback for the snapshot action."""
         if self.latest_graded_exam is None:
@@ -784,6 +789,7 @@ class ProgramManager(object):
             ('actions', 'session', 'close'): self._close_session,
             ('actions', 'grading', 'start'): self._action_start,
             ('actions', 'grading', 'stop'): self._action_stop,
+            ('actions', 'grading', 'back'): self._action_back,
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
             ('actions', 'grading', 'discard'): self._action_discard,
             ('actions', 'grading', 'continue'): self._action_continue,
