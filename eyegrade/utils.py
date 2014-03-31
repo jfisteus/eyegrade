@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2013 Jesus Arias Fisteus
+# Copyright (C) 2010-2014 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -683,6 +683,14 @@ class Student(object):
         else:
             return self.student_id
 
+    def get_name_or_id(self):
+        if self.name:
+            return self.name
+        elif self.student_id:
+            return self.student_id
+        else:
+            return ''
+
     def __unicode__(self):
         return u'student: ' + self.get_id_and_name()
 
@@ -759,7 +767,14 @@ class Exam(object):
         probable is the first in the list.
 
         """
-        return [s.get_id_and_name() for s in self.decisions.students_rank]
+        if (len(self.decisions.students_rank) > 0
+            and self.decisions.students_rank[0] != self.decisions.student):
+            rank = list(self.decisions.students_rank)
+            rank.remove(self.decisions.student)
+            rank.insert(0, self.decisions.student)
+        else:
+            rank = self.decisions.students_rank
+        return [s.get_id_and_name() for s in rank]
 
     def update_student_id(self, new_id, name=None):
         """Updates the student id of the current exam.
@@ -819,6 +834,21 @@ class ExamConfig(object):
         self.solutions[model] = solutions
         if not model in self.models:
             self.models.append(model)
+
+    def get_solutions(self, model):
+        """Returns the solutions for the given model.
+
+        If in survey mode it returns []. If there are no solutions for
+        this, model it returns None.
+
+        """
+        if not self.survey_mode:
+            if model in self.solutions:
+                return self.solutions[model]
+            else:
+                return None
+        else:
+            return []
 
     def set_permutations(self, model, permutations):
         if not isinstance(permutations, list):

@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="continue.svg"
+   sodipodi:docname="search.svg"
    inkscape:export-filename="../data/save.png"
    inkscape:export-xdpi="11.929099"
    inkscape:export-ydpi="11.929099">
@@ -36,7 +36,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="105.17952"
+     inkscape:cx="-82.708854"
      inkscape:cy="99.396214"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -58,7 +58,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -68,27 +68,20 @@
      id="layer1"
      transform="translate(-182.83762,-85.646194)">
     <path
-       inkscape:transform-center-x="-5.5901699"
-       transform="translate(330.68293,238.83935)"
-       d="m -91.115833,32.641165 0,-142.429425 123.3475,71.214712 z"
-       inkscape:randomized="0"
-       inkscape:rounded="0"
-       inkscape:flatsided="true"
-       sodipodi:arg2="3.1415927"
-       sodipodi:arg1="2.0943951"
-       sodipodi:r2="11.18034"
-       sodipodi:r1="82.231667"
-       sodipodi:cy="-38.573547"
-       sodipodi:cx="-50"
-       sodipodi:sides="3"
-       id="path3829"
-       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       sodipodi:type="star" />
+       sodipodi:type="arc"
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path3011"
+       sodipodi:cx="-170"
+       sodipodi:cy="101.42645"
+       sodipodi:rx="64.456917"
+       sodipodi:ry="64.456917"
+       d="m -105.54308,101.42645 a 64.456917,64.456917 0 1 1 -128.91384,0 64.456917,64.456917 0 1 1 128.91384,0 z"
+       transform="translate(443.45698,64.43299)" />
     <path
-       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 371.02037,124.36759 0,151.79643"
-       id="path3831"
+       style="fill:none;stroke:#20497c;stroke-width:16;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 130,131.42645 80,90"
+       id="path3013"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       transform="translate(182.83762,85.646194)" />
   </g>
 </svg>

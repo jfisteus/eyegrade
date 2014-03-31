@@ -62,12 +62,15 @@ class CellGeometry(object):
 
 
 class ExamDecisions(object):
-    def __init__(self, success, answers, detected_id, id_scores, infobits):
+    def __init__(self, success, answers, detected_id, id_scores, model=None,
+                 infobits=None):
         self.success = success
         self.answers = answers
         self.detected_id = detected_id
         self.id_scores = id_scores
-        if infobits:
+        if model is not None:
+            self.model = model
+        elif infobits:
             self.model = utils.decode_model(infobits)
         else:
             self.model = None
@@ -192,7 +195,7 @@ class ExamCapture(object):
                 self._draw_cell_center(cells[solution - 1], _color_dot_blank)
 
     def _draw_answers_no_solutions(self, answers):
-        for answer, solution, cells in zip(answers, self.answer_cells):
+        for answer, cells in zip(answers, self.answer_cells):
             if answer > 0:
                 self._draw_cell_circle(cells[answer - 1], _color_blue)
 
@@ -202,3 +205,8 @@ class ExamCapture(object):
 
     def _draw_cell_center(self, cell, color):
         cv.Circle(self.image_drawn, cell.center, 4, color, cv.CV_FILLED)
+
+
+def load_image(filename):
+    """Loads an OpenCV image from file."""
+    return cv.LoadImage(filename)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2012-2013 Jesus Arias Fisteus
+# Copyright (C) 2010-2014 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import locale
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
-                         QSizePolicy, QVBoxLayout,
+                         QSizePolicy, QVBoxLayout, QStackedLayout,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
                          QComboBox, QFileDialog, QHBoxLayout, QPushButton,
@@ -42,6 +42,8 @@ from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool, QRegExp,
 from eyegrade.utils import (resource_path, program_name, version, web_location,
                             source_location)
 import eyegrade.utils as utils
+from . import examsview
+
 
 color_eyegrade_blue = QColor(32, 73, 124)
 
@@ -298,6 +300,7 @@ class CompletingComboBox(QComboBox):
         self.lineEdit().textEdited[unicode]\
             .connect(self.filter.setFilterFixedString)
         self.currentIndexChanged.connect(self._index_changed)
+        self.setAutoCompletion(True)
 
     def _index_changed(self, index):
         self.lineEdit().selectAll()
@@ -318,8 +321,6 @@ class DialogStudentId(QDialog):
         layout = QFormLayout()
         self.setLayout(layout)
         self.combo = CompletingComboBox(self)
-        self.combo.setEditable(True)
-        self.combo.setAutoCompletion(True)
         for student in students:
             self.combo.addItem(student)
         self.combo.lineEdit().selectAll()
@@ -943,22 +944,30 @@ class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
+        ('start', 'start.svg', _('&Start grading'), None),
+        ('stop', 'stop.svg', _('S&top grading'), None),
+        ('back', 'back.svg', _('&Back to session home'), None),
+        ('continue', 'continue.svg', _('Continue to the &next exam'),
+         Qt.Key_Space),
+        ('*separator*', None, None, None),
         ('snapshot', 'snapshot.svg', _('&Capture the current image'),
          Qt.Key_C),
         ('manual_detect', 'manual_detect.svg',
          _('&Manual detection of answer tables'), Qt.Key_M),
         ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
-        ('continue', 'continue.svg', _('Continue to the &next exam'),
-         Qt.Key_Space),
-        ('discard', 'discard.svg', _('&Discard capture'), Qt.Key_Backspace),
+        ('discard', 'discard.svg', _('&Discard exam'), Qt.Key_Backspace),
         ]
 
     _actions_session_data = [
         ('new', 'new.svg', _('&New session'), None),
         ('open', 'open.svg', _('&Open session'), None),
-        ('close', 'close.svg', _('&Close session'), None),
+        ('close', 'close.svg', _('&Close session'), Qt.Key_Escape),
         ('*separator*', None, None, None),
-        ('exit', 'exit.svg', _('&Exit'), Qt.Key_Escape),
+        ('exit', 'exit.svg', _('&Exit'), None),
+        ]
+
+    _actions_exams_data = [
+        ('search', 'search.svg', _('&Search'), None),
         ]
 
     _actions_tools_data = [
@@ -990,15 +999,20 @@ class ActionsManager(object):
         self.menus = {}
         self.actions_grading = {}
         self.actions_session = {}
+        self.actions_exams = {}
         self.actions_tools = {}
         self.actions_help = {}
-        action_lists = {'session': [], 'grading': [], 'tools': [], 'help': []}
+        action_lists = {'session': [], 'grading': [], 'exams': [],
+                        'tools': [], 'help': []}
         for key, icon, text, shortcut in ActionsManager._actions_session_data:
             self._add_action(key, icon, text, shortcut, self.actions_session,
                              action_lists['session'])
         for key, icon, text, shortcut in ActionsManager._actions_grading_data:
             self._add_action(key, icon, text, shortcut, self.actions_grading,
                              action_lists['grading'])
+        for key, icon, text, shortcut in ActionsManager._actions_exams_data:
+            self._add_action(key, icon, text, shortcut, self.actions_exams,
+                             action_lists['exams'])
         for key, icon, text, shortcut in ActionsManager._actions_tools_data:
             self._add_action(key, icon, text, shortcut, self.actions_tools,
                              action_lists['tools'])
@@ -1011,6 +1025,9 @@ class ActionsManager(object):
         self._add_experimental_actions()
 
     def set_search_mode(self):
+        self.actions_grading['start'].setEnabled(False)
+        self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(True)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
@@ -1021,8 +1038,13 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
-    def set_review_mode(self):
+    def set_review_from_grading_mode(self):
+        self.actions_grading['start'].setEnabled(False)
+        self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
@@ -1033,8 +1055,49 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
+
+    def set_review_from_session_mode(self):
+        self.actions_grading['start'].setEnabled(True)
+        self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['back'].setEnabled(True)
+        self.actions_grading['snapshot'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(False)
+        self.actions_grading['edit_id'].setEnabled(True)
+        self.actions_grading['continue'].setEnabled(True)
+        self.actions_grading['discard'].setEnabled(True)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(True)
+        self.actions_exams['search'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
+
+    def set_session_mode(self):
+        self.actions_grading['start'].setEnabled(True)
+        self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['back'].setEnabled(False)
+        self.actions_grading['snapshot'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(False)
+        self.actions_grading['edit_id'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
+        self.actions_grading['discard'].setEnabled(False)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(True)
+        self.actions_exams['search'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_manual_detect_mode(self):
+        self.actions_grading['start'].setEnabled(False)
+        self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
@@ -1045,6 +1108,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_no_session_mode(self):
         for key in self.actions_grading:
@@ -1054,6 +1119,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(False)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
@@ -1123,16 +1190,20 @@ class ActionsManager(object):
     def _populate_menubar(self, action_lists):
         self.menus['session'] = QMenu(_('&Session'), self.menubar)
         self.menus['grading'] = QMenu(_('&Grading'), self.menubar)
+        self.menus['exams'] = QMenu(_('&Exams'), self.menubar)
         self.menus['tools'] = QMenu(_('&Tools'), self.menubar)
         self.menus['help'] = QMenu(_('&Help'), self.menubar)
         self.menubar.addMenu(self.menus['session'])
         self.menubar.addMenu(self.menus['grading'])
+        self.menubar.addMenu(self.menus['exams'])
         self.menubar.addMenu(self.menus['tools'])
         self.menubar.addMenu(self.menus['help'])
         for action in action_lists['session']:
             self.menus['session'].addAction(action)
         for action in action_lists['grading']:
             self.menus['grading'].addAction(action)
+        for action in action_lists['exams']:
+            self.menus['exams'].addAction(action)
         for action in action_lists['tools']:
             self.menus['tools'].addAction(action)
         for action in action_lists['help']:
@@ -1141,6 +1212,8 @@ class ActionsManager(object):
     def _populate_toolbar(self, action_lists):
         for action in action_lists['grading']:
             self.toolbar.addAction(action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actions_exams['search'])
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actions_session['new'])
         self.toolbar.addAction(self.actions_session['open'])
@@ -1242,12 +1315,16 @@ class CenterView(QWidget):
         super(CenterView, self).__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
+        self.center = QStackedLayout()
         self.camview = CamView((640, 480), self, draw_logo=True)
         self.label_up = QLabel()
         self.label_down = QLabel()
-        layout.addWidget(self.camview)
+        self.center.addWidget(self.camview)
+        layout.addLayout(self.center)
         layout.addWidget(self.label_up)
         layout.addWidget(self.label_down)
+        self.adjustSize()
+        self.setFixedSize(self.sizeHint())
 
     def update_status(self, score, model=None, seq_num=None, survey_mode=False):
         parts = []
@@ -1316,11 +1393,18 @@ class MainWindow(QMainWindow):
         policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.setSizePolicy(policy)
         self.center_view = CenterView()
-        self.setCentralWidget(self.center_view)
+        self.exams_view = examsview.ThumbnailsView(self)
+#        self.center_layout = QStackedLayout()
+        self.center_layout = QHBoxLayout()
+        self.center_layout.addWidget(self.center_view)
+        self.center_layout.addWidget(self.exams_view)
+        center_container = QWidget(self)
+        center_container.setLayout(self.center_layout)
+        self.setCentralWidget(center_container)
         self.setWindowTitle("Eyegrade")
         self.setWindowIcon(QIcon(resource_path('logo.svg')))
         self.adjustSize()
-        self.setFixedSize(self.sizeHint())
+#        self.setFixedSize(self.sizeHint())
         self.digit_key_listener = None
         self.exit_listener = False
 
@@ -1337,6 +1421,9 @@ class MainWindow(QMainWindow):
                 assert False, 'Undefined listener key: {0}'.format(key)
         elif key[0] == 'exit':
             self.exit_listener = listener
+        elif key[0] == 'exam':
+            if key[1] == 'selected':
+                self.exams_view.selection_changed.connect(listener)
         else:
             assert False, 'Undefined listener key: {0}'.format(key)
 
@@ -1348,6 +1435,9 @@ class MainWindow(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def clear_exams_view(self):
+        self.exams_view.clear_exams()
 
 
 class Interface(object):
@@ -1377,17 +1467,48 @@ class Interface(object):
     def activate_search_mode(self):
         self.actions_manager.set_search_mode()
 
-    def activate_review_mode(self):
-        self.actions_manager.set_review_mode()
+    def activate_review_mode(self, from_grading):
+        if from_grading:
+            self.actions_manager.set_review_from_grading_mode()
+        else:
+            self.actions_manager.set_review_from_session_mode()
 
     def activate_manual_detect_mode(self):
         self.actions_manager.set_manual_detect_mode()
+
+    def activate_session_mode(self):
+        self.actions_manager.set_session_mode()
+        self.display_wait_image()
+        self.update_text_up('')
+        self.show_version()
 
     def activate_no_session_mode(self):
         self.actions_manager.set_no_session_mode()
         self.display_wait_image()
         self.update_text_up('')
         self.show_version()
+        self.window.clear_exams_view()
+
+    def add_exams(self, exams):
+        self.window.exams_view.add_exams(exams)
+
+    def add_exam(self, exam):
+        self.window.exams_view.add_exam(exam)
+
+    def update_exam(self, exam):
+        self.window.exams_view.update_exam(exam)
+
+    def remove_exam(self, exam):
+        self.window.exams_view.remove_exam(exam)
+
+    def selected_exam(self):
+        return self.window.exams_view.selected_exam()
+
+    def select_next_exam(self):
+        return self.window.exams_view.select_next_exam()
+
+    def clear_selected_exam(self):
+        return self.window.exams_view.clear_selected_exam()
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.

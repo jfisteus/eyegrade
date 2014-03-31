@@ -21,6 +21,7 @@ import os.path
 import csv
 
 import utils
+import capture
 
 
 class SessionDB(object):
@@ -163,6 +164,9 @@ class SessionDB(object):
         self._check_schema()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
+        self.default_students_rank = sorted([s for s \
+                                                in self.students.itervalues()],
+                                            key=lambda x: x.name)
         self._compute_num_questions_and_choices()
         self.capture_save_func = None
 
@@ -198,8 +202,9 @@ class SessionDB(object):
         self.remove_drawn_capture(exam_id, student)
         self.remove_raw_capture(exam_id, student)
 
-    def update_answer(self, exam_id, question, new_answer, capture,
+    def update_answer(self, exam_id, question, capture,
                       decisions, score, store_captures=True):
+        new_answer = decisions.answers[question]
         self._update_answer(exam_id, question, new_answer, commit=False)
         self._update_score(exam_id, score, commit=False)
         self.conn.commit()
@@ -229,6 +234,8 @@ class SessionDB(object):
                        '        :sequence_num)',
                        student.__dict__)
         student.db_id = cursor.lastrowid
+        if student.student_id is not None:
+            self.students[student.student_id] = student
         if commit:
             self.conn.commit()
 
@@ -287,6 +294,65 @@ class SessionDB(object):
             answers[row['question']] = row['answer']
         return answers
 
+    def read_exam(self, exam_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT '
+                       'exam_id, student_id, model, '
+                       'correct, incorrect, blank, score '
+                       'FROM Exams '
+                       'LEFT JOIN Students ON student = db_id '
+                       'WHERE exam_id = ?', (exam_id, ))
+        row = cursor.fetchone()
+        if row is not None:
+            exam = ExamFromDB(row, self)
+        else:
+            exam = None
+        return exam
+
+    def read_exams(self):
+        cursor = self.conn.cursor()
+        exams = []
+        for row in cursor.execute('SELECT '
+                                  'exam_id, student_id, model, '
+                                  'correct, incorrect, blank, score '
+                                  'FROM Exams '
+                                  'LEFT JOIN Students ON student = db_id'):
+            exam = ExamFromDB(row, self)
+            exams.append(exam)
+        return exams
+
+    def read_capture(self, exam_id):
+        image = self.load_raw_capture(exam_id)
+        answer_cells = self._read_answer_cells(exam_id)
+        id_cells = self._read_id_cells(exam_id)
+        return capture.ExamCapture(image, answer_cells, id_cells)
+
+    def _read_answer_cells(self, exam_id):
+        all_cells = []
+        question_cells = []
+        last_question_num = None
+        cursor = self.conn.cursor()
+        for row in cursor.execute('SELECT * FROM AnswerCells WHERE exam_id=? '
+                                  'ORDER BY question, choice', (exam_id, )):
+            cell = _create_cell_from_row(row, is_id_cell=False)
+            if last_question_num is None:
+                last_question_num = row['question']
+            elif last_question_num != row['question']:
+                all_cells.append(question_cells)
+                last_question_num = row['question']
+                question_cells = []
+            question_cells.append(cell)
+        all_cells.append(question_cells)
+        return all_cells
+
+    def _read_id_cells(self, exam_id):
+        cells = []
+        cursor = self.conn.cursor()
+        for row in cursor.execute('SELECT * FROM IdCells WHERE exam_id=? '
+                                  'ORDER BY digit', (exam_id, )):
+            cells.append(_create_cell_from_row(row, is_id_cell=True))
+        return cells
+
     def save_drawn_capture(self, exam_id, capture, student):
         name = utils.capture_name(self.exam_config.capture_pattern,
                                   exam_id, student)
@@ -300,6 +366,11 @@ class SessionDB(object):
         raw_name = os.path.join(self.session_dir, 'internal',
                                 'raw-{0}.png'.format(exam_id))
         capture.save_image_raw(raw_name)
+
+    def load_raw_capture(self, exam_id):
+        raw_name = os.path.join(self.session_dir, 'internal',
+                                'raw-{0}.png'.format(exam_id))
+        return capture.load_image(raw_name)
 
     def remove_drawn_capture(self, exam_id, student):
         name = utils.capture_name(self.exam_config.capture_pattern,
@@ -473,6 +544,56 @@ class SessionDB(object):
         cursor.execute('PRAGMA foreign_keys=ON')
 
 
+class ExamFromDB(utils.Exam):
+    def __init__(self, db_dict, sessiondb):
+        """Creates a new ExamFromDB object.
+
+        For efficiency reasons, the 'capture' is not loaded. Use
+        'load_capture()' to load it if needed.
+
+        """
+        self.sessiondb = sessiondb
+        self.capture = None
+        self.students = sessiondb.students
+        self.exam_id = db_dict['exam_id']
+        self.model = db_dict['model']
+        if db_dict['student_id']:
+            student = sessiondb.students[db_dict['student_id']]
+        else:
+            student = None
+        answers = sessiondb.read_answers(self.exam_id)
+        self.decisions = ExamDecisionsFromDB(answers, student,
+                                         sessiondb.default_students_rank,
+                                         _Adapter.dec_model(db_dict['model']))
+        solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
+        score_weights = sessiondb.exam_config.score_weights
+        self.score = utils.Score(answers, solutions, score_weights)
+
+    def load_capture(self):
+        if self.capture is None:
+            self.capture = self.sessiondb.read_capture(self.exam_id)
+
+    def clear_capture(self):
+        if self.capture is not None:
+            self.capture = None
+
+    def image_drawn_path(self):
+        image_name = utils.capture_name(self.sessiondb.exam_config\
+                                                           .capture_pattern,
+                                        self.exam_id, self.decisions.student)
+        return os.path.join(self.sessiondb.session_dir, 'captures', image_name)
+
+
+class ExamDecisionsFromDB(capture.ExamDecisions):
+    def __init__(self, answers, student, students_rank, model):
+        self.answers = answers
+        self.student = student
+        self.model = model
+        self.detected_id = None
+        self.id_scores = None
+        self.students_rank = students_rank
+
+
 class _Adapter(object):
     @staticmethod
     def enc_model(model_letter):
@@ -598,3 +719,16 @@ def _create_student_from_row(row):
     return utils.Student(row['db_id'], row['student_id'], row['name'],
                          row['email'], row['group_id'],
                          row['sequence_num'], is_in_database=True)
+
+def _create_cell_from_row(row, is_id_cell=False):
+    plu = (row['lux'], row['luy'])
+    pru = (row['rux'], row['ruy'])
+    pld = (row['ldx'], row['ldy'])
+    prd = (row['rdx'], row['rdy'])
+    if not is_id_cell:
+        center = (row['center_x'], row['center_y'])
+        diagonal = row['diagonal']
+    else:
+        center = None
+        diagonal = None
+    return capture.CellGeometry(plu, pru, pld, prd, center, diagonal)
