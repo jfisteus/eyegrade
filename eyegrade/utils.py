@@ -759,12 +759,12 @@ class Exam(object):
         else:
             return None
 
-    def ranked_student_ids_and_names(self):
-        """Returns the list of student ids and names ranked.
+    def ranked_student_ids(self):
+        """Returns the ranked list of students as taken from the decision.
 
-        Each entry is a string with student id and name. They are ranked
-        according to their probability to be the actual student id. The most
-        probable is the first in the list.
+        Each entry is a student object. They are ranked according to
+        their probability to be the actual student id. The most probable
+        is the first in the list.
 
         """
         if (len(self.decisions.students_rank) > 0
@@ -774,7 +774,7 @@ class Exam(object):
             rank.insert(0, self.decisions.student)
         else:
             rank = self.decisions.students_rank
-        return [s.get_id_and_name() for s in rank]
+        return rank
 
     def update_student_id(self, new_id, name=None):
         """Updates the student id of the current exam.

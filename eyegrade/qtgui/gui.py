@@ -29,9 +29,9 @@ from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
                          QSizePolicy, QVBoxLayout, QStackedLayout,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
-                         QComboBox, QFileDialog, QHBoxLayout, QPushButton,
-                         QMessageBox, QPixmap, QCompleter,
-                         QSortFilterProxyModel, QKeySequence, QColor,
+                         QFileDialog, QHBoxLayout, QPushButton,
+                         QMessageBox, QPixmap,
+                         QKeySequence, QColor,
                          QWizard, QWizardPage, QListWidget, QAbstractItemView,
                          QRegExpValidator, QCheckBox, QSpinBox, QTabWidget,
                          QScrollArea,)
@@ -43,6 +43,7 @@ from eyegrade.utils import (resource_path, program_name, version, web_location,
                             source_location)
 import eyegrade.utils as utils
 from . import examsview
+from . import widgets
 
 
 color_eyegrade_blue = QColor(32, 73, 124)
@@ -286,26 +287,6 @@ class MultipleFilesWidget(QWidget):
             self.button_remove.setEnabled(False)
 
 
-class CompletingComboBox(QComboBox):
-    """An editable combo box that filters and autocompletes."""
-    def __init__(self, parent=None):
-        super(CompletingComboBox, self).__init__(parent)
-        self.setEditable(True)
-        self.filter = QSortFilterProxyModel(self)
-        self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.filter.setSourceModel(self.model())
-        self.completer = QCompleter(self.filter, self)
-        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-        self.setCompleter(self.completer)
-        self.lineEdit().textEdited[unicode]\
-            .connect(self.filter.setFilterFixedString)
-        self.currentIndexChanged.connect(self._index_changed)
-        self.setAutoCompletion(True)
-
-    def _index_changed(self, index):
-        self.lineEdit().selectAll()
-
-
 class DialogStudentId(QDialog):
     """Dialog to change the student id.
 
@@ -320,9 +301,8 @@ class DialogStudentId(QDialog):
         self.setWindowTitle(_('Change the student id'))
         layout = QFormLayout()
         self.setLayout(layout)
-        self.combo = CompletingComboBox(self)
-        for student in students:
-            self.combo.addItem(student)
+        self.combo = widgets.StudentComboBox(parent=self, editable=True)
+        self.combo.add_students(students)
         self.combo.lineEdit().selectAll()
         self.combo.lineEdit().setFocus()
         buttons = QDialogButtonBox((QDialogButtonBox.Ok

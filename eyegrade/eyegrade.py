@@ -599,7 +599,7 @@ class ProgramManager(object):
         """Callback for the edit student id action."""
         if not self.mode.in_review():
             return
-        students = self.exam.ranked_student_ids_and_names()
+        students = self.exam.ranked_student_ids()
         student = self.interface.dialog_student_id(students)
         if student is not None:
             updated = False
