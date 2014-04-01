@@ -533,8 +533,9 @@ class ProgramManager(object):
 
     def _action_back(self):
         if self.mode.in_review_from_session():
+            self._stop_grading()
+            self.interface.clear_selected_exam()
             self.exam = None
-            self._activate_session_mode()
 
     def _action_snapshot(self):
         """Callback for the snapshot action."""
@@ -700,7 +701,7 @@ class ProgramManager(object):
 
     def _exam_selected(self, exam):
         if self.mode.in_grading() or self.mode.in_review_from_session():
-            self._stop_grading()
+            self._store_capture_if_changed()
         exam.load_capture()
         exam.reset_image()
         exam.draw_answers()
@@ -742,11 +743,15 @@ class ProgramManager(object):
                 self._store_capture(self.exam)
                 self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
         elif self.mode.in_review_from_session() and self.exam_changed:
+            self._store_capture_if_changed()
+        self._activate_session_mode()
+
+    def _store_capture_if_changed(self):
+        if self.exam_changed:
             self._store_capture(self.exam)
             self.interface.update_exam(self.exam)
             self.exam.clear_capture()
             self.exam_changed = False
-        self._activate_session_mode()
 
     def _store_exam(self, exam):
         self.sessiondb.store_exam(exam.exam_id, exam.capture, exam.decisions,
