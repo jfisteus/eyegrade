@@ -871,14 +871,14 @@ class ExamConfig(object):
     def get_num_choices(self):
         """Returns the number of choices per question.
 
-        If not all the questions have the same number of choices, or there
-        are no questions, returns None.
+        If not all the questions have the same number of choices, it returns
+        the maximum number of choices. If there are no questions, it returns
+        None.
 
         """
         choices = [dim[0] for dim in self.dimensions]
-        if (len(choices) > 0
-            and choices[0] == min(choices) and choices[0] == max(choices)):
-            return choices[0]
+        if len(choices) > 0:
+            return max(choices)
         else:
             return None
 
@@ -1030,7 +1030,7 @@ class ExamConfig(object):
             splitted = piece.split('{')
             num_question = int(splitted[0])
             options = [int(p) for p in splitted[1][:-1].split(',')]
-            if len(options) != self.num_options[i]:
+            if len(options) > self.num_options[i]:
                 raise Exception('Wrong number of options in permutation')
             permutation.append((num_question, options))
         return permutation
@@ -1096,16 +1096,29 @@ class ExamQuestions(object):
     def num_choices(self):
         """Returns the number of choices of the questions.
 
-           If all the questions have the same number of choices, returns
-           that number. If not, returns None.
+           If not all the questions have the same number of choices,
+           it returns the maximum. If there are no exams, it returns None.
 
         """
         num = [len(q.correct_choices) + len(q.incorrect_choices) \
                    for q in self.questions]
-        for n in num[1:]:
-            if num[0] != n:
-                return None
-        return num[0]
+        if len(num) > 0:
+            return max(num)
+        else:
+            return None
+
+    def homogeneous_num_choices(self):
+        """Returns True if all the questions have the same number of choices.
+
+        Returns None if the list of questions is empty.
+
+        """
+        num = [len(q.correct_choices) + len(q.incorrect_choices) \
+                   for q in self.questions]
+        if len(num) > 0:
+            return min(num) == max(num)
+        else:
+            return None
 
     def shuffle(self, model):
         """Shuffles questions and options within questions for the given model.

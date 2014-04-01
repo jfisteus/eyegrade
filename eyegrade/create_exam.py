@@ -140,6 +140,9 @@ def create_exam():
             variables['title'] = exam.title
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
+        if not exam.homogeneous_num_choices():
+            print >>sys.stderr, ('Warning: not all the questions have '
+                                 'the same number of choices.')
         if num_choices is None:
             raise Exception('All the questions in the exam must have the '
                             'same number of choices')
