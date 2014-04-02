@@ -421,7 +421,11 @@ class SessionDB(object):
         cursor.execute('SELECT * FROM Students '
                        'INNER JOIN Exams ON Students.db_id = Exams.student '
                        'WHERE exam_id = ?', (exam_id,))
-        return _create_student_from_row(cursor.fetchone())
+        row = cursor.fetchone()
+        if row is not None:
+            return _create_student_from_row(cursor.fetchone())
+        else:
+            return None
 
     def _read_cell_geometries(self, exam_id, load_corners=False):
         if not load_corners:
