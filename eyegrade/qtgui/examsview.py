@@ -114,7 +114,9 @@ class ThumbnailsView(QListWidget):
     def on_selection(self, selected, deselected):
         indexes = selected.indexes()
         if len(indexes):
-            self.selection_changed.emit(self.exams[indexes[0].row()])
+            selected = indexes[0].row()
+            if selected < len(self.exams):
+                self.selection_changed.emit(self.exams[selected])
 
 
 class CaptureView(QWidget):
