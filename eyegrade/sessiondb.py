@@ -423,7 +423,7 @@ class SessionDB(object):
                        'WHERE exam_id = ?', (exam_id,))
         row = cursor.fetchone()
         if row is not None:
-            return _create_student_from_row(cursor.fetchone())
+            return _create_student_from_row(row)
         else:
             return None
 
