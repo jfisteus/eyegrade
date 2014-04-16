@@ -1372,6 +1372,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.setSizePolicy(policy)
+        self.setStatusBar(widgets.StatusBar(self))
         self.center_view = CenterView()
         self.exams_view = examsview.ThumbnailsView(self)
 #        self.center_layout = QStackedLayout()
@@ -1419,6 +1420,9 @@ class MainWindow(QMainWindow):
     def clear_exams_view(self):
         self.exams_view.clear_exams()
 
+    def update_status_bar(self, text):
+        self.statusBar().set_message(text)
+
 
 class Interface(object):
     def __init__(self, app, id_enabled, id_list_enabled, argv):
@@ -1446,27 +1450,35 @@ class Interface(object):
 
     def activate_search_mode(self):
         self.actions_manager.set_search_mode()
+        self.update_text('', '')
+        self.update_status_bar(_('Grading - Scanning exam'))
 
     def activate_review_mode(self, from_grading):
         if from_grading:
             self.actions_manager.set_review_from_grading_mode()
+            self.update_status_bar(_('Grading - Reviewing exam'))
         else:
             self.actions_manager.set_review_from_session_mode()
+            self.update_status_bar(_('Session open - Reviewing exam'))
 
     def activate_manual_detect_mode(self):
         self.actions_manager.set_manual_detect_mode()
+        self.update_text(_('Click on the outer corners of the answer tables'),
+                         '')
+        self.update_status_bar(_('Grading - Manual detection mode'))
 
     def activate_session_mode(self):
         self.actions_manager.set_session_mode()
         self.display_wait_image()
-        self.update_text_up('')
-        self.show_version()
+        self.update_text('', '')
+        self.update_status_bar(_('Session open'))
 
     def activate_no_session_mode(self):
         self.actions_manager.set_no_session_mode()
         self.display_wait_image()
-        self.update_text_up('')
-        self.show_version()
+        self.update_text('', '')
+        self.update_status_bar(_('No session: open or create a session '
+                                 'to start'))
         self.window.clear_exams_view()
 
     def add_exams(self, exams):
@@ -1512,6 +1524,9 @@ class Interface(object):
         if text is None:
             text = ''
         self.window.center_view.update_text_down(text)
+
+    def update_status_bar(self, text):
+        self.window.update_status_bar(text)
 
     def update_text(self, text_up, text_down):
         self.window.center_view.update_text_up(text_up)
@@ -1659,11 +1674,6 @@ class Interface(object):
                 return True
             else:
                 return False
-
-    def show_version(self):
-        version_line = '{0} {1} - <a href="{2}">{2}</a>'\
-               .format(program_name, version, web_location)
-        self.update_text_down(version_line)
 
     def run_worker(self, task, callback):
         """Runs a task in another thread.

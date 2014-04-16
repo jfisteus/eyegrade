@@ -19,9 +19,12 @@
 #
 from __future__ import division
 
-from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter, )
-
+from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
+                         QStatusBar, QLabel, )
 from PyQt4.QtCore import Qt
+
+from .. import utils
+
 
 class CompletingComboBox(QComboBox):
     """An editable combo box that filters and autocompletes."""
@@ -53,3 +56,36 @@ class StudentComboBox(CompletingComboBox):
 
     def add_student(self, student):
         self.addItem(student.get_id_and_name())
+
+
+class StatusBar(QStatusBar):
+    """Status bar for the main window.
+
+    For now it just contains a simple QLabel.
+
+    """
+
+    def __init__(self, parent):
+        """Creates a new instance.
+
+        :param parent: The parent of this status bar.
+
+        """
+        super(StatusBar, self).__init__(parent=parent)
+        self.status_label = QLabel(parent=self)
+        self.addWidget(self.status_label)
+        self._show_program_version()
+
+    def set_message(self, text):
+        """Sets a new left-side status text.
+
+        :param str text: The text to display in the status bar.
+
+        """
+        self.status_label.setText(text)
+
+    def _show_program_version(self):
+        version_line = '{0} {1} - <a href="{2}">{2}</a>'\
+               .format(utils.program_name, utils.version, utils.web_location)
+        self.addPermanentWidget(QLabel(version_line))
+

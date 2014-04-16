@@ -247,7 +247,6 @@ class ProgramManager(object):
         self.latest_graded_exam = None
         self.latest_detector = None
         self.manual_detect_manager = None
-        self.interface.update_text('', _('Searching...'))
         self.interface.register_timer(50, self._next_search)
         dump_camera_buffer(self.imageproc_context.camera, 1.0)
         self.next_capture = time.time() + 0.05
@@ -283,9 +282,6 @@ class ProgramManager(object):
         self.mode.enter_manual_detect()
         self.interface.activate_manual_detect_mode()
         self.interface.display_capture(self.exam.get_image_drawn())
-        self.interface.update_text_up('')
-        self.interface.update_text_down(_('Manual detection: click on the '
-                                        'outer corners of the answer tables'))
         self.manual_detect_manager = \
             ManualDetectionManager(self.exam, self.exam_data.dimensions,
                                    self.imageproc_options)
