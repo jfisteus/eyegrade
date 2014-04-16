@@ -75,6 +75,8 @@ class StatusBar(QStatusBar):
         self.status_label = QLabel(parent=self)
         self.addWidget(self.status_label)
         self._show_program_version()
+        self.setStyleSheet('QStatusBar {border-top: 1px solid '
+                                            'rgb(128, 128, 128); }')
 
     def set_message(self, text):
         """Sets a new left-side status text.
