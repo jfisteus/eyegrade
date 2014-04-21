@@ -799,7 +799,7 @@ class DialogAbout(QDialog):
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2013 Jesús Arias Fisteus <br>
+             (c) 2010-2014 Jesús Arias Fisteus <br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 

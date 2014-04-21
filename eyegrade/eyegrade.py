@@ -561,7 +561,7 @@ class ProgramManager(object):
             self._start_search_mode()
         elif self.mode.in_review_from_session():
             remove = self.interface.show_warning( \
-                    _('The current exam will be removed. Are you sure?'),
+                    _('The selected exam will be removed. Are you sure?'),
                     is_question=True)
             if remove:
                 self.sessiondb.remove_exam(self.exam.exam_id)
