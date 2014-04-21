@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='eyegrade',
-      version='0.2.6',
+      version='0.3',
       description='Grading multiple choice questions with a webcam',
       author='Jesus Arias Fisteus',
       author_email='jfisteus@gmail.com',
