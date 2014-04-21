@@ -924,51 +924,52 @@ class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
-        ('start', 'start.svg', _('&Start grading'), None),
-        ('stop', 'stop.svg', _('S&top grading'), None),
-        ('back', 'back.svg', _('&Back to session home'), None),
+        ('start', 'start.svg', _('&Start grading'), []),
+        ('stop', 'stop.svg', _('S&top grading'), []),
+        ('back', 'back.svg', _('&Back to session home'), []),
         ('continue', 'continue.svg', _('Continue to the &next exam'),
-         Qt.Key_Space),
-        ('*separator*', None, None, None),
+         [Qt.Key_Space]),
+        ('*separator*', None, None, []),
         ('snapshot', 'snapshot.svg', _('&Capture the current image'),
-         Qt.Key_C),
+         [Qt.Key_C]),
         ('manual_detect', 'manual_detect.svg',
-         _('&Manual detection of answer tables'), Qt.Key_M),
-        ('edit_id', 'edit_id.svg', _('&Edit student id'), Qt.Key_I),
-        ('discard', 'discard.svg', _('&Discard exam'), Qt.Key_Backspace),
+         _('&Manual detection of answer tables'), [Qt.Key_M]),
+        ('edit_id', 'edit_id.svg', _('&Edit student id'), [Qt.Key_I]),
+        ('discard', 'discard.svg', _('&Discard exam'),
+         [Qt.Key_Delete, Qt.Key_Backspace]),
         ]
 
     _actions_session_data = [
-        ('new', 'new.svg', _('&New session'), None),
-        ('open', 'open.svg', _('&Open session'), None),
-        ('close', 'close.svg', _('&Close session'), Qt.Key_Escape),
-        ('*separator*', None, None, None),
-        ('exit', 'exit.svg', _('&Exit'), None),
+        ('new', 'new.svg', _('&New session'), []),
+        ('open', 'open.svg', _('&Open session'), []),
+        ('close', 'close.svg', _('&Close session'), [Qt.Key_Escape]),
+        ('*separator*', None, None, []),
+        ('exit', 'exit.svg', _('&Exit'), []),
         ]
 
     _actions_exams_data = [
-        ('search', 'search.svg', _('&Search'), None),
+        ('search', 'search.svg', _('&Search'), []),
         ]
 
     _actions_tools_data = [
-        ('camera', 'camera.svg', _('Select &camera'), None),
+        ('camera', 'camera.svg', _('Select &camera'), []),
         ]
 
     _actions_help_data = [
-        ('help', None, _('Online &Help'), None),
-        ('website', None, _('&Website'), None),
-        ('source', None, _('&Source code at GitHub'), None),
-        ('about', None, _('&About'), None),
+        ('help', None, _('Online &Help'), []),
+        ('website', None, _('&Website'), []),
+        ('source', None, _('&Source code at GitHub'), []),
+        ('about', None, _('&About'), []),
         ]
 
     _actions_debug_data = [
-        ('+show_status', None, _('Show &status'), None),
-        ('+lines', None, _('Show &lines'), None),
-        ('+processed', None, _('Show &processed image'), None),
+        ('+show_status', None, _('Show &status'), []),
+        ('+lines', None, _('Show &lines'), []),
+        ('+processed', None, _('Show &processed image'), []),
         ]
 
     _actions_experimental = [
-        ('+auto_change', None, _('Continue on exam &removal'), None),
+        ('+auto_change', None, _('Continue on exam &removal'), []),
         ]
 
     def __init__(self, window):
@@ -984,20 +985,20 @@ class ActionsManager(object):
         self.actions_help = {}
         action_lists = {'session': [], 'grading': [], 'exams': [],
                         'tools': [], 'help': []}
-        for key, icon, text, shortcut in ActionsManager._actions_session_data:
-            self._add_action(key, icon, text, shortcut, self.actions_session,
+        for key, icon, text, shortcuts in ActionsManager._actions_session_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_session,
                              action_lists['session'])
-        for key, icon, text, shortcut in ActionsManager._actions_grading_data:
-            self._add_action(key, icon, text, shortcut, self.actions_grading,
+        for key, icon, text, shortcuts in ActionsManager._actions_grading_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_grading,
                              action_lists['grading'])
-        for key, icon, text, shortcut in ActionsManager._actions_exams_data:
-            self._add_action(key, icon, text, shortcut, self.actions_exams,
+        for key, icon, text, shortcuts in ActionsManager._actions_exams_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_exams,
                              action_lists['exams'])
-        for key, icon, text, shortcut in ActionsManager._actions_tools_data:
-            self._add_action(key, icon, text, shortcut, self.actions_tools,
+        for key, icon, text, shortcuts in ActionsManager._actions_tools_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_tools,
                              action_lists['tools'])
-        for key, icon, text, shortcut in ActionsManager._actions_help_data:
-            self._add_action(key, icon, text, shortcut, self.actions_help,
+        for key, icon, text, shortcuts in ActionsManager._actions_help_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_help,
                              action_lists['help'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
@@ -1137,9 +1138,9 @@ class ActionsManager(object):
             return self.actions_help
         assert False, 'Undefined action group key: {0}.format(key)'
 
-    def _add_action(self, action_name, icon_file, text, shortcut,
+    def _add_action(self, action_name, icon_file, text, shortcuts,
                     group, actions_list):
-        action = self._create_action(action_name, icon_file, text, shortcut)
+        action = self._create_action(action_name, icon_file, text, shortcuts)
         if action_name.startswith('+'):
             if action_name.startswith('++'):
                 action_name = action_name[2:]
@@ -1149,7 +1150,7 @@ class ActionsManager(object):
             group[action_name] = action
         actions_list.append(action)
 
-    def _create_action(self, action_name, icon_file, text, shortcut):
+    def _create_action(self, action_name, icon_file, text, shortcuts):
         if action_name == '*separator*':
             action = QAction(self.window)
             action.setSeparator(True)
@@ -1159,8 +1160,9 @@ class ActionsManager(object):
                                  text, self.window)
             else:
                 action = QAction(text, self.window)
-        if shortcut is not None:
-            action.setShortcut(QKeySequence(shortcut))
+        if shortcuts:
+            sequences = [QKeySequence(s) for s in shortcuts]
+            action.setShortcuts(sequences)
         if action_name.startswith('+'):
             action.setCheckable(True)
             if action_name.startswith('++'):
@@ -1201,8 +1203,8 @@ class ActionsManager(object):
 
     def _add_debug_actions(self):
         actions_list = []
-        for key, icon, text, shortcut in ActionsManager._actions_debug_data:
-            self._add_action(key, icon, text, shortcut, self.actions_tools,
+        for key, icon, text, shortcuts in ActionsManager._actions_debug_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_tools,
                              actions_list)
         menu = QMenu(_('&Debug options'), self.menus['tools'])
         for action in actions_list:
@@ -1211,8 +1213,8 @@ class ActionsManager(object):
 
     def _add_experimental_actions(self):
         actions_list = []
-        for key, icon, text, shortcut in ActionsManager._actions_experimental:
-            self._add_action(key, icon, text, shortcut, self.actions_tools,
+        for key, icon, text, shortcuts in ActionsManager._actions_experimental:
+            self._add_action(key, icon, text, shortcuts, self.actions_tools,
                              actions_list)
         menu = QMenu(_('&Experimental'), self.menus['tools'])
         for action in actions_list:

@@ -557,6 +557,8 @@ class ProgramManager(object):
         if self.mode.in_review_from_grading():
             self.sessiondb.remove_exam(self.exam.exam_id)
             self._start_search_mode()
+        elif self.mode.in_manual_detect():
+            self._start_search_mode()
         elif self.mode.in_review_from_session():
             remove = self.interface.show_warning( \
                     _('The current exam will be removed. Are you sure?'),
