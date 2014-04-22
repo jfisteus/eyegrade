@@ -94,7 +94,7 @@ msgstr ""
 
 #: eyegrade/eyegrade.py:564
 msgid "The selected exam will be removed. Are you sure?"
-msgstr "Es eliminar l'examen seleccionat. Està segur?"
+msgstr "S'esborrarà l'examen seleccionat. Està segur?"
 
 #: eyegrade/eyegrade.py:615
 msgid "You typed and incorrect student id."
