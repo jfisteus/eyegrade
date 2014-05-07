@@ -6,8 +6,8 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.2 and later versions. For the
-0.1.x series see `this other user manual <../user-manual-0.1/>`_.
+This user manual refers to Eyegrade 0.3 and later versions. For the
+0.2.x series see `this other user manual <../user-manual-0.2/>`_.
 
 Installing Eyegrade
 -------------------
@@ -36,56 +36,14 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.1.x to Eyegrade 0.2
+Upgrading from Eyegrade 0.2.x to Eyegrade 0.3
 .............................................
 
-If you have any version of the Eyegrade 0.1.x series already installed
-in your system, you have to install PyQt_.
+In order to upgrade from eyegrade 0.2.x to eyegrade 0.3, follow the
+instructions at `Updating Eyegrade`_.
 
-In Linux, install the package `python-qt4` and update Eyegrade following
-the instructions at `Updating Eyegrade`_.
-
-In Windows, `Download PyQt
-<http://www.riverbankcomputing.co.uk/software/pyqt/download>`_ and
-install it. If you installed Eyegrade 0.1.x following the instructions
-in this user manual, you have Python 2.6-x86. Choose that version of
-the installer of PyQt.  Alternatively, there is a copy of the file you
-need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
-<https://www.dropbox.com/s/15xnbrj82n9tial/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
-The installer of PyQt will probably detect you Python installation
-automatically.
-
-After that, update Eyegrade following the instructions at `Updating
-Eyegrade`_.
-
-The directory layout of the code of Eyegrade has changed with respect
-to versions 0.1.x. The code is now inside the `eyegrade` subdirectory
-instead of the `src/eyegrade` subdirectory. Therefore, the
-`PYTHONPATH` environment variable should be set to the main directory
-of Eyegrade now, instead of the `src` subdirectory as before. When
-upgrading, remember to update this environment variable if you have
-configured it in your system-wide environment variables.
-
-If you cannot see the icons of the buttons the first time you run the
-new version of Eyegrade, reboot the computer and try again.
-
-
-Main changes from versions 0.1.x
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The main changes from Eyegrade 0.1.x to Eyegrade 0.2 you need to be
-aware of are:
-
-- The main program is run now without command line arguments. You'll
-  select the `.eye` file, student lists, webcam to use, etc. from the
-  user interface.
-
-- There is the new concept of a session. A session stores the state of
-  the grading of a given exam. You create a new session when you start
-  to grade the exam. The images of the exams and results are stored in
-  this session as you grade them. You can later resume a session and
-  continue grading it. A session is stored in the directory of your
-  file system that you choose.
+The main changes are described in the blog post `*Eyegrade 0.3
+released* <http://eyegrade.org/blog/posts/eyegrade-03-released.html>`_
 
 
 Installation on GNU/Linux
@@ -265,8 +223,8 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade-0.2.6.zip
-<https://www.dropbox.com/s/not05fhwhd4awo3/eyegrade-0.2.6.zip>`_. Extract
+1.- Download the ZIP file `eyegrade-0.3.zip
+<https://www.dropbox.com/s/0k5zuxc2qj6rt4j/eyegrade-0.3.zip>`_. Extract
 it in your file system, in a directory with no white-spaces in its
 path.
 
@@ -274,7 +232,7 @@ Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
 ``C:\``::
 
-    set PYTHONPATH=C:\eyegrade
+    set PYTHONPATH=C:\eyegrade-0.3
     C:\Python26\python -m eyegrade.eyegrade
 
 It should dump a help message.
@@ -308,6 +266,11 @@ prompt window, enter the Eyegrade installation directory and type::
     git pull
 
 This should work on any platform (Linux, Windows, etc.)
+
+If you didn't use Git to install Eyegrade, `download the new version
+<https://www.dropbox.com/s/0k5zuxc2qj6rt4j/eyegrade-0.3.zip>`_,
+uncompress it and replace your ``eyegrade`` directory by the one you
+have uncompressed.
 
 
 Grading Exams
@@ -404,7 +367,7 @@ graded exams, etc.)
 
 You can open again later an existing session with the *Open session*
 option of the *Session* menu. In the file selection dialog that
-appears, select the ``session.eye`` file inside the directory of the
+appears, select the ``session.eyedb`` file inside the directory of the
 session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.
 
@@ -414,42 +377,51 @@ Application modes
 
 At a given instant, the application is in one of these modes:
 
-- *No session mode*: no session is opened. You can open an existing
+- *No session mode*: no session is open. You can open an existing
   session or create a new session.
 
-- *Search mode*: a session is open. The application continually scans
-  the input from the webcam, looking for a correct detection of an
-  exam.
+- *Session home mode*: a session is open. This is the entry point for
+  starting grading and reviewing already graded exams.
 
-- *Review mode*: a session is open. The application shows a still
-  capture of an exam with the result of the grading, so that the user
-  can review it and fix things, if necessary, before saving the score
-  of the exam.
+- *Grading mode*: the application continually scans the input from the
+  webcam, looking for a correct detection of an exam.
 
-- *Manual detection mode*: a session is open. In the rare cases in
-  which the system is not able to detect the geometry of the exam, you
-  can enter this mode and mark the corners of the answer
+- *Review mode*: the application shows a still capture of an exam with
+  the result of the grading, so that the user can review it and fix
+  answers or the student id, if necessary.
+
+- *Manual detection mode*: in the rare cases in which the system is
+  not able to detect the geometry of the exam in the *grading mode*,
+  you can enter this mode and mark the corners of the answer
   tables. Eyegrade will be able to detect the tables once you tell it
   where the corners are.
 
 The application starts with no open session. Once you open or create a
-session, it changes to the *search mode*. When the system detects an
-answer sheet that it can read, it locks the capture and enters the
-*review mode*. Once you save the score of the exam, Eyegrade
-automatically goes back to the *search mode* in order to scan the next
-exam.
+session, it changes to the *session home mode*. From it, you can start
+or continue grading (enter the *grading mode* with the *Start grading*
+command) or review already graded exams (enter the *review mode* by
+clicking on an exam at the right side of the main window).
+
+When you are in the *grading mode*, the program is continually
+analyzing the image of the webcam. When it detects an answer sheet
+that it can read, it locks the capture and enters the *review
+mode*. Once you confirm that capture (command *Continue to the next
+exam*), Eyegrade automatically goes back to the *search mode* in order
+to scan the next exam.
 
 You can enter the *manual detection mode* by issuing the appropriate
 command while in the other modes.
 
-From any of the other modes, you can go back to the *no session mode*
-with the *Close session* command in the *Session* menu.
+From the *grading mode* you can go back to the session home mode with
+the *Stop grading* command. From any of the other modes, you can go
+back to the *no session mode* with the *Close session* command in the
+*Session* menu.
 
 
-The search mode
-...............
+The grading mode
+................
 
-In the *search mode*, you have to get the camera to point to the answer table
+In the *grading mode*, you have to get the camera to point to the answer table
 of the exam, including, if present, the id box above it and the small squares
 at the bottom.
 
@@ -470,7 +442,7 @@ In rare occasions, Eyegrade could fail event to detect the answer
 table.  The *Manual detection* command of the *Grading menu* allows
 you to help the system detect it.
 
-These are the commands available in the *search mode*, all of them at
+These are the commands available in the *grading mode*, all of them at
 the *Grading* menu:
 
 - *Capture the current image* (shortcut 's'): forces the system to
@@ -501,12 +473,12 @@ different situations:
 
 - With the answers of the student, but without her id. This is the
   case when you use the *Capture the current image* command in the
-  *search mode* because Eyegrade detected the answer table in at least
+  *grading mode* because Eyegrade detected the answer table in at least
   one capture, but not the student id box. In this case, you can
   review the answers given by the student and manually enter her id.
 
 - With neither the answers of the student nor her id. This is the case
-  when you use the *Capture the current image* command in the *search
+  when you use the *Capture the current image* command in the *grading
   mode* because Eyegrade was not able to detect anything from the
   exam. In this situation, you can switch to the *manual detection
   mode* to help the system to detect the answer tables, and manually
@@ -550,15 +522,13 @@ menu):
   recognized a wrong id, as explained in `Modifying the
   student id`_.
 
-- *Save and capture next exam* (shortcut 'Space-bar'):
-  saves the grades of this exam as well as the annotated captured
-  image, and enters the *search mode* in order to detect the next
-  exam. **Tip:** before saving, it is better to remove the exam from
-  the sight of the camera to avoid it from being captured again. You
-  can even put the next exam under the camera before saving to speed
-  up the process.
+- *Continue to the next exam* (shortcut 'Space-bar'): enters the
+  *grading mode* in order to detect the next exam. **Tip:** before
+  saving, it is better to remove the exam from the sight of the camera
+  to avoid it from being captured again. You can even put the next
+  exam under the camera before saving to speed up the process.
 
-- *Discard capture* (shortcut 'Backspace'): discards
+- *Discard capture* (shortcut 'Delete'): discards
   the current capture **without** saving it. It is useful, for
   example, when the capture is not good enough, or when you discover
   that the same exam has already been graded before.
@@ -626,7 +596,7 @@ The manual detection mode
 
 In some rare occasions, Eyegrade may not be able to detect the answer
 tables. In those cases, you can enter the *manual detection mode* from
-the *search mode* (and also from the *review mode* if you entered that
+the *grading mode* (and also from the *review mode* if you entered that
 mode using the *Capture the current image* command). When entering the
 *manual detection mode*, the latest capture of the camera will be
 shown.
@@ -658,7 +628,7 @@ At any point of the process, you can use the *Manual detection of
 answer tables* command (shortcut 'm') to reset the selection of
 corners and start again. If you think that the captured image is not
 good enough, you can also use the *discard* command (shortcut
-'Backspace') to go again to the *search mode*.
+'Backspace') to go again to the *grading mode*.
 
 **Tip:** in the *manual detection mode*, make sure that the captured
 image shows all the answer tables as well as the exam model squares at
@@ -674,14 +644,19 @@ The output produced by Eyegrade consists of:
   one line for each graded exam. Each line contains, among other
   things, the student id number, the number of correct and incorrect
   answers, and the answer to every question in the exam.  Student
-  grades can be extracted from this file.
+  grades can be extracted from this file.  The file with the scores is
+  stored in the session directory. Eyegrade updates its contents when
+  you close the session. Remember to close it before using this file.
 
 - One snapshot of each graded exam, in PNG format: snapshots can be
   used as an evidence to show students. They can be shown to students
   coming to your office to review the exam, or even emailed to every
   student. The default name for those images is the concatenation of
   the student id and exam sequence number, in order to facilitate the
-  instructor to locate the snapshot for a specific student.
+  instructor to locate the snapshot for a specific student. The
+  captures are stored in the session directory, inside its
+  ``captures`` subdirectory. The captures are saved when the exam is
+  captured, and updated every time you edit the exam.
 
 
 The answers file
@@ -692,10 +667,10 @@ scores in CSV format (with tabulator instead of comma as a separator),
 so that it can be easily imported from other programs such as
 spreadsheets. This is an example of such a file::
 
-    0	100999991	D	9	6	0	1/2/2/4/1/2/2/0/0/3/2/0/3/2/0/4/3/0/1/2
-    1	100999997	C	15	1	0	2/4/4/3/1/0/1/2/1/1/0/1/0/4/3/0/1/4/3/4
-    2	100800003	D	6	14	0	4/2/2/2/1/2/1/3/2/1/3/1/2/1/3/1/4/1/4/3
-    3	100777777	A	7	13	0	3/2/3/2/3/3/2/4/3/1/3/1/4/1/4/2/2/3/4/2
+    0	100999991	D	9	6	4.5	1/2/2/4/1/2/2/0/0/3/2/0/3/2/0/4/3/0/1/2
+    1	100999997	C	15	1	15.0	2/4/4/3/1/0/1/2/1/1/0/1/0/4/3/0/1/4/3/4
+    2	100800003	D	6	14	6.0	4/2/2/2/1/2/1/3/2/1/3/1/2/1/3/1/4/1/4/3
+    3	100777777	A	7	13	7.0	3/2/3/2/3/3/2/4/3/1/3/1/4/1/4/2/2/3/4/2
 
 The columns of this file represent:
 
@@ -710,8 +685,8 @@ below the student id in the *review mode*).
 
 5.- The number of incorrect answers.
 
-6.- The number of undetermined answers (answers marked as blank because
-of the system detecting more than one marked cell).
+6.- The score of the exam, if you configured the weight of correct and
+incorrect answers for this session.
 
 7.- The response of the student to each question in the exam, from the
 first question in her model to the last. '0' means a blank
@@ -721,17 +696,6 @@ the order they were presented in her exam model.
 Exams are in the same sequence they were graded. See `Exporting a
 listing of scores`_ to know how to produce a listing of scores in the
 order that best fits your needs.
-
-**Tip:** if you start a new grading session from the same directory,
-the file ``eyegrade-answers.csv`` will not be overwritten. New grades
-will just be appended at the end. Thus, it is safe stopping a grading
-session, closing the application and continuing later. Separate grading
-sessions must be executed from different directories to avoid using
-the same ``eyegrade-answers.csv`` file.
-
-**Tip:** you can edit this file with a text editor if, for example,
-you discover that the same exam was graded more than once (just remove
-the duplicate line).
 
 
 Exporting a listing of scores
