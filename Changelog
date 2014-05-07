@@ -1,3 +1,25 @@
+2014-05-07  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.3.
+
+	* Multilingual support (by now, translations to Spanish, Galician
+	and Catalan).
+
+	* Sessions are now stored in a SQLite database.
+
+	* Previously graded exams can now be reviewed at any moment, not
+	only when they are first scanned (issue #63).
+
+	* New interaction workflow in the GUI. Now grading does not start
+	automatically after opening the session. Users can stop / resume
+	grading without needing to close / open again the session.
+
+	* Add a status bar to the GUI.
+
+	* Final fix for issue #66 (problems with QThreadPool).
+
+	* Add an experimental setup.py file.
+
 2013-06-25  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.2.6.
