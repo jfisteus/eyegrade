@@ -1,0 +1,44 @@
+.. link:
+.. description:
+.. tags: eyegrade, release
+.. date: 2014/05/08 00:37:00
+.. title: Eyegrade 0.3 released!
+.. slug: eyegrade-03-released
+
+I've just released eyegrade 0.3. The main changes in this version are:
+
+- Previously, exams could only be reviewed immediately after capturing
+  them. Now you can review the exams, change answers or change the
+  student id any time you open the session.
+
+- A consequence of the previous change is that now grading does not
+  start automatically when the session is opened. Once you open a
+  session, you can view or edit the exams you have already graded, or
+  click on the *Start grading* action in the menu / toolbar in order
+  to start grading more exams.
+
+- The graphical user interface is now prepared for translations. This
+  release features an interface in English, Spanish, Galician and
+  Catalan. Volunteers for other languages are welcome.
+
+- There are changes to the layout of the graphical user
+  interface. There is a vertical area at the left were the thumbnails
+  of the exams graded for this session are displayed. In addition,
+  there is a new status bar at the bottom.
+
+- Other fixes.
+
+Be aware that the sessions created with eyegrade 0.3 are not
+compatible with previous versions. Conversely, sessions created with
+previous versions cannot be opened with eyegrade 0.3. The reason is
+that now session are stored internally as a SQLite database and store
+more information about the exams than the previous versions.
+
+If you have installed eyegrade through *git*, you can easily update
+the program from versions in the series 0.2.x by executing the command
+*git pull* from inside the directory in which eyegrade is installed.
+
+If you find bugs or problems with this new release, please open an
+issue at `the GitHub project page
+<https://github.com/jfisteus/eyegrade/>`_, or just let me know by
+commenting on this post or sending me an email.

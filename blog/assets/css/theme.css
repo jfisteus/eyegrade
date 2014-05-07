@@ -43,8 +43,10 @@ td.label {
 .caption {
     /* Issue 292 */
     text-align: center;
+    padding-top: 1em;
 }
 
+div.figure > img,
 div.figure > a > img {
     /* Issue 292 */
     display: block;
@@ -74,7 +76,6 @@ ul.bricks > li {
     margin: 3px;
 }
 
-:target, h1, h2, h3, h4, h5, h6, h7 {
-    margin-top: -40px;
-    padding-top: 40px;
+ul.breadcrumb > li:before {
+    content: " / ";
 }

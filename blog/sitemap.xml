@@ -6,7 +6,7 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://eyegrade.org/blog/</loc>
-  <lastmod>2013-08-01</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -16,12 +16,22 @@
  </url>
  <url>
   <loc>http://eyegrade.org/blog/2013/index.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>http://eyegrade.org/blog/2014/</loc>
+  <lastmod>2014-05-08</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>http://eyegrade.org/blog/2014/index.html</loc>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/archive.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -31,32 +41,32 @@
  </url>
  <url>
   <loc>http://eyegrade.org/blog/categories/eyegrade.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/categories/index.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/categories/pyqt.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/categories/release.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/categories/requests.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/categories/screenshots.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -66,7 +76,7 @@
  </url>
  <url>
   <loc>http://eyegrade.org/blog/galleries/index.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -76,7 +86,7 @@
  </url>
  <url>
   <loc>http://eyegrade.org/blog/galleries/screenshots-new-gui-1/index.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -86,12 +96,12 @@
  </url>
  <url>
   <loc>http://eyegrade.org/blog/galleries/screenshots-new-gui-2/index.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/index.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
@@ -101,77 +111,82 @@
  </url>
  <url>
   <loc>http://eyegrade.org/blog/listings/hello.py.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/listings/index.html</loc>
-  <lastmod>2013-07-30</lastmod>
+  <lastmod>2014-05-08</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
+  <loc>http://eyegrade.org/blog/posts/eyegrade-03-released.html</loc>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/posts/release-eyegrade-0.2.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/posts/requests-for-eyegrade-03.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/about-nikola.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/handbook.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/listings-demo.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/quickref.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/quickstart.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/sampleconfig.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/slides-demo.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
   <loc>http://eyegrade.org/blog/stories/theming.html</loc>
-  <lastmod>2013-08-05</lastmod>
+  <lastmod>2014-05-08</lastmod>
   <priority>0.5000</priority>
  </url>
 </urlset>
