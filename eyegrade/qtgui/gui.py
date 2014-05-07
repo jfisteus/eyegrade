@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2012-2013 Jesus Arias Fisteus
+# Copyright (C) 2010-2014 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,17 +21,20 @@ from __future__ import division
 
 import os.path
 import fractions
+import gettext
+import locale
 
 #from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import (QImage, QWidget, QMainWindow, QPainter,
-                         QSizePolicy, QApplication, QVBoxLayout,
+                         QSizePolicy, QVBoxLayout, QStackedLayout,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFormLayout, QLineEdit, QDialogButtonBox,
-                         QComboBox, QFileDialog, QHBoxLayout, QPushButton,
-                         QMessageBox, QPixmap, QCompleter,
-                         QSortFilterProxyModel, QKeySequence, QColor,
+                         QFileDialog, QHBoxLayout, QPushButton,
+                         QMessageBox, QPixmap,
+                         QKeySequence, QColor,
                          QWizard, QWizardPage, QListWidget, QAbstractItemView,
-                         QRegExpValidator, QCheckBox, QSpinBox,)
+                         QRegExpValidator, QCheckBox, QSpinBox, QTabWidget,
+                         QScrollArea,)
 
 from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool, QRegExp,
                           QObject, pyqtSignal,)
@@ -37,12 +42,20 @@ from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool, QRegExp,
 from eyegrade.utils import (resource_path, program_name, version, web_location,
                             source_location)
 import eyegrade.utils as utils
+from . import examsview
+from . import widgets
 
-_filter_exam_config = 'Exam configuration (*.eye)'
-_filter_student_list = 'Student list (*.csv *.tsv *.txt *.lst *.list)'
 
 color_eyegrade_blue = QColor(32, 73, 124)
 
+t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+_ = t.ugettext
+
+_filter_exam_config = _('Exam configuration (*.eye)')
+_filter_session_db = _('Eyegrade session (*.eyedb)')
+_filter_student_list = _('Student list (*.csv *.tsv *.txt *.lst *.list)')
+
+_tuple_strcoll = lambda x, y: locale.strcoll(x[0], y[0])
 
 class LineContainer(QWidget):
     """Container that disposes other widgets horizontally."""
@@ -111,7 +124,7 @@ class OpenFileWidget(QWidget):
         if self._check_file is not None:
             valid, msg = self._check_file(filename)
         if not valid:
-            QMessageBox.critical(self, 'Error', msg)
+            QMessageBox.critical(self, _('Error'), msg)
         else:
             self.last_validated_value = filename
         return valid
@@ -120,11 +133,13 @@ class OpenFileWidget(QWidget):
         if self.select_directory:
             filename = \
                 QFileDialog.getExistingDirectory(self, self.title, '',
-                                            (QFileDialog.ShowDirsOnly
-                                             | QFileDialog.DontResolveSymlinks))
+                                        (QFileDialog.ShowDirsOnly
+                                         | QFileDialog.DontResolveSymlinks
+                                         | QFileDialog.DontUseNativeDialog))
         else:
             filename = QFileDialog.getOpenFileName(self, self.title, '',
-                                                   self.name_filter)
+                                              self.name_filter, None,
+                                              QFileDialog.DontUseNativeDialog)
         if filename:
             filename = unicode(filename)
             valid = self.check_value(filename=filename)
@@ -138,9 +153,9 @@ class InputScore(QLineEdit):
         super(InputScore, self).__init__(parent=parent)
         self.setMinimumWidth(minimum_width)
         if is_positive:
-            placeholder = 'e.g.: 2; 2.5; 5/2'
+            placeholder = _('e.g.: 2; 2.5; 5/2')
         else:
-            placeholder = 'e.g.: 0; -1; -1.25; -5/4'
+            placeholder = _('e.g.: 0; -1; -1.25; -5/4')
         self.setPlaceholderText(placeholder)
         regex = r'((\d*(\.\d+))|(\d+\/\d+))'
         if not is_positive:
@@ -212,8 +227,8 @@ class MultipleFilesWidget(QWidget):
         self._check_file = check_file_function
         self.file_list = QListWidget()
         self.file_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        button_add = QPushButton('Add files')
-        self.button_remove = QPushButton('Remove selected')
+        button_add = QPushButton(_('Add files'))
+        self.button_remove = QPushButton(_('Remove selected'))
         self.button_remove.setEnabled(False)
         buttons = QWidget()
         buttons_layout = QVBoxLayout()
@@ -242,7 +257,8 @@ class MultipleFilesWidget(QWidget):
 
     def _add_files(self):
         file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
-                                                   self.file_name_filter)
+                                               self.file_name_filter, None,
+                                               QFileDialog.DontUseNativeDialog)
         model = self.file_list.model()
         for file_name in file_list_q:
             valid = True
@@ -271,25 +287,6 @@ class MultipleFilesWidget(QWidget):
             self.button_remove.setEnabled(False)
 
 
-class CompletingComboBox(QComboBox):
-    """An editable combo box that filters and autocompletes."""
-    def __init__(self, parent=None):
-        super(CompletingComboBox, self).__init__(parent)
-        self.setEditable(True)
-        self.filter = QSortFilterProxyModel(self)
-        self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.filter.setSourceModel(self.model())
-        self.completer = QCompleter(self.filter, self)
-        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-        self.setCompleter(self.completer)
-        self.lineEdit().textEdited[unicode]\
-            .connect(self.filter.setFilterFixedString)
-        self.currentIndexChanged.connect(self._index_changed)
-
-    def _index_changed(self, index):
-        self.lineEdit().selectAll()
-
-
 class DialogStudentId(QDialog):
     """Dialog to change the student id.
 
@@ -301,21 +298,18 @@ class DialogStudentId(QDialog):
     """
     def __init__(self, parent, students):
         super(DialogStudentId, self).__init__(parent)
-        self.setWindowTitle('Change the student id')
+        self.setWindowTitle(_('Change the student id'))
         layout = QFormLayout()
         self.setLayout(layout)
-        self.combo = CompletingComboBox(self)
-        self.combo.setEditable(True)
-        self.combo.setAutoCompletion(True)
-        for student in students:
-            self.combo.addItem(student)
+        self.combo = widgets.StudentComboBox(parent=self, editable=True)
+        self.combo.add_students(students)
         self.combo.lineEdit().selectAll()
         self.combo.lineEdit().setFocus()
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-        layout.addRow('Student id:', self.combo)
+        layout.addRow(_('Student id:'), self.combo)
         layout.addRow(buttons)
 
     def exec_(self):
@@ -343,15 +337,15 @@ class DialogComputeScores(QDialog):
     """
     def __init__(self, parent=None):
         super(DialogComputeScores, self).__init__(parent)
-        self.setWindowTitle('Compute default scores')
+        self.setWindowTitle(_('Compute default scores'))
         layout = QFormLayout()
         self.setLayout(layout)
         self.score = InputScore(parent=self)
-        self.penalize = QCheckBox('Penalize incorrect answers', self)
+        self.penalize = QCheckBox(_('Penalize incorrect answers'), self)
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
-        layout.addRow('Maximum score', self.score)
-        layout.addRow('Penalizations', self.penalize)
+        layout.addRow(_('Maximum score'), self.score)
+        layout.addRow(_('Penalizations'), self.penalize)
         layout.addRow(buttons)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -375,7 +369,8 @@ class DialogComputeScores(QDialog):
                         penalize = self.penalize.checkState() == Qt.Checked
                         success = True
                 if not success:
-                    QMessageBox.critical(self, 'Error', 'Enter a valid score.')
+                    QMessageBox.critical(self, _('Error'),
+                                         _('Enter a valid score.'))
             else:
                 score, penalize = None, None
                 success = True
@@ -391,15 +386,15 @@ class NewSessionPageInitial(QWizardPage):
     """
     def __init__(self, config_filename=None):
         super(NewSessionPageInitial, self).__init__()
-        self.setTitle('Directory and exam configuration')
-        self.setSubTitle(('Select or create an empty directory in which you '
-                          'want to store the session, '
-                          'and the exam configuration file.'))
+        self.setTitle(_('Directory and exam configuration'))
+        self.setSubTitle(_('Select or create an empty directory in which you '
+                           'want to store the session, '
+                           'and the exam configuration file.'))
         self.directory = OpenFileWidget(self, select_directory=True,
-                            title='Select or create an empty directory',
+                            title=_('Select or create an empty directory'),
                             check_file_function=self._check_directory)
         self.config_file = OpenFileWidget(self,
-                            title='Select the exam configuration file',
+                            title=_('Select the exam configuration file'),
                             name_filter=_filter_exam_config,
                             check_file_function=self._check_exam_config_file)
         if config_filename is not None:
@@ -412,8 +407,8 @@ class NewSessionPageInitial(QWizardPage):
             self.registerField('config_file', self.config_file.filename_widget)
         layout = QFormLayout(self)
         self.setLayout(layout)
-        layout.addRow('Directory', self.directory)
-        layout.addRow('Exam configuration file', self.config_file)
+        layout.addRow(_('Directory'), self.directory)
+        layout.addRow(_('Exam configuration file'), self.config_file)
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -435,13 +430,13 @@ class NewSessionPageInitial(QWizardPage):
         msg = ''
         if not os.path.isdir(dir_name):
             valid = False
-            msg = 'The directory does not exist or is not a directory.'
+            msg = _('The directory does not exist or is not a directory.')
         else:
             dir_content = os.listdir(dir_name)
             if dir_content:
                 valid = False
-                msg = ('The directory is not empty. '
-                       'Choose another directory or create a new one.')
+                msg = _('The directory is not empty. '
+                        'Choose another directory or create a new one.')
         return valid, msg
 
     def _check_exam_config_file(self, file_name):
@@ -449,19 +444,19 @@ class NewSessionPageInitial(QWizardPage):
         msg = ''
         if not os.path.exists(file_name):
             valid = False
-            msg = 'The exam configuration file does not exist.'
+            msg = _('The exam configuration file does not exist.')
         elif not os.path.isfile(file_name):
             valid = False
-            msg = 'The exam configuration file is not a regular file.'
+            msg = _('The exam configuration file is not a regular file.')
         else:
             try:
                 utils.ExamConfig(filename=file_name)
             except IOError:
                 valid = False
-                msg = 'The exam configuration file cannot be read.'
+                msg = _('The exam configuration file cannot be read.')
             except Exception as e:
                 valid = False
-                msg = 'The exam configuration file contains errors'
+                msg = _('The exam configuration file contains errors')
                 if str(e):
                     msg += ':<br><br>' + str(e)
                 else:
@@ -474,20 +469,20 @@ class NewSessionPageScores(QWizardPage):
     """Page of WizardNewSession that asks for the scores for answers."""
     def __init__(self):
         super(NewSessionPageScores, self).__init__()
-        self.setTitle('Scores for correct and incorrect answers')
-        self.setSubTitle(('Enter the scores of correct and incorrect '
-                          'answers. The program will compute scores based '
-                          'on them. Setting these scores is optional.'))
+        self.setTitle(_('Scores for correct and incorrect answers'))
+        self.setSubTitle(_('Enter the scores of correct and incorrect '
+                           'answers. The program will compute scores based '
+                           'on them. Setting these scores is optional.'))
         layout = QFormLayout(self)
         self.setLayout(layout)
         self.correct_score = InputScore(is_positive=True)
         self.incorrect_score = InputScore(is_positive=False)
         self.blank_score = InputScore(is_positive=False)
-        self.button_clear = QPushButton('Clear values')
-        self.button_defaults = QPushButton('Compute default values')
-        layout.addRow('Score for correct answers', self.correct_score)
-        layout.addRow('Score for incorrect answers', self.incorrect_score)
-        layout.addRow('Score for blank answers', self.blank_score)
+        self.button_clear = QPushButton(_('Clear values'))
+        self.button_defaults = QPushButton(_('Compute default values'))
+        layout.addRow(_('Score for correct answers'), self.correct_score)
+        layout.addRow(_('Score for incorrect answers'), self.incorrect_score)
+        layout.addRow(_('Score for blank answers'), self.blank_score)
         layout.addRow('', self.button_defaults)
         layout.addRow('', self.button_clear)
         self.button_clear.clicked.connect(self.clear_values)
@@ -550,9 +545,9 @@ class NewSessionPageScores(QWizardPage):
             self.incorrect_score.setText(i_score)
             self.blank_score.setText(b_score)
         else:
-             QMessageBox.critical(self, 'Error',
-                                 'Automatic scores cannot be computed for '
-                                 'this exam.')
+             QMessageBox.critical(self, _('Error'),
+                                 _('Automatic scores cannot be computed for '
+                                   'this exam.'))
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -562,9 +557,9 @@ class NewSessionPageScores(QWizardPage):
         b_score = self.blank_score.value()
         if c_score is None and (i_score is not None or b_score is not None):
             valid= False
-            QMessageBox.critical(self, 'Error',
-                                 'A correct score must be set, or the three '
-                                 'scores must be left empty.')
+            QMessageBox.critical(self, _('Error'),
+                                 _('A correct score must be set, or the three '
+                                   'scores must be left empty.'))
         else:
             if c_score is not None:
                 if i_score is None:
@@ -579,9 +574,9 @@ class NewSessionPageScores(QWizardPage):
                 if scores[1] < 0 or scores[2] < 0:
                     # Note that the sign is inverted!
                     valid = False
-                    QMessageBox.critical(self, 'Error',
-                                 'The score for incorrect and blank answers '
-                                 'cannot be greater than 0.')
+                    QMessageBox.critical(self, _('Error'),
+                                 _('The score for incorrect and blank answers '
+                                   'cannot be greater than 0.'))
             else:
                 scores = None
             if valid:
@@ -611,7 +606,7 @@ class WizardNewSession(QWizard):
     def __init__(self, parent, config_filename=None):
         super(WizardNewSession, self).__init__(parent)
         self.exam_config = None
-        self.setWindowTitle('Create a new session')
+        self.setWindowTitle(_('Create a new session'))
         self.page_initial = \
                  self._create_page_initial(config_filename=config_filename)
         self.page_id_files = self._create_page_id_files()
@@ -649,11 +644,11 @@ class WizardNewSession(QWizard):
     def _create_page_id_files(self):
         """Creates a page for selecting student id files."""
         page = QWizardPage(self)
-        page.setTitle('Student id files')
-        page.setSubTitle(('You can select zero, one or more files with the '
-                          'list of student ids. Go to the user manual '
-                          'if you don\'t know the format of the files.'))
-        self.files_w = MultipleFilesWidget('Select student list files',
+        page.setTitle(_('Student id files'))
+        page.setSubTitle(_('You can select zero, one or more files with the '
+                           'list of student ids. Go to the user manual '
+                           'if you don\'t know the format of the files.'))
+        self.files_w = MultipleFilesWidget(_('Select student list files'),
                               file_name_filter=_filter_student_list,
                               check_file_function=self._check_student_ids_file)
         layout = QVBoxLayout()
@@ -671,7 +666,7 @@ class WizardNewSession(QWizard):
             utils.read_student_ids(filename=file_name, with_names=True)
         except Exception as e:
             valid = False
-            QMessageBox.critical(self, 'Error in student list',
+            QMessageBox.critical(self, _('Error in student list'),
                                  file_name + '\n\n' + str(e))
         return valid, ''
 
@@ -700,12 +695,12 @@ class DialogCameraSelection(QDialog):
         """
         super(DialogCameraSelection, self).__init__(parent)
         self.capture_context = capture_context
-        self.setWindowTitle('Select a camera')
+        self.setWindowTitle(_('Select a camera'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         self.camview = CamView((320, 240), self, border=True)
         self.label = QLabel(self)
-        self.button = QPushButton('Try this camera')
+        self.button = QPushButton(_('Try this camera'))
         self.camera_selector = QSpinBox(self)
         container = LineContainer(self, self.camera_selector, self.button)
         self.button.clicked.connect(self._select_camera)
@@ -738,8 +733,8 @@ class DialogCameraSelection(QDialog):
         return super(DialogCameraSelection, self).exec_()
 
     def _show_camera_error(self):
-        QMessageBox.critical(self, 'Camera not available',
-                      'Eyegrade has not detected any camera in your system.')
+        QMessageBox.critical(self, _('Camera not available'),
+                      _('Eyegrade has not detected any camera in your system.'))
         self.reject()
 
     def _select_camera(self):
@@ -753,17 +748,17 @@ class DialogCameraSelection(QDialog):
                 self._update_camera_label()
                 camera_id = self.capture_context.current_camera_id()
                 if camera_id != new_camera:
-                    QMessageBox.critical(self, 'Camera not available',
-                              'Camera {0} is not available.'.format(new_camera))
+                    QMessageBox.critical(self, _('Camera not available'),
+                           _('Camera {0} is not available.').format(new_camera))
 
     def _update_camera_label(self):
         camera_id = self.capture_context.current_camera_id()
         if camera_id is not None and camera_id >= 0:
-            self.label.setText('<center>Viewing camera: {0}</center>'\
+            self.label.setText(_('<center>Viewing camera: {0}</center>')\
                                .format(camera_id))
             self.camera_selector.setValue(camera_id)
         else:
-            self.label.setText('<center>No camera</center>')
+            self.label.setText(_('<center>No camera</center>'))
 
     def _next_capture(self):
         if not self.isVisible():
@@ -785,12 +780,26 @@ class DialogAbout(QDialog):
     """
     def __init__(self, parent):
         super(DialogAbout, self).__init__(parent)
+        self.setWindowTitle(_('About'))
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons.accepted.connect(self.accept)
+        tabs = QTabWidget(parent)
+        tabs.setDocumentMode(True)
+        tabs.addTab(self._create_about_tab(), _('About'))
+        tabs.addTab(self._create_developers_tab(), _('Developers'))
+        tabs.addTab(self._create_translators_tab(), _('Translators'))
+        layout.addWidget(tabs)
+        layout.addWidget(buttons)
+
+    def _create_about_tab(self):
         text = \
-             """
+             _(u"""
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2013 Jesus Arias Fisteus <br>
+             (c) 2010-2014 Jesús Arias Fisteus <br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 
@@ -805,31 +814,66 @@ class DialogAbout(QDialog):
              This program is distributed in the hope that it will be<br>
              useful, but WITHOUT ANY WARRANTY; without even the<br>
              implied warranty of MERCHANTABILITY or FITNESS FOR A<br>
-             PARTICULAR PURPOSE. See the GNU General Public License<br>
-             for more details.
+             PARTICULAR PURPOSE. See the GNU General Public<br>
+             License for more details.
              </p>
              <p>
-             You should have received a copy of the GNU General Public<br>
-             License along with this program.  If not, see<br>
+             You should have received a copy of the GNU General<br>
+             Public License along with this program.  If not, see<br>
              <a href='http://www.gnu.org/licenses/gpl.txt'>
              http://www.gnu.org/licenses/gpl.txt</a>.
              </p>
              </center>
-             """.format(resource_path('logo.svg'), program_name, version,
-                        web_location, source_location)
-        self.setWindowTitle('About')
-        layout = QVBoxLayout(self)
-        self.setLayout(layout)
+             """).format(resource_path('logo.svg'), program_name, version,
+                         web_location, source_location)
         label = QLabel(text)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse
                                        | Qt.TextBrowserInteraction
                                        | Qt.TextSelectableByKeyboard
                                        | Qt.TextSelectableByMouse))
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
-        buttons.accepted.connect(self.accept)
-        layout.addWidget(QLabel(text))
-        layout.addWidget(buttons)
+        return label
+
+    def _create_developers_tab(self):
+        text = u"""<center><p><b>{0}:</b></p>
+                   <ul><li>Jesús Arias Fisteus</li></ul>
+                   </center>""".format(_('Lead developers'))
+        label = QLabel(text)
+        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
+                                       | Qt.LinksAccessibleByMouse
+                                       | Qt.TextBrowserInteraction
+                                       | Qt.TextSelectableByKeyboard
+                                       | Qt.TextSelectableByMouse))
+        scroll_area = QScrollArea(self.parent())
+        scroll_area.setWidget(label)
+        return scroll_area
+
+    def _create_translators_tab(self):
+        translators = [
+            (_('Catalan'), [u'Jaume Barcelo']),
+            (_('German'), []),
+            (_('Galician'), [u'Jesús Arias Fisteus']),
+            (_('French'), []),
+            (_('Portuguese'), []),
+            (_('Spanish'), [u'Jesús Arias Fisteus']),
+            ]
+        parts = []
+        for language, names in sorted(translators, cmp=_tuple_strcoll):
+            if names:
+                parts.append(u'<p><b>{0}:</b></p>'.format(language))
+                parts.append(u'<ul>')
+                for name in names:
+                    parts.append(u'<li>{0}</li>'.format(name))
+                parts.append(u'</ul>')
+        label = QLabel(u''.join(parts))
+        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
+                                       | Qt.LinksAccessibleByMouse
+                                       | Qt.TextBrowserInteraction
+                                       | Qt.TextSelectableByKeyboard
+                                       | Qt.TextSelectableByMouse))
+        scroll_area = QScrollArea(self.parent())
+        scroll_area.setWidget(label)
+        return scroll_area
 
 
 class _WorkerSignalEmitter(QObject):
@@ -840,6 +884,9 @@ class _WorkerSignalEmitter(QObject):
 class Worker(QRunnable):
     """Generic worker class for spawning a task to other thread."""
 
+    _active_workers = []
+    _worker_count = 0
+
     def __init__(self, task):
         """Inits a new worker.
 
@@ -848,11 +895,17 @@ class Worker(QRunnable):
         """
         super(Worker, self).__init__()
         self.task = task
+        self.is_done = False
         self.signals = _WorkerSignalEmitter()
+        if Worker._worker_count > 63:
+            Worker._cleanup_done_workers()
+        Worker._active_workers.append(self)
+        Worker._worker_count += 1
 
     def run(self):
         """Run the task and emit the signal at its completion."""
         self.task.run()
+        self.is_done = True
         self.signals.finished.emit()
 
     @property
@@ -860,46 +913,63 @@ class Worker(QRunnable):
         """The `finished` signal as a property."""
         return self.signals.finished
 
+    @staticmethod
+    def _cleanup_done_workers():
+        Worker._active_workers = [w for w in Worker._active_workers \
+                                  if not w.is_done]
+        Worker._worker_count = len(Worker._active_workers)
+
 
 class ActionsManager(object):
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
-        ('snapshot', 'snapshot.svg', '&Capture the current image', Qt.Key_C),
+        ('start', 'start.svg', _('&Start grading'), []),
+        ('stop', 'stop.svg', _('S&top grading'), []),
+        ('back', 'back.svg', _('&Back to session home'), []),
+        ('continue', 'continue.svg', _('Continue to the &next exam'),
+         [Qt.Key_Space]),
+        ('*separator*', None, None, []),
+        ('snapshot', 'snapshot.svg', _('&Capture the current image'),
+         [Qt.Key_C]),
         ('manual_detect', 'manual_detect.svg',
-         '&Manual detection of answer tables', Qt.Key_M),
-        ('edit_id', 'edit_id.svg', '&Edit student id', Qt.Key_I),
-        ('save', 'save.svg', '&Save and capture next exam', Qt.Key_Space),
-        ('discard', 'discard.svg', '&Discard capture', Qt.Key_Backspace),
+         _('&Manual detection of answer tables'), [Qt.Key_M]),
+        ('edit_id', 'edit_id.svg', _('&Edit student id'), [Qt.Key_I]),
+        ('discard', 'discard.svg', _('&Discard exam'),
+         [Qt.Key_Delete, Qt.Key_Backspace]),
         ]
 
     _actions_session_data = [
-        ('new', 'new.svg', '&New session', None),
-        ('open', 'open.svg', '&Open session', None),
-        ('close', 'close.svg', '&Close session', None),
-        ('*separator*', None, None, None),
-        ('exit', 'exit.svg', '&Exit', Qt.Key_Escape),
+        ('new', 'new.svg', _('&New session'), []),
+        ('open', 'open.svg', _('&Open session'), []),
+        ('close', 'close.svg', _('&Close session'), [Qt.Key_Escape]),
+        ('*separator*', None, None, []),
+        ('exit', 'exit.svg', _('&Exit'), []),
+        ]
+
+    _actions_exams_data = [
+        ('search', 'search.svg', _('&Search'), []),
         ]
 
     _actions_tools_data = [
-        ('camera', 'camera.svg', 'Select &camera', None),
+        ('camera', 'camera.svg', _('Select &camera'), []),
         ]
 
     _actions_help_data = [
-        ('help', None, 'Online &Help', None),
-        ('website', None, '&Website', None),
-        ('source', None, '&Source code at GitHub', None),
-        ('about', None, '&About', None),
+        ('help', None, _('Online &Help'), []),
+        ('website', None, _('&Website'), []),
+        ('source', None, _('&Source code at GitHub'), []),
+        ('about', None, _('&About'), []),
         ]
 
     _actions_debug_data = [
-        ('+show_status', None, 'Show &status', None),
-        ('+lines', None, 'Show &lines', None),
-        ('+processed', None, 'Show &processed image', None),
+        ('+show_status', None, _('Show &status'), []),
+        ('+lines', None, _('Show &lines'), []),
+        ('+processed', None, _('Show &processed image'), []),
         ]
 
     _actions_experimental = [
-        ('+auto_change', None, 'Continue on exam &removal', None),
+        ('+auto_change', None, _('Continue on exam &removal'), []),
         ]
 
     def __init__(self, window):
@@ -910,20 +980,25 @@ class ActionsManager(object):
         self.menus = {}
         self.actions_grading = {}
         self.actions_session = {}
+        self.actions_exams = {}
         self.actions_tools = {}
         self.actions_help = {}
-        action_lists = {'session': [], 'grading': [], 'tools': [], 'help': []}
-        for key, icon, text, shortcut in ActionsManager._actions_session_data:
-            self._add_action(key, icon, text, shortcut, self.actions_session,
+        action_lists = {'session': [], 'grading': [], 'exams': [],
+                        'tools': [], 'help': []}
+        for key, icon, text, shortcuts in ActionsManager._actions_session_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_session,
                              action_lists['session'])
-        for key, icon, text, shortcut in ActionsManager._actions_grading_data:
-            self._add_action(key, icon, text, shortcut, self.actions_grading,
+        for key, icon, text, shortcuts in ActionsManager._actions_grading_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_grading,
                              action_lists['grading'])
-        for key, icon, text, shortcut in ActionsManager._actions_tools_data:
-            self._add_action(key, icon, text, shortcut, self.actions_tools,
+        for key, icon, text, shortcuts in ActionsManager._actions_exams_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_exams,
+                             action_lists['exams'])
+        for key, icon, text, shortcuts in ActionsManager._actions_tools_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_tools,
                              action_lists['tools'])
-        for key, icon, text, shortcut in ActionsManager._actions_help_data:
-            self._add_action(key, icon, text, shortcut, self.actions_help,
+        for key, icon, text, shortcuts in ActionsManager._actions_help_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_help,
                              action_lists['help'])
         self._populate_menubar(action_lists)
         self._populate_toolbar(action_lists)
@@ -931,40 +1006,91 @@ class ActionsManager(object):
         self._add_experimental_actions()
 
     def set_search_mode(self):
+        self.actions_grading['start'].setEnabled(False)
+        self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(True)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
-        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(False)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
-    def set_review_mode(self):
+    def set_review_from_grading_mode(self):
+        self.actions_grading['start'].setEnabled(False)
+        self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(False)
         self.actions_grading['edit_id'].setEnabled(True)
-        self.actions_grading['save'].setEnabled(True)
+        self.actions_grading['continue'].setEnabled(True)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
+
+    def set_review_from_session_mode(self):
+        self.actions_grading['start'].setEnabled(True)
+        self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['back'].setEnabled(True)
+        self.actions_grading['snapshot'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(False)
+        self.actions_grading['edit_id'].setEnabled(True)
+        self.actions_grading['continue'].setEnabled(True)
+        self.actions_grading['discard'].setEnabled(True)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(True)
+        self.actions_exams['search'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
+
+    def set_session_mode(self):
+        self.actions_grading['start'].setEnabled(True)
+        self.actions_grading['stop'].setEnabled(False)
+        self.actions_grading['back'].setEnabled(False)
+        self.actions_grading['snapshot'].setEnabled(False)
+        self.actions_grading['manual_detect'].setEnabled(False)
+        self.actions_grading['edit_id'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
+        self.actions_grading['discard'].setEnabled(False)
+        self.actions_session['new'].setEnabled(False)
+        self.actions_session['open'].setEnabled(False)
+        self.actions_session['close'].setEnabled(True)
+        self.actions_session['exit'].setEnabled(True)
+        self.actions_tools['camera'].setEnabled(True)
+        self.actions_exams['search'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_manual_detect_mode(self):
+        self.actions_grading['start'].setEnabled(False)
+        self.actions_grading['stop'].setEnabled(True)
+        self.actions_grading['back'].setEnabled(False)
         self.actions_grading['snapshot'].setEnabled(False)
         self.actions_grading['manual_detect'].setEnabled(True)
         self.actions_grading['edit_id'].setEnabled(False)
-        self.actions_grading['save'].setEnabled(False)
+        self.actions_grading['continue'].setEnabled(False)
         self.actions_grading['discard'].setEnabled(True)
         self.actions_session['new'].setEnabled(False)
         self.actions_session['open'].setEnabled(False)
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def set_no_session_mode(self):
         for key in self.actions_grading:
@@ -974,6 +1100,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(False)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
+        for key in self.actions_exams:
+            self.actions_exams[key].setEnabled(False)
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
@@ -1010,9 +1138,9 @@ class ActionsManager(object):
             return self.actions_help
         assert False, 'Undefined action group key: {0}.format(key)'
 
-    def _add_action(self, action_name, icon_file, text, shortcut,
+    def _add_action(self, action_name, icon_file, text, shortcuts,
                     group, actions_list):
-        action = self._create_action(action_name, icon_file, text, shortcut)
+        action = self._create_action(action_name, icon_file, text, shortcuts)
         if action_name.startswith('+'):
             if action_name.startswith('++'):
                 action_name = action_name[2:]
@@ -1022,7 +1150,7 @@ class ActionsManager(object):
             group[action_name] = action
         actions_list.append(action)
 
-    def _create_action(self, action_name, icon_file, text, shortcut):
+    def _create_action(self, action_name, icon_file, text, shortcuts):
         if action_name == '*separator*':
             action = QAction(self.window)
             action.setSeparator(True)
@@ -1032,8 +1160,9 @@ class ActionsManager(object):
                                  text, self.window)
             else:
                 action = QAction(text, self.window)
-        if shortcut is not None:
-            action.setShortcut(QKeySequence(shortcut))
+        if shortcuts:
+            sequences = [QKeySequence(s) for s in shortcuts]
+            action.setShortcuts(sequences)
         if action_name.startswith('+'):
             action.setCheckable(True)
             if action_name.startswith('++'):
@@ -1041,18 +1170,22 @@ class ActionsManager(object):
         return action
 
     def _populate_menubar(self, action_lists):
-        self.menus['session'] = QMenu('&Session', self.menubar)
-        self.menus['grading'] = QMenu('&Grading', self.menubar)
-        self.menus['tools'] = QMenu('&Tools', self.menubar)
-        self.menus['help'] = QMenu('&Help', self.menubar)
+        self.menus['session'] = QMenu(_('&Session'), self.menubar)
+        self.menus['grading'] = QMenu(_('&Grading'), self.menubar)
+        self.menus['exams'] = QMenu(_('&Exams'), self.menubar)
+        self.menus['tools'] = QMenu(_('&Tools'), self.menubar)
+        self.menus['help'] = QMenu(_('&Help'), self.menubar)
         self.menubar.addMenu(self.menus['session'])
         self.menubar.addMenu(self.menus['grading'])
+        self.menubar.addMenu(self.menus['exams'])
         self.menubar.addMenu(self.menus['tools'])
         self.menubar.addMenu(self.menus['help'])
         for action in action_lists['session']:
             self.menus['session'].addAction(action)
         for action in action_lists['grading']:
             self.menus['grading'].addAction(action)
+        for action in action_lists['exams']:
+            self.menus['exams'].addAction(action)
         for action in action_lists['tools']:
             self.menus['tools'].addAction(action)
         for action in action_lists['help']:
@@ -1062,26 +1195,28 @@ class ActionsManager(object):
         for action in action_lists['grading']:
             self.toolbar.addAction(action)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.actions_exams['search'])
+        self.toolbar.addSeparator()
         self.toolbar.addAction(self.actions_session['new'])
         self.toolbar.addAction(self.actions_session['open'])
         self.toolbar.addAction(self.actions_session['close'])
 
     def _add_debug_actions(self):
         actions_list = []
-        for key, icon, text, shortcut in ActionsManager._actions_debug_data:
-            self._add_action(key, icon, text, shortcut, self.actions_tools,
+        for key, icon, text, shortcuts in ActionsManager._actions_debug_data:
+            self._add_action(key, icon, text, shortcuts, self.actions_tools,
                              actions_list)
-        menu = QMenu('&Debug options', self.menus['tools'])
+        menu = QMenu(_('&Debug options'), self.menus['tools'])
         for action in actions_list:
             menu.addAction(action)
         self.menus['tools'].addMenu(menu)
 
     def _add_experimental_actions(self):
         actions_list = []
-        for key, icon, text, shortcut in ActionsManager._actions_experimental:
-            self._add_action(key, icon, text, shortcut, self.actions_tools,
+        for key, icon, text, shortcuts in ActionsManager._actions_experimental:
+            self._add_action(key, icon, text, shortcuts, self.actions_tools,
                              actions_list)
-        menu = QMenu('&Experimental', self.menus['tools'])
+        menu = QMenu(_('&Experimental'), self.menus['tools'])
         for action in actions_list:
             menu.addAction(action)
         self.menus['tools'].addMenu(menu)
@@ -1162,32 +1297,38 @@ class CenterView(QWidget):
         super(CenterView, self).__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
+        self.center = QStackedLayout()
         self.camview = CamView((640, 480), self, draw_logo=True)
         self.label_up = QLabel()
         self.label_down = QLabel()
-        layout.addWidget(self.camview)
+        self.center.addWidget(self.camview)
+        layout.addLayout(self.center)
         layout.addWidget(self.label_up)
         layout.addWidget(self.label_down)
+        self.adjustSize()
+        self.setFixedSize(self.sizeHint())
 
     def update_status(self, score, model=None, seq_num=None, survey_mode=False):
         parts = []
         if score is not None:
             if not survey_mode:
-                correct, incorrect, blank, indet, score, max_score = score
                 parts.append(CenterView.img_correct)
-                parts.append(str(correct) + '  ')
+                parts.append(str(score.correct) + '  ')
                 parts.append(CenterView.img_incorrect)
-                parts.append(str(incorrect) + '  ')
+                parts.append(str(score.incorrect) + '  ')
                 parts.append(CenterView.img_unanswered)
-                parts.append(str(blank) + '  ')
-                if score is not None and max_score is not None:
-                    parts.append('Score: %.2f / %.2f  '%(score, max_score))
+                parts.append(str(score.blank) + '  ')
+                if score.score is not None and score.max_score is not None:
+                    parts.append(_('Score: {0:.2f} / {1:.2f}')\
+                                 .format(score.score, score.max_score))
+                    parts.append('  ')
             else:
-                parts.append('[Survey mode on]  ')
+                parts.append(_('[Survey mode on]'))
+                parts.append('  ')
         if model is not None:
-            parts.append('Model: ' + model + '  ')
+            parts.append(_('Model:') + ' ' + model + '  ')
         if seq_num is not None:
-            parts.append('Num.: ' + str(seq_num) + '  ')
+            parts.append(_('Num.:') + ' ' + str(seq_num) + '  ')
         self.label_down.setText(('<span style="white-space: pre">'
                                  + ' '.join(parts) + '</span>'))
 
@@ -1233,12 +1374,20 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.setSizePolicy(policy)
+        self.setStatusBar(widgets.StatusBar(self))
         self.center_view = CenterView()
-        self.setCentralWidget(self.center_view)
+        self.exams_view = examsview.ThumbnailsView(self)
+#        self.center_layout = QStackedLayout()
+        self.center_layout = QHBoxLayout()
+        self.center_layout.addWidget(self.center_view)
+        self.center_layout.addWidget(self.exams_view)
+        center_container = QWidget(self)
+        center_container.setLayout(self.center_layout)
+        self.setCentralWidget(center_container)
         self.setWindowTitle("Eyegrade")
         self.setWindowIcon(QIcon(resource_path('logo.svg')))
         self.adjustSize()
-        self.setFixedSize(self.sizeHint())
+#        self.setFixedSize(self.sizeHint())
         self.digit_key_listener = None
         self.exit_listener = False
 
@@ -1255,6 +1404,9 @@ class MainWindow(QMainWindow):
                 assert False, 'Undefined listener key: {0}'.format(key)
         elif key[0] == 'exit':
             self.exit_listener = listener
+        elif key[0] == 'exam':
+            if key[1] == 'selected':
+                self.exams_view.selection_changed.connect(listener)
         else:
             assert False, 'Undefined listener key: {0}'.format(key)
 
@@ -1267,10 +1419,16 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
+    def clear_exams_view(self):
+        self.exams_view.clear_exams()
+
+    def update_status_bar(self, text):
+        self.statusBar().set_message(text)
+
 
 class Interface(object):
-    def __init__(self, id_enabled, id_list_enabled, argv):
-        self.app = QApplication(argv)
+    def __init__(self, app, id_enabled, id_list_enabled, argv):
+        self.app = app
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
         self.last_score = None
@@ -1284,7 +1442,6 @@ class Interface(object):
                                self.window.close)
         self.register_listener(('actions', 'help', 'about'),
                                self.show_about_dialog)
-        self._workaround_threadpool_init()
 
     def run(self):
         return self.app.exec_()
@@ -1295,18 +1452,57 @@ class Interface(object):
 
     def activate_search_mode(self):
         self.actions_manager.set_search_mode()
+        self.update_text('', '')
+        self.update_status_bar(_('Grading - Scanning exam'))
 
-    def activate_review_mode(self):
-        self.actions_manager.set_review_mode()
+    def activate_review_mode(self, from_grading):
+        if from_grading:
+            self.actions_manager.set_review_from_grading_mode()
+            self.update_status_bar(_('Grading - Reviewing exam'))
+        else:
+            self.actions_manager.set_review_from_session_mode()
+            self.update_status_bar(_('Session open - Reviewing exam'))
 
     def activate_manual_detect_mode(self):
         self.actions_manager.set_manual_detect_mode()
+        self.update_text(_('Click on the outer corners of the answer tables'),
+                         '')
+        self.update_status_bar(_('Grading - Manual detection mode'))
+
+    def activate_session_mode(self):
+        self.actions_manager.set_session_mode()
+        self.display_wait_image()
+        self.update_text('', '')
+        self.update_status_bar(_('Session open'))
 
     def activate_no_session_mode(self):
         self.actions_manager.set_no_session_mode()
         self.display_wait_image()
-        self.update_text_up('')
-        self.show_version()
+        self.update_text('', '')
+        self.update_status_bar(_('No session: open or create a session '
+                                 'to start'))
+        self.window.clear_exams_view()
+
+    def add_exams(self, exams):
+        self.window.exams_view.add_exams(exams)
+
+    def add_exam(self, exam):
+        self.window.exams_view.add_exam(exam)
+
+    def update_exam(self, exam):
+        self.window.exams_view.update_exam(exam)
+
+    def remove_exam(self, exam):
+        self.window.exams_view.remove_exam(exam)
+
+    def selected_exam(self):
+        return self.window.exams_view.selected_exam()
+
+    def select_next_exam(self):
+        return self.window.exams_view.select_next_exam()
+
+    def clear_selected_exam(self):
+        return self.window.exams_view.clear_selected_exam()
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
@@ -1330,6 +1526,9 @@ class Interface(object):
         if text is None:
             text = ''
         self.window.center_view.update_text_down(text)
+
+    def update_status_bar(self, text):
+        self.window.update_status_bar(text)
 
     def update_text(self, text_up, text_down):
         self.window.center_view.update_text_up(text_up)
@@ -1434,8 +1633,9 @@ class Interface(object):
 
         """
         filename = QFileDialog.getOpenFileName(self.window,
-                                               'Select the session file',
-                                               '', _filter_exam_config)
+                                               _('Select the session file'),
+                                               '', _filter_session_db, None,
+                                               QFileDialog.DontUseNativeDialog)
         return str(filename) if filename else None
 
     def dialog_camera_selection(self, capture_context):
@@ -1463,24 +1663,19 @@ class Interface(object):
 
         """
         if not is_question:
-            result = QMessageBox.warning(self.window, 'Warning', message)
+            result = QMessageBox.warning(self.window, _('Warning'), message)
             if result == QMessageBox.Ok:
                 return True
             else:
                 return False
         else:
-            result = QMessageBox.warning(self.window, 'Warning', message,
+            result = QMessageBox.warning(self.window, _('Warning'), message,
                                          QMessageBox.Yes | QMessageBox.No,
                                          QMessageBox.No)
             if result == QMessageBox.Yes:
                 return True
             else:
                 return False
-
-    def show_version(self):
-        version_line = '{0} {1} - <a href="{2}">{2}</a>'\
-               .format(program_name, version, web_location)
-        self.update_text_down(version_line)
 
     def run_worker(self, task, callback):
         """Runs a task in another thread.
@@ -1489,30 +1684,8 @@ class Interface(object):
         method. Completion is notified to the given `callback` function.
 
         """
-        if not self.workaround_threadpool:
-            worker = Worker(task)
-            worker.finished.connect(callback)
-            QThreadPool.globalInstance().start(worker)
-        else:
-            task.run()
-            callback()
-
-    def _workaround_threadpool_init(self):
-        """This is a workaround for some versions of PyQt.
-
-        In some versions, it seems that QThreadPool does not start the task.
-        This function tries to run a thread. If is runs, the workaround
-        mechanism gets disabled.
-
-        """
-        self.workaround_threadpool = True
-        class _WorkaroundThreadpool(QRunnable):
-            def __init__(self, gui):
-                super(_WorkaroundThreadpool, self).__init__()
-                self.gui = gui
-            def run(self):
-                self.gui.workaround_threadpool = False
-        worker = _WorkaroundThreadpool(self)
+        worker = Worker(task)
+        worker.finished.connect(callback)
         QThreadPool.globalInstance().start(worker)
 
     def show_about_dialog(self):

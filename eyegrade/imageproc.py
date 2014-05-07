@@ -16,6 +16,8 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import division
+
 import math
 import copy
 import sys
@@ -23,6 +25,7 @@ import sys
 # Local imports
 from geometry import *
 import ocr
+import capture
 
 # Import the cv module. If new style bindings not found, use the old ones:
 try:
@@ -81,7 +84,7 @@ param_error_image_pattern = 'error-%s.png'
 font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 
-class ExamCapture(object):
+class ExamDetector(object):
 
     default_options = {
         'infobits': True,
@@ -103,13 +106,13 @@ class ExamCapture(object):
     def get_default_options(cls):
         return copy.copy(cls.default_options)
 
-    def __init__(self, boxes_dim, context, options=None):
-        if options is not None:
-            self.options = options
-        else:
-            self.options = self.__class__.get_default_options()
+    def __init__(self, dimensions, context, options, image_raw=None):
+        self.options = options
         self.context = context
-        if not self.options['capture-from-file']:
+        if image_raw is not None:
+            self.image_raw = image_raw
+            self.image_proc = pre_process(self.image_raw)
+        elif not self.options['capture-from-file']:
             self.image_raw = self.context.capture(clone=True)
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-raw-file'] is not None:
@@ -123,133 +126,142 @@ class ExamCapture(object):
             self.image_proc = self.options['capture-proc-ipl']
         else:
             raise Exception('Wrong capture options')
-        if not self.options['show-image-proc']:
-            self.image_drawn = cv.CloneImage(self.image_raw)
-        else:
-            self.image_drawn = gray_ipl_to_rgb(self.image_proc)
-        self.left_to_right_numbering = self.options['left-to-right-numbering']
-        self.height = self.image_raw.height
-        self.width = self.image_raw.width
-        self.boxes_dim = boxes_dim
-        self.num_questions = sum([b[1] for b in boxes_dim])
-        self.decisions = [-1] * self.num_questions
-        self.corner_matrixes = None
-        self.bits = None
-        self.success = False
-        self.solutions = None
-        self.centers = []
-        self.diagonals = []
-        self.id = None
-        self.id_ocr_original = None
-        self.id_scores = None
-        self.id_corners = None
-        self.status = {'overall': False,
-                       'lines': False,
+        self.dimensions = dimensions
+        self.status = {'lines': False,
                        'boxes': False,
                        'cells': False,
                        'infobits': False,
                        'id-box-hlines': False,
                        'id-box': False}
+        if self.options['show-image-proc']:
+            self.image_to_show = gray_ipl_to_rgb(self.image_proc)
+        elif self.options['show-lines']:
+            self.image_to_show = cv.CloneImage(self.image_raw)
+        else:
+            self.image_to_show = self.image_raw
+        self.decisions = None
+        self.capture = None
 
     def detect_safe(self):
         try:
-            self.detect()
+            return self.detect()
         except Exception:
             self.success = False
             self.status['cells'] = False
             self.context.notify_failure()
             if self.options['error-logging']:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                self.write_error_trace(exc_type, exc_value, exc_traceback)
+                self._write_error_trace(exc_type, exc_value, exc_traceback)
             # else... silence the exception, and try with the next capture
 
     def detect(self):
+        answers = None
+        detected_id = None
+        id_scores = None
+        bits = None
+        answer_cells = None
+        id_cells = None
+        id_hlines = None
+        success = False
         axes = None
         lines = detect_lines(self.image_proc,
                              self.context.get_hough_threshold())
         if len(lines) >= 2:
             self.status['lines'] = True
-            axes = detect_boxes(lines, self.boxes_dim)
-#        for line in lines:
-#            draw_line(self.image_drawn, line, (0, 0, 255))
+            axes = detect_boxes(lines, self.dimensions)
         if axes is None:
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
-            axes = filter_axes(axes, self.boxes_dim, self.image_raw.width,
+            axes = filter_axes(axes, self.dimensions, self.image_raw.width,
                                self.image_raw.height, self.options['read-id'])
-            self.corner_matrixes = cell_corners(axes[1][1], axes[0][1],
-                                                self.image_raw.width,
-                                                self.image_raw.height,
-                                                self.boxes_dim)
-            if len(self.corner_matrixes) > 0:
+            corner_matrixes = cell_corners(axes[1][1], axes[0][1],
+                                           self.image_raw.width,
+                                           self.image_raw.height,
+                                           self.dimensions)
+            if len(corner_matrixes) > 0:
                 self.status['cells'] = True
-            if self.options['show-lines']:
-                for line in axes[0][1]:
-                    draw_line(self.image_drawn, line, (255, 0, 0))
-                for line in axes[1][1]:
-                    draw_line(self.image_drawn, line, (255, 0, 255))
-                self.draw_cell_corners()
-            if len(self.corner_matrixes) > 0:
-#                draw_cell_crosses(self.image_drawn, self.corner_matrixes)
-                self.decisions = decide_cells(self.image_proc,
-                                              self.corner_matrixes)
+            if len(corner_matrixes) > 0:
+                answer_cells = self._answer_cells_geometry(corner_matrixes)
+                answers = decide_cells(self.image_proc, answer_cells)
                 if self.options['infobits']:
-                    self.bits = read_infobits(self.image_proc,
-                                              self.corner_matrixes)
-                    if self.bits is not None:
+                    bits = read_infobits(self.image_proc, corner_matrixes)
+                    if bits is not None:
                         self.status['infobits'] = True
-                        self.success = True
+                        success = True
                     else:
-                        self.success = False
+                        success = False
                 else:
-                    self.success = True
-                if self.success and self.options['read-id']:
-                    self.id_hlines, self.id_corners = \
+                    success = True
+                if success and self.options['read-id']:
+                    id_hlines, id_cells = \
                         id_boxes_geometry(self.image_proc,
                                           self.options['id-num-digits'],
-                                          axes[1][1], self.boxes_dim)
-                    if self.id_hlines:
+                                          axes[1][1], self.dimensions)
+                    if id_hlines:
                         self.status['id-box-hlines'] = True
-                        if self.options['show-lines']:
-                            for line in self.id_hlines:
-                                draw_line(self.image_drawn, line, (255, 255, 0))
-                    if self.id_corners == None:
-                        self.success = False
+                    if not id_cells:
+                        success = False
                     else:
                         self.status['id-box'] = True
-                        self.detect_id()
-                        if self.options['show-lines']:
-                            for c in self.id_corners[0]:
-                                draw_point(self.image_drawn, c)
-                            for c in self.id_corners[1]:
-                                draw_point(self.image_drawn, c)
-            if self.success:
-                self.context.notify_success()
-            else:
-                self.context.notify_failure()
-        if self.status['cells']:
-            self.compute_cells_geometry()
-            self.status['overall'] = True
-            if self.left_to_right_numbering:
-                self._set_left_to_right()
+                        detected_id, id_scores = self._detect_id(id_cells)
+                else:
+                    id_cells = []
+        if success:
+            self.context.notify_success()
+        else:
+            self.context.notify_failure()
+        # Draw debug information on the capture
+        if self.options['show-lines']:
+            if self.status['cells']:
+                for line in axes[0][1]:
+                    draw_line(self.image_to_show, line, (255, 0, 0))
+                for line in axes[1][1]:
+                    draw_line(self.image_to_show, line, (255, 0, 255))
+                self._draw_cell_corners(corner_matrixes)
+            if id_hlines:
+                for line in id_hlines:
+                    draw_line(self.image_to_show, line, (255, 255, 0))
+            if id_cells:
+                for cell in id_cells:
+                    for corner in cell.corners():
+                        draw_point(self.image_to_show, corner)
+        if self.options['show-status']:
+            self._draw_status_flags()
+        self.decisions = capture.ExamDecisions(success, answers, detected_id,
+                                               id_scores, infobits=bits)
+        self.capture = capture.ExamCapture(self.image_to_show, answer_cells,
+                                           id_cells, self._compute_progress())
+        self.success = success
+        return success
 
-    def detect_manual(self, corner_matrixes):
+    def detect_manual(self, manual_points):
         """Called when cell corners are obtained from manual detection."""
-        self.corner_matrixes = corner_matrixes
-        self.status['cells'] = True
-        self.decisions = decide_cells(self.image_proc,
-                                      self.corner_matrixes)
-        if self.options['infobits']:
-            self.bits = read_infobits(self.image_proc,
-                                      self.corner_matrixes)
-            if self.bits is not None:
-                self.status['infobits'] = True
-        self.compute_cells_geometry()
-        self.status['overall'] = True
-        if self.left_to_right_numbering:
-            self._set_left_to_right()
-        self.draw_cell_corners()
+        bits = None
+        success = False
+        answers = None
+        answer_cells = None
+        corner_matrixes = process_box_corners(manual_points, self.dimensions)
+        if corner_matrixes != []:
+            self.status['cells'] = True
+            answer_cells = self._answer_cells_geometry(corner_matrixes)
+            answers = decide_cells(self.image_proc, answer_cells)
+            if self.options['infobits']:
+                bits = read_infobits(self.image_proc, corner_matrixes)
+                if bits is not None:
+                    self.status['infobits'] = True
+                    success = True
+            else:
+                success = True
+        id_cells = None
+        detected_id = None
+        id_scores = None
+        self.decisions = capture.ExamDecisions(success, answers, detected_id,
+                                               id_scores, infobits=bits)
+        self.capture = capture.ExamCapture(self.image_to_show, answer_cells,
+                                           id_cells, 1.0)
+        self.success = success
+        return success
 
     def exam_detected(self):
         """Checks if the image has a probable exam.
@@ -263,11 +275,11 @@ class ExamCapture(object):
         lines = detect_lines(self.image_proc,
                              self.context.get_hough_threshold())
         if len(lines) >= 2:
-            axes = detect_boxes(lines, self.boxes_dim)
+            axes = detect_boxes(lines, self.dimensions)
             if axes is not None:
                 self.exam_detected = True
 
-    def write_error_trace(self, exc_type, exc_value, exc_traceback):
+    def _write_error_trace(self, exc_type, exc_value, exc_traceback):
         import datetime
         import re
         import traceback
@@ -275,7 +287,8 @@ class ExamCapture(object):
         if not self.options['capture-from-file']:
             print 'Exception catched! Storing trace into a log file...'
             date = str(datetime.datetime.now())
-            logname = os.path.join(self.options['logging-dir'], param_error_log)
+            logname = os.path.join(self.options['logging-dir'],
+                                   param_error_log)
             file_ = open(logname, 'a')
             file_.write('-' * 60 + '\n')
             file_.write(date + '\n')
@@ -290,166 +303,39 @@ class ExamCapture(object):
         else:
             traceback.print_exception(exc_type, exc_value, exc_traceback)
 
-    def draw_status(self):
-        self.draw_status_bar()
-        if self.options['show-status']:
-            self.draw_status_flags()
-            self.draw_hough_threshold()
-
-    def draw_corner(self, point):
-        draw_box_corner(self.image_drawn, point)
-
-    def draw_answers(self, frozen, solutions, model,
-                     correct, good, bad, undet, im_id = None):
-        base = 0
-        color_good = (0, 210, 0)
-        color_bad = (0, 0, 255)
-        color_dot = (255, 0, 0)
-        color_blank = (192, 0, 192)
-        if self.status['cells']:
-            for corners in self.corner_matrixes:
-                for i in range(0, len(corners) - 1):
-                    d = self.decisions[base + i]
-                    if d > 0:
-                        if correct is not None:
-                            if correct[base + i]:
-                                color = color_good
-                            elif solutions:
-                                color = color_bad
-                            else:
-                                color = color_dot
-                        draw_cell_highlight(self.image_drawn,
-                                            self.centers[base + i][d - 1],
-                                            self.diagonals[base + i][d - 1],
-                                            color)
-                    if solutions and not correct[base + i]:
-                        color = color_blank if d == 0 else color_dot
-                        radius = 5 if d == 0 else 3
-                        ans = solutions[base + i]
-                        draw_cell_center(self.image_drawn,
-                                         self.centers[base + i][ans - 1],
-                                         color, radius)
-                base += len(corners) - 1
-        if not frozen:
-            self.draw_status_bar()
-        if self.options['show-status']:
-            self.draw_status_flags()
-            self.draw_hough_threshold()
-
-    def draw_cell_corners(self):
-        for corners in self.corner_matrixes:
-            for h in corners:
-                for c in h:
-                    draw_point(self.image_drawn, c)
-
-    def clean_drawn_image(self):
-        self.image_drawn = cv.CloneImage(self.image_raw)
-
-    def compute_cells_geometry(self):
-        self.centers = []
-        self.diagonals = []
-        for corners in self.corner_matrixes:
+    def _answer_cells_geometry(self, corner_matrixes):
+        cells = []
+        for corners in corner_matrixes:
             for i in range(0, len(corners) - 1):
-                row_centers = []
-                row_diagonals = []
+                row = []
                 for j in range(0, len(corners[0]) - 1):
-                    row_centers.append(\
-                        rect_center(corners[i][j], corners[i][j + 1],
-                                    corners[i + 1][j], corners[i + 1][j + 1]))
-                    row_diagonals.append(\
-                        distance(corners[i][j], corners[i + 1][j + 1]))
-                self.centers.append(row_centers)
-                self.diagonals.append(row_diagonals)
+                    cell = capture.CellGeometry(corners[i][j],
+                                                corners[i][j + 1],
+                                                corners[i + 1][j],
+                                                corners[i + 1][j + 1],
+                                                None, None)
+                    row.append(cell)
+                cells.append(row)
+        if self.options['left-to-right-numbering']:
+            cells = self._set_left_to_right(answer_cells)
+        return cells
 
-    def cell_clicked(self, point):
-        """Determines the cell to which the given point corresponds.
-
-        Returns (row, column) or None if no cell corresponds.
-
-        """
-        min_dst = None
-        clicked_row = None
-        clicked_col = None
-        for i, row in enumerate(self.centers):
-            for j, center in enumerate(row):
-                dst = distance(point, center)
-                if min_dst is None or dst < min_dst:
-                    min_dst = dst
-                    clicked_row = i
-                    clicked_col = j
-        if (min_dst is not None and
-            min_dst <= self.diagonals[clicked_row][clicked_col] / 2):
-            return (clicked_row, clicked_col + 1)
-        else:
-            return None
-
-    def _set_left_to_right(self):
-        """Sets left to right order in decisions and cell geometry."""
-        centers2 = []
-        diagonals2 = []
-        decisions2 = []
-        num_rows = max([len(c) for c in self.corner_matrixes]) - 1
+    def _set_left_to_right(self, answer_cells, corner_matrixes):
+        """Sets left to right order in cell geometry."""
+        answer_cells2 = []
+        num_rows = max([len(c) for c in corner_matrixes]) - 1
         heads = [1]
-        for corners in self.corner_matrixes[:-1]:
+        for corners in corner_matrixes[:-1]:
             heads.append(heads[-1] + len(corners) - 1)
         heads.append(len(self.centers) + 1)
         for row in range(0, num_rows):
-            for column in range(0, len(self.corner_matrixes)):
+            for column in range(0, len(corner_matrixes)):
                 pos = heads[column] + row
                 if pos < heads[column + 1]:
-                    centers2.append(self.centers[pos - 1])
-                    diagonals2.append(self.diagonals[pos - 1])
-                    decisions2.append(self.decisions[pos - 1])
-        self.centers = centers2
-        self.diagonals = diagonals2
-        self.decisions = decisions2
+                    answer_cells2.append(answer_cells[pos - 1])
+        return answer_cells2
 
-    def detect_id(self):
-        if self.id_corners is None:
-            self.id = None
-        corners_up, corners_down = self.id_corners
-        digits = []
-        self.id_scores = []
-        for i in range(0, len(corners_up) - 1):
-            corners = (corners_up[i], corners_up[i + 1],
-                       corners_down[i], corners_down[i + 1])
-            digit, scores = (ocr.digit_ocr(self.image_proc, corners,
-                                           self.options['debug-ocr'],
-                                           self.image_drawn))
-            digits.append(digit)
-            self.id_scores.append(scores)
-#        print digits
-        self.id = "".join([str(digit) if digit is not None else '0' \
-                               for digit in digits])
-        self.id_ocr_original = "".join([str(digit) \
-                                            if digit is not None else '.' \
-                                            for digit in digits])
-
-    def draw_status_flags(self):
-        flags = []
-        flags.append(('L', self.status['lines']))
-        flags.append(('B', self.status['boxes']))
-        flags.append(('C', self.status['cells']))
-        flags.append(('M', self.status['infobits']))
-        flags.append(('H', self.status['id-box-hlines']))
-        flags.append(('N', self.status['id-box']))
-        color_good = (255, 0, 0)
-        color_bad = (0, 0, 255)
-        y = 75
-        width = 24
-        x = self.image_drawn.width - 5 - len(flags) * width
-        for letter, value in flags:
-            color = color_good if value else color_bad
-            draw_text(self.image_drawn, letter, color, (x, y))
-            x += width
-
-    def draw_hough_threshold(self):
-        pos = (self.image_drawn.width - 77, 110)
-        draw_text(self.image_drawn, str(self.context.get_hough_threshold()),
-                  position=pos)
-
-    def draw_status_bar(self):
-        color = (255, 0, 0)
+    def _compute_progress(self):
         progress = 0
         if self.status['lines']:
             progress += 1
@@ -468,19 +354,55 @@ class ExamCapture(object):
             max_progress -= 2
         if not self.options['infobits']:
             max_progress -= 1
-        done_ratio = float(progress) / max_progress
-        x0 = self.image_drawn.width - 60
-        y0 = 10
-        width = 50
-        height = 20
-        point0 = (x0, y0)
-        point1 = (x0 + width, y0 + height)
-        cv.Rectangle(self.image_drawn, point0, point1, color)
-        point1 = round_point((x0 + done_ratio * width, y0 + height))
-        cv.Rectangle(self.image_drawn, point0, point1, color, cv.CV_FILLED)
+        return progress / max_progress
+
+    def _detect_id(self, id_cells):
+        if id_cells is None:
+            detected_id = None
+        digits = []
+        id_scores = []
+        for cell in id_cells:
+            corners = (cell.plu, cell.pru, cell.pld, cell.prd)
+            digit, scores = (ocr.digit_ocr(self.image_proc, corners,
+                                           self.options['debug-ocr'],
+                                           self.image_to_show))
+            digits.append(digit)
+            id_scores.append(scores)
+        detected_id = "".join([str(digit) if digit is not None else '0' \
+                               for digit in digits])
+        return detected_id, id_scores
+
+    def _draw_status_flags(self):
+        flags = []
+        flags.append(('L', self.status['lines']))
+        flags.append(('B', self.status['boxes']))
+        flags.append(('C', self.status['cells']))
+        flags.append(('M', self.status['infobits']))
+        flags.append(('H', self.status['id-box-hlines']))
+        flags.append(('N', self.status['id-box']))
+        color_good = (255, 0, 0)
+        color_bad = (0, 0, 255)
+        y = 75
+        width = 24
+        x = self.image_to_show.width - 5 - len(flags) * width
+        for letter, value in flags:
+            color = color_good if value else color_bad
+            draw_text(self.image_to_show, letter, color, (x, y))
+            x += width
+
+    def _draw_hough_threshold(self):
+        pos = (self.image_to_show.width - 77, 110)
+        draw_text(self.image_to_show, str(self.context.get_hough_threshold()),
+                  position=pos)
+
+    def _draw_cell_corners(self, corner_matrixes):
+        for corners in corner_matrixes:
+            for h in corners:
+                for c in h:
+                    draw_point(self.image_to_show, c)
 
 
-class ExamCaptureContext:
+class ExamDetectorContext:
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 
@@ -604,7 +526,7 @@ class ExamCaptureContext:
             # The image will be cloned when resizing
             clone = False
         if self.camera is not None:
-            image = capture(self.camera, clone=clone)
+            image = capture_image(self.camera, clone=clone)
             if resize is not None:
                 image = resize_image(image, resize)
         return image
@@ -631,7 +553,7 @@ class ExamCaptureContext:
 def init_camera(input_dev = -1):
     return cv.CaptureFromCAM(input_dev)
 
-def capture(camera, clone = False):
+def capture_image(camera, clone = False):
     image = cv.QueryFrame(camera)
     if clone:
         return cv.CloneImage(image)
@@ -694,50 +616,8 @@ def draw_cross_mask(image, plu, pru, pld, prd, color, thickness):
     cv.Line(image, plu, prd, color, int(thickness))
     cv.Line(image, pld, pru, color, int(thickness))
 
-def draw_cell_highlight(image, center, diagonal, color = (255, 0, 0)):
-    radius = int(round(diagonal / 3.5))
-    cv.Circle(image, center, radius, color, 2)
-
-def draw_cell_center(image, center, color=(255, 0, 0), radius=4):
-    cv.Circle(image, center, radius, color, cv.CV_FILLED)
-
-def draw_box_corner(image, center, color=(255, 0, 0), radius=4, thickness=1):
-    cv.Circle(image, center, radius, color, thickness)
-
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
     cv.PutText(image, text, position, font, color)
-
-def draw_success_indicator(image, success):
-    position = (image.width - 15, 15)
-    color = (0, 192, 0) if success else (0, 0, 255)
-    cv.Circle(image, position, 10, color, cv.CV_FILLED)
-
-def draw_cell_crosses(image, corner_matrixes):
-    for corners in corner_matrixes:
-        for i in range(0, len(corners) - 1):
-            for j in range(0, len(corners[0]) - 1):
-                thickness = (distance(corners[i][j], corners[i][j + 1])
-                             * param_cross_mask_thickness)
-                plu, prd = closer_points_rel(corners[i][j],
-                                             corners[i + 1][j + 1],
-                                             param_cross_mask_margin,
-                                             thickness / 2)
-                pru, pld = closer_points_rel(corners[i][j + 1],
-                                             corners[i + 1][j],
-                                             param_cross_mask_margin,
-                                             thickness / 2)
-                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255),
-                                thickness)
-                plu, prd = closer_points_rel(corners[i][j],
-                                             corners[i + 1][j + 1],
-                                             param_cross_mask_margin_2,
-                                             thickness / 4)
-                pru, pld = closer_points_rel(corners[i][j + 1],
-                                             corners[i + 1][j],
-                                             param_cross_mask_margin_2,
-                                             thickness / 4)
-                draw_cross_mask(image, plu, pru, pld, prd, (0, 0, 255),
-                                thickness / 2)
 
 def detect_lines(image, hough_threshold):
     st = cv.CreateMemStorage()
@@ -774,9 +654,9 @@ def detect_directions(lines):
         axes = axes[-1:] + axes[0:-1]
     return axes
 
-def detect_boxes(lines, boxes_dim):
-    v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
-    h_expected = 1 + max([box[1] for box in boxes_dim])
+def detect_boxes(lines, dimensions):
+    v_expected = len(dimensions) + sum([box[0] for box in dimensions])
+    h_expected = 1 + max([box[1] for box in dimensions])
     axes = detect_directions(lines)
     axes = [axis for axis in axes \
                 if len(axis[1]) >= min(v_expected, h_expected)]
@@ -801,11 +681,11 @@ def detect_boxes(lines, boxes_dim):
     else:
         return None
 
-def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
+def filter_axes(axes, dimensions, image_width, image_height, read_id):
     """Filters out lines near borders and lines too close to other lines.
 
        - axes: [(vlines_angle, vlines), (hlines_angle, hlines)]
-       - boxes_dim: expected answer boxes dimensions
+       - dimensions: expected answer boxes dimensions
        - image_width, image_height: image size
        - read_id: True if the id must be read
        Returns a new axes object with updated lines if success or
@@ -822,8 +702,8 @@ def filter_axes(axes, boxes_dim, image_width, image_height, read_id):
                                   abs(l[0]) > 0.03 * image_height) or
                                   not angles_perpendicular(0.0, l[1]))]))
     # Now, colapse lines that are too close
-    v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
-    h_expected = 1 + max([box[1] for box in boxes_dim])
+    v_expected = len(dimensions) + sum([box[0] for box in dimensions])
+    h_expected = 1 + max([box[1] for box in dimensions])
     if read_id:
         h_expected += 2
     hlines = collapse_lines_angles(axes[1][1], h_expected, True)
@@ -870,9 +750,9 @@ def collapse_lines_angles(lines, expected, horizontal):
     else:
         return None
 
-def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
-    h_expected = 1 + max([box[1] for box in boxes_dim])
-    v_expected = len(boxes_dim) + sum([box[0] for box in boxes_dim])
+def cell_corners(hlines, vlines, iwidth, iheight, dimensions):
+    h_expected = 1 + max([box[1] for box in dimensions])
+    v_expected = len(dimensions) + sum([box[0] for box in dimensions])
     if len(vlines) != v_expected:
         return []
     if len(hlines) < h_expected:
@@ -881,7 +761,7 @@ def cell_corners(hlines, vlines, iwidth, iheight, boxes_dim):
         hlines = hlines[-h_expected:]
     corner_matrixes = []
     vini = 0
-    for width, height in boxes_dim:
+    for width, height in dimensions:
         corners = []
         for i in range(0, height + 1):
             cpart = []
@@ -937,20 +817,18 @@ def check_corners(corner_matrixes, width, height):
     # Success if control reaches here
     return True
 
-def decide_cells(image, corner_matrixes):
+def decide_cells(image, answer_cells):
     dim = (image.width, image.height)
     mask = cv.CreateImage(dim, 8, 1)
     masked = cv.CreateImage(dim, 8, 1)
     decisions = []
-    for corners in corner_matrixes:
-        for i in range(0, len(corners) - 1):
-            cell_decisions = []
-            for j in range(0, len(corners[0]) - 1):
-                cell_decisions.append(\
-                    decide_cell(image, mask, masked,
-                                corners[i][j], corners[i][j + 1],
-                                corners[i + 1][j], corners[i + 1][j + 1]))
-            decisions.append(decide_answer(cell_decisions))
+    for row in answer_cells:
+        row_decisions = []
+        for cell in row:
+            decision = decide_cell(image, mask, masked,
+                                   cell.plu, cell.pru, cell.pld, cell.prd)
+            row_decisions.append(decision)
+        decisions.append(decide_answer(row_decisions))
     return decisions
 
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
@@ -1034,19 +912,17 @@ def decide_answer(cell_decisions):
     else:
         return -1
 
-def id_boxes_geometry(image, num_cells, lines, boxes_dim):
+def id_boxes_geometry(image, num_cells, lines, dimensions):
     success = False
     # First, select the upper and bottom id lines
-    discard = 1 + max([box[1] for box in boxes_dim])
+    discard = 1 + max([box[1] for box in dimensions])
     lim = 4.5 * lines[-discard][0] - 3.5 * lines[-discard + 1][0]
     hlines = [l for l in lines[:-discard] if l[0] > lim]
     if len(hlines) < 2:
         return None, None
     elif len(hlines) > 2:
         hlines = [hlines[0], hlines[-1]]
-#        weights = [(count_pixels_in_horizontal_line(image, line), line) \
-#                       for line in hlines]
-#        hlines = [weights[0][1], weights[1][1]]
+    # Check that they are apart enough from the answer tables
     min_height = 0.5 * (lines[-discard + 1][0] - lines[-discard][0])
     if hlines[1][0] - hlines[0][0] < min_height:
         return None, None
@@ -1055,20 +931,24 @@ def id_boxes_geometry(image, num_cells, lines, boxes_dim):
                                                    image.width, 5)
     all_bounds = [(l[0], r[0], l[1], r[1]) \
                       for l in pairs_left for r in pairs_right]
-#    print "len(all_bounds):", len(all_bounds)
-#    i = 1
     for bounds in all_bounds[:5]:
         corners = id_boxes_check_points(image, bounds, hlines,
                                         image.width, num_cells)
         if corners is not None:
-#            print "success", i
             success = True
             break
-#        i += 1
     if success:
-        return hlines, corners
+        # Compute the cell of each digit
+        id_cells = []
+        corners_up, corners_down = corners
+        for i in range(0, len(corners_up) - 1):
+            cell = capture.CellGeometry(corners_up[i], corners_up[i + 1],
+                                        corners_down[i], corners_down[i + 1],
+                                        None, None)
+            id_cells.append(cell)
     else:
-        return hlines, None
+        id_cells = None
+    return hlines, id_cells
 
 def id_boxes_check_points(image, points, hlines, iwidth, num_cells):
     plu, pru, pld, prd = points

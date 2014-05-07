@@ -17,21 +17,47 @@
 #
 from __future__ import division
 
-import sys
+# The gettext module needs in Windows an environment variable
+# to be defined before importing the gettext module itself
 import os
-import shutil
+import locale
+if (not os.getenv('LANG')
+    and not os.getenv('LANGUAGE')
+    and not os.getenv('LC_MESSAGES')
+    and not os.getenv('LC_ALL')):
+    lang, enc = locale.getdefaultlocale()
+    os.environ['LANG'] = lang
+
+import sys
 import time
 import webbrowser
+import gettext
 
 # Local imports
 import imageproc
 import utils
 import qtgui.gui as gui
+import sessiondb
+
+t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+_ = t.ugettext
 
 utils.EyegradeException.register_error('no_camera',
-    'There is no suitable webcam. Eyegrade needs a webcam to work.\n'
-    'If your computer already has a camera, check that it is not being\n'
-    'used by another application.')
+    _('There is no suitable webcam. Eyegrade needs a webcam to work.\n'
+      'If your computer already has a camera, check that it is not being\n'
+      'used by another application.'))
+utils.EyegradeException.register_error('no_session_db',
+    short_message=_('Session database file not found'))
+utils.EyegradeException.register_error('session_db_exists',
+    short_message=_('The session database cannot be created: '
+                    'it already exists'))
+utils.EyegradeException.register_error('session_invalid',
+    short_message=_('The session database is not valid'))
+utils.EyegradeException.register_error('corrupt_session_dir',
+    short_message=_('The session directory has been corrupted.'))
+utils.EyegradeException.register_error('incompatible_schema',
+    short_message=_('Incompatible session format. This is {0} version {1} '
+                    'but the session was created by version {2}'))
 
 param_fps = 8
 capture_period = 1.0 / param_fps
@@ -60,7 +86,7 @@ def dump_camera_buffer(camera, delay_suffered):
     if camera is not None and delay_suffered > 0.1:
         frames_to_drop = min(8, int(1 + (delay_suffered - 0.1) / 0.04))
         for i in range(0, frames_to_drop):
-            imageproc.capture(camera, False)
+            imageproc.capture_image(camera, False)
 
 def select_camera(options, config):
     if options.camera_dev is None:
@@ -72,42 +98,124 @@ def select_camera(options, config):
 
 class ImageDetectTask(object):
     """Used for running image detection in another thread."""
-    def __init__(self, image):
-        self.image = image
+    def __init__(self, detector):
+        self.detector = detector
 
     def run(self):
-        self.image.detect_safe()
+        self.detector.detect_safe()
+        self.detector = None
 
 
 class ImageChangeTask(object):
     """Used for running image change detection in another thread."""
-    def __init__(self, image, reference_image):
-        self.image = image
+    def __init__(self, detector, reference_image):
+        self.detector = detector
         self.reference_image = reference_image
 
     def run(self):
-        self.image.exam_detected()
+        self.detector.exam_detected()
+        self.detector = None
+
+
+class ManualDetectionManager(object):
+    def __init__(self, exam, dimensions, detector_options):
+        self.exam = exam
+        self.points = []
+        self.detector = imageproc.ExamDetector(dimensions, None,
+                                              detector_options,
+                                              image_raw=exam.capture.image_raw)
+
+    def add_point(self, point):
+        self.points.append(point)
+
+    def is_ready(self):
+        return len(self.points) == 4 * len(self.detector.dimensions)
+
+    def detect(self):
+        assert self.is_ready()
+        return self.detector.detect_manual(self.points)
+
+
+class ProgramMode(object):
+    """Represents the mode in which the program is."""
+    no_session = 0
+    session = 1
+    search = 2
+    review_from_session = 3
+    review_from_grading = 4
+    manual_detect = 5
+
+    def __init__(self):
+        self.mode = ProgramMode.no_session
+
+    def in_mode(self, mode):
+        return self.mode == mode
+
+    def in_no_session(self):
+        return self.mode == ProgramMode.no_session
+
+    def in_session(self):
+        return self.mode == ProgramMode.session
+
+    def in_search(self):
+        return self.mode == ProgramMode.search
+
+    def in_review(self):
+        return (self.mode == ProgramMode.review_from_session
+                or self.mode == ProgramMode.review_from_grading)
+
+    def in_review_from_session(self):
+        return self.mode == ProgramMode.review_from_session
+
+    def in_review_from_grading(self):
+        return self.mode == ProgramMode.review_from_grading
+
+    def in_manual_detect(self):
+        return self.mode == ProgramMode.manual_detect
+
+    def in_grading(self):
+        return (self.in_search() or self.in_review_from_grading()
+                or self.in_manual_detect())
+
+    def enter_mode(self, mode):
+        self.mode == mode
+
+    def enter_no_session(self):
+        self.mode = ProgramMode.session
+
+    def enter_session(self):
+        self.mode = ProgramMode.no_session
+
+    def enter_search(self):
+        self.mode = ProgramMode.search
+
+    def enter_review(self):
+        if self.in_grading():
+            self.mode = ProgramMode.review_from_grading
+        else:
+            self.mode = ProgramMode.review_from_session
+
+    def enter_manual_detect(self):
+        self.mode = ProgramMode.manual_detect
 
 
 class ProgramManager(object):
     """Manages a grading session."""
 
-    mode_no_session = 0
-    mode_search = 1
-    mode_review = 2
-    mode_manual_detect = 3
-
     def __init__(self, interface, session_file=None):
         self.interface = interface
-        self.mode = ProgramManager.mode_no_session
+        self.mode = ProgramMode()
         self.config = utils.config
+        self.sessiondb = None
         self.imageproc_context = \
-              imageproc.ExamCaptureContext(camera_id=self.config['camera-dev'])
+            imageproc.ExamDetectorContext(camera_id=self.config['camera-dev'])
         self.imageproc_options = None
         self.drop_next_capture = False
         self.dump_buffer = False
         self._register_listeners()
         self.from_manual_detection = False
+        self.manual_detect_manager = None
+        self.exam_changed = False
         if session_file is not None:
             self._try_session_file(session_file)
 
@@ -117,58 +225,53 @@ class ProgramManager(object):
 
     def _try_session_file(self, session_file):
         if os.path.isdir(session_file):
-            filename = os.path.join(session_file, 'session.eye')
+            filename = os.path.join(session_file, 'session.eyedb')
             if os.path.exists(filename):
                 session_file = filename
             else:
-                self.interface.show_error('The directory has no Eyegrade '
-                                          'session: ' + session_file,
-                                          'Error opening the session file')
+                self.interface.show_error(_('The directory has no Eyegrade '
+                                            'session') + ': ' + session_file,
+                                          _('Error opening the session file'))
                 return
         valid, msg = self._validate_session(session_file)
-        if not valid:
-            if self.exam_data and (self.exam_data.session == {}
-                                   or not self.exam_data.session.is_session):
-                # It is not a session file. Start the new session wizard.
-                values = self.interface.dialog_new_session( \
-                                                   config_filename=session_file)
-                if values is not None:
-                    self._new_session_internal(values)
-            else:
-                self.interface.show_error(msg, 'Error opening the session file')
-        else:
+        if valid:
             self._start_session()
+        else:
+            self.interface.show_error(msg)
 
     def _start_search_mode(self):
-        self.mode = ProgramManager.mode_search
+        self.mode.enter_search()
         self.from_manual_detection = False
         self.interface.activate_search_mode()
         self.exam = None
         self.latest_graded_exam = None
-        self.latest_image = None
-        self.interface.update_text('', 'Searching...')
+        self.latest_detector = None
+        self.manual_detect_manager = None
         self.interface.register_timer(50, self._next_search)
         dump_camera_buffer(self.imageproc_context.camera, 1.0)
         self.next_capture = time.time() + 0.05
 
     def _start_review_mode(self):
-        self.mode = ProgramManager.mode_review
-        self.interface.activate_review_mode()
-        self.interface.display_capture(self.exam.image.image_drawn)
+        if self.mode.in_grading():
+            self._store_exam(self.exam)
+            # Automatic detection of exam removal to go to the next exam
+            if self.interface.is_action_checked(('tools', 'auto_change')):
+                self._start_auto_change_detection()
+            self.drop_next_capture = False
+        self.mode.enter_review()
+        self.exam_changed = False
+        self.interface.activate_review_mode(self.mode.in_review_from_grading())
+        self.interface.display_capture(self.exam.get_image_drawn())
         self.interface.update_text_up(self.exam.get_student_id_and_name())
         if self.exam.score is not None:
             self.interface.update_status(self.exam.score,
-                                         model=self.exam.model,
-                                         seq_num=self.exam.im_id,
-                                         survey_mode=self.exam_data.survey_mode)
+                                        model=self.exam.decisions.model,
+                                        seq_num=self.exam.exam_id,
+                                        survey_mode=self.exam_data.survey_mode)
         else:
             self.interface.update_text_down('')
-        if not self.exam.image.status['infobits']:
+        if not self.exam.decisions.model:
             self.interface.enable_manual_detect(True)
-        # Automatic detection of exam removal to go to the next exam
-        if self.interface.is_action_checked(('tools', 'auto_change')):
-            self._start_auto_change_detection()
-        self.drop_next_capture = False
 
     def _start_auto_change_detection(self):
         if not self.from_manual_detection:
@@ -176,48 +279,48 @@ class ProgramManager(object):
             self.interface.register_timer(1000, self._next_change_detection)
 
     def _start_manual_detect_mode(self):
-        self.mode = ProgramManager.mode_manual_detect
+        self.mode.enter_manual_detect()
         self.interface.activate_manual_detect_mode()
-        self.interface.display_capture(self.exam.image.image_drawn)
-        self.interface.update_text_up('')
-        self.interface.update_text_down( \
-            'Manual detection: click on the outer corners of the answer tables')
-        self.manual_points = []
+        self.interface.display_capture(self.exam.get_image_drawn())
+        self.manual_detect_manager = \
+            ManualDetectionManager(self.exam, self.exam_data.dimensions,
+                                   self.imageproc_options)
 
     def _next_search(self):
-        if self.mode != ProgramManager.mode_search:
+        if not self.mode.in_search():
             return
         if self.dump_buffer:
             self.dump_buffer = False
             dump_camera_buffer(self.imageproc_context.camera,
                                after_removal_delay)
-        image = imageproc.ExamCapture(self.exam_data.dimensions,
-                                      self.imageproc_context,
-                                      self.imageproc_options)
-        self.current_image = image
-        task = ImageDetectTask(image)
+        detector = imageproc.ExamDetector(self.exam_data.dimensions,
+                                          self.imageproc_context,
+                                          self.imageproc_options)
+        self.current_detector = detector
+        task = ImageDetectTask(detector)
         self.interface.run_worker(task, self._after_image_detection)
 
     def _after_image_detection(self):
-        image = self.current_image
-        self.current_image = None
-        if self.mode != ProgramManager.mode_search:
+        detector = self.current_detector
+        self.current_detector = None
+        if not self.mode.in_search():
             # The user switched to other mode while the image was processed
             return
-        self.latest_image = image
-        if image.status['boxes'] and self.imageproc_context.threshold_locked:
+        self.latest_detector = detector
+        if (detector.status['boxes']
+            and self.imageproc_context.threshold_locked):
             self.imageproc_context.unlock_threshold()
-        exam = self._process_capture(image)
-        if exam is None or not image.success:
+        exam = self._process_capture(detector)
+        if exam is None or not detector.success:
             if exam is not None:
                 exam.draw_answers()
+                exam.draw_status()
                 self.interface.enable_manual_detect(False)
             else:
-                image.draw_status()
-            self.interface.display_capture(image.image_drawn)
+                detector.capture.draw_status()
+            self.interface.display_capture(detector.capture.image_drawn)
             self._schedule_next_capture(capture_period, self._next_search)
         elif not self.drop_next_capture:
-            exam.lock_capture()
             exam.draw_answers()
             self.exam = exam
             self._start_review_mode()
@@ -225,7 +328,7 @@ class ProgramManager(object):
             # Special mode: do not lock until another capture is
             # available.  Used after auto exam removal detection.
             exam.draw_answers()
-            self.interface.display_capture(image.image_drawn)
+            self.interface.display_capture(detector.capture.image_drawn)
             self._schedule_next_capture(after_removal_delay, self._next_search)
             self.drop_next_capture = False
             self.dump_buffer = True
@@ -237,15 +340,15 @@ class ProgramManager(object):
         Continuation of work is done at `_after_change_detection`.
 
         """
-        if (self.mode != ProgramManager.mode_review
+        if (not self.mode.in_review_from_grading()
             or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
         dump_camera_buffer(self.imageproc_context.camera, 1.0)
-        image = imageproc.ExamCapture(self.exam_data.dimensions,
-                                      self.imageproc_context,
-                                      self.imageproc_options)
-        self.current_image = image
-        task = ImageChangeTask(image, self.exam.image)
+        detector = imageproc.ExamDetector(self.exam_data.dimensions,
+                                          self.imageproc_context,
+                                          self.imageproc_options)
+        self.current_detector = detector
+        task = ImageChangeTask(detector, self.exam.capture)
         self.interface.run_worker(task, self._after_change_detection)
 
     def _after_change_detection(self):
@@ -255,13 +358,13 @@ class ProgramManager(object):
         whether the exam has been removed.
 
         """
-        image = self.current_image
-        self.current_image = None
+        image = self.current_detector
+        self.current_detector = None
         if image is None:
             # This needs to be investigated: this case should never
             # happen, but I saw it happen...
             return
-        if (self.mode != ProgramManager.mode_review
+        if (not self.mode.in_review_from_grading()
             or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
         exam_removed = False
@@ -278,7 +381,7 @@ class ProgramManager(object):
         else:
             self.imageproc_context.lock_threshold()
             self.drop_next_capture = True
-            self._action_save()
+            self._action_continue()
 
     def _schedule_next_capture(self, period, function):
         """Schedules the next image capture and registers the timer.
@@ -298,22 +401,23 @@ class ProgramManager(object):
             wait = self.next_capture - current_time
         self.interface.register_timer(int(wait * 1000), function)
 
-    def _process_capture(self, image):
+    def _process_capture(self, detector):
         """Processes a captured image."""
         exam = None
-        if image.status['infobits']:
-            model = utils.decode_model(image.bits)
+        if detector.status['infobits']:
+            model = detector.decisions.model
             if model is not None:
                 if (model in self.exam_data.solutions
                     or self.exam_data.survey_mode):
-                    exam = utils.Exam(image, model, self._solutions(model),
-                                  self.valid_student_ids,
-                                  self.image_id, self.exam_data.score_weights,
-                                  save_image_func=self.interface.save_capture)
-                    exam.grade()
+                    exam = utils.Exam(detector.capture, detector.decisions,
+                                      self.exam_data.get_solutions(model),
+                                      self.sessiondb.students,
+                                      self.exam_id,
+                                      self.exam_data.score_weights)
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
-                    msg = 'There are no solutions for model {0}.'.format(model)
+                    msg = _('There are no solutions for model {0}.')\
+                          .format(model)
                     self.interface.show_error(msg)
         return exam
 
@@ -321,36 +425,22 @@ class ProgramManager(object):
         """Callback for when the new session action is selected."""
         values = self.interface.dialog_new_session()
         if values is not None:
-            self._new_session_internal(values)
-
-    def _new_session_internal(self, values):
-        """Callback for when the new session action is selected."""
-        # Save the exam config file augmented with session information
-        self.exam_data = values['config']
-        self.exam_data.session['is-session'] = True
-        self.exam_data.session['save-filename-pattern'] = \
-            self.config['save-filename-pattern']
-        dirname = os.path.join(values['directory'], 'student_ids')
-        try:
-            os.mkdir(dirname)
-            if values['id_list_files']:
-                for name in values['id_list_files']:
-                    ProgramManager._copy_id_list(name, dirname)
-        except IOError as e:
-            self.interface.show_error('Input/output error: ' + e.message)
-        except Exception as e:
-            self.interface.show_error('Error: ' + e.message)
-        try:
-            dirname = os.path.join(values['directory'], 'captures')
-            os.mkdir(dirname)
-        except IOError as e:
-            self.interface.show_error('Input/output error: ' + e.message)
-        except Exception as e:
-            self.interface.show_error('Error: ' + e.message)
-        filename = os.path.join(values['directory'], 'session.eye')
-        self.exam_data.save(filename)
-        self.session_dir = values['directory']
-        self._start_session()
+            self.exam_data = values['config']
+            self.exam_data.capture_pattern = \
+                                self.config['save-filename-pattern']
+            try:
+                sessiondb.create_session_directory(values['directory'],
+                                                   self.exam_data,
+                                                   values['id_list_files'])
+                self.sessiondb = sessiondb.SessionDB(values['directory'])
+                self.sessiondb.capture_save_func = self.interface.save_capture
+            except IOError as e:
+                self.interface.show_error(_('Input/output error:')
+                                          + ' ' + e.message)
+            except utils.EyegradeException as e:
+                self.interface.show_error(_('Error:') + u' ' + unicode(e))
+            else:
+                self._start_session()
 
     def _open_session(self):
         """Callback for when the open session action is selected."""
@@ -368,8 +458,7 @@ class ProgramManager(object):
 
         It loads and checks the exam configuration file from
         `filename` and checks the directories that should be at the
-        directory. The file is stored as self.exam_data, and its directory
-        is stored as self.session_dir.
+        directory. The file is stored as self.exam_data.
 
         Returns (valid, error_message) where exam_data is the exam
         configuration object, valid is True if the session is valid
@@ -377,118 +466,161 @@ class ProgramManager(object):
         in case the session is not valid.
 
         """
-        self.exam_data = None
         try:
-            self.exam_data = utils.ExamConfig(filename)
-        except Exception as e:
-            return False, 'Error loading the session: ' + str(e)
-        if (self.exam_data.session == {}
-            or not self.exam_data.session['is-session']):
-            return False, 'The file you selected contains no session marks.'
-        self.session_dir = os.path.dirname(filename)
-        students_dir = os.path.join(self.session_dir, 'student_ids')
-        captures_dir = os.path.join(self.session_dir, 'captures')
-        if not os.path.exists(students_dir) or not os.path.exists(captures_dir):
-            return False, 'The session directory has been corrupted.'
-        return True, ''
+            self.sessiondb = sessiondb.SessionDB(filename)
+            self.exam_data = self.sessiondb.exam_config
+            self.sessiondb.capture_save_func = self.interface.save_capture
+            success = True
+            message = ''
+        except utils.EyegradeException as e:
+            self.sessiondb = None
+            self.exam_data = None
+            success = False
+            message = _('Error loading the session') + u': ' + unicode(e)
+        except IOError as e:
+            self.sessiondb = None
+            self.exam_data = None
+            success = False
+            message = _('Error loading the session') + u': ' + unicode(e)
+        return success, message
 
     def _close_session(self):
         """Callback that closes the current session."""
-        if (self.mode == ProgramManager.mode_review
-            or self.mode == ProgramManager.mode_manual_detect):
+        if self.mode.in_manual_detect():
             if not self.interface.show_warning( \
-                ('The current capture has not been saved and will be lost. '
-                 'Are you sure you want to close this session?'),
+                _('The current capture has not been saved and will be lost. '
+                  'Are you sure you want to close this session?'),
                 is_question=True):
                 return
-        self.imageproc_context.close_camera()
-        self.mode = ProgramManager.mode_no_session
+        if self.mode.in_grading() or self.mode.in_review_from_session():
+            self._stop_grading()
+        self.sessiondb.save_legacy_answers(self.config['csv-dialect'])
+        self.sessiondb.close()
+        self.mode.enter_no_session()
+        self.sessiondb = None
         self.exam_data = None
-        self.valid_student_ids = None
         self.imageproc_options = None
-        self.save_pattern = None
-        self.answers_file = None
         self.interface.activate_no_session_mode()
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
-        if (self.mode == ProgramManager.mode_review
-            or self.mode == ProgramManager.mode_manual_detect):
-            if not self.interface.show_warning( \
-                ('The current capture has not been saved and will be lost. '
-                 'Are you sure you want to exit the application?'),
-                is_question=True):
-                return False
-        return True
+        if self.mode.in_manual_detect():
+            exit = self.interface.show_warning( \
+                _('The current capture has not been saved and will be lost. '
+                  'Are you sure you want to exit the application?'),
+                is_question=True)
+        elif self.mode.in_grading() or self.mode.in_review_from_session():
+            self._stop_grading()
+            exit = True
+        else:
+            exit = True
+        if exit and self.sessiondb is not None:
+            self.sessiondb.save_legacy_answers(self.config['csv-dialect'])
+            self.sessiondb.close()
+        return exit
+
+    def _action_start(self):
+        if self.mode.in_review_from_session():
+            self._stop_grading()
+        self._start_grading()
+
+    def _action_stop(self):
+        self._stop_grading()
+
+    def _action_back(self):
+        if self.mode.in_review_from_session():
+            self._stop_grading()
+            self.interface.clear_selected_exam()
+            self.exam = None
 
     def _action_snapshot(self):
         """Callback for the snapshot action."""
-        enable_manual_detection = False
         if self.latest_graded_exam is None:
-            if self.latest_image is None:
+            if self.latest_detector is None:
                 return
-            image = self.latest_image
-            image.clean_drawn_image()
-            if image.status['infobits']:
-                model = utils.decode_model(image.bits)
-            else:
-                model = None
-            self.exam = utils.Exam(image, model, {}, self.valid_student_ids,
-                                   self.image_id, self.exam_data.score_weights,
-                                   save_image_func=self.interface.save_capture)
-            self.exam.grade()
-            self.exam.lock_capture()
+            detector = self.latest_detector
+            self.exam = utils.Exam(detector.capture, detector.decisions,
+                                   [], self.sessiondb.students,
+                                   self.exam_id, self.exam_data.score_weights)
+            self.exam.reset_image()
+            enable_manual_detection = True
         else:
             self.exam = self.latest_graded_exam
-            self.exam.image.clean_drawn_image()
-            self.exam.lock_capture()
+            self.exam.reset_image()
             self.exam.draw_answers()
-            enable_manual_detection = True
+            enable_manual_detection = False
         self._start_review_mode()
-        if enable_manual_detection:
-            self.interface.enable_manual_detect(True)
+        self.interface.enable_manual_detect(enable_manual_detection)
 
     def _action_discard(self):
-        """Callback for cancelling the current capture."""
-        self._start_search_mode()
+        """Callback for cancelling/removing the current capture."""
+        if self.mode.in_review_from_grading():
+            self.sessiondb.remove_exam(self.exam.exam_id)
+            self._start_search_mode()
+        elif self.mode.in_manual_detect():
+            self._start_search_mode()
+        elif self.mode.in_review_from_session():
+            remove = self.interface.show_warning( \
+                    _('The selected exam will be removed. Are you sure?'),
+                    is_question=True)
+            if remove:
+                self.sessiondb.remove_exam(self.exam.exam_id)
+                self.interface.remove_exam(self.exam)
+                exam = self.interface.selected_exam()
+                if exam is not None:
+                    self._exam_selected(exam)
+                else:
+                    self.exam = None
+                    self._activate_session_mode()
 
-    def _action_save(self):
+    def _action_continue(self):
         """Callback for saving the current capture."""
-        self.exam.save_image(self.save_pattern)
-        self.exam.save_answers(self.answers_file, self.config['csv-dialect'])
-        self.image_id += 1
-        self._start_search_mode()
+        if self.mode.in_review_from_grading():
+            self._store_capture(self.exam)
+            self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+            self.exam_id += 1
+            self._start_search_mode()
+        elif self.mode.in_review_from_session():
+            self.interface.select_next_exam()
 
     def _action_manual_detect(self):
         """Callback for the manual detection action."""
-        from_search_mode = self.mode == ProgramManager.mode_search
-        if from_search_mode:
+        if self.mode.in_search():
             # Take the current snapshot and go to review mode
-            self.exam = utils.Exam(self.latest_image, None, {},
-                                   self.valid_student_ids,
-                                   self.image_id, self.exam_data.score_weights,
-                                   save_image_func=self.interface.save_capture)
-            self.exam.lock_capture()
-        self.exam.image.clean_drawn_image()
+            self.exam = utils.Exam(self.latest_detector.capture,
+                                   self.latest_detector.decisions,
+                                   [], self.sessiondb.students,
+                                   self.exam_id, self.exam_data.score_weights)
+        self.exam.reset_image()
         self._start_manual_detect_mode()
 
     def _action_edit_id(self):
         """Callback for the edit student id action."""
-        if self.mode != ProgramManager.mode_review:
+        if not self.mode.in_review():
             return
-        students = self.exam.ranked_student_ids_and_names()
+        students = self.exam.ranked_student_ids()
         student = self.interface.dialog_student_id(students)
         if student is not None:
+            updated = False
             if student == '':
                 self.exam.update_student_id(None)
+                updated = True
             else:
                 student_id, name = self._parse_student(student)
                 if student_id is not None:
                     self.exam.update_student_id(student_id, name=name)
+                    updated = True
                 else:
                     self.interface.show_error( \
-                        'You typed and incorrect student id.')
-            self.interface.update_text_up(self.exam.get_student_id_and_name())
+                        _('You typed and incorrect student id.'))
+            if updated:
+                self.exam_changed = True
+                self.interface.update_text_up( \
+                                    self.exam.get_student_id_and_name())
+                self.sessiondb.update_student(self.exam.exam_id,
+                                              self.exam.capture,
+                                              self.exam.decisions,
+                                              store_captures=False)
 
     def _action_camera_selection(self):
         """Callback for opening the camera selection dialog."""
@@ -523,73 +655,69 @@ class ProgramManager(object):
 
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
-        if self.mode == ProgramManager.mode_review:
+        if self.mode.in_review():
             self._mouse_pressed_change_answer(point)
-        elif self.mode == ProgramManager.mode_manual_detect:
+        elif self.mode.in_manual_detect():
             self._mouse_pressed_manual_detection(point)
 
-    def _digit_pressed(self, digit_string):
-        """Callback called when a digit is pressed."""
-        if self.mode == ProgramManager.mode_review:
-            pass
-
     def _mouse_pressed_change_answer(self, point):
-        cell = self.exam.image.cell_clicked(point)
-        if cell is not None:
-            question, answer = cell
+        question, answer = self.exam.capture.get_cell_clicked(point)
+        if question is not None:
+            self.exam_changed = True
             self.exam.toggle_answer(question, answer)
-            self.interface.display_capture(self.exam.image.image_drawn)
-            self.interface.update_status(self.exam.score, self.exam.model,
-                                         self.exam.im_id,
-                                         survey_mode=self.exam_data.survey_mode)
+            self.interface.display_capture(self.exam.get_image_drawn())
+            self.interface.update_status(self.exam.score,
+                                        self.exam.decisions.model,
+                                        self.exam.exam_id,
+                                        survey_mode=self.exam_data.survey_mode)
+            self.sessiondb.update_answer(self.exam.exam_id, question,
+                                         self.exam.capture,
+                                         self.exam.decisions, self.exam.score,
+                                         store_captures=False)
 
     def _mouse_pressed_manual_detection(self, point):
+        manager = self.manual_detect_manager
         success = False
-        self.manual_points.append(point)
-        self.exam.image.draw_corner(point)
-        self.interface.display_capture(self.exam.image.image_drawn)
-        if len(self.manual_points) == 4 * len(self.exam.image.boxes_dim):
-            corner_matrixes = imageproc.process_box_corners(
-                self.manual_points, self.exam.image.boxes_dim)
-            if corner_matrixes != []:
-                self.exam.image.detect_manual(corner_matrixes)
-                if self.exam.image.status['infobits']:
-                    self.exam.model = utils.decode_model(self.exam.image.bits)
-                    if self.exam.model is not None:
-                        self.exam.solutions = self._solutions(self.exam.model)
-                        if self.exam.solutions is None:
-                            msg = 'There are no solutions for model {0}.'\
-                                  .format(self.exam.model)
-                            self.interface.show_error(msg)
-                        else:
-                            self.exam.grade()
-                            self.exam.draw_answers()
-                            self.interface.update_status( \
-                                self.exam.score, self.exam.model,
-                                self.exam.im_id,
-                                survey_mode=self.exam_data.survey_mode)
-                            success = True
+        manager.add_point(point)
+        self.exam.draw_corner(point)
+        self.interface.display_capture(self.exam.get_image_drawn())
+        if manager.is_ready():
+            success = manager.detect()
+            if success:
+                self.exam = self._process_capture(manager.detector)
+                if self.exam is not None:
+                    self.exam.draw_answers()
+                else:
+                    success = False
             if not success:
-                self.exam.image.clean_drawn_image()
-                self.interface.show_error('Manual detection failed!')
-            self.from_manual_detection = True
-            self._start_review_mode()
+                self.exam.reset_image()
+                self.interface.show_error(_('Manual detection failed'))
+                self._start_manual_detect_mode()
+            else:
+                self.from_manual_detection = True
+                self._start_review_mode()
+
+    def _exam_selected(self, exam):
+        if self.mode.in_grading() or self.mode.in_review_from_session():
+            self._store_capture_if_changed()
+        exam.load_capture()
+        exam.reset_image()
+        exam.draw_answers()
+        self.exam = exam
+        self._start_review_mode()
 
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
+        self.interface.add_exams(self.sessiondb.read_exams())
+        self._activate_session_mode()
+
+    def _activate_session_mode(self):
+        self.mode.enter_session()
+        self.interface.activate_session_mode()
+
+    def _start_grading(self):
         exam_data = self.exam_data
-        session_cfg = exam_data.session
-        self.save_pattern = os.path.join(self.session_dir, 'captures',
-                                         session_cfg['save-filename-pattern'])
-        self.answers_file = os.path.join(self.session_dir,
-                                         'eyegrade-answers.csv')
-        try:
-            self._read_student_ids()
-        except Exception as e:
-            self.interface.show_error(('The student list cannot be read: '
-                                      + str(e)))
-            return
-        self.imageproc_options = imageproc.ExamCapture.get_default_options()
+        self.imageproc_options = imageproc.ExamDetector.get_default_options()
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
             self.imageproc_options['read-id'] = True
             self.imageproc_options['id-num-digits'] = exam_data.id_num_digits
@@ -599,31 +727,39 @@ class ProgramManager(object):
         self._action_debug_changed()
         self.imageproc_context.open_camera()
         if self.imageproc_context.camera is None:
-            self.interface.show_error(('No camera found. Connect a camera and '
-                                      'try to start the session again.'))
+            self.interface.show_error(_('No camera found. Connect a camera and '
+                                        'start the session again.'))
             return
-        if not os.path.isfile(self.answers_file):
-            self.image_id = 1
-        else:
-            results = utils.read_results(self.answers_file,
-                                         allow_question_mark=True)
-            self.image_id = 1 + max([int(r['seq-num']) for r in results])
+        self.exam_id = self.sessiondb.next_exam_id()
+        self.interface.clear_selected_exam()
         self._start_search_mode()
 
-    def _solutions(self, model):
-        """Returns the solutions for the given model.
+    def _stop_grading(self):
+        if self.mode.in_grading():
+            self.imageproc_context.close_camera()
+            if self.mode.in_review_from_grading():
+                self._store_capture(self.exam)
+                self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+        elif self.mode.in_review_from_session() and self.exam_changed:
+            self._store_capture_if_changed()
+        self._activate_session_mode()
 
-        If in survey mode it returns []. If there are no solutions for
-        this, model it returns None.
+    def _store_capture_if_changed(self):
+        if self.exam_changed:
+            self._store_capture(self.exam)
+            self.interface.update_exam(self.exam)
+            self.exam.clear_capture()
+            self.exam_changed = False
 
-        """
-        if not self.exam_data.survey_mode:
-            if model in self.exam_data.solutions:
-                return self.exam_data.solutions[model]
-            else:
-                return None
-        else:
-            return []
+    def _store_exam(self, exam):
+        self.sessiondb.store_exam(exam.exam_id, exam.capture, exam.decisions,
+                                  exam.score, store_captures=False)
+        self.sessiondb.save_raw_capture(exam.exam_id, exam.capture,
+                                        exam.decisions.student)
+
+    def _store_capture(self, exam):
+        self.sessiondb.save_drawn_capture(exam.exam_id, exam.capture,
+                                          exam.decisions.student)
 
     def _parse_student(self, student):
         """Parses a string with student id (first) and student name.
@@ -654,9 +790,12 @@ class ProgramManager(object):
             ('actions', 'session', 'new'): self._new_session,
             ('actions', 'session', 'open'): self._open_session,
             ('actions', 'session', 'close'): self._close_session,
+            ('actions', 'grading', 'start'): self._action_start,
+            ('actions', 'grading', 'stop'): self._action_stop,
+            ('actions', 'grading', 'back'): self._action_back,
             ('actions', 'grading', 'snapshot'): self._action_snapshot,
             ('actions', 'grading', 'discard'): self._action_discard,
-            ('actions', 'grading', 'save'): self._action_save,
+            ('actions', 'grading', 'continue'): self._action_continue,
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('actions', 'grading', 'edit_id'): self._action_edit_id,
             ('actions', 'tools', 'camera'): self._action_camera_selection,
@@ -670,43 +809,31 @@ class ProgramManager(object):
             ('actions', 'help', 'source'): self._action_source_code,
             ('center_view', 'camview', 'mouse_pressed'): self._mouse_pressed,
             ('window', 'exit'): self._exit_application,
+            ('window', 'exam', 'selected'): self._exam_selected,
         }
         self.interface.register_listeners(listeners)
 
-    def _read_student_ids(self):
-        ids = None
-        dirname = os.path.join(self.session_dir, 'student_ids')
-        if os.path.isdir(dirname):
-            files = [os.path.join(dirname, f) for f in os.listdir(dirname)]
-            if files:
-                ids = utils.read_student_ids_multiple(filenames=files,
-                                                      with_names=True)
-        self.valid_student_ids = ids
-
-    @staticmethod
-    def _copy_id_list(src_file, dst_dir):
-        file_basename = os.path.basename(src_file)
-        dst_file = os.path.join(dst_dir, file_basename)
-        if os.path.exists(dst_file):
-            # Try with other names
-            success = False
-            base, extension = os.path.splitext(dst_file)
-            for i in range(1, 10000):
-                dst_file = '{0}-{1}{2}'.format(base, i, extension)
-                if not os.path.exists(dst_file):
-                    success = True
-                    break
-            if not success:
-                raise Exception('Cannot copy file: ' + src_file)
-        shutil.copy(src_file, dst_file)
-
 
 def main():
+    # For the translations to work, the initialization of QApplication and
+    # the loading of the translations must be done here instead of the
+    # gui module:
+    #
+    from PyQt4.QtGui import QApplication
+    from PyQt4.QtCore import QTranslator, QLocale, QLibraryInfo
+    app = QApplication(sys.argv)
+    translator = QTranslator()
+    success = translator.load(QLocale.system(), 'qt', '_',
+                    QLibraryInfo.location(QLibraryInfo.TranslationsPath))
+    if not success:
+        success = translator.load(QLocale.system(), 'qt', '_',
+                                  utils.qt_translations_dir())
+    app.installTranslator(translator)
     if len(sys.argv) >= 2:
         filename = sys.argv[1]
     else:
         filename = None
-    interface = gui.Interface(False, False, [])
+    interface = gui.Interface(app, False, False, [])
     manager = ProgramManager(interface, session_file=filename)
     manager.run()
 
