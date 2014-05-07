@@ -162,59 +162,62 @@ code, tt {
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="auto-toc simple">
-<li><a class="reference internal" href="#installing-eyegrade" id="id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
-<li><a class="reference internal" href="#upgrading-from-eyegrade-0-2-x-to-eyegrade-0-3" id="id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x to Eyegrade 0.3</a></li>
-<li><a class="reference internal" href="#installation-on-gnu-linux" id="id4">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
-<li><a class="reference internal" href="#installation-on-debian-and-ubuntu" id="id5">1.2.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></li>
+<li><a class="reference internal" href="#installing-eyegrade" id="id4">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
+<li><a class="reference internal" href="#upgrading-from-eyegrade-0-1-x-to-eyegrade-0-2" id="id5">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.1.x to Eyegrade 0.2</a><ul class="auto-toc">
+<li><a class="reference internal" href="#main-changes-from-versions-0-1-x" id="id6">1.1.1&nbsp;&nbsp;&nbsp;Main changes from versions 0.1.x</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#installation-on-microsoft-windows" id="id6">1.3&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a><ul class="auto-toc">
-<li><a class="reference internal" href="#installing-python" id="id7">1.3.1&nbsp;&nbsp;&nbsp;Installing Python</a></li>
-<li><a class="reference internal" href="#installing-pyqt4" id="id8">1.3.2&nbsp;&nbsp;&nbsp;Installing PyQt4</a></li>
-<li><a class="reference internal" href="#installing-opencv" id="id9">1.3.3&nbsp;&nbsp;&nbsp;Installing OpenCV</a></li>
-<li><a class="reference internal" href="#id1" id="id10">1.3.4&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></li>
+<li><a class="reference internal" href="#installation-on-gnu-linux" id="id7">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installation-on-debian-and-ubuntu" id="id8">1.2.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#installation-on-mac-os-x" id="id11">1.4&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></li>
-<li><a class="reference internal" href="#updating-eyegrade" id="id12">1.5&nbsp;&nbsp;&nbsp;Updating Eyegrade</a></li>
+<li><a class="reference internal" href="#installation-on-microsoft-windows" id="id9">1.3&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installing-python" id="id10">1.3.1&nbsp;&nbsp;&nbsp;Installing Python</a></li>
+<li><a class="reference internal" href="#installing-pyqt4" id="id11">1.3.2&nbsp;&nbsp;&nbsp;Installing PyQt4</a></li>
+<li><a class="reference internal" href="#installing-opencv" id="id12">1.3.3&nbsp;&nbsp;&nbsp;Installing OpenCV</a></li>
+<li><a class="reference internal" href="#id3" id="id13">1.3.4&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#grading-exams" id="id13">2&nbsp;&nbsp;&nbsp;Grading Exams</a><ul class="auto-toc">
-<li><a class="reference internal" href="#launching-eyegrade" id="id14">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></li>
-<li><a class="reference internal" href="#the-session-directory" id="id15">2.2&nbsp;&nbsp;&nbsp;The session directory</a></li>
-<li><a class="reference internal" href="#application-modes" id="id16">2.3&nbsp;&nbsp;&nbsp;Application modes</a></li>
-<li><a class="reference internal" href="#the-grading-mode" id="id17">2.4&nbsp;&nbsp;&nbsp;The grading mode</a></li>
-<li><a class="reference internal" href="#the-review-mode" id="id18">2.5&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
-<li><a class="reference internal" href="#modifying-student-answers" id="id19">2.5.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
-<li><a class="reference internal" href="#modifying-the-student-id" id="id20">2.5.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
+<li><a class="reference internal" href="#installation-on-mac-os-x" id="id14">1.4&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></li>
+<li><a class="reference internal" href="#updating-eyegrade" id="id15">1.5&nbsp;&nbsp;&nbsp;Updating Eyegrade</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#the-manual-detection-mode" id="id21">2.6&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
+<li><a class="reference internal" href="#grading-exams" id="id16">2&nbsp;&nbsp;&nbsp;Grading Exams</a><ul class="auto-toc">
+<li><a class="reference internal" href="#launching-eyegrade" id="id17">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></li>
+<li><a class="reference internal" href="#the-session-directory" id="id18">2.2&nbsp;&nbsp;&nbsp;The session directory</a></li>
+<li><a class="reference internal" href="#application-modes" id="id19">2.3&nbsp;&nbsp;&nbsp;Application modes</a></li>
+<li><a class="reference internal" href="#the-search-mode" id="id20">2.4&nbsp;&nbsp;&nbsp;The search mode</a></li>
+<li><a class="reference internal" href="#the-review-mode" id="id21">2.5&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
+<li><a class="reference internal" href="#modifying-student-answers" id="id22">2.5.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
+<li><a class="reference internal" href="#modifying-the-student-id" id="id23">2.5.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#processing-student-grades" id="id22">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
-<li><a class="reference internal" href="#the-answers-file" id="id23">3.1&nbsp;&nbsp;&nbsp;The answers file</a></li>
-<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id24">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a><ul class="auto-toc">
-<li><a class="reference internal" href="#exporting-a-listing-for-a-subset-of-students" id="id25">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></li>
+<li><a class="reference internal" href="#the-manual-detection-mode" id="id24">2.6&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#processing-student-grades" id="id25">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
+<li><a class="reference internal" href="#the-answers-file" id="id26">3.1&nbsp;&nbsp;&nbsp;The answers file</a></li>
+<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id27">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a><ul class="auto-toc">
+<li><a class="reference internal" href="#exporting-a-listing-for-a-subset-of-students" id="id28">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#editing-exams" id="id26">4&nbsp;&nbsp;&nbsp;Editing exams</a></li>
-<li><a class="reference internal" href="#advanced-features" id="id27">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
-<li><a class="reference internal" href="#webcam-selection" id="id28">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
-<li><a class="reference internal" href="#mixing-manually-graded-questions" id="id29">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></li>
-<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id30">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
-<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id31">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
-<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id32">5.5&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
+<li><a class="reference internal" href="#editing-exams" id="id29">4&nbsp;&nbsp;&nbsp;Editing exams</a></li>
+<li><a class="reference internal" href="#advanced-features" id="id30">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#webcam-selection" id="id31">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
+<li><a class="reference internal" href="#mixing-manually-graded-questions" id="id32">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></li>
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id33">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id34">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id35">5.5&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p>This user manual refers to Eyegrade 0.3 and later versions. For the
-0.2.x series see <a class="reference external" href="../user-manual-0.2/">this other user manual</a>.</p>
+<p>This user manual refers to Eyegrade 0.2 and later versions. For the
+0.1.x series see <a class="reference external" href="../user-manual-0.1/">this other user manual</a>.</p>
 <div class="section" id="installing-eyegrade">
-<h1><a class="toc-backref" href="#id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h1>
+<h1><a class="toc-backref" href="#id4">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h1>
 <p>Eyegrade depends on the following free-software projects:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.python.org/">Python</a>: the run-time environment and standard library for the
@@ -228,20 +231,54 @@ distributed with it are needed.</li>
 <li><a class="reference external" href="http://laurikari.net/tre/">Tre</a>: a library for regular expressions. Install version 0.8.0 or
 later.  Both the library and python bindings are needed.</li>
 </ul>
-<div class="section" id="upgrading-from-eyegrade-0-2-x-to-eyegrade-0-3">
-<h2><a class="toc-backref" href="#id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x to Eyegrade 0.3</a></h2>
-<p>In order to upgrade from eyegrade 0.2.x to eyegrade 0.3, follow the
-instructions at <a class="reference internal" href="#updating-eyegrade">Updating Eyegrade</a>.</p>
-<p>The main changes are described in the blog post <a class="reference external" href="http://eyegrade.org/blog/posts/eyegrade-03-released.html">*Eyegrade 0.3
-released*</a></p>
+<div class="section" id="upgrading-from-eyegrade-0-1-x-to-eyegrade-0-2">
+<h2><a class="toc-backref" href="#id5">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.1.x to Eyegrade 0.2</a></h2>
+<p>If you have any version of the Eyegrade 0.1.x series already installed
+in your system, you have to install <a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/">PyQt</a>.</p>
+<p>In Linux, install the package <cite>python-qt4</cite> and update Eyegrade following
+the instructions at <a class="reference internal" href="#updating-eyegrade">Updating Eyegrade</a>.</p>
+<p>In Windows, <a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/download">Download PyQt</a> and
+install it. If you installed Eyegrade 0.1.x following the instructions
+in this user manual, you have Python 2.6-x86. Choose that version of
+the installer of PyQt.  Alternatively, there is a copy of the file you
+need at <a class="reference external" href="https://www.dropbox.com/s/15xnbrj82n9tial/PyQt-Py2.6-x86-gpl-4.9.6-1.exe">PyQt-Py2.6-x86-gpl-4.9.6-1.exe</a>.
+The installer of PyQt will probably detect you Python installation
+automatically.</p>
+<p>After that, update Eyegrade following the instructions at <a class="reference internal" href="#updating-eyegrade">Updating
+Eyegrade</a>.</p>
+<p>The directory layout of the code of Eyegrade has changed with respect
+to versions 0.1.x. The code is now inside the <cite>eyegrade</cite> subdirectory
+instead of the <cite>src/eyegrade</cite> subdirectory. Therefore, the
+<cite>PYTHONPATH</cite> environment variable should be set to the main directory
+of Eyegrade now, instead of the <cite>src</cite> subdirectory as before. When
+upgrading, remember to update this environment variable if you have
+configured it in your system-wide environment variables.</p>
+<p>If you cannot see the icons of the buttons the first time you run the
+new version of Eyegrade, reboot the computer and try again.</p>
+<div class="section" id="main-changes-from-versions-0-1-x">
+<h3><a class="toc-backref" href="#id6">1.1.1&nbsp;&nbsp;&nbsp;Main changes from versions 0.1.x</a></h3>
+<p>The main changes from Eyegrade 0.1.x to Eyegrade 0.2 you need to be
+aware of are:</p>
+<ul class="simple">
+<li>The main program is run now without command line arguments. You'll
+select the <cite>.eye</cite> file, student lists, webcam to use, etc. from the
+user interface.</li>
+<li>There is the new concept of a session. A session stores the state of
+the grading of a given exam. You create a new session when you start
+to grade the exam. The images of the exams and results are stored in
+this session as you grade them. You can later resume a session and
+continue grading it. A session is stored in the directory of your
+file system that you choose.</li>
+</ul>
+</div>
 </div>
 <div class="section" id="installation-on-gnu-linux">
-<h2><a class="toc-backref" href="#id4">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a></h2>
+<h2><a class="toc-backref" href="#id7">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a></h2>
 <p>If your Linux distribution is not very old, it should provide most of
 the needed software packages. Specific instructions for Debian
 GNU/Linux and Ubuntu are provided below.</p>
 <div class="section" id="installation-on-debian-and-ubuntu">
-<h3><a class="toc-backref" href="#id5">1.2.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></h3>
+<h3><a class="toc-backref" href="#id8">1.2.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></h3>
 <p>Almost all the required software packages are already available in
 recent versions of <a class="reference external" href="http://www.debian.org/">Debian GNU/Linux</a> and
 <a class="reference external" href="http://www.ubuntu.com/">Ubuntu</a>. The only exception are the Python
@@ -287,7 +324,7 @@ shell).</p>
 </div>
 </div>
 <div class="section" id="installation-on-microsoft-windows">
-<h2><a class="toc-backref" href="#id6">1.3&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></h2>
+<h2><a class="toc-backref" href="#id9">1.3&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></h2>
 <p>You have to follow these steps, explained in the following sections,
 in order to install Eyegrade in Windows:</p>
 <p>1.- Install Python 2.6 (including Tre).</p>
@@ -295,7 +332,7 @@ in order to install Eyegrade in Windows:</p>
 <p>3.- Install OpenCV 2.1.</p>
 <p>4.- Install Eyegrade itself.</p>
 <div class="section" id="installing-python">
-<h3><a class="toc-backref" href="#id7">1.3.1&nbsp;&nbsp;&nbsp;Installing Python</a></h3>
+<h3><a class="toc-backref" href="#id10">1.3.1&nbsp;&nbsp;&nbsp;Installing Python</a></h3>
 <p>The easiest way to install Python, PyQt and Tre in Windows is
 to download a ZIP file that contains all of them and extract it in
 your file system.</p>
@@ -329,7 +366,7 @@ must, on that installation of Python, download and install Tre
 is free and works) for this last step.</p>
 </div>
 <div class="section" id="installing-pyqt4">
-<h3><a class="toc-backref" href="#id8">1.3.2&nbsp;&nbsp;&nbsp;Installing PyQt4</a></h3>
+<h3><a class="toc-backref" href="#id11">1.3.2&nbsp;&nbsp;&nbsp;Installing PyQt4</a></h3>
 <p><a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/download">Download PyQt</a>. Select
 the Windows 32-bit installer for Python 2.6, event if you have a
 64-bit version of Windows.  Alternatively, there is a copy of the file
@@ -338,7 +375,7 @@ you need at <a class="reference external" href="https://www.dropbox.com/s/15xnbr
 suggests, you only need to select the <em>Qt runtime</em>.</p>
 </div>
 <div class="section" id="installing-opencv">
-<h3><a class="toc-backref" href="#id9">1.3.3&nbsp;&nbsp;&nbsp;Installing OpenCV</a></h3>
+<h3><a class="toc-backref" href="#id12">1.3.3&nbsp;&nbsp;&nbsp;Installing OpenCV</a></h3>
 <p>Download the EXE installer of OpenCV 2.1.0 for Windows platforms:
 <a class="reference external" href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.1/OpenCV-2.1.0-win32-vs2008.exe/download">OpenCV-2.1.0-win32-vs2008.exe</a>. There
 is a copy of the same file at <a class="reference external" href="https://www.dropbox.com/s/g1wxm3rcai2qojx/OpenCV21.exe">OpenCV21.exe</a>.</p>
@@ -356,8 +393,8 @@ import cv
 <p>This command should not output any message. If it does, there is a
 problem with the installation.</p>
 </div>
-<div class="section" id="id1">
-<h3><a class="toc-backref" href="#id10">1.3.4&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h3>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id13">1.3.4&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h3>
 <p>By now, the recommended way to install Eyegrade is through the <a class="reference external" href="http://git-scm.com/">Git
 version control system</a>. This way it will be
 easier to update Eyegrade in the future, when new versions are
@@ -373,14 +410,14 @@ white-spaces in it), and type:</p>
 git clone -b master git://github.com/jfisteus/eyegrade.git
 </pre>
 <p>If you prefer not to install Git:</p>
-<p>1.- Download the ZIP file <a class="reference external" href="https://www.dropbox.com/s/0k5zuxc2qj6rt4j/eyegrade-0.3.zip">eyegrade-0.3.zip</a>. Extract
+<p>1.- Download the ZIP file <a class="reference external" href="https://www.dropbox.com/s/not05fhwhd4awo3/eyegrade-0.2.6.zip">eyegrade-0.2.6.zip</a>. Extract
 it in your file system, in a directory with no white-spaces in its
 path.</p>
 <p>Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
 <tt class="docutils literal">C:\</tt>:</p>
 <pre class="literal-block">
-set PYTHONPATH=C:\eyegrade-0.3
+set PYTHONPATH=C:\eyegrade
 C:\Python26\python -m eyegrade.eyegrade
 </pre>
 <p>It should dump a help message.</p>
@@ -396,12 +433,12 @@ installation of OpenCV and PyQt has completed. After that, go to
 </div>
 </div>
 <div class="section" id="installation-on-mac-os-x">
-<h2><a class="toc-backref" href="#id11">1.4&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></h2>
+<h2><a class="toc-backref" href="#id14">1.4&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></h2>
 <p>Sorry, Eyegrade is not currently supported on that platform. Volunteers
 to support the platform are welcome.</p>
 </div>
 <div class="section" id="updating-eyegrade">
-<h2><a class="toc-backref" href="#id12">1.5&nbsp;&nbsp;&nbsp;Updating Eyegrade</a></h2>
+<h2><a class="toc-backref" href="#id15">1.5&nbsp;&nbsp;&nbsp;Updating Eyegrade</a></h2>
 <p>From time to time, a new release of Eyegrade may appear. If you
 installed Eyegrade using Git, updating is simple. Open a command
 prompt window, enter the Eyegrade installation directory and type:</p>
@@ -409,13 +446,10 @@ prompt window, enter the Eyegrade installation directory and type:</p>
 git pull
 </pre>
 <p>This should work on any platform (Linux, Windows, etc.)</p>
-<p>If you didn't use Git to install Eyegrade, <a class="reference external" href="https://www.dropbox.com/s/0k5zuxc2qj6rt4j/eyegrade-0.3.zip">download the new version</a>,
-uncompress it and replace your <tt class="docutils literal">eyegrade</tt> directory by the one you
-have uncompressed.</p>
 </div>
 </div>
 <div class="section" id="grading-exams">
-<h1><a class="toc-backref" href="#id13">2&nbsp;&nbsp;&nbsp;Grading Exams</a></h1>
+<h1><a class="toc-backref" href="#id16">2&nbsp;&nbsp;&nbsp;Grading Exams</a></h1>
 <p>The main purpose of Eyegrade is grading exams. In order to grade exams,
 you will need:</p>
 <ul class="simple">
@@ -431,7 +465,7 @@ detect student IDs.</li>
 <li>The exams to grade.</li>
 </ul>
 <div class="section" id="launching-eyegrade">
-<h2><a class="toc-backref" href="#id14">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></h2>
+<h2><a class="toc-backref" href="#id17">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></h2>
 <p>This section explains how to run Eyegrade. If it is the first time you
 use Eyegrade, you can try it with the sample file <tt class="docutils literal"><span class="pre">exam-A.pdf</span></tt>
 located inside the directory <tt class="docutils literal"><span class="pre">doc/sample-files</span></tt> of your installation
@@ -479,7 +513,7 @@ point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.</p>
 </div>
 <div class="section" id="the-session-directory">
-<h2><a class="toc-backref" href="#id15">2.2&nbsp;&nbsp;&nbsp;The session directory</a></h2>
+<h2><a class="toc-backref" href="#id18">2.2&nbsp;&nbsp;&nbsp;The session directory</a></h2>
 <p>A grading session in Eyegrade represents the grading of a specific
 exam for a group of students. For example, you would grade the exams
 for the final exam of all your students in the subject <em>Computer
@@ -492,50 +526,43 @@ Eyegrade stores there all the data belonging to the grading session
 graded exams, etc.)</p>
 <p>You can open again later an existing session with the <em>Open session</em>
 option of the <em>Session</em> menu. In the file selection dialog that
-appears, select the <tt class="docutils literal">session.eyedb</tt> file inside the directory of the
+appears, select the <tt class="docutils literal">session.eye</tt> file inside the directory of the
 session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.</p>
 </div>
 <div class="section" id="application-modes">
-<h2><a class="toc-backref" href="#id16">2.3&nbsp;&nbsp;&nbsp;Application modes</a></h2>
+<h2><a class="toc-backref" href="#id19">2.3&nbsp;&nbsp;&nbsp;Application modes</a></h2>
 <p>At a given instant, the application is in one of these modes:</p>
 <ul class="simple">
-<li><em>No session mode</em>: no session is open. You can open an existing
+<li><em>No session mode</em>: no session is opened. You can open an existing
 session or create a new session.</li>
-<li><em>Session home mode</em>: a session is open. This is the entry point for
-starting grading and reviewing already graded exams.</li>
-<li><em>Grading mode</em>: the application continually scans the input from the
-webcam, looking for a correct detection of an exam.</li>
-<li><em>Review mode</em>: the application shows a still capture of an exam with
-the result of the grading, so that the user can review it and fix
-answers or the student id, if necessary.</li>
-<li><em>Manual detection mode</em>: in the rare cases in which the system is
-not able to detect the geometry of the exam in the <em>grading mode</em>,
-you can enter this mode and mark the corners of the answer
+<li><em>Search mode</em>: a session is open. The application continually scans
+the input from the webcam, looking for a correct detection of an
+exam.</li>
+<li><em>Review mode</em>: a session is open. The application shows a still
+capture of an exam with the result of the grading, so that the user
+can review it and fix things, if necessary, before saving the score
+of the exam.</li>
+<li><em>Manual detection mode</em>: a session is open. In the rare cases in
+which the system is not able to detect the geometry of the exam, you
+can enter this mode and mark the corners of the answer
 tables. Eyegrade will be able to detect the tables once you tell it
 where the corners are.</li>
 </ul>
 <p>The application starts with no open session. Once you open or create a
-session, it changes to the <em>session home mode</em>. From it, you can start
-or continue grading (enter the <em>grading mode</em> with the <em>Start grading</em>
-command) or review already graded exams (enter the <em>review mode</em> by
-clicking on an exam at the right side of the main window).</p>
-<p>When you are in the <em>grading mode</em>, the program is continually
-analyzing the image of the webcam. When it detects an answer sheet
-that it can read, it locks the capture and enters the <em>review
-mode</em>. Once you confirm that capture (command <em>Continue to the next
-exam</em>), Eyegrade automatically goes back to the <em>search mode</em> in order
-to scan the next exam.</p>
+session, it changes to the <em>search mode</em>. When the system detects an
+answer sheet that it can read, it locks the capture and enters the
+<em>review mode</em>. Once you save the score of the exam, Eyegrade
+automatically goes back to the <em>search mode</em> in order to scan the next
+exam.</p>
 <p>You can enter the <em>manual detection mode</em> by issuing the appropriate
 command while in the other modes.</p>
-<p>From the <em>grading mode</em> you can go back to the session home mode with
-the <em>Stop grading</em> command. From any of the other modes, you can go
-back to the <em>no session mode</em> with the <em>Close session</em> command in the
-<em>Session</em> menu.</p>
+<p>From any of the other modes, you can go back to the <em>no session mode</em>
+with the <em>Close session</em> command in the <em>Session</em> menu.</p>
 </div>
-<div class="section" id="the-grading-mode">
-<h2><a class="toc-backref" href="#id17">2.4&nbsp;&nbsp;&nbsp;The grading mode</a></h2>
-<p>In the <em>grading mode</em>, you have to get the camera to point to the answer table
+<div class="section" id="the-search-mode">
+<h2><a class="toc-backref" href="#id20">2.4&nbsp;&nbsp;&nbsp;The search mode</a></h2>
+<p>In the <em>search mode</em>, you have to get the camera to point to the answer table
 of the exam, including, if present, the id box above it and the small squares
 at the bottom.</p>
 <p>Eyegrade will continually scan the input of the webcam until the whole
@@ -552,7 +579,7 @@ manually enter the missing student id in that mode.</p>
 <p>In rare occasions, Eyegrade could fail event to detect the answer
 table.  The <em>Manual detection</em> command of the <em>Grading menu</em> allows
 you to help the system detect it.</p>
-<p>These are the commands available in the <em>grading mode</em>, all of them at
+<p>These are the commands available in the <em>search mode</em>, all of them at
 the <em>Grading</em> menu:</p>
 <ul class="simple">
 <li><em>Capture the current image</em> (shortcut 's'): forces the system to
@@ -568,7 +595,7 @@ detection mode</a>.</li>
 </ul>
 </div>
 <div class="section" id="the-review-mode">
-<h2><a class="toc-backref" href="#id18">2.5&nbsp;&nbsp;&nbsp;The review mode</a></h2>
+<h2><a class="toc-backref" href="#id21">2.5&nbsp;&nbsp;&nbsp;The review mode</a></h2>
 <p>In the <em>review mode</em> you can review and, if necessary, fix the
 information detected by Eyegrade in the current exam. You can do it on
 both the answers given by the student to each question and the
@@ -580,11 +607,11 @@ usual case.  Eyegrade was able to detect the whole exam, and you can
 review the information extracted from it.</li>
 <li>With the answers of the student, but without her id. This is the
 case when you use the <em>Capture the current image</em> command in the
-<em>grading mode</em> because Eyegrade detected the answer table in at least
+<em>search mode</em> because Eyegrade detected the answer table in at least
 one capture, but not the student id box. In this case, you can
 review the answers given by the student and manually enter her id.</li>
 <li>With neither the answers of the student nor her id. This is the case
-when you use the <em>Capture the current image</em> command in the <em>grading
+when you use the <em>Capture the current image</em> command in the <em>search
 mode</em> because Eyegrade was not able to detect anything from the
 exam. In this situation, you can switch to the <em>manual detection
 mode</em> to help the system to detect the answer tables, and manually
@@ -618,12 +645,14 @@ answers</a>.</li>
 <li>Modify the student id, if the system did not recognize it or
 recognized a wrong id, as explained in <a class="reference internal" href="#modifying-the-student-id">Modifying the
 student id</a>.</li>
-<li><em>Continue to the next exam</em> (shortcut 'Space-bar'): enters the
-<em>grading mode</em> in order to detect the next exam. <strong>Tip:</strong> before
-saving, it is better to remove the exam from the sight of the camera
-to avoid it from being captured again. You can even put the next
-exam under the camera before saving to speed up the process.</li>
-<li><em>Discard capture</em> (shortcut 'Delete'): discards
+<li><em>Save and capture next exam</em> (shortcut 'Space-bar'):
+saves the grades of this exam as well as the annotated captured
+image, and enters the <em>search mode</em> in order to detect the next
+exam. <strong>Tip:</strong> before saving, it is better to remove the exam from
+the sight of the camera to avoid it from being captured again. You
+can even put the next exam under the camera before saving to speed
+up the process.</li>
+<li><em>Discard capture</em> (shortcut 'Backspace'): discards
 the current capture <strong>without</strong> saving it. It is useful, for
 example, when the capture is not good enough, or when you discover
 that the same exam has already been graded before.</li>
@@ -636,7 +665,7 @@ command is allowed only when the system failed to recognize the
 geometry of the answer tables. See <a class="reference internal" href="#the-manual-detection-mode">The manual detection mode</a>.</li>
 </ul>
 <div class="section" id="modifying-student-answers">
-<h3><a class="toc-backref" href="#id19">2.5.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
+<h3><a class="toc-backref" href="#id22">2.5.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
 <p>The optical recognition system of Eyegrade may fail sometimes, due to
 its own limitations, or students filling their exams in messy ways.
 Sometimes, Eyegrade shows a cell in the answer table as marked when it
@@ -654,7 +683,7 @@ to clear it. In both cases, Eyegrade will compute the scores again and
 immediately update the information on the screen.</p>
 </div>
 <div class="section" id="modifying-the-student-id">
-<h3><a class="toc-backref" href="#id20">2.5.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
+<h3><a class="toc-backref" href="#id23">2.5.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
 <p>Normally, you should provide Eyegrade with the list of class, because
 detection of student ids performs much better in that case. When
 scanning the id in an exam, Eyegrade sorts ids of the students in
@@ -676,10 +705,10 @@ student id, white space, student name.</p>
 </div>
 </div>
 <div class="section" id="the-manual-detection-mode">
-<h2><a class="toc-backref" href="#id21">2.6&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
+<h2><a class="toc-backref" href="#id24">2.6&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
 <p>In some rare occasions, Eyegrade may not be able to detect the answer
 tables. In those cases, you can enter the <em>manual detection mode</em> from
-the <em>grading mode</em> (and also from the <em>review mode</em> if you entered that
+the <em>search mode</em> (and also from the <em>review mode</em> if you entered that
 mode using the <em>Capture the current image</em> command). When entering the
 <em>manual detection mode</em>, the latest capture of the camera will be
 shown.</p>
@@ -702,44 +731,39 @@ as explained in <a class="reference internal" href="#modifying-the-student-id">M
 answer tables</em> command (shortcut 'm') to reset the selection of
 corners and start again. If you think that the captured image is not
 good enough, you can also use the <em>discard</em> command (shortcut
-'Backspace') to go again to the <em>grading mode</em>.</p>
+'Backspace') to go again to the <em>search mode</em>.</p>
 <p><strong>Tip:</strong> in the <em>manual detection mode</em>, make sure that the captured
 image shows all the answer tables as well as the exam model squares at
 the bottom.</p>
 </div>
 </div>
 <div class="section" id="processing-student-grades">
-<h1><a class="toc-backref" href="#id22">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
+<h1><a class="toc-backref" href="#id25">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
 <p>The output produced by Eyegrade consists of:</p>
 <ul class="simple">
 <li>A file with the scores, named <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt>: it contains
 one line for each graded exam. Each line contains, among other
 things, the student id number, the number of correct and incorrect
 answers, and the answer to every question in the exam.  Student
-grades can be extracted from this file.  The file with the scores is
-stored in the session directory. Eyegrade updates its contents when
-you close the session. Remember to close it before using this file.</li>
+grades can be extracted from this file.</li>
 <li>One snapshot of each graded exam, in PNG format: snapshots can be
 used as an evidence to show students. They can be shown to students
 coming to your office to review the exam, or even emailed to every
 student. The default name for those images is the concatenation of
 the student id and exam sequence number, in order to facilitate the
-instructor to locate the snapshot for a specific student. The
-captures are stored in the session directory, inside its
-<tt class="docutils literal">captures</tt> subdirectory. The captures are saved when the exam is
-captured, and updated every time you edit the exam.</li>
+instructor to locate the snapshot for a specific student.</li>
 </ul>
 <div class="section" id="the-answers-file">
-<h2><a class="toc-backref" href="#id23">3.1&nbsp;&nbsp;&nbsp;The answers file</a></h2>
+<h2><a class="toc-backref" href="#id26">3.1&nbsp;&nbsp;&nbsp;The answers file</a></h2>
 <p>The file <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> produced by Eyegrade contains the
 scores in CSV format (with tabulator instead of comma as a separator),
 so that it can be easily imported from other programs such as
 spreadsheets. This is an example of such a file:</p>
 <pre class="literal-block">
-0   100999991       D       9       6       4.5     1/2/2/4/1/2/2/0/0/3/2/0/3/2/0/4/3/0/1/2
-1   100999997       C       15      1       15.0    2/4/4/3/1/0/1/2/1/1/0/1/0/4/3/0/1/4/3/4
-2   100800003       D       6       14      6.0     4/2/2/2/1/2/1/3/2/1/3/1/2/1/3/1/4/1/4/3
-3   100777777       A       7       13      7.0     3/2/3/2/3/3/2/4/3/1/3/1/4/1/4/2/2/3/4/2
+0   100999991       D       9       6       0       1/2/2/4/1/2/2/0/0/3/2/0/3/2/0/4/3/0/1/2
+1   100999997       C       15      1       0       2/4/4/3/1/0/1/2/1/1/0/1/0/4/3/0/1/4/3/4
+2   100800003       D       6       14      0       4/2/2/2/1/2/1/3/2/1/3/1/2/1/3/1/4/1/4/3
+3   100777777       A       7       13      0       3/2/3/2/3/3/2/4/3/1/3/1/4/1/4/2/2/3/4/2
 </pre>
 <p>The columns of this file represent:</p>
 <p>1.- The exam sequence number (the same number the user interface shows
@@ -748,8 +772,8 @@ below the student id in the <em>review mode</em>).</p>
 <p>3.- The exam model ('A', 'B', 'C', etc.)</p>
 <p>4.- The number of correct answers.</p>
 <p>5.- The number of incorrect answers.</p>
-<p>6.- The score of the exam, if you configured the weight of correct and
-incorrect answers for this session.</p>
+<p>6.- The number of undetermined answers (answers marked as blank because
+of the system detecting more than one marked cell).</p>
 <p>7.- The response of the student to each question in the exam, from the
 first question in her model to the last. '0' means a blank
 answer. '1', '2', etc. mean the first choice, second choice, etc., in
@@ -757,9 +781,18 @@ the order they were presented in her exam model.</p>
 <p>Exams are in the same sequence they were graded. See <a class="reference internal" href="#exporting-a-listing-of-scores">Exporting a
 listing of scores</a> to know how to produce a listing of scores in the
 order that best fits your needs.</p>
+<p><strong>Tip:</strong> if you start a new grading session from the same directory,
+the file <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> will not be overwritten. New grades
+will just be appended at the end. Thus, it is safe stopping a grading
+session, closing the application and continuing later. Separate grading
+sessions must be executed from different directories to avoid using
+the same <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> file.</p>
+<p><strong>Tip:</strong> you can edit this file with a text editor if, for example,
+you discover that the same exam was graded more than once (just remove
+the duplicate line).</p>
 </div>
 <div class="section" id="exporting-a-listing-of-scores">
-<h2><a class="toc-backref" href="#id24">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
+<h2><a class="toc-backref" href="#id27">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
 <p>You will probably want to import the listing of scores from your
 grade-book. You can easily process <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> to produce
 a CSV-formatted file with three columns: student id, number of correct
@@ -807,7 +840,7 @@ accidental losses of student scores. This behavior can be changed (see
 listings in exams combining MCQ questions with manually-graded
 questions.</p>
 <div class="section" id="exporting-a-listing-for-a-subset-of-students">
-<h3><a class="toc-backref" href="#id25">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></h3>
+<h3><a class="toc-backref" href="#id28">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></h3>
 <p>In order to extract the scores for just a subset of the students,
 create a student list with the ids of the students you want and run
 the program with the <tt class="docutils literal"><span class="pre">-i</span></tt> option:</p>
@@ -824,7 +857,7 @@ separate listing for each class.</p>
 </div>
 </div>
 <div class="section" id="editing-exams">
-<h1><a class="toc-backref" href="#id26">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
+<h1><a class="toc-backref" href="#id29">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
 <p>Although you can use any software of your preference to typeset the
 exams, Eyegrade provides a module for doing that in combination to the
 LaTeX document preparation system.</p>
@@ -1141,9 +1174,9 @@ python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -
 </pre>
 </div>
 <div class="section" id="advanced-features">
-<h1><a class="toc-backref" href="#id27">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
+<h1><a class="toc-backref" href="#id30">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
 <div class="section" id="webcam-selection">
-<h2><a class="toc-backref" href="#id28">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
+<h2><a class="toc-backref" href="#id31">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
 <p>If your computer has more than one camera (e.g. the internal camera of
 the laptop and an external camera you use to grade the exams),
 Eyegrade will select one of them by default. If the selected camera is
@@ -1173,7 +1206,7 @@ camera-dev: 1
 your account is at <tt class="docutils literal"><span class="pre">C:\Documents</span> and <span class="pre">Settings\&lt;your_user_name&gt;</span></tt>.</p>
 </div>
 <div class="section" id="mixing-manually-graded-questions">
-<h2><a class="toc-backref" href="#id29">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></h2>
+<h2><a class="toc-backref" href="#id32">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></h2>
 <p>You may want to mix in the same exam MCQ questions with other type
 of questions that must be graded manually. Even though Eyegrade can
 only grade the MCQ questions of the exam, it can simplify a little
@@ -1216,7 +1249,7 @@ resulting file:</p>
 </pre>
 </div>
 <div class="section" id="creating-the-exams-in-a-word-processor">
-<h2><a class="toc-backref" href="#id30">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<h2><a class="toc-backref" href="#id33">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
 <p>The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
@@ -1346,7 +1379,7 @@ they should be placed from left to right:</p>
 </table>
 </div>
 <div class="section" id="manually-editing-the-eye-file">
-<h2><a class="toc-backref" href="#id31">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<h2><a class="toc-backref" href="#id34">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
 <p>The files that store the configuration of an exam and the correct
 answer for each question are stored with a <cite>.eye</cite> extension. An example
 is shown below:</p>
@@ -1406,7 +1439,7 @@ probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.</p>
 </div>
 <div class="section" id="automatic-detection-of-exam-removal">
-<h2><a class="toc-backref" href="#id32">5.5&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
+<h2><a class="toc-backref" href="#id35">5.5&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
 <p>If the camera in your setup is fixed, that is, you place an exam below
 the camera, review it, remove it and place the next exam, you may want
 Eyegrade to detect that you have removed the exam instead of having to
@@ -1424,5 +1457,15 @@ has been removed.</p>
 </div>
 </div>
 </div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-42957388-1', 'eyegrade.org');
+  ga('send', 'pageview');
+
+</script>
 </body>
 </html>
