@@ -223,8 +223,8 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade-0.3.zip
-<https://www.dropbox.com/s/0k5zuxc2qj6rt4j/eyegrade-0.3.zip>`_. Extract
+1.- Download the ZIP file `eyegrade.zip
+<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_. Extract
 it in your file system, in a directory with no white-spaces in its
 path.
 
@@ -268,7 +268,7 @@ prompt window, enter the Eyegrade installation directory and type::
 This should work on any platform (Linux, Windows, etc.)
 
 If you didn't use Git to install Eyegrade, `download the new version
-<https://www.dropbox.com/s/0k5zuxc2qj6rt4j/eyegrade-0.3.zip>`_,
+<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_,
 uncompress it and replace your ``eyegrade`` directory by the one you
 have uncompressed.
 
