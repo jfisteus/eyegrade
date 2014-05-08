@@ -1,3 +1,9 @@
+2014-05-08  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.3.1.
+
+	* Fix for a bug when selecting an exam from the grading mode.
+
 2014-05-07  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.3.
