@@ -698,7 +698,13 @@ class ProgramManager(object):
                 self._start_review_mode()
 
     def _exam_selected(self, exam):
-        if self.mode.in_grading() or self.mode.in_review_from_session():
+        if self.mode.in_grading():
+            if self.mode.in_review_from_grading():
+                self._store_capture(self.exam)
+                self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
+                self.exam_id += 1
+            self._activate_session_mode()
+        elif self.mode.in_review_from_session():
             self._store_capture_if_changed()
         exam.load_capture()
         exam.reset_image()
