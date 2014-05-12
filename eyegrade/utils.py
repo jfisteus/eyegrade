@@ -455,7 +455,7 @@ def mix_results(results_filename, student_list_filename, dump_missing,
         for student_id in results:
             if not student_id in ids:
                 mixed_grades.append(_student_result(student_id, results,
-                                                    dump_model))
+                                                    round_score, dump_model))
     return mixed_grades
 
 def _student_result(student_id, results, round_score, dump_model):
