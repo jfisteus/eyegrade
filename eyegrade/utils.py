@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://eyegrade.org/doc/user-manual/'
-version = '0.3.1'
+version = '0.3.2'
 version_status = 'alpha'
 
 re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
@@ -455,7 +455,7 @@ def mix_results(results_filename, student_list_filename, dump_missing,
         for student_id in results:
             if not student_id in ids:
                 mixed_grades.append(_student_result(student_id, results,
-                                                    dump_model))
+                                                    round_score, dump_model))
     return mixed_grades
 
 def _student_result(student_id, results, round_score, dump_model):
