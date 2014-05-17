@@ -42,8 +42,8 @@ Upgrading from Eyegrade 0.2.x to Eyegrade 0.3
 In order to upgrade from eyegrade 0.2.x to eyegrade 0.3, follow the
 instructions at `Updating Eyegrade`_.
 
-The main changes are described in the blog post `*Eyegrade 0.3
-released* <http://eyegrade.org/blog/posts/eyegrade-03-released.html>`_
+The main changes are described in the blog post `Eyegrade 0.3
+released <http://eyegrade.org/blog/posts/eyegrade-03-released.html>`_
 
 
 Installation on GNU/Linux
@@ -63,18 +63,31 @@ recent versions of `Debian GNU/Linux <http://www.debian.org/>`_ and
 bindings for Tre, which have to be installed manually.
 
 Using your favorite package manager (``apt-get``, ``aptitude``,
-``synaptic``, etc.), install the following packages: ``python`` (check
-that the version is either 2.6 or 2.7), ``python-qt4``,
-``python-opencv``, ``python-numpy``, ``libavformat53``,
-``libtre5``. In older versions of Ubuntu and Debian, you might need to
-install also ``libcv2.1`` (in even older versions, the name of this
-package is ``libcv4`` instead).  If you can't find ``libavformat53``
-in your distribution, use ``libavformat52`` instead.
+``synaptic``, etc.), install the following packages:
 
-Then, you have to install the Python bindings for Tre. First, install
-these two additional packages: ``python-dev``, ``libtre-dev``.
-Then, from the command line, download, compile and install the Python
-bindings::
+- ``python`` (check that the version is 2.7.)
+
+- ``python-dev``
+
+- ``python-qt4``
+
+- ``python-opencv``
+
+- ``python-numpy``
+
+- ``libtre5``
+
+- ``libtre-dev``
+
+- ``git``
+
+For example, with ``apt-get`` you would run from a command line terminal::
+
+  sudo apt-get install python python-dev python-qt4 python-opencv python-numpy libtre5 libtre-dev git
+
+Then, you have to install the Python bindings for Tre.  In order to do
+that, download, compile and install the Python bindings. You can do
+that from a command line terminal::
 
   wget http://laurikari.net/tre/tre-0.8.0.tar.gz
   tar xzvf tre-0.8.0.tar.gz
@@ -83,7 +96,7 @@ bindings::
   sudo python setup.py install
 
 Now, you only need to download Eyegrade using the git source code
-revision system (install the ``git`` package if you do not have it)::
+revision system::
 
   cd $DIR
   git clone -b master git://github.com/jfisteus/eyegrade.git
