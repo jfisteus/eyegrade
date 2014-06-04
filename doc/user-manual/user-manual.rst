@@ -245,7 +245,7 @@ Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
 ``C:\``::
 
-    set PYTHONPATH=C:\eyegrade-0.3
+    set PYTHONPATH=C:\eyegrade
     C:\Python26\python -m eyegrade.eyegrade
 
 It should dump a help message.
