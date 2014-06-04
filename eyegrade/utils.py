@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://eyegrade.org/doc/user-manual/'
-version = '0.3.2'
+version = '0.3.3'
 version_status = 'alpha'
 
 re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
