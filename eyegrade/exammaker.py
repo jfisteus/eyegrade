@@ -278,7 +278,7 @@ def latex_declarations(with_solution):
        of the LaTeX output.
 
     """
-    data = [r'\usepackage[dvipdf]{graphicx}',
+    data = [r'\usepackage{graphicx}',
             r'\usepackage{fancyvrb}',
             r'\usepackage{enumerate}',
             r'\usepackage{color}',

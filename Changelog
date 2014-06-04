@@ -1,3 +1,10 @@
+2014-06-04  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.3.3.
+
+	* Fix a minor problem in the generation of latex exams, in
+	the options given to the graphicx package.
+
 2014-05-12  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.3.2.
