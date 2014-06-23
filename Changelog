@@ -1,3 +1,10 @@
+2014-06-24  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.4.1.
+
+	* Fix an error in the previous release: export.py was not
+	included in the release.
+
 2014-06-23  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.4.
