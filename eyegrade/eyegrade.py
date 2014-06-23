@@ -653,6 +653,21 @@ class ProgramManager(object):
         if self.interface.is_action_checked(('tools', 'auto_change')):
             self._start_auto_change_detection()
 
+    def _action_export_grades(self):
+        """Action for exporting the list of grades."""
+        opts = self.interface.dialog_export_grades()
+        if opts is not None:
+            filename, data_type, students, sort_by, options = opts
+            options['all_students'] = (students == 0)
+            options['sort_by_student'] = (sort_by == 0)
+            try:
+                self.sessiondb.export_grades(filename,
+                                             self.config['csv-dialect'],
+                                             **options)
+            except IOError as e:
+                msg = _('Input/output error: {0}').format(e.strerror)
+                self.interface.show_error(msg)
+
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
         if self.mode.in_review():
@@ -810,6 +825,7 @@ class ProgramManager(object):
             ('actions', 'tools', 'show_status'): self._action_debug_changed,
             ('actions', 'tools', 'auto_change'): \
                                             self._action_auto_change_changed,
+            ('actions', 'exams', 'export'): self._action_export_grades,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
             ('actions', 'help', 'source'): self._action_source_code,

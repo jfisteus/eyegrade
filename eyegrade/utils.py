@@ -1227,3 +1227,6 @@ def capture_name(filename_pattern, exam_id, student):
     filename = regexp_seqnum.sub(str(exam_id), filename_pattern)
     filename = regexp_id.sub(sid, filename)
     return filename
+
+def encode_string(text):
+    return text.encode(config['default-charset'])

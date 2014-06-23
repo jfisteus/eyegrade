@@ -44,6 +44,7 @@ from eyegrade.utils import (resource_path, program_name, version, web_location,
 import eyegrade.utils as utils
 from . import examsview
 from . import widgets
+from .export import DialogExportGrades
 
 
 color_eyegrade_blue = QColor(32, 73, 124)
@@ -949,6 +950,7 @@ class ActionsManager(object):
 
     _actions_exams_data = [
         ('search', 'search.svg', _('&Search'), []),
+        ('export', None, _('&Export grades listing'), []),
         ]
 
     _actions_tools_data = [
@@ -1019,8 +1021,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
-        for key in self.actions_exams:
-            self.actions_exams[key].setEnabled(False)
+        self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['export'].setEnabled(False)
 
     def set_review_from_grading_mode(self):
         self.actions_grading['start'].setEnabled(False)
@@ -1036,8 +1038,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
-        for key in self.actions_exams:
-            self.actions_exams[key].setEnabled(False)
+        self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['export'].setEnabled(True)
 
     def set_review_from_session_mode(self):
         self.actions_grading['start'].setEnabled(True)
@@ -1053,9 +1055,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
-        self.actions_exams['search'].setEnabled(True)
-        for key in self.actions_exams:
-            self.actions_exams[key].setEnabled(False)
+        self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['export'].setEnabled(True)
 
     def set_session_mode(self):
         self.actions_grading['start'].setEnabled(True)
@@ -1072,8 +1073,8 @@ class ActionsManager(object):
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
         self.actions_exams['search'].setEnabled(True)
-        for key in self.actions_exams:
-            self.actions_exams[key].setEnabled(False)
+        self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['export'].setEnabled(True)
 
     def set_manual_detect_mode(self):
         self.actions_grading['start'].setEnabled(False)
@@ -1089,8 +1090,8 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
-        for key in self.actions_exams:
-            self.actions_exams[key].setEnabled(False)
+        self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['export'].setEnabled(False)
 
     def set_no_session_mode(self):
         for key in self.actions_grading:
@@ -1132,11 +1133,13 @@ class ActionsManager(object):
             return self.actions_session
         elif key == 'grading':
             return self.actions_grading
+        elif key == 'exams':
+            return self.actions_exams
         elif key == 'tools':
             return self.actions_tools
         elif key == 'help':
             return self.actions_help
-        assert False, 'Undefined action group key: {0}.format(key)'
+        assert False, 'Undefined action group key: {0}'.format(key)
 
     def _add_action(self, action_name, icon_file, text, shortcuts,
                     group, actions_list):
@@ -1646,6 +1649,16 @@ class Interface(object):
 
         """
         dialog = DialogCameraSelection(capture_context, self.window)
+        return dialog.exec_()
+
+    def dialog_export_grades(self):
+        """Displays the dialog for exporting grades.
+
+        If accepted by the user, returns the tuple (filename, file type,
+        students, fields).  Returns None if cancelled.
+
+        """
+        dialog = DialogExportGrades(self.window)
         return dialog.exec_()
 
     def show_error(self, message, title='Error'):
