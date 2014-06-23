@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://eyegrade.org/doc/user-manual/'
-version = '0.3.3'
+version = '0.4'
 version_status = 'alpha'
 
 re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
@@ -1227,3 +1227,6 @@ def capture_name(filename_pattern, exam_id, student):
     filename = regexp_seqnum.sub(str(exam_id), filename_pattern)
     filename = regexp_id.sub(sid, filename)
     return filename
+
+def encode_string(text):
+    return text.encode(config['default-charset'])

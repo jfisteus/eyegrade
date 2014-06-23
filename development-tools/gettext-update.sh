@@ -1,6 +1,6 @@
 #!/bin/bash
 
-srcfiles="eyegrade/eyegrade.py eyegrade/qtgui/gui.py"
+srcfiles="eyegrade/eyegrade.py eyegrade/qtgui/gui.py eyegrade/qtgui/export.py"
 
 languages=$*
 if [ "x$languages" == "x" ]

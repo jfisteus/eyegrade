@@ -260,7 +260,7 @@ class SessionDB(object):
     def save_legacy_answers(self, csv_dialect):
         answers_file = os.path.join(self.session_dir, 'eyegrade-answers.csv')
         with open(answers_file, "wb") as f:
-            writer = csv.writer(f, dialect = csv_dialect)
+            writer = csv.writer(f, dialect=csv_dialect)
             for exam in self.exams_iterator():
                 data = [
                     exam['exam_id'],
@@ -273,6 +273,34 @@ class SessionDB(object):
                     ]
                 writer.writerow(data)
 
+    def export_grades(self, file_name, csv_dialect, all_students=True,
+                      seq_num=True, student_id=True, student_name=True,
+                      correct=True, incorrect=True, score=True,
+                      model=True, answers=True, sort_by_student=True):
+        with open(file_name, "wb") as f:
+            writer = csv.writer(f, dialect=csv_dialect)
+            for exam in self.grades_iterator(all_students=all_students,
+                                             sort_by_student=sort_by_student):
+                data = []
+                if student_id:
+                    data.append(exam['student_id'])
+                if student_name:
+                    data.append(utils.encode_string(exam['name']))
+                if seq_num:
+                    data.append(exam['exam_id'])
+                if model:
+                    data.append(exam['model'])
+                if correct:
+                    data.append(exam['correct'])
+                if incorrect:
+                    data.append(exam['incorrect'])
+                if score:
+                    data.append(exam['score'])
+                if answers:
+                    data.append('/'.join([str(answer) \
+                                          for answer in exam['answers']]))
+                writer.writerow(data)
+
     def exams_iterator(self):
         cursor = self.conn.cursor()
         for row in cursor.execute('SELECT '
@@ -283,6 +311,34 @@ class SessionDB(object):
             exam = dict(row)
             exam['model'] = _Adapter.dec_model(exam['model'])
             exam['answers'] = self.read_answers(exam['exam_id'])
+            yield exam
+
+    def grades_iterator(self, all_students=True, sort_by_student=True):
+        cursor = self.conn.cursor()
+        if all_students:
+            join_type = 'LEFT'
+        else:
+            join_type = 'INNER'
+        if sort_by_student:
+            sort_clause = 'ORDER BY group_id, sequence_num'
+        else:
+            sort_clause = 'ORDER BY exam_id'
+        query = ('SELECT '
+                 'exam_id, student_id, name, model, '
+                 'correct, incorrect, score '
+                 'FROM Students '
+                 '{0} JOIN Exams ON student = db_id '
+                 '{1}').format(join_type, sort_clause)
+        for row in cursor.execute(query):
+            exam = dict(row)
+            if exam['correct'] is not None:
+                exam['model'] = _Adapter.dec_model(exam['model'])
+                exam['answers'] = self.read_answers(exam['exam_id'])
+            else:
+                exam['answers'] = ''
+            for k, v in exam.iteritems():
+                if v is None:
+                    exam[k] = ''
             yield exam
 
     def read_answers(self, exam_id):

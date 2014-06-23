@@ -20,7 +20,8 @@
 from __future__ import division
 
 from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
-                         QStatusBar, QLabel, )
+                         QStatusBar, QLabel, QHBoxLayout, QCheckBox,
+                         QWidget, )
 from PyQt4.QtCore import Qt
 
 from .. import utils
@@ -91,3 +92,26 @@ class StatusBar(QStatusBar):
                .format(utils.program_name, utils.version, utils.web_location)
         self.addPermanentWidget(QLabel(version_line))
 
+
+class LabelledCheckBox(QWidget):
+    """A checkbox with a label."""
+    def __init__(self, label_text, parent, checked=False):
+        """Creates a new instance.
+
+        :param label: The label to show with the checkbox.
+        :param parent: The parent of this widget.
+        :param checked: Initial state of the checkbox (defaults to False).
+
+        """
+        super(LabelledCheckBox, self).__init__(parent=parent)
+        layout = QHBoxLayout(self)
+        self.checkbox = QCheckBox(parent=self)
+        self.checkbox.setChecked(checked)
+        layout.addWidget(self.checkbox, alignment=Qt.AlignLeft)
+        layout.addWidget(QLabel(label_text, parent=self), stretch=1,
+                         alignment=Qt.AlignLeft)
+        self.setLayout(layout)
+
+    def is_checked(self):
+        """Returns True if the checkbox is checked, False otherwise."""
+        return self.checkbox.isChecked()
