@@ -950,7 +950,7 @@ class ActionsManager(object):
 
     _actions_exams_data = [
         ('search', 'search.svg', _('&Search'), []),
-        ('export', None, _('&Export grades listing'), []),
+        ('export', 'export.svg', _('&Export grades listing'), []),
         ]
 
     _actions_tools_data = [
@@ -1198,7 +1198,7 @@ class ActionsManager(object):
         for action in action_lists['grading']:
             self.toolbar.addAction(action)
         self.toolbar.addSeparator()
-        self.toolbar.addAction(self.actions_exams['search'])
+        self.toolbar.addAction(self.actions_exams['export'])
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actions_session['new'])
         self.toolbar.addAction(self.actions_session['open'])
