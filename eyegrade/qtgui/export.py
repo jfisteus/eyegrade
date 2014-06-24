@@ -83,9 +83,18 @@ class DialogExportGrades(QDialog):
         return result
 
     def _get_save_file_name(self):
-        return QFileDialog.getSaveFileName(parent=self,
-                                       caption=_('Save listing as...'),
-                                       options=QFileDialog.DontUseNativeDialog)
+        save_dialog = QFileDialog(parent=self, caption=_('Save listing as...'),
+                                  filter=_('Data file (*.csv)'))
+        save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
+        save_dialog.setDefaultSuffix('csv')
+        save_dialog.setFileMode(QFileDialog.AnyFile)
+        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        filename = None
+        if save_dialog.exec_():
+            filename_list = save_dialog.selectedFiles()
+            if len(filename_list) == 1:
+                filename = filename_list[0]
+        return filename
 
 
 class ExportItems(QWidget):
