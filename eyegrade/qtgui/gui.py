@@ -1652,14 +1652,16 @@ class Interface(object):
         dialog = DialogCameraSelection(capture_context, self.window)
         return dialog.exec_()
 
-    def dialog_export_grades(self):
+    def dialog_export_grades(self, student_groups):
         """Displays the dialog for exporting grades.
+
+        `student_groups` is a list of utils.StudentGroup objects.
 
         If accepted by the user, returns the tuple (filename, file type,
         students, fields).  Returns None if cancelled.
 
         """
-        dialog = DialogExportGrades(self.window)
+        dialog = DialogExportGrades(self.window, student_groups)
         return dialog.exec_()
 
     def show_error(self, message, title='Error'):

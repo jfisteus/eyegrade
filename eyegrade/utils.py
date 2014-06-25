@@ -695,6 +695,15 @@ class Student(object):
         return u'student: ' + self.get_id_and_name()
 
 
+class StudentGroup(object):
+    def __init__(self, identifier, name):
+        self.identifier = identifier
+        self.name = name
+
+    def __unicode__(self):
+        return u'Group #{0.identifier} ({0.name})'.format(self)
+
+
 class Exam(object):
     def __init__(self, capture_, decisions, solutions, valid_students,
                  exam_id, score_weights):
