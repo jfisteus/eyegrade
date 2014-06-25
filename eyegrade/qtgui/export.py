@@ -32,14 +32,19 @@ _ = t.ugettext
 class DialogExportGrades(QDialog):
     """Dialog to export grades listings.
 
+    `student_groups` is a list of utils.StudentGroup objects
+    that is internally used to allow the user to export
+    just one group of students instead of all the students.
+
     Example (replace `parent` by the parent widget):
 
-    dialog = DialogExportGrades(parent)
+    dialog = DialogExportGrades(parent, student_groups)
     file_name, options = dialog.exec_()
 
     """
-    def __init__(self, parent):
+    def __init__(self, parent, student_groups):
         super(DialogExportGrades, self).__init__(parent)
+        self.student_groups = student_groups
         self.setWindowTitle(_('Export grades listing'))
         self.type_combo = QComboBox(parent=self)
         self.type_combo.addItem(_('Tabs-separated file'))
@@ -50,6 +55,15 @@ class DialogExportGrades(QDialog):
         self.sort_combo = QComboBox(parent=self)
         self.sort_combo.addItem(_('Student list'))
         self.sort_combo.addItem(_('Exam grading sequence'))
+        if len(student_groups) > 1:
+            self.groups_combo = QComboBox(parent=self)
+            self.groups_combo.addItem(_('All the groups'))
+            for group in student_groups:
+                label = u'{0} #{1.identifier} ({1.name})'.format(_('Group'),
+                                                                 group)
+                self.groups_combo.addItem(label)
+        else:
+            self.groups_combo = None
         self.export_items = ExportItems(self)
         buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                     | QDialogButtonBox.Cancel))
@@ -59,6 +73,8 @@ class DialogExportGrades(QDialog):
         self.setLayout(layout)
         layout.addRow(_('File type:'), self.type_combo)
         layout.addRow(_('Students:'), self.students_combo)
+        if self.groups_combo is not None:
+            layout.addRow(_('Student group:'), self.groups_combo)
         layout.addRow(_('Sort by:'), self.sort_combo)
         layout.addRow(_('Export fields:'), self.export_items)
         layout.addRow(buttons)
@@ -75,17 +91,32 @@ class DialogExportGrades(QDialog):
         if dialog_result == QDialog.Accepted:
             filename = self._get_save_file_name()
             if filename:
+                selected_group = None
+                if self.groups_combo is not None:
+                    idx = self.groups_combo.currentIndex()
+                    if idx > 0:
+                        selected_group = self.student_groups[idx - 1]
                 result = (filename,
                           self.type_combo.currentIndex(),
                           self.students_combo.currentIndex(),
+                          selected_group,
                           self.sort_combo.currentIndex(),
                           self.export_items.get_state())
         return result
 
     def _get_save_file_name(self):
-        return QFileDialog.getSaveFileName(parent=self,
-                                       caption=_('Save listing as...'),
-                                       options=QFileDialog.DontUseNativeDialog)
+        save_dialog = QFileDialog(parent=self, caption=_('Save listing as...'),
+                                  filter=_('Data file (*.csv)'))
+        save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
+        save_dialog.setDefaultSuffix('csv')
+        save_dialog.setFileMode(QFileDialog.AnyFile)
+        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        filename = None
+        if save_dialog.exec_():
+            filename_list = save_dialog.selectedFiles()
+            if len(filename_list) == 1:
+                filename = filename_list[0]
+        return filename
 
 
 class ExportItems(QWidget):

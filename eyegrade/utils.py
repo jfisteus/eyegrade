@@ -31,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://eyegrade.org/doc/user-manual/'
-version = '0.4.1'
+version = '0.4.2'
 version_status = 'alpha'
 
 re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
@@ -693,6 +693,15 @@ class Student(object):
 
     def __unicode__(self):
         return u'student: ' + self.get_id_and_name()
+
+
+class StudentGroup(object):
+    def __init__(self, identifier, name):
+        self.identifier = identifier
+        self.name = name
+
+    def __unicode__(self):
+        return u'Group #{0.identifier} ({0.name})'.format(self)
 
 
 class Exam(object):

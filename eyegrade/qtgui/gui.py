@@ -828,6 +828,7 @@ class DialogAbout(QDialog):
              """).format(resource_path('logo.svg'), program_name, version,
                          web_location, source_location)
         label = QLabel(text)
+        label.setOpenExternalLinks(True)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse
                                        | Qt.TextBrowserInteraction
@@ -950,7 +951,7 @@ class ActionsManager(object):
 
     _actions_exams_data = [
         ('search', 'search.svg', _('&Search'), []),
-        ('export', None, _('&Export grades listing'), []),
+        ('export', 'export.svg', _('&Export grades listing'), []),
         ]
 
     _actions_tools_data = [
@@ -1198,7 +1199,7 @@ class ActionsManager(object):
         for action in action_lists['grading']:
             self.toolbar.addAction(action)
         self.toolbar.addSeparator()
-        self.toolbar.addAction(self.actions_exams['search'])
+        self.toolbar.addAction(self.actions_exams['export'])
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actions_session['new'])
         self.toolbar.addAction(self.actions_session['open'])
@@ -1651,14 +1652,16 @@ class Interface(object):
         dialog = DialogCameraSelection(capture_context, self.window)
         return dialog.exec_()
 
-    def dialog_export_grades(self):
+    def dialog_export_grades(self, student_groups):
         """Displays the dialog for exporting grades.
+
+        `student_groups` is a list of utils.StudentGroup objects.
 
         If accepted by the user, returns the tuple (filename, file type,
         students, fields).  Returns None if cancelled.
 
         """
-        dialog = DialogExportGrades(self.window)
+        dialog = DialogExportGrades(self.window, student_groups)
         return dialog.exec_()
 
     def show_error(self, message, title='Error'):

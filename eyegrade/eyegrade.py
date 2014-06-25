@@ -655,11 +655,13 @@ class ProgramManager(object):
 
     def _action_export_grades(self):
         """Action for exporting the list of grades."""
-        opts = self.interface.dialog_export_grades()
+        student_groups = self.sessiondb.get_student_groups()
+        opts = self.interface.dialog_export_grades(student_groups)
         if opts is not None:
-            filename, data_type, students, sort_by, options = opts
+            filename, data_type, students, group, sort_by, options = opts
             options['all_students'] = (students == 0)
             options['sort_by_student'] = (sort_by == 0)
+            options['student_group'] = group
             try:
                 self.sessiondb.export_grades(filename,
                                              self.config['csv-dialect'],

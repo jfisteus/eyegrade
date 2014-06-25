@@ -248,6 +248,31 @@ class SessionDB(object):
             self.students[student.student_id] = student
         return self.students
 
+    def get_student_groups(self, ignore_empty_groups=True):
+        """Return the list of student groups.
+
+        If `ignore_empty_groups` is set, only the groups with at least one
+        student are returned.
+
+        The groups are returned as a list of utils.StudentGroup objects.
+
+        """
+        groups = []
+        cursor = self.conn.cursor()
+        if ignore_empty_groups:
+            query = ('SELECT StudentGroups.group_id, group_name '
+                     'FROM StudentGroups '
+                     'INNER JOIN Students '
+                     'ON Students.group_id=StudentGroups.group_id '
+                     'GROUP BY Students.group_id')
+        else:
+            query = ('SELECT group_id, group_name '
+                     'FROM StudentGroups')
+        for row in cursor.execute(query):
+           groups.append(utils.StudentGroup(row['group_id'],
+                                            row['group_name']))
+        return groups
+
     def next_exam_id(self):
         cursor = self.conn.cursor()
         cursor.execute('SELECT MAX(exam_id) FROM Exams')
@@ -276,11 +301,13 @@ class SessionDB(object):
     def export_grades(self, file_name, csv_dialect, all_students=True,
                       seq_num=True, student_id=True, student_name=True,
                       correct=True, incorrect=True, score=True,
-                      model=True, answers=True, sort_by_student=True):
+                      model=True, answers=True, sort_by_student=True,
+                      student_group=None):
         with open(file_name, "wb") as f:
             writer = csv.writer(f, dialect=csv_dialect)
             for exam in self.grades_iterator(all_students=all_students,
-                                             sort_by_student=sort_by_student):
+                                             sort_by_student=sort_by_student,
+                                             student_group=student_group):
                 data = []
                 if student_id:
                     data.append(exam['student_id'])
@@ -313,7 +340,8 @@ class SessionDB(object):
             exam['answers'] = self.read_answers(exam['exam_id'])
             yield exam
 
-    def grades_iterator(self, all_students=True, sort_by_student=True):
+    def grades_iterator(self, all_students=True, sort_by_student=True,
+                        student_group=None):
         cursor = self.conn.cursor()
         if all_students:
             join_type = 'LEFT'
@@ -323,12 +351,18 @@ class SessionDB(object):
             sort_clause = 'ORDER BY group_id, sequence_num'
         else:
             sort_clause = 'ORDER BY exam_id'
+        if student_group is not None:
+            where_clause = 'WHERE group_id = {0.identifier} '\
+                                         .format(student_group)
+        else:
+            where_clause = ''
         query = ('SELECT '
                  'exam_id, student_id, name, model, '
                  'correct, incorrect, score '
                  'FROM Students '
                  '{0} JOIN Exams ON student = db_id '
-                 '{1}').format(join_type, sort_clause)
+                 '{1}'
+                 '{2}').format(join_type, where_clause, sort_clause)
         for row in cursor.execute(query):
             exam = dict(row)
             if exam['correct'] is not None:
