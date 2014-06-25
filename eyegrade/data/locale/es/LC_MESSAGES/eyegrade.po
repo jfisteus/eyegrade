@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eyegrade\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-23 17:51+0200\n"
+"POT-Creation-Date: 2014-06-26 00:04+0200\n"
 "PO-Revision-Date: 2013-07-23 19:23+0200\n"
 "Last-Translator: Jesus Arias Fisteus\n"
 "Language-Team: \n"
@@ -95,16 +95,16 @@ msgstr "Se va a borrar el examen seleccionado. ¿Está seguro?"
 msgid "You typed and incorrect student id."
 msgstr "Ha introducido un identificador de estudiante incorrecto."
 
-#: eyegrade/eyegrade.py:668
+#: eyegrade/eyegrade.py:670
 #, python-brace-format
 msgid "Input/output error: {0}"
 msgstr "Error de entrada/salida: {0}"
 
-#: eyegrade/eyegrade.py:709
+#: eyegrade/eyegrade.py:711
 msgid "Manual detection failed"
 msgstr "Ha fallado la detección manual"
 
-#: eyegrade/eyegrade.py:751
+#: eyegrade/eyegrade.py:753
 msgid "No camera found. Connect a camera and start the session again."
 msgstr ""
 "No se ha encontrado ninguna cámara. Conecte una y abra de nuevo la sesión."
@@ -399,280 +399,296 @@ msgstr ""
 "             </center>\n"
 "             "
 
-#: eyegrade/qtgui/gui.py:841
+#: eyegrade/qtgui/gui.py:842
 msgid "Lead developers"
 msgstr "Desarrolladores principales"
 
-#: eyegrade/qtgui/gui.py:854
+#: eyegrade/qtgui/gui.py:855
 msgid "Catalan"
 msgstr "Catalán"
 
-#: eyegrade/qtgui/gui.py:855
+#: eyegrade/qtgui/gui.py:856
 msgid "German"
 msgstr "Alemán"
 
-#: eyegrade/qtgui/gui.py:856
+#: eyegrade/qtgui/gui.py:857
 msgid "Galician"
 msgstr "Gallego"
 
-#: eyegrade/qtgui/gui.py:857
+#: eyegrade/qtgui/gui.py:858
 msgid "French"
 msgstr "Francés"
 
-#: eyegrade/qtgui/gui.py:858
+#: eyegrade/qtgui/gui.py:859
 msgid "Portuguese"
 msgstr "Portugués"
 
-#: eyegrade/qtgui/gui.py:859
+#: eyegrade/qtgui/gui.py:860
 msgid "Spanish"
 msgstr "Español"
 
-#: eyegrade/qtgui/gui.py:928
+#: eyegrade/qtgui/gui.py:929
 msgid "&Start grading"
 msgstr "&Empezar a corregir"
 
-#: eyegrade/qtgui/gui.py:929
+#: eyegrade/qtgui/gui.py:930
 msgid "S&top grading"
 msgstr "&Dejar de corregir"
 
-#: eyegrade/qtgui/gui.py:930
+#: eyegrade/qtgui/gui.py:931
 msgid "&Back to session home"
 msgstr "&Volver a la vista principal de la sesión"
 
-#: eyegrade/qtgui/gui.py:931
+#: eyegrade/qtgui/gui.py:932
 msgid "Continue to the &next exam"
 msgstr "Continuar con el &siguiente examen"
 
-#: eyegrade/qtgui/gui.py:934
+#: eyegrade/qtgui/gui.py:935
 msgid "&Capture the current image"
 msgstr "&Capturar la imagen actual"
 
-#: eyegrade/qtgui/gui.py:937
+#: eyegrade/qtgui/gui.py:938
 msgid "&Manual detection of answer tables"
 msgstr "Detectar &manualmente tablas de respuestas"
 
-#: eyegrade/qtgui/gui.py:938
+#: eyegrade/qtgui/gui.py:939
 msgid "&Edit student id"
 msgstr "Editar la &identidad del estudiante"
 
-#: eyegrade/qtgui/gui.py:939
+#: eyegrade/qtgui/gui.py:940
 msgid "&Discard exam"
 msgstr "&Borrar examen"
 
-#: eyegrade/qtgui/gui.py:944
+#: eyegrade/qtgui/gui.py:945
 msgid "&New session"
 msgstr "&Nueva sesión"
 
-#: eyegrade/qtgui/gui.py:945
+#: eyegrade/qtgui/gui.py:946
 msgid "&Open session"
 msgstr "&Abrir sesión"
 
-#: eyegrade/qtgui/gui.py:946
+#: eyegrade/qtgui/gui.py:947
 msgid "&Close session"
 msgstr "&Cerrar sesión"
 
-#: eyegrade/qtgui/gui.py:948
+#: eyegrade/qtgui/gui.py:949
 msgid "&Exit"
 msgstr "&Salir"
 
-#: eyegrade/qtgui/gui.py:952
+#: eyegrade/qtgui/gui.py:953
 msgid "&Search"
 msgstr "&Buscar"
 
-#: eyegrade/qtgui/gui.py:953
+#: eyegrade/qtgui/gui.py:954
 msgid "&Export grades listing"
 msgstr "&Exportar listado de notas"
 
-#: eyegrade/qtgui/gui.py:957
+#: eyegrade/qtgui/gui.py:958
 msgid "Select &camera"
 msgstr "Seleccionar &cámara"
 
-#: eyegrade/qtgui/gui.py:961
+#: eyegrade/qtgui/gui.py:962
 msgid "Online &Help"
 msgstr "&Ayuda en línea"
 
-#: eyegrade/qtgui/gui.py:962
+#: eyegrade/qtgui/gui.py:963
 msgid "&Website"
 msgstr "Sitio &Web"
 
-#: eyegrade/qtgui/gui.py:963
+#: eyegrade/qtgui/gui.py:964
 msgid "&Source code at GitHub"
 msgstr "&Código fuente en GitHub"
 
-#: eyegrade/qtgui/gui.py:964
+#: eyegrade/qtgui/gui.py:965
 msgid "&About"
 msgstr "Ac&erca de"
 
-#: eyegrade/qtgui/gui.py:968
+#: eyegrade/qtgui/gui.py:969
 msgid "Show &status"
 msgstr "Mostrar &estado"
 
-#: eyegrade/qtgui/gui.py:969
+#: eyegrade/qtgui/gui.py:970
 msgid "Show &lines"
 msgstr "Mostrar &líneas"
 
-#: eyegrade/qtgui/gui.py:970
+#: eyegrade/qtgui/gui.py:971
 msgid "Show &processed image"
 msgstr "Mostrar imagen &procesada"
 
-#: eyegrade/qtgui/gui.py:974
+#: eyegrade/qtgui/gui.py:975
 msgid "Continue on exam &removal"
 msgstr "&Continuar cuando se retire examen"
 
-#: eyegrade/qtgui/gui.py:1176
+#: eyegrade/qtgui/gui.py:1177
 msgid "&Session"
 msgstr "&Sesión"
 
-#: eyegrade/qtgui/gui.py:1177
+#: eyegrade/qtgui/gui.py:1178
 msgid "&Grading"
 msgstr "&Corregir"
 
-#: eyegrade/qtgui/gui.py:1178
+#: eyegrade/qtgui/gui.py:1179
 msgid "&Exams"
 msgstr "&Exámenes"
 
-#: eyegrade/qtgui/gui.py:1179
+#: eyegrade/qtgui/gui.py:1180
 msgid "&Tools"
 msgstr "&Herramientas"
 
-#: eyegrade/qtgui/gui.py:1180
+#: eyegrade/qtgui/gui.py:1181
 msgid "&Help"
 msgstr "&Ayuda"
 
-#: eyegrade/qtgui/gui.py:1212
+#: eyegrade/qtgui/gui.py:1213
 msgid "&Debug options"
 msgstr "&Opciones de depuración"
 
-#: eyegrade/qtgui/gui.py:1222
+#: eyegrade/qtgui/gui.py:1223
 msgid "&Experimental"
 msgstr "&Experimental"
 
-#: eyegrade/qtgui/gui.py:1325
+#: eyegrade/qtgui/gui.py:1326
 #, python-brace-format
 msgid "Score: {0:.2f} / {1:.2f}"
 msgstr "Nota: {0:.2f} / {1:.2f}"
 
-#: eyegrade/qtgui/gui.py:1329
+#: eyegrade/qtgui/gui.py:1330
 msgid "[Survey mode on]"
 msgstr "[Modo encuesta]"
 
-#: eyegrade/qtgui/gui.py:1332
+#: eyegrade/qtgui/gui.py:1333
 msgid "Model:"
 msgstr "Modelo:"
 
-#: eyegrade/qtgui/gui.py:1334
+#: eyegrade/qtgui/gui.py:1335
 msgid "Num.:"
 msgstr "Núm.:"
 
-#: eyegrade/qtgui/gui.py:1459
+#: eyegrade/qtgui/gui.py:1460
 msgid "Grading - Scanning exam"
 msgstr "Corrigiendo - Escaneando un nuevo examen"
 
-#: eyegrade/qtgui/gui.py:1464
+#: eyegrade/qtgui/gui.py:1465
 msgid "Grading - Reviewing exam"
 msgstr "Corrigiendo - Revisión de la corrección"
 
-#: eyegrade/qtgui/gui.py:1467
+#: eyegrade/qtgui/gui.py:1468
 msgid "Session open - Reviewing exam"
 msgstr "Sesión abierta - Revisión de la corrección"
 
-#: eyegrade/qtgui/gui.py:1471
+#: eyegrade/qtgui/gui.py:1472
 msgid "Click on the outer corners of the answer tables"
 msgstr "Pinche en las esquinas de las tablas de respuestas"
 
-#: eyegrade/qtgui/gui.py:1473
+#: eyegrade/qtgui/gui.py:1474
 msgid "Grading - Manual detection mode"
 msgstr "Corrigiendo - Modo de detección manual"
 
-#: eyegrade/qtgui/gui.py:1479
+#: eyegrade/qtgui/gui.py:1480
 msgid "Session open"
 msgstr "Sesión abierta"
 
-#: eyegrade/qtgui/gui.py:1485
+#: eyegrade/qtgui/gui.py:1486
 msgid "No session: open or create a session to start"
 msgstr "No hay sesión abierta: abra o cree una sesión para comenzar"
 
-#: eyegrade/qtgui/gui.py:1639
+#: eyegrade/qtgui/gui.py:1640
 msgid "Select the session file"
 msgstr "Seleccione el fichero de sesión"
 
-#: eyegrade/qtgui/gui.py:1679 eyegrade/qtgui/gui.py:1685
+#: eyegrade/qtgui/gui.py:1682 eyegrade/qtgui/gui.py:1688
 msgid "Warning"
 msgstr "Aviso"
 
-#: eyegrade/qtgui/export.py:43
+#: eyegrade/qtgui/export.py:48
 msgid "Export grades listing"
 msgstr "Exportar listado de notas"
 
-#: eyegrade/qtgui/export.py:45
+#: eyegrade/qtgui/export.py:50
 msgid "Tabs-separated file"
 msgstr "Fichero separado por tabuladores"
 
-#: eyegrade/qtgui/export.py:47
+#: eyegrade/qtgui/export.py:52
 msgid "All the students in the list"
 msgstr "Todos los estudiantes de la lista"
 
-#: eyegrade/qtgui/export.py:48
+#: eyegrade/qtgui/export.py:53
 msgid "Only the students who attended the exam"
 msgstr "Sólo los estudiantes que asistieron al examen"
 
-#: eyegrade/qtgui/export.py:51
+#: eyegrade/qtgui/export.py:56
 msgid "Student list"
 msgstr "Lista de estudiantes"
 
-#: eyegrade/qtgui/export.py:52
+#: eyegrade/qtgui/export.py:57
 msgid "Exam grading sequence"
 msgstr "Secuencia de la corrección"
 
 #: eyegrade/qtgui/export.py:60
+msgid "All the groups"
+msgstr "Todos los grupos"
+
+#: eyegrade/qtgui/export.py:62
+msgid "Group"
+msgstr "Grupo"
+
+#: eyegrade/qtgui/export.py:74
 msgid "File type:"
 msgstr "Tipo de fichero:"
 
-#: eyegrade/qtgui/export.py:61
+#: eyegrade/qtgui/export.py:75
 msgid "Students:"
 msgstr "Estudiantes:"
 
-#: eyegrade/qtgui/export.py:62
+#: eyegrade/qtgui/export.py:77
+msgid "Student group:"
+msgstr "Grupo de estudiantes:"
+
+#: eyegrade/qtgui/export.py:78
 msgid "Sort by:"
 msgstr "Ordenar por:"
 
-#: eyegrade/qtgui/export.py:63
+#: eyegrade/qtgui/export.py:79
 msgid "Export fields:"
-msgstr "Exportar campos"
+msgstr "Exportar campos:"
 
-#: eyegrade/qtgui/export.py:87
+#: eyegrade/qtgui/export.py:108
 msgid "Save listing as..."
 msgstr "Guardar listado como..."
 
-#: eyegrade/qtgui/export.py:96
+#: eyegrade/qtgui/export.py:109
+msgid "Data file (*.csv)"
+msgstr "Fichero de datos (*.csv)"
+
+#: eyegrade/qtgui/export.py:127
 msgid "Student id number"
 msgstr "Número de identificación del estudiante"
 
-#: eyegrade/qtgui/export.py:98
+#: eyegrade/qtgui/export.py:129
 msgid "Student name"
 msgstr "Nombre del estudiante"
 
-#: eyegrade/qtgui/export.py:100
+#: eyegrade/qtgui/export.py:131
 msgid "Exam sequence number"
 msgstr "Número de secuencia del examen"
 
-#: eyegrade/qtgui/export.py:102
+#: eyegrade/qtgui/export.py:133
 msgid "Exam model letter"
 msgstr "Letra de modelo del examen"
 
-#: eyegrade/qtgui/export.py:104
+#: eyegrade/qtgui/export.py:135
 msgid "Number of correct answers"
 msgstr "Número de respuestas correctas"
 
-#: eyegrade/qtgui/export.py:106
+#: eyegrade/qtgui/export.py:137
 msgid "Number of incorrect answers"
 msgstr "Número de respuestas incorrectas"
 
-#: eyegrade/qtgui/export.py:108
+#: eyegrade/qtgui/export.py:139
 msgid "Score"
 msgstr "Nota"
 
-#: eyegrade/qtgui/export.py:110
+#: eyegrade/qtgui/export.py:141
 msgid "List of answers"
 msgstr "Lista de respuestas"
 
