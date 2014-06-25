@@ -1,3 +1,15 @@
+2014-06-26  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.4.2.
+
+	* Add the default .csv extension to exported grades files, when
+	the extension is not provided by the user.
+
+	* Export grades for all the students or just one student group.
+
+	* URIs in labels open now an external browser when clicked by
+	the user.
+
 2014-06-24  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.4.1.
