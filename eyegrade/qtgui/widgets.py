@@ -90,7 +90,9 @@ class StatusBar(QStatusBar):
     def _show_program_version(self):
         version_line = '{0} {1} - <a href="{2}">{2}</a>'\
                .format(utils.program_name, utils.version, utils.web_location)
-        self.addPermanentWidget(QLabel(version_line))
+        label = QLabel(version_line)
+        label.setOpenExternalLinks(True)
+        self.addPermanentWidget(label)
 
 
 class LabelledCheckBox(QWidget):

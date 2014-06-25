@@ -828,6 +828,7 @@ class DialogAbout(QDialog):
              """).format(resource_path('logo.svg'), program_name, version,
                          web_location, source_location)
         label = QLabel(text)
+        label.setOpenExternalLinks(True)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse
                                        | Qt.TextBrowserInteraction
