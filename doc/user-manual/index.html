@@ -163,7 +163,7 @@ code, tt {
 <p class="topic-title first">Contents</p>
 <ul class="auto-toc simple">
 <li><a class="reference internal" href="#installing-eyegrade" id="id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
-<li><a class="reference internal" href="#upgrading-from-eyegrade-0-2-x-to-eyegrade-0-3" id="id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x to Eyegrade 0.3</a></li>
+<li><a class="reference internal" href="#upgrading-from-eyegrade-0-2-x-and-0-3-x-to-eyegrade-0-4" id="id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x and 0.3.x to Eyegrade 0.4</a></li>
 <li><a class="reference internal" href="#installation-on-gnu-linux" id="id4">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
 <li><a class="reference internal" href="#installation-on-debian-and-ubuntu" id="id5">1.2.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></li>
 </ul>
@@ -194,19 +194,15 @@ code, tt {
 </li>
 <li><a class="reference internal" href="#processing-student-grades" id="id22">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
 <li><a class="reference internal" href="#the-answers-file" id="id23">3.1&nbsp;&nbsp;&nbsp;The answers file</a></li>
-<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id24">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a><ul class="auto-toc">
-<li><a class="reference internal" href="#exporting-a-listing-for-a-subset-of-students" id="id25">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></li>
+<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id24">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#editing-exams" id="id26">4&nbsp;&nbsp;&nbsp;Editing exams</a></li>
-<li><a class="reference internal" href="#advanced-features" id="id27">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
-<li><a class="reference internal" href="#webcam-selection" id="id28">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
-<li><a class="reference internal" href="#mixing-manually-graded-questions" id="id29">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></li>
-<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id30">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
-<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id31">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
-<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id32">5.5&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
+<li><a class="reference internal" href="#editing-exams" id="id25">4&nbsp;&nbsp;&nbsp;Editing exams</a></li>
+<li><a class="reference internal" href="#advanced-features" id="id26">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#webcam-selection" id="id27">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id28">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id29">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id30">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
 </ul>
 </li>
 </ul>
@@ -228,12 +224,13 @@ distributed with it are needed.</li>
 <li><a class="reference external" href="http://laurikari.net/tre/">Tre</a>: a library for regular expressions. Install version 0.8.0 or
 later.  Both the library and python bindings are needed.</li>
 </ul>
-<div class="section" id="upgrading-from-eyegrade-0-2-x-to-eyegrade-0-3">
-<h2><a class="toc-backref" href="#id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x to Eyegrade 0.3</a></h2>
-<p>In order to upgrade from eyegrade 0.2.x to eyegrade 0.3, follow the
-instructions at <a class="reference internal" href="#updating-eyegrade">Updating Eyegrade</a>.</p>
-<p>The main changes are described in the blog post <a class="reference external" href="http://eyegrade.org/blog/posts/eyegrade-03-released.html">Eyegrade 0.3
-released</a></p>
+<div class="section" id="upgrading-from-eyegrade-0-2-x-and-0-3-x-to-eyegrade-0-4">
+<h2><a class="toc-backref" href="#id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x and 0.3.x to Eyegrade 0.4</a></h2>
+<p>In order to upgrade from eyegrade 0.2.x or 0.3.x to eyegrade 0.4,
+follow the instructions at <a class="reference internal" href="#updating-eyegrade">Updating Eyegrade</a>.</p>
+<p>The main changes are described in the blog posts <a class="reference external" href="http://eyegrade.org/blog/posts/eyegrade-03-released.html">Eyegrade 0.3
+released</a>
+and <a class="reference external" href="http://eyegrade.org/blog/posts/eyegrade-04-released.html">Eyegrade 0.4 released</a></p>
 </div>
 <div class="section" id="installation-on-gnu-linux">
 <h2><a class="toc-backref" href="#id4">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a></h2>
@@ -767,71 +764,49 @@ order that best fits your needs.</p>
 </div>
 <div class="section" id="exporting-a-listing-of-scores">
 <h2><a class="toc-backref" href="#id24">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
-<p>You will probably want to import the listing of scores from your
-grade-book. You can easily process <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> to produce
-a CSV-formatted file with three columns: student id, number of correct
-answers and number of incorrect answers, in the order you want. You
-can even produce the listing to for just a subset of the students.</p>
-<p>In order to do that, you need a listing of students whose grades you
-want to list. The listing must be a CSV file in which the first column
-contains the student ids (the rest of the columns will be just
-ignored). Normally, you will use the same listing of students you used
-to run Eyegrade. This is an example of such a file:</p>
-<pre class="literal-block">
-100000333    Baggins, Frodo
-100777777    Bunny, Bugs
-100999997    Bux, Bastian B.
-100999991    Potter, Harry
-100800003    Simpson, Lisa
-</pre>
-<p>This command will produce the listing in a file named
-<tt class="docutils literal"><span class="pre">sorted-listing.csv</span></tt>:</p>
-<pre class="literal-block">
-python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
-</pre>
-<p>The output for the listing above, and the sample file shown in <a class="reference internal" href="#the-answers-file">The
-answers file</a>, would be:</p>
-<pre class="literal-block">
-100000333
-100777777    7      13
-100999997    15     1
-100999991    9      6
-100800003    7      13
-</pre>
-<p>Scores will be in the same order as the student list. The second and third
-columns represent the number of correct and wrong answers, respectively.
-In the example, the first student has those columns empty because there
-is no exam associated to his id.</p>
-<p>Importing the previous file in a spreadsheet should be
-straightforward, because the list of students will now be in the same
-order as your spreadsheet.</p>
-<p>If there are exams in the answers file of students not in your list,
-the default behavior is including them in the listing, after the rest
-of the students. The rationale behind this behavior is apreventing
-accidental losses of student scores. This behavior can be changed (see
-<a class="reference internal" href="#exporting-a-listing-for-a-subset-of-students">Exporting a listing for a subset of students</a>).</p>
-<p>See <a class="reference internal" href="#mixing-manually-graded-questions">Mixing manually-graded questions</a> if you need to produce
-listings in exams combining MCQ questions with manually-graded
-questions.</p>
-<div class="section" id="exporting-a-listing-for-a-subset-of-students">
-<h3><a class="toc-backref" href="#id25">3.2.1&nbsp;&nbsp;&nbsp;Exporting a listing for a subset of students</a></h3>
-<p>In order to extract the scores for just a subset of the students,
-create a student list with the ids of the students you want and run
-the program with the <tt class="docutils literal"><span class="pre">-i</span></tt> option:</p>
-<pre class="literal-block">
-python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -i -o sorted-listing.csv
-</pre>
-<p>The <tt class="docutils literal"><span class="pre">-i</span></tt> option makes Eyegrade ignore students that are in the
-answers file but not in the student list. That is, the listing will
-only contain the students that are in the student list you provide.</p>
-<p>This option may be useful, for example, if you examine students coming
-from different classes or groups. With this option you can produce a
-separate listing for each class.</p>
-</div>
+<p>You will probably want to export your listing of scores in order to
+import it into the grade-book, spreadsheet, etc. you use. Since
+version 0.4 this can be done from the user interface (menu <em>Exams /
+Export grades listing</em>).</p>
+<p>First, the program shows a dialog like the following one:</p>
+<img alt="Export dialog." src="images/export-dialog.png" />
+<p>In this dialog you have to select:</p>
+<ul class="simple">
+<li>The format of the output file. The only option right now is a text
+file with one row per student and fields separated by tabulators.
+It is a usual data exchange format compatible with spreadsheet
+software (such as Microsoft Office and OpenOffice) and databases.
+Other formats might be added in future versions.</li>
+<li>The students to include in the listing: all the students in the
+student list or just the students whose exam has been graded in this
+session.</li>
+<li>The student groups to include in the listing: the grades for just a
+specific group of students or the grades for all the groups. This
+option is hidden if there is just one student group in the current
+session. Each student-list file you import in the session is treated
+as a distinct group. This option is useful when, for example, you
+teach the course in several separate classes. In that case you can
+export a separate grades listing for each class.</li>
+<li>How the grades are sorted: according to the order in the student
+list you imported or according to the order in which you graded the
+exams.</li>
+<li>Which fields to include in the listing: student id number, student
+name, grading sequence number, exam model letter, number of correct
+and incorrect answers, score and full list of answers. Only the
+fields you check are exported (as columns of the exported file). The
+order of these fields in the exported file is the same you see in
+the dialog (first the student id number, then her name, etc.)</li>
+</ul>
+<p>Once you complete the selection of options and press the <em>OK</em> button,
+a new dialog allows you to select the location and name with which the
+file will be saved.  The <cite>.csv</cite> filename extension is recommended in
+order to improve compatibility with external programs in which you
+might want to open the grades. This extension is automatically set if
+you type a name without extension.</p>
 </div>
 </div>
 <div class="section" id="editing-exams">
-<h1><a class="toc-backref" href="#id26">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
+<h1><a class="toc-backref" href="#id25">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
 <p>Although you can use any software of your preference to typeset the
 exams, Eyegrade provides a module for doing that in combination to the
 LaTeX document preparation system.</p>
@@ -1148,9 +1123,9 @@ python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -
 </pre>
 </div>
 <div class="section" id="advanced-features">
-<h1><a class="toc-backref" href="#id27">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
+<h1><a class="toc-backref" href="#id26">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
 <div class="section" id="webcam-selection">
-<h2><a class="toc-backref" href="#id28">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
+<h2><a class="toc-backref" href="#id27">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
 <p>If your computer has more than one camera (e.g. the internal camera of
 the laptop and an external camera you use to grade the exams),
 Eyegrade will select one of them by default. If the selected camera is
@@ -1179,51 +1154,8 @@ camera-dev: 1
 <p>Save it in your user account with name <tt class="docutils literal">.eyegrade.cfg</tt>. In Windows systems,
 your account is at <tt class="docutils literal"><span class="pre">C:\Documents</span> and <span class="pre">Settings\&lt;your_user_name&gt;</span></tt>.</p>
 </div>
-<div class="section" id="mixing-manually-graded-questions">
-<h2><a class="toc-backref" href="#id29">5.2&nbsp;&nbsp;&nbsp;Mixing manually-graded questions</a></h2>
-<p>You may want to mix in the same exam MCQ questions with other type
-of questions that must be graded manually. Even though Eyegrade can
-only grade the MCQ questions of the exam, it can simplify a little
-bit the process of mixing grades.</p>
-<p>First, grade the MCQ exams with Eyegrade. Then, grade the other
-questions <em>without</em> changing the ordering of the exams.</p>
-<p>Create a new CSV file with only one column, which contains the student
-ids of the students that submitted the exam. It will help a lot
-producing this listing in the same order you have graded the
-exams. Such a listing can be trivially obtained from the file
-<tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt>. In Linux, it can be done with just a
-command:</p>
-<pre class="literal-block">
-cut eyegrade-answers.csv -f 2 &gt;extra-marks.csv
-</pre>
-<p>Edit that listing to include the marks of the manually-graded
-questions. Write marks in one or more columns at the right of the
-student id. Having this file the same order of your exams, introducing
-manual marks should be easier, since you do not need to search.  This
-is an example with only one manual mark per exam (just one column):</p>
-<pre class="literal-block">
-100999991   7
-100999997   8
-100800003   5
-100777777   9.5
-</pre>
-<p>The final listing that combines the results of all the questions can
-be produced with <tt class="docutils literal">mix_grades</tt>:</p>
-<pre class="literal-block">
-python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
-</pre>
-<p>The columns with the manual marks would appear at the right in the
-resulting file:</p>
-<pre class="literal-block">
-100000333
-100777777    7      13      9.5
-100999997    15     1       8
-100999991    9      6       7
-100800003    7      13      5
-</pre>
-</div>
 <div class="section" id="creating-the-exams-in-a-word-processor">
-<h2><a class="toc-backref" href="#id30">5.3&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<h2><a class="toc-backref" href="#id28">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
 <p>The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
@@ -1353,7 +1285,7 @@ they should be placed from left to right:</p>
 </table>
 </div>
 <div class="section" id="manually-editing-the-eye-file">
-<h2><a class="toc-backref" href="#id31">5.4&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<h2><a class="toc-backref" href="#id29">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
 <p>The files that store the configuration of an exam and the correct
 answer for each question are stored with a <cite>.eye</cite> extension. An example
 is shown below:</p>
@@ -1413,7 +1345,7 @@ probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.</p>
 </div>
 <div class="section" id="automatic-detection-of-exam-removal">
-<h2><a class="toc-backref" href="#id32">5.5&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
+<h2><a class="toc-backref" href="#id30">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
 <p>If the camera in your setup is fixed, that is, you place an exam below
 the camera, review it, remove it and place the next exam, you may want
 Eyegrade to detect that you have removed the exam instead of having to
