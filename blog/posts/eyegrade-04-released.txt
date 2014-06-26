@@ -1,0 +1,22 @@
+.. link: 
+.. description: 
+.. tags: eyegrade, release
+.. date: 2014/06/26 18:25:00
+.. title: Eyegrade 0.4 released!
+.. slug: eyegrade-04-released
+
+I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
+minor changes and a bug fix). There is only one main change in this
+release with respect to the 0.3 series, the ability to export grade
+listings from the user interface.
+
+When you select in the menu *Exams / Export grade listing* you get a dialog
+like the following one that allows you to configure the export options:
+
+.. figure:: /galleries/screenshots-04/export-dialog.png
+   :class: thumbnail
+   :alt: The new export dialog.
+
+This new feature is easier to use and more flexible than the
+`mix_grades` script that was available in the previous versions. The
+script is now obsolete and will probably be removed in the future.

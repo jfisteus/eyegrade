@@ -3,9 +3,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <meta charset="utf-8">
-    <meta name="description" content="Blog for the free software tool Eyegrade">
+    <meta name="description" content="">
     <meta name="author" content="Jesús Arias Fisteus">
-    <title>Posts about release | The Eyegrade Blog</title>
+    <title>Eyegrade 0.4 released! | The Eyegrade Blog</title>
     
             <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
             <link href="../assets/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css">
@@ -19,7 +19,8 @@
             <link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
 
     
-        <link rel="alternate" type="application/rss+xml" title="RSS for tag release" href="release.xml">
+
+
 
     
 </head>
@@ -45,7 +46,7 @@
                     
                 <li><a href="http://eyegrade.org/">Eyegrade web site</a>
                 </li><li><a href="../archive.html">Archives</a>
-                </li><li><a href="index.html">Tags</a>
+                </li><li><a href="../categories/index.html">Tags</a>
                 </li><li><a href="../rss.xml">RSS</a>
 
                 </li></ul>
@@ -53,6 +54,8 @@
                 
                 
                     <li>
+			<a href="eyegrade-04-released.txt" id="sourcelink">Source</a>
+		</li>
                 </ul>
             </div>
         </div>
@@ -65,18 +68,67 @@
     <div class="span2"></div>
     <div class="span8">
     
-        <!--Body content-->
-        <div class="postbox">
-        <h1>Posts about release</h1>
-            <a href="release.xml">RSS</a>
-        <br>
-        <ul class="unstyled">
-            <li><a href="../posts/eyegrade-04-released.html">[2014-06-26 18:25] Eyegrade 0.4 released!</a>
-            </li><li><a href="../posts/eyegrade-03-released.html">[2014-05-08 00:37] Eyegrade 0.3 released!</a>
-            </li><li><a href="../posts/release-eyegrade-0.2.html">[2013-02-28 00:15] Eyegrade 0.2 released!</a>
-        </li></ul>
-        </div>
-        <!--End of body content-->
+    <div class="postbox">
+    
+    <h1>Eyegrade 0.4 released!</h1>
+
+    <hr>
+    <small>
+        Posted: <time class="published" datetime="2014-06-26T18:25:00">2014-06-26 18:25</time>
+        
+
+		
+          |  More posts about
+            <a class="tag" href="../categories/eyegrade.html"><span class="badge badge-info">eyegrade</span></a>
+            <a class="tag" href="../categories/release.html"><span class="badge badge-info">release</span></a>
+
+          |  
+		
+    </small>
+    <hr>
+    <p>I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
+minor changes and a bug fix). There is only one main change in this
+release with respect to the 0.3 series, the ability to export grade
+listings from the user interface.</p>
+<p>When you select in the menu <em>Exams / Export grade listing</em> you get a dialog
+like the following one that allows you to configure the export options:</p>
+<div class="figure">
+<img alt="The new export dialog." class="thumbnail" src="../galleries/screenshots-04/export-dialog.png">
+</div>
+<p>This new feature is easier to use and more flexible than the
+<cite>mix_grades</cite> script that was available in the previous versions. The
+script is now obsolete and will probably be removed in the future.</p>
+    
+    <ul class="pager">
+        <li class="previous">
+            <a href="eyegrade-03-released.html">← Previous post</a>
+        </li>
+    </ul>
+
+        
+        
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+        var disqus_shortname ="eyegrade";
+            var disqus_url="http://eyegrade.org/blog/posts/eyegrade-04-released.html";
+        var disqus_title="Eyegrade 0.4 released!";
+        var disqus_identifier="cache/posts/eyegrade-04-released.html";
+        var disqus_config = function () {
+            this.language = "en";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">Comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+    
+
+    </div>
 
     </div>
     </div>

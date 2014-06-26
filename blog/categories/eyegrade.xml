@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>The Eyegrade Blog (eyegrade)</title><link>http://eyegrade.org/blog</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://eyegrade.org/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><lastBuildDate>Thu, 26 Jun 2014 18:18:09 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-04-released.html</link><description>&lt;p&gt;I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>The Eyegrade Blog (eyegrade)</title><link>http://eyegrade.org/blog</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://eyegrade.org/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><lastBuildDate>Thu, 26 Jun 2014 18:30:03 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-04-released.html</link><description>&lt;p&gt;I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
 minor changes and a bug fix). There is only one main change in this
 release with respect to the 0.3 series, the ability to export grade
 listings from the user interface.&lt;/p&gt;
@@ -10,7 +10,7 @@ like the following one that allows you to configure the export options:&lt;/p&gt
 &lt;/div&gt;
 &lt;p&gt;This new feature is easier to use and more flexible than the
 &lt;cite&gt;mix_grades&lt;/cite&gt; script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 17:58:48 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-03-released.html</link><description>&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
+script is now obsolete and will probably be removed in the future.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-03-released.html</link><description>&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;Previously, exams could only be reviewed immediately after capturing
 them. Now you can review the exams, change answers or change the

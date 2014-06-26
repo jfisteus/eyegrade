@@ -135,6 +135,11 @@
   <priority>0.5000</priority>
  </url>
  <url>
+  <loc>http://eyegrade.org/blog/posts/eyegrade-04-released.html</loc>
+  <lastmod>2014-06-26</lastmod>
+  <priority>0.5000</priority>
+ </url>
+ <url>
   <loc>http://eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</loc>
   <lastmod>2014-06-26</lastmod>
   <priority>0.5000</priority>
