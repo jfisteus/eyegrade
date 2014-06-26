@@ -36,15 +36,16 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.2.x to Eyegrade 0.3
-.............................................
+Upgrading from Eyegrade 0.2.x and 0.3.x to Eyegrade 0.4
+.......................................................
 
-In order to upgrade from eyegrade 0.2.x to eyegrade 0.3, follow the
-instructions at `Updating Eyegrade`_.
+In order to upgrade from eyegrade 0.2.x or 0.3.x to eyegrade 0.4,
+follow the instructions at `Updating Eyegrade`_.
 
-The main changes are described in the blog post `Eyegrade 0.3
+The main changes are described in the blog posts `Eyegrade 0.3
 released <http://eyegrade.org/blog/posts/eyegrade-03-released.html>`_
-
+and `Eyegrade 0.4 released
+<http://eyegrade.org/blog/posts/eyegrade-04-released.html>`_
 
 Installation on GNU/Linux
 .........................
@@ -714,74 +715,52 @@ order that best fits your needs.
 Exporting a listing of scores
 .............................
 
-You will probably want to import the listing of scores from your
-grade-book. You can easily process ``eyegrade-answers.csv`` to produce
-a CSV-formatted file with three columns: student id, number of correct
-answers and number of incorrect answers, in the order you want. You
-can even produce the listing to for just a subset of the students.
+You will probably want to export your listing of scores in order to
+import it into the grade-book, spreadsheet, etc. you use. Since
+version 0.4 this can be done from the user interface (menu *Exams /
+Export grades listing*).
 
-In order to do that, you need a listing of students whose grades you
-want to list. The listing must be a CSV file in which the first column
-contains the student ids (the rest of the columns will be just
-ignored). Normally, you will use the same listing of students you used
-to run Eyegrade. This is an example of such a file::
+First, the program shows a dialog like the following one:
 
-    100000333	 Baggins, Frodo
-    100777777	 Bunny, Bugs
-    100999997	 Bux, Bastian B.
-    100999991	 Potter, Harry
-    100800003	 Simpson, Lisa
+.. image:: images/export-dialog.png
+   :alt: Export dialog.
 
-This command will produce the listing in a file named
-``sorted-listing.csv``::
+In this dialog you have to select:
 
-    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
+- The format of the output file. The only option right now is a text
+  file with one row per student and fields separated by tabulators.
+  It is a usual data exchange format compatible with spreadsheet
+  software (such as Microsoft Office and OpenOffice) and databases.
+  Other formats might be added in future versions.
 
-The output for the listing above, and the sample file shown in `The
-answers file`_, would be::
+- The students to include in the listing: all the students in the
+  student list or just the students whose exam has been graded in this
+  session.
 
-    100000333		
-    100777777	 7	13
-    100999997	 15	1
-    100999991	 9	6
-    100800003	 7	13
+- The student groups to include in the listing: the grades for just a
+  specific group of students or the grades for all the groups. Each
+  student-list file you import in the session is treated as a distinct
+  group. This option is useful when, for example, you teach the course
+  in several separate classes. In that case you can export a separate
+  grades listing for each class.
 
-Scores will be in the same order as the student list. The second and third
-columns represent the number of correct and wrong answers, respectively.
-In the example, the first student has those columns empty because there
-is no exam associated to his id.
+- How the grades are sorted: according to the order in the student
+  list you imported or according to the order in which you graded the
+  exams.
 
-Importing the previous file in a spreadsheet should be
-straightforward, because the list of students will now be in the same
-order as your spreadsheet.
+- Which fields to include in the listing: student id number, student
+  name, grading sequence number, exam model letter, number of correct
+  and incorrect answers, score and full list of answers. Only the
+  fields you check are exported (as columns of the exported file). The
+  order of these fields in the exported file is the same you see in
+  the dialog (first the student id number, then her name, etc.)
 
-If there are exams in the answers file of students not in your list,
-the default behavior is including them in the listing, after the rest
-of the students. The rationale behind this behavior is apreventing
-accidental losses of student scores. This behavior can be changed (see
-`Exporting a listing for a subset of students`_).
-
-See `Mixing manually-graded questions`_ if you need to produce
-listings in exams combining MCQ questions with manually-graded
-questions.
-
-
-Exporting a listing for a subset of students
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to extract the scores for just a subset of the students,
-create a student list with the ids of the students you want and run
-the program with the ``-i`` option::
-
-    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -i -o sorted-listing.csv
-
-The ``-i`` option makes Eyegrade ignore students that are in the
-answers file but not in the student list. That is, the listing will
-only contain the students that are in the student list you provide.
-
-This option may be useful, for example, if you examine students coming
-from different classes or groups. With this option you can produce a
-separate listing for each class.
+Once you complete the selection of options and press the *OK* button,
+a new dialog allows you to select the location and name with which the
+file will be saved.  The `.csv` filename extension is recommended in
+order to improve compatibility with external programs in which you
+might want to open the grades. This extension is automatically set if
+you type a name without extension.
 
 
 Editing exams
