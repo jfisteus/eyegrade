@@ -738,11 +738,12 @@ In this dialog you have to select:
   session.
 
 - The student groups to include in the listing: the grades for just a
-  specific group of students or the grades for all the groups. Each
-  student-list file you import in the session is treated as a distinct
-  group. This option is useful when, for example, you teach the course
-  in several separate classes. In that case you can export a separate
-  grades listing for each class.
+  specific group of students or the grades for all the groups. This
+  option is hidden if there is just one student group in the current
+  session. Each student-list file you import in the session is treated
+  as a distinct group. This option is useful when, for example, you
+  teach the course in several separate classes. In that case you can
+  export a separate grades listing for each class.
 
 - How the grades are sorted: according to the order in the student
   list you imported or according to the order in which you graded the
@@ -866,52 +867,6 @@ the configuration file::
 
 Save it in your user account with name ``.eyegrade.cfg``. In Windows systems,
 your account is at ``C:\Documents and Settings\<your_user_name>``.
-
-
-Mixing manually-graded questions
-................................
-
-You may want to mix in the same exam MCQ questions with other type
-of questions that must be graded manually. Even though Eyegrade can
-only grade the MCQ questions of the exam, it can simplify a little
-bit the process of mixing grades.
-
-First, grade the MCQ exams with Eyegrade. Then, grade the other
-questions *without* changing the ordering of the exams.
-
-Create a new CSV file with only one column, which contains the student
-ids of the students that submitted the exam. It will help a lot
-producing this listing in the same order you have graded the
-exams. Such a listing can be trivially obtained from the file
-``eyegrade-answers.csv``. In Linux, it can be done with just a
-command::
-
-    cut eyegrade-answers.csv -f 2 >extra-marks.csv
-
-Edit that listing to include the marks of the manually-graded
-questions. Write marks in one or more columns at the right of the
-student id. Having this file the same order of your exams, introducing
-manual marks should be easier, since you do not need to search.  This
-is an example with only one manual mark per exam (just one column)::
-
-    100999991   7
-    100999997   8
-    100800003   5
-    100777777   9.5
-
-The final listing that combines the results of all the questions can
-be produced with ``mix_grades``::
-
-    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
-
-The columns with the manual marks would appear at the right in the
-resulting file::
-
-    100000333			
-    100777777	 7	13	9.5
-    100999997	 15	1	8
-    100999991	 9	6	7
-    100800003	 7	13	5
 
 
 Creating the exams in a word processor
