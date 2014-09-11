@@ -157,4 +157,54 @@
     </choices>
   </question>
 
+  <question>
+    <text>
+      Which of the following pieces of code follows the Java syntax?
+    </text>
+    <choices>
+      <correct>
+<code>public class MyClass {
+
+}
+</code>
+      </correct>
+      <incorrect>
+<code>class MyClass:
+    pass
+</code>
+      </incorrect>
+      <incorrect>
+<code>PUSHA
+MOV eax, 60
+</code>
+      </incorrect>
+      <incorrect>
+<code>struct MyClass {
+
+}
+</code>
+      </incorrect>
+    </choices>
+  </question>
+
+<question>
+    <text>
+      Which of the following pictures is different to the rest?
+    </text>
+    <choices>
+      <correct>
+        <figure eye:width="0.03">drawing-1.eps</figure>
+      </correct>
+      <incorrect>
+        <figure eye:width="0.03">drawing-2.eps</figure>
+      </incorrect>
+      <incorrect>
+        <figure eye:width="0.03">drawing-2.eps</figure>
+      </incorrect>
+      <incorrect>
+        <figure eye:width="0.03">drawing-2.eps</figure>
+      </incorrect>
+    </choices>
+  </question>
+
 </exam>
