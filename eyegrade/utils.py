@@ -779,7 +779,8 @@ class Exam(object):
         if (len(self.decisions.students_rank) > 0
             and self.decisions.students_rank[0] != self.decisions.student):
             rank = list(self.decisions.students_rank)
-            rank.remove(self.decisions.student)
+            if self.decisions.student in rank:
+                rank.remove(self.decisions.student)
             rank.insert(0, self.decisions.student)
         else:
             rank = self.decisions.students_rank
@@ -798,8 +799,7 @@ class Exam(object):
         elif new_id in self.students:
             student = self.students[new_id]
         else:
-            student = Student(None, self.decisions.detected_id, name,
-                              None, None, None)
+            student = Student(None, new_id, name, None, None, None)
         self.decisions.set_student(student)
 
     def _id_rank(self, student, scores):
