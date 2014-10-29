@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2014 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,52 +15,113 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from __future__ import print_function, division
 
-import eyegrade.imageproc as imageproc
-import eyegrade.ocr as ocr
-import eyegrade.utils as utils
+import sys
+import random
 
-def process_image(filename, dimensions, options, context):
-    corners = []
-    corners_int = []
-    options['capture-proc-file'] = filename
-    for idx in range(0, len(imageproc.param_hough_thresholds)):
-        context.hough_thresholds_idx = idx
-        image = imageproc.ExamCapture(dimensions, context, options)
-        image.detect()
-        if image.success:
-            break
-    if image.success:
-        corners_up, corners_down = image.id_corners
-        for i in range(0, len(corners_up) - 1):
-            c = (corners_up[i], corners_up[i + 1],
-                 corners_down[i], corners_down[i + 1])
-            corners_int.append(ocr.adjust_cell_corners(image.image_proc, c))
-            corners.append(c)
-    return corners, corners_int
+import cv
 
+from .. import sessiondb
+from .. import imageproc
+from .. import capture
+from .. import ocr
+
+
+class LabeledDigit(object):
+
+    def __init__(self, digit, image_file, cell_geometry, identifier=None):
+        self.digit = digit
+        self.image_file = image_file
+        self.cell_geometry = cell_geometry
+        if identifier is not None:
+            self.identifier = identifier
+        else:
+            self.identifier = random.randint(0, 1000000000000)
+
+    def __str__(self):
+        data = [
+            self.image_file, str(self.digit),
+            str(self.cell_geometry.plu[0]), str(self.cell_geometry.plu[1]),
+            str(self.cell_geometry.pru[0]), str(self.cell_geometry.pru[1]),
+            str(self.cell_geometry.pld[0]), str(self.cell_geometry.pld[1]),
+            str(self.cell_geometry.prd[0]), str(self.cell_geometry.prd[1]),
+        ]
+        return '\t'.join(data)
+
+    def crop(self):
+        original = imageproc.load_image(self.image_file)
+        pre_processed = imageproc.pre_process(original)
+        plu, pru, pld, prd = ocr.adjust_cell_corners(pre_processed,
+                                                     (self.cell_geometry.plu,
+                                                      self.cell_geometry.pru,
+                                                      self.cell_geometry.pld,
+                                                      self.cell_geometry.prd))
+        total, active = imageproc.count_pixels_in_cell(pre_processed,
+                                                       plu, pru, pld, prd)
+        if (active / total >= 0.01):
+            min_x = min(plu[0], pld[0])
+            max_x = max(pru[0], prd[0])
+            min_y = min(plu[1], pru[1])
+            max_y = max(pld[1], prd[1])
+            offset_x = min_x
+            offset_y = min_y
+            width = max_x - offset_x
+            height = max_y - offset_y
+            cropped = cv.CreateImage((width, height), pre_processed.depth, 1)
+            region = cv.GetSubRect(pre_processed,
+                                   (offset_x, offset_y, width, height))
+            cv.Copy(region, cropped)
+            cropped_file_path = 'digit-{0}-{1}.png'.format(self.digit,
+                                                           self.identifier)
+            imageproc.save_image(cropped_file_path, cropped)
+            new_geometry = capture.CellGeometry(
+                (plu[0] - offset_x, plu[1] - offset_y),
+                (pru[0] - offset_x, pru[1] - offset_y),
+                (pld[0] - offset_x, pld[1] - offset_y),
+                (prd[0] - offset_x, prd[1] - offset_y),
+                None, None
+            )
+            cropped_digit = LabeledDigit(self.digit, cropped_file_path,
+                                         new_geometry,
+                                         identifier=self.identifier)
+        else:
+            print('discard', self.identifier, active / total, self.image_file)
+            cropped_digit = None
+        return cropped_digit
+
+
+def process_session(labeled_digits, session_path):
+    session = sessiondb.SessionDB(session_path)
+    for exam in session.exams_iterator():
+        image_file = session.get_raw_capture_path(exam['exam_id'])
+        cells = session._read_id_cells(exam['exam_id'])
+        if exam['student_id'] and len(exam['student_id']) == len(cells):
+            for digit, cell in zip(exam['student_id'], cells):
+                labeled_digit = LabeledDigit(int(digit), image_file, cell)
+                cropped_digit = labeled_digit.crop()
+                if cropped_digit is not None:
+                    labeled_digits[int(digit)].append(cropped_digit)
+    session.close()
+
+
+def dump_digit_list(labeled_digits):
+    with open('digits.txt', 'a') as f:
+        for digit in range(10):
+            for labeled_digit in labeled_digits[digit]:
+                print(str(labeled_digit), file=f)
+
+def _initialize_digits_dict():
+    labeled_digits = {}
+    for i in range(10):
+        labeled_digits[i] = []
+    return labeled_digits
 
 def main():
-    options = imageproc.ExamCapture.get_default_options()
-    options['read-id'] = True
-    options['id-num-digits'] = 9
-    options['infobits'] = True
-    options['capture-from-file'] = True
-    dimensions = [(4, 10), (4, 10)]
-    context = imageproc.ExamCaptureContext()
-    image_template = ('exam-%s-%d.png-proc')
-    results = utils.read_results('eyegrade-answers.csv')
-    for result in results:
-        seq = int(result['seq-num'])
-        sid = result['student-id']
-        corners, corners_int = process_image(image_template%(sid, seq),
-                                             dimensions, options, context)
-        if len(corners) > 0 and len(sid) == 9:
-            for i, digit in enumerate(sid):
-                data = ['exam-%s-%d.png-proc'%(sid, seq), digit, i]
-                data.extend(corners[i])
-                data.extend(corners_int[i])
-                print '\t'.join([str(d) for d in data])
+    labeled_digits = _initialize_digits_dict()
+    for session_path in sys.argv[1:]:
+        process_session(labeled_digits, session_path)
+    dump_digit_list(labeled_digits)
 
 if __name__ == '__main__':
     main()
