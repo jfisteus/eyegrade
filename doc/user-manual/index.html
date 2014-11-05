@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.11: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title>Eyegrade User Manual</title>
 <meta name="author" content="Jesús Arias Fisteus" />
 <style type="text/css">
@@ -18,12 +18,18 @@
 Stylesheet for Docutils.
 Based on ``blue_box.css`` by Ian Bicking
 and ``html4css1.css`` revision 1.46.
+
+Minor changes by Jesus Arias Fisteus.
 */
 
 @import url(html4css1.css);
 
 body {
   font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: justify;
 }
 
 em, i {
@@ -132,6 +138,7 @@ table.citation {
 pre.literal-block, pre.doctest-block {
   border: thin black solid;
   padding: 5px;
+  overflow: auto;
 }
 
 .image img { border-style : solid;
@@ -197,12 +204,23 @@ code, tt {
 <li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id24">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#editing-exams" id="id25">4&nbsp;&nbsp;&nbsp;Editing exams</a></li>
-<li><a class="reference internal" href="#advanced-features" id="id26">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
-<li><a class="reference internal" href="#webcam-selection" id="id27">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
-<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id28">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
-<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id29">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
-<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id30">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
+<li><a class="reference internal" href="#editing-exams" id="id25">4&nbsp;&nbsp;&nbsp;Editing exams</a><ul class="auto-toc">
+<li><a class="reference internal" href="#editing-the-questions-of-the-exam" id="id26">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a><ul class="auto-toc">
+<li><a class="reference internal" href="#inserting-pictures" id="id27">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></li>
+<li><a class="reference internal" href="#inserting-blocks-of-code" id="id28">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#editing-the-latex-template" id="id29">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></li>
+<li><a class="reference internal" href="#creating-the-latex-source-files" id="id30">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></li>
+<li><a class="reference internal" href="#creating-the-pdf-files" id="id31">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
+<li><a class="reference internal" href="#installing-the-latex-system" id="id32">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-features" id="id33">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#webcam-selection" id="id34">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id35">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id36">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id37">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
 </ul>
 </li>
 </ul>
@@ -808,10 +826,53 @@ you type a name without extension.</p>
 <div class="section" id="editing-exams">
 <h1><a class="toc-backref" href="#id25">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
 <p>Although you can use any software of your preference to typeset the
-exams, Eyegrade provides a module for doing that in combination to the
-LaTeX document preparation system.</p>
-<p>First, write your questions in an XML document like the following one:</p>
-<blockquote>
+exams, Eyegrade provides a module for doing that
+in combination with the LaTeX document preparation system.</p>
+<p>The procedure consists of four steps,
+which are described in the next sections:</p>
+<ol class="arabic simple">
+<li>Edit an XML file with the questions themselves.</li>
+<li>Edit a LaTeX template for your exam
+with your institution's look and feel,
+instructions to students, etc.
+This template is reusable for other exams in the future.</li>
+<li>Automatically generate the LaTeX source files
+from the XML file and the template.</li>
+<li>Generate the PDF files from the LaTeX source files.</li>
+</ol>
+<p>The example files used in the following explanations
+are provided with Eyegrade
+inside its <cite>doc/sample-files</cite> directory
+(also <a class="reference external" href="https://github.com/jfisteus/eyegrade/tree/development/doc/sample-files">accessible at GitHub</a>).</p>
+<p>This guide assumes that you have a LaTeX system installed.
+If you don't have it in your system,
+follow the instructions in <a class="reference internal" href="#installing-the-latex-system">Installing the LaTeX system</a>.</p>
+<div class="section" id="editing-the-questions-of-the-exam">
+<h2><a class="toc-backref" href="#id26">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a></h2>
+<p>You need to typeset your questions in an XML document.
+You may use your favorite text editor for that.</p>
+<p>At the beginning of the file
+you should provide some basic data about the exam,
+such as:
+the name of the course/subject,
+the name of the degree,
+the name of the exam,
+the date
+and the duration of the exam.
+You don't need to provide all those values,
+just the ones you want printed in the exam.</p>
+<p>Then, write the questions one by one.
+For each question, you have to provide:</p>
+<ul class="simple">
+<li>The statement of the question.</li>
+<li>An optional picture to be displayed with the question.</li>
+<li>An optional block of code (for programming exams and the like)
+to be formatted with a fixed-width font
+and preserving spacing.</li>
+<li>The text of the correct choice.</li>
+<li>The text of the incorrect choices.</li>
+</ul>
+<p>The XML markup must be like shown in the following example:</p>
 <pre class="literal-block">
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
@@ -972,11 +1033,171 @@ LaTeX document preparation system.</p>
     &lt;/choices&gt;
   &lt;/question&gt;
 
+  &lt;question&gt;
+    &lt;text&gt;
+      Which of the following pieces of code follows the Java syntax?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;
+&lt;code&gt;public class MyClass {
+
+}
+&lt;/code&gt;
+      &lt;/correct&gt;
+      &lt;incorrect&gt;
+&lt;code&gt;class MyClass:
+    pass
+&lt;/code&gt;
+      &lt;/incorrect&gt;
+      &lt;incorrect&gt;
+&lt;code&gt;PUSHA
+MOV eax, 60
+&lt;/code&gt;
+      &lt;/incorrect&gt;
+      &lt;incorrect&gt;
+&lt;code&gt;struct MyClass {
+
+}
+&lt;/code&gt;
+      &lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
+&lt;question&gt;
+    &lt;text&gt;
+      Which of the following pictures is different to the rest?
+    &lt;/text&gt;
+    &lt;choices&gt;
+      &lt;correct&gt;
+        &lt;figure eye:width=&quot;0.03&quot;&gt;drawing-1.eps&lt;/figure&gt;
+      &lt;/correct&gt;
+      &lt;incorrect&gt;
+        &lt;figure eye:width=&quot;0.03&quot;&gt;drawing-2.eps&lt;/figure&gt;
+      &lt;/incorrect&gt;
+      &lt;incorrect&gt;
+        &lt;figure eye:width=&quot;0.03&quot;&gt;drawing-2.eps&lt;/figure&gt;
+      &lt;/incorrect&gt;
+      &lt;incorrect&gt;
+        &lt;figure eye:width=&quot;0.03&quot;&gt;drawing-2.eps&lt;/figure&gt;
+      &lt;/incorrect&gt;
+    &lt;/choices&gt;
+  &lt;/question&gt;
+
 &lt;/exam&gt;
+
 </pre>
-</blockquote>
-<p>Then, create a LaTeX template for the exam. This is an example:</p>
-<blockquote>
+<p>You can insert LaTeX markup
+within the text of the statement and the choices
+if you need, for example,
+to insert a math equation
+or format a piece of text in italics, boldface
+or typewriter font:</p>
+<pre class="literal-block">
+&lt;question&gt;
+  &lt;text&gt;
+    Text in \emph{italics}, \textbf{boldface}
+    and \texttt{typewriter} font style.
+  &lt;/text&gt;
+  &lt;choices&gt;
+    &lt;correct&gt;A LaTeX equation: $x^2 - 1$&lt;/correct&gt;
+    &lt;incorrect&gt;Nothing&lt;/incorrect&gt;
+  &lt;/choices&gt;
+&lt;/question&gt;
+</pre>
+<div class="section" id="inserting-pictures">
+<h3><a class="toc-backref" href="#id27">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></h3>
+<p>For inserting a picture in the statement of the question,
+you use the <cite>&lt;figure&gt;</cite> tag.
+Its file name must be provided within
+the <cite>&lt;figure&gt;</cite> and <cite>&lt;/figure&gt;</cite> tags.
+It takes the following configuration attributes:</p>
+<ul class="simple">
+<li><cite>eye:width</cite>: width of the picture relative to
+paragraph width
+(1.0 means the full width, 0.5 means half width, etc.)
+The picture will be scaled up or down accordingly.
+This attribute is mandatory.</li>
+<li><cite>eye:position</cite>: position of the picture.
+Use <cite>center</cite> for placing it just below the statement of the question
+and above the choices.
+Use <cite>right</cite> for laying out the question in two columns:
+the statement of the question and the choices at the left
+and the picture at the right.
+The default value is <cite>center</cite>.</li>
+</ul>
+<p>This is an example:</p>
+<pre class="literal-block">
+&lt;question&gt;
+  &lt;text&gt;
+    Is the thing in the right a logo?
+  &lt;/text&gt;
+  &lt;figure eye:width=&quot;0.16&quot; eye:position=&quot;right&quot;&gt;sample-logo.eps&lt;/figure&gt;
+  &lt;choices&gt;
+    &lt;correct&gt;Well, it tries to be a logo, to be honest.&lt;/correct&gt;
+    &lt;incorrect&gt;No, it's a tree.&lt;/incorrect&gt;
+    &lt;incorrect&gt;No, it's a perfect square.&lt;/incorrect&gt;
+    &lt;incorrect&gt;Who knows!&lt;/incorrect&gt;
+  &lt;/choices&gt;
+&lt;/question&gt;
+</pre>
+<p>Pictures can also be used inside a choice.
+It that case, the choice can only contain the picture
+and the <cite>eye:position</cite> attribute must not be used:</p>
+<pre class="literal-block">
+&lt;correct&gt;
+  &lt;figure eye:width=&quot;0.2&quot;&gt;sample-logo.eps&lt;/figure&gt;
+&lt;/correct&gt;
+</pre>
+</div>
+<div class="section" id="inserting-blocks-of-code">
+<h3><a class="toc-backref" href="#id28">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></h3>
+<p>For inserting a block of code in the statement of the question,
+you use the <cite>&lt;code&gt;</cite> tag.
+The code itself is given within the <cite>&lt;code&gt;</cite> and <cite>&lt;/code&gt;</cite> tags.
+White space and end-of-line characters
+are displayed as you provide them.
+It takes the following configuration attributes:</p>
+<ul class="simple">
+<li><cite>eye:position</cite>: position of the block of code.
+Use <cite>center</cite> for placing it just below the statement of the question
+and above the choices.
+Use <cite>right</cite> for laying out the question in two columns:
+the statement of the question and the choices at the left
+and the piece of code at the right.
+The default value is <cite>center</cite>.</li>
+<li><cite>eye:width</cite>: only if you select the two column layout
+(position <cite>right</cite>),
+provide the width of the right column relative to
+paragraph width
+(0.5 means half width, etc.)
+Remember to leave enough place for the left side.
+This attribute is mandatory for the <cite>right</cite> position
+and forbidden for the <cite>center</cite> position.</li>
+</ul>
+<p>This is an example:</p>
+<pre class="literal-block">
+&lt;code eye:position=&quot;right&quot; eye:width=&quot;0.4&quot;&gt;for letter in ['a', 'b', 'c']:
+    print letter&lt;/code&gt;
+</pre>
+<p>Blocks of code can also be used inside a choice.
+It that case, the choice can only contain the block of code
+and neither attribute can be used:</p>
+<pre class="literal-block">
+&lt;incorrect&gt;
+&lt;code&gt;class MyClass:
+    pass
+&lt;/code&gt;
+&lt;/incorrect&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="editing-the-latex-template">
+<h2><a class="toc-backref" href="#id29">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></h2>
+<p>In addition to the questions of the exam,
+you'll need a LaTeX template.
+It allows you to design the front page of the exam
+and other aspects (fonts, margins, etc.)
+This is an example:</p>
 <pre class="literal-block">
 \documentclass[a4paper,11pt]{article}
 
@@ -1072,13 +1293,12 @@ Group:   &amp;  \\
 \end{document}
 
 </pre>
-</blockquote>
 <p>In the template, notice that there are some marks within {{ and }}
 that are intended to be replaced by the script with data from the
 exam:</p>
 <ul class="simple">
-<li><cite>{{declarations}}</cite>: the script will put there declarations needed
-for the generate LaTeX file.</li>
+<li><cite>{{declarations}}</cite>: the script will put there some LaTeX declarations
+it needs.</li>
 <li><cite>{{subject}}</cite>, <cite>{{degree}}</cite>: name of the subject and degree it
 belongs to. Taken from the XML file with the questions.</li>
 <li><cite>{{title}}</cite>: the title of the exam. Taken from the XML file with the
@@ -1096,18 +1316,22 @@ their answers.</li>
 </ul>
 <p>Note that a template is highly reusable for different exams and
 subjects.</p>
+</div>
+<div class="section" id="creating-the-latex-source-files">
+<h2><a class="toc-backref" href="#id30">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></h2>
 <p>Once the exam file and the template have been created, the script
 <cite>create_exam.py</cite> parses them and generates the exam in LaTeX format:</p>
 <pre class="literal-block">
 python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
 </pre>
 <p>The previous command will create models 0, A and B of the exam with
-names <cite>exam-0.tex</cite>, <cite>exam-A.tex</cite> and <cite>exam-B.tex</cite>. Exam model 0 is a
-special exam in which questions are not reordered. The correct answer
-is always the first choice. Those files can be compiled with LaTeX to
-obtain a PDF that can be printed. In addition, the <tt class="docutils literal">exam.eye</tt> file
-needed to grade the exam is automatically created (or updated if it
-already exists).</p>
+names <cite>exam-0.tex</cite>, <cite>exam-A.tex</cite> and <cite>exam-B.tex</cite>. The exam model 0 is a
+special exam in which questions are not reordered.
+The correct answer is always the first choice in the model 0.
+The model 0 is convenient while editing the questions,
+but you must remember not to use it in the exam itself.</p>
+<p>In addition, Eyegrade will automatically create the <tt class="docutils literal">exam.eye</tt> file
+needed to grade the exams, or update it if it already exists.</p>
 <p>The script <cite>create_exam.py</cite> has other features, like creating just the
 front page of the exam (no questions needed). They can be explored with
 the command-line help of the program:</p>
@@ -1122,10 +1346,49 @@ The following command enlarges the default size in a 50% (factor 1.5):</p>
 python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
 </pre>
 </div>
+<div class="section" id="creating-the-pdf-files">
+<h2><a class="toc-backref" href="#id31">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
+<p>Once the <cite>.tex</cite> files have been created,
+you have to use LaTeX to produce the PDF files.
+For each file, run the following command:</p>
+<pre class="literal-block">
+pdflatex exam-A.tex
+</pre>
+<p>If you have several exam models,
+running that command for each one may be tedious.
+On Linux systems you can produce all of them
+with just a couple of commands:</p>
+<pre class="literal-block">
+find -name &quot;exam-*.tex&quot; -exec pdflatex \{\} \;
+</pre>
+<p>That's it! Now you can print the PDF files of your exams.</p>
+</div>
+<div class="section" id="installing-the-latex-system">
+<h2><a class="toc-backref" href="#id32">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
+<p>LaTeX is included in the repositories of the major Linux distributions.
+In Debian and Ubuntu you can simply
+install the package <cite>texlive-latex-recommended</cite>:</p>
+<pre class="literal-block">
+sudo apt-get install texlive-latex-recommended
+</pre>
+<p>For MS Windows there are some LaTeX distributions
+that provide a graphical installer,
+such as <a class="reference external" href="https://www.tug.org/protext/">ProText</a>:</p>
+<ol class="arabic simple">
+<li>Download the ProText installer
+(be aware that the size of the download is about 1.7 GB).</li>
+<li>From the installer, choose to install MiKTex.
+When you are offered a minimal or full installation,
+the minimal one is enough.</li>
+<li>You probably won't need to install TeXstudio,
+which is also offered by the installer.</li>
+</ol>
+</div>
+</div>
 <div class="section" id="advanced-features">
-<h1><a class="toc-backref" href="#id26">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
+<h1><a class="toc-backref" href="#id33">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
 <div class="section" id="webcam-selection">
-<h2><a class="toc-backref" href="#id27">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
+<h2><a class="toc-backref" href="#id34">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
 <p>If your computer has more than one camera (e.g. the internal camera of
 the laptop and an external camera you use to grade the exams),
 Eyegrade will select one of them by default. If the selected camera is
@@ -1155,7 +1418,7 @@ camera-dev: 1
 your account is at <tt class="docutils literal"><span class="pre">C:\Documents</span> and <span class="pre">Settings\&lt;your_user_name&gt;</span></tt>.</p>
 </div>
 <div class="section" id="creating-the-exams-in-a-word-processor">
-<h2><a class="toc-backref" href="#id28">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<h2><a class="toc-backref" href="#id35">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
 <p>The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
@@ -1285,21 +1548,21 @@ they should be placed from left to right:</p>
 </table>
 </div>
 <div class="section" id="manually-editing-the-eye-file">
-<h2><a class="toc-backref" href="#id29">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<h2><a class="toc-backref" href="#id36">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
 <p>The files that store the configuration of an exam and the correct
 answer for each question are stored with a <cite>.eye</cite> extension. An example
 is shown below:</p>
 <blockquote>
 <pre class="literal-block">
 [exam]
-dimensions: 4,6;4,6
+dimensions: 4,7;4,7
 id-num-digits: 9
 
 [solutions]
-model-A: 4/1/2/1/1/1/2/4/1/2/3/1
+model-A: 1/1/2/4/4/2/3/4/2/1/3/3/4/4
 
 [permutations]
-permutations-A: 11{4,3,2,1}/12{1,3,4,2}/5{4,1,3,2}/3{1,4,3,2}/2{1,3,2,4}/9{1,4,3,2}/10{3,1,4,2}/1{3,2,4,1}/8{1,4,2,3}/6{2,1,3,4}/4{3,2,1,4}/7{1,3,2,4}
+permutations-A: 1{1,4,3,2}/7{1,2,4,3}/5{2,1,3,4}/8{3,4,2,1}/9{4,2,3,1}/10{3,1,2,4}/14{2,4,1,3}/6{2,4,3,1}/12{3,1,2,4}/2{1,3,4,2}/13{3,4,1,2}/3{2,4,1,3}/4{2,4,3,1}/11{3,4,2,1}
 
 </pre>
 </blockquote>
@@ -1345,7 +1608,7 @@ probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.</p>
 </div>
 <div class="section" id="automatic-detection-of-exam-removal">
-<h2><a class="toc-backref" href="#id30">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
+<h2><a class="toc-backref" href="#id37">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
 <p>If the camera in your setup is fixed, that is, you place an exam below
 the camera, review it, remove it and place the next exam, you may want
 Eyegrade to detect that you have removed the exam instead of having to
