@@ -768,25 +768,199 @@ Editing exams
 -------------
 
 Although you can use any software of your preference to typeset the
-exams, Eyegrade provides a module for doing that in combination to the
-LaTeX document preparation system.
+exams, Eyegrade provides a module for doing that
+in combination with the LaTeX document preparation system.
 
-First, write your questions in an XML document like the following one:
+The procedure consists of four steps,
+which are described in the next sections:
 
-    .. include:: ../sample-files/exam-questions.xml
-       :literal:
+#. Edit an XML file with the questions themselves.
 
-Then, create a LaTeX template for the exam. This is an example:
+#. Edit a LaTeX template for your exam
+   with your institution's look and feel,
+   instructions to students, etc.
+   This template is reusable for other exams in the future.
 
-    .. include:: ../sample-files/template.tex
-       :literal:
+#. Automatically generate the LaTeX source files
+   from the XML file and the template.
+
+#. Generate the PDF files from the LaTeX source files.
+
+The example files used in the following explanations
+are provided with Eyegrade
+inside its `doc/sample-files` directory
+(also `accessible at GitHub
+<https://github.com/jfisteus/eyegrade/tree/development/doc/sample-files>`_).
+
+This guide assumes that you have a LaTeX system installed.
+If you don't have it in your system,
+follow the instructions in `Installing the LaTeX system`_.
+
+
+Editing the questions of the exam
+..................................
+
+You need to typeset your questions in an XML document.
+You may use your favorite text editor for that.
+
+At the beginning of the file
+you should provide some basic data about the exam,
+such as:
+the name of the course/subject,
+the name of the degree,
+the name of the exam,
+the date
+and the duration of the exam.
+You don't need to provide all those values,
+just the ones you want printed in the exam.
+
+Then, write the questions one by one.
+For each question, you have to provide:
+
+- The statement of the question.
+
+- An optional picture to be displayed with the question.
+
+- An optional block of code (for programming exams and the like)
+  to be formatted with a fixed-width font
+  and preserving spacing.
+
+- The text of the correct choice.
+
+- The text of the incorrect choices.
+
+The XML markup must be like shown in the following example:
+
+.. include:: ../sample-files/exam-questions.xml
+   :literal:
+
+You can insert LaTeX markup
+within the text of the statement and the choices
+if you need, for example,
+to insert a math equation
+or format a piece of text in italics, boldface
+or typewriter font::
+
+    <question>
+      <text>
+        Text in \emph{italics}, \textbf{boldface}
+        and \texttt{typewriter} font style.
+      </text>
+      <choices>
+        <correct>A LaTeX equation: $x^2 - 1$</correct>
+        <incorrect>Nothing</incorrect>
+      </choices>
+    </question>
+
+
+Inserting pictures
+~~~~~~~~~~~~~~~~~~~
+
+For inserting a picture in the statement of the question,
+you use the `<figure>` tag.
+Its file name must be provided within
+the `<figure>` and `</figure>` tags.
+It takes the following configuration attributes:
+
+- `eye:width`: width of the picture relative to
+  paragraph width
+  (1.0 means the full width, 0.5 means half width, etc.)
+  The picture will be scaled up or down accordingly.
+  This attribute is mandatory.
+
+- `eye:position`: position of the picture.
+  Use `center` for placing it just below the statement of the question
+  and above the choices.
+  Use `right` for laying out the question in two columns:
+  the statement of the question and the choices at the left
+  and the picture at the right.
+  The default value is `center`.
+
+This is an example::
+
+  <question>
+    <text>
+      Is the thing in the right a logo?
+    </text>
+    <figure eye:width="0.16" eye:position="right">sample-logo.eps</figure>
+    <choices>
+      <correct>Well, it tries to be a logo, to be honest.</correct>
+      <incorrect>No, it's a tree.</incorrect>
+      <incorrect>No, it's a perfect square.</incorrect>
+      <incorrect>Who knows!</incorrect>
+    </choices>
+  </question>
+
+Pictures can also be used inside a choice.
+It that case, the choice can only contain the picture
+and the `eye:position` attribute must not be used::
+
+  <correct>
+    <figure eye:width="0.2">sample-logo.eps</figure>
+  </correct>
+
+
+Inserting blocks of code
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For inserting a block of code in the statement of the question,
+you use the `<code>` tag.
+The code itself is given within the `<code>` and `</code>` tags.
+White space and end-of-line characters
+are displayed as you provide them.
+It takes the following configuration attributes:
+
+- `eye:position`: position of the block of code.
+  Use `center` for placing it just below the statement of the question
+  and above the choices.
+  Use `right` for laying out the question in two columns:
+  the statement of the question and the choices at the left
+  and the piece of code at the right.
+  The default value is `center`.
+
+- `eye:width`: only if you select the two column layout
+  (position `right`),
+  provide the width of the right column relative to
+  paragraph width
+  (0.5 means half width, etc.)
+  Remember to leave enough place for the left side.
+  This attribute is mandatory for the `right` position
+  and forbidden for the `center` position.
+
+This is an example::
+
+    <code eye:position="right" eye:width="0.4">for letter in ['a', 'b', 'c']:
+        print letter</code>
+
+Blocks of code can also be used inside a choice.
+It that case, the choice can only contain the block of code
+and neither attribute can be used::
+
+    <incorrect>
+    <code>class MyClass:
+        pass
+    </code>
+    </incorrect>
+
+
+Editing the LaTeX template
+...........................
+
+In addition to the questions of the exam,
+you'll need a LaTeX template.
+It allows you to design the front page of the exam
+and other aspects (fonts, margins, etc.)
+This is an example:
+
+.. include:: ../sample-files/template.tex
+   :literal:
 
 In the template, notice that there are some marks within {{ and }}
 that are intended to be replaced by the script with data from the
 exam:
 
-- `{{declarations}}`: the script will put there declarations needed
-  for the generate LaTeX file.
+- `{{declarations}}`: the script will put there some LaTeX declarations
+  it needs.
 - `{{subject}}`, `{{degree}}`: name of the subject and degree it
   belongs to. Taken from the XML file with the questions.
 - `{{title}}`: the title of the exam. Taken from the XML file with the
@@ -805,18 +979,24 @@ exam:
 Note that a template is highly reusable for different exams and
 subjects.
 
+
+Creating the LaTeX source files
+................................
+
 Once the exam file and the template have been created, the script
 `create_exam.py` parses them and generates the exam in LaTeX format::
 
   python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
 
 The previous command will create models 0, A and B of the exam with
-names `exam-0.tex`, `exam-A.tex` and `exam-B.tex`. Exam model 0 is a
-special exam in which questions are not reordered. The correct answer
-is always the first choice. Those files can be compiled with LaTeX to
-obtain a PDF that can be printed. In addition, the ``exam.eye`` file
-needed to grade the exam is automatically created (or updated if it
-already exists).
+names `exam-0.tex`, `exam-A.tex` and `exam-B.tex`. The exam model 0 is a
+special exam in which questions are not reordered.
+The correct answer is always the first choice in the model 0.
+The model 0 is convenient while editing the questions,
+but you must remember not to use it in the exam itself.
+
+In addition, Eyegrade will automatically create the ``exam.eye`` file
+needed to grade the exams, or update it if it already exists.
 
 The script `create_exam.py` has other features, like creating just the
 front page of the exam (no questions needed). They can be explored with
@@ -830,6 +1010,49 @@ default size, using the `-S` option and passing a scale factor
 The following command enlarges the default size in a 50% (factor 1.5)::
 
   python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
+
+
+Creating the PDF files
+.......................
+
+Once the `.tex` files have been created,
+you have to use LaTeX to produce the PDF files.
+For each file, run the following command::
+
+  pdflatex exam-A.tex
+
+If you have several exam models,
+running that command for each one may be tedious.
+On Linux systems you can produce all of them
+with just a couple of commands::
+
+  find -name "exam-*.tex" -exec pdflatex \{\} \;
+
+That's it! Now you can print the PDF files of your exams.
+
+
+Installing the LaTeX system
+.............................
+
+LaTeX is included in the repositories of the major Linux distributions.
+In Debian and Ubuntu you can simply
+install the package `texlive-latex-recommended`::
+
+  sudo apt-get install texlive-latex-recommended
+
+For MS Windows there are some LaTeX distributions
+that provide a graphical installer,
+such as `ProText <https://www.tug.org/protext/>`_:
+
+#. Download the ProText installer
+   (be aware that the size of the download is about 1.7 GB).
+
+#. From the installer, choose to install MiKTex.
+   When you are offered a minimal or full installation,
+   the minimal one is enough.
+
+#. You probably won't need to install TeXstudio,
+   which is also offered by the installer.
 
 
 
