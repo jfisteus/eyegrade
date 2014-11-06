@@ -28,9 +28,9 @@ import io
 import fractions
 
 program_name = 'eyegrade'
-web_location = 'http://eyegrade.org/'
+web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
-help_location = 'http://eyegrade.org/doc/user-manual/'
+help_location = 'http://www.eyegrade.org/doc/user-manual/'
 version = '0.4.2'
 version_status = 'alpha'
 

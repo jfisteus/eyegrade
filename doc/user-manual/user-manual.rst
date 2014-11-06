@@ -43,9 +43,9 @@ In order to upgrade from eyegrade 0.2.x or 0.3.x to eyegrade 0.4,
 follow the instructions at `Updating Eyegrade`_.
 
 The main changes are described in the blog posts `Eyegrade 0.3
-released <http://eyegrade.org/blog/posts/eyegrade-03-released.html>`_
+released <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
 and `Eyegrade 0.4 released
-<http://eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+<http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
 
 Installation on GNU/Linux
 .........................
