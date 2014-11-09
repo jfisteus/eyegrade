@@ -1,0 +1,8 @@
+.. title: Documentation
+.. slug: documentation
+
+Documentation
+====================
+
+- `Eyegrade user manual <doc/user-manual/>`_
+

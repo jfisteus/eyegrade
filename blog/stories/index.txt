@@ -1,0 +1,22 @@
+.. title: Eyegrade
+.. slug: index
+
+
+.. class:: col-md-8
+
+Eyegrade
+------------------------------------------------------
+
+.. class:: lead
+
+Grading multiple choice exams with a webcam
+
+Eyegrade uses a webcam to grade MCQ (multiple choice question) exams.
+Needing just a cheap low-end webcam,
+it aims to be a low-cost and portable solution available to everyone,
+on the contrary to other solutions based on scanners.
+The program is free software, licensed under the terms of the
+`GNU General Public License (GPL) version 3
+<http://www.gnu.org/licenses/gpl-3.0.html>`_
+or any later version.
+

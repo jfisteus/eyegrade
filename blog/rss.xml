@@ -1,16 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>The Eyegrade Blog</title><link>http://eyegrade.org/blog</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://eyegrade.org/rss.xml" type="application/rss+xml" rel="self"></atom:link><lastBuildDate>Thu, 26 Jun 2014 18:30:03 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-04-released.html</link><description>&lt;p&gt;I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 10 Nov 2014 00:32:20 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Improved documentation about how to edit an exam with LaTeX</title><link>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The &lt;em&gt;official&lt;/em&gt; way of editting your exams for Eyegrade
+consists of creating an XML file with the questions,
+running on it the &lt;cite&gt;create_exam&lt;/cite&gt; script provided by Eyegrade
+and compiling the resulting files with LaTeX
+in order to get the final PDF documents.&lt;/p&gt;
+&lt;p&gt;Although exams can also be edited
+with a word processor such as OpenOffice or Microsoft Word
+(see &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#creating-the-exams-in-a-word-processor"&gt;Creating the exams in a word processor&lt;/a&gt;),
+following the official way has some advantages:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Eyegrade shuffles the questions
+and produces several models with different question orderings.&lt;/li&gt;
+&lt;li&gt;Eyegrade creates the exam configuration file (the &lt;cite&gt;.eye&lt;/cite&gt; file)
+automatically.&lt;/li&gt;
+&lt;li&gt;LaTeX-style equations may be used inside the questions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;However, editing an XML file and dealing with LaTeX
+may scare some users
+that are more used to graphical word processors.
+In order to make the procedure more approachable,
+the user manual describes now more in depth how to edit exams
+the official way in the section
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#editing-exams"&gt;Editing exams&lt;/a&gt;.
+Suggestions on how to improve that section further
+are most welcome.&lt;/p&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</guid><pubDate>Sun, 09 Nov 2014 23:28:00 GMT</pubDate></item><item><title>Eyegrade 0.4 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
 minor changes and a bug fix). There is only one main change in this
 release with respect to the 0.3 series, the ability to export grade
 listings from the user interface.&lt;/p&gt;
 &lt;p&gt;When you select in the menu &lt;em&gt;Exams / Export grade listing&lt;/em&gt; you get a dialog
 like the following one that allows you to configure the export options:&lt;/p&gt;
 &lt;div class="figure"&gt;
-&lt;img alt="The new export dialog." class="thumbnail" src="http://eyegrade.org/galleries/screenshots-04/export-dialog.png"&gt;
+&lt;img alt="The new export dialog." class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-04/export-dialog.png"&gt;
 &lt;/div&gt;
 &lt;p&gt;This new feature is easier to use and more flexible than the
 &lt;cite&gt;mix_grades&lt;/cite&gt; script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-03-released.html</link><description>&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
+script is now obsolete and will probably be removed in the future.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;Previously, exams could only be reviewed immediately after capturing
 them. Now you can review the exams, change answers or change the
@@ -39,7 +63,7 @@ the program from versions in the series 0.2.x by executing the command
 &lt;em&gt;git pull&lt;/em&gt; from inside the directory in which eyegrade is installed.&lt;/p&gt;
 &lt;p&gt;If you find bugs or problems with this new release, please open an
 issue at &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/"&gt;the GitHub project page&lt;/a&gt;, or just let me know by
-commenting on this post or sending me an email.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item><item><title>Eyegrade moved to a new location</title><link>http://eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</link><description>&lt;p&gt;I've just moved Eyegrade to a new Web location at &lt;a class="reference external" href="http://eyegrade.org/"&gt;eyegrade.org&lt;/a&gt;. These are the important links:&lt;/p&gt;
+commenting on this post or sending me an email.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item><item><title>Eyegrade moved to a new location</title><link>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just moved Eyegrade to a new Web location at &lt;a class="reference external" href="http://eyegrade.org/"&gt;eyegrade.org&lt;/a&gt;. These are the important links:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;Project homepage: &lt;a class="reference external" href="http://eyegrade.org/"&gt;http://eyegrade.org/&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;User manual: &lt;a class="reference external" href="http://eyegrade.org/doc/user-manual/"&gt;http://eyegrade.org/doc/user-manual/&lt;/a&gt;&lt;/li&gt;
@@ -54,7 +78,7 @@ redirections won't work. However, the new addresses will work properly
 even in that case.&lt;/p&gt;
 &lt;p&gt;The new website is hosted at the &lt;a class="reference external" href="http://pages.github.com/"&gt;GitHub Pages&lt;/a&gt; service. My experience so far with this
 service has been very satisfactory. The availability of the website
-with the new hosting will definitely be much better.&lt;/p&gt;</description><category>eyegrade</category><guid>http://eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</guid><pubDate>Wed, 31 Jul 2013 16:55:00 GMT</pubDate></item><item><title>Requests for Eyegrade 0.3</title><link>http://eyegrade.org/blog/posts/requests-for-eyegrade-03.html</link><description>&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
+with the new hosting will definitely be much better.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</guid><pubDate>Wed, 31 Jul 2013 16:55:00 GMT</pubDate></item><item><title>Requests for Eyegrade 0.3</title><link>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
 September. There are some features I have in mind, but listening to
 the users from time to time does not harm ;) If there is a feature you
 are especially interested in, just let me know by commenting on this
@@ -85,7 +109,7 @@ to translate it to other tongues.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;I won't have time for all the features in the list, so you can help me
 to prioritize. Of course, you can also request features not in the
-list ;)&lt;/p&gt;</description><category>eyegrade</category><category>requests</category><guid>http://eyegrade.org/blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item><item><title>Eyegrade 0.2 released!</title><link>http://eyegrade.org/blog/posts/release-eyegrade-0.2.html</link><description>&lt;p&gt;Eyegrade 0.2 has been released! It features the shiny new PyQt-based
+list ;)&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>requests</category><guid>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item><item><title>Eyegrade 0.2 released!</title><link>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.2 has been released! It features the shiny new PyQt-based
 user interface that I showed in previous posts.&lt;/p&gt;
 &lt;p&gt;The &lt;a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/"&gt;Eyegrade User Manual&lt;/a&gt; contains
 up-to-date instructions for using the new interface. If you have
@@ -97,7 +121,7 @@ in the future, such as the possibility of reviewing previously graded
 exams, editing the student list, writing grades to disk in several
 orders and formats, etc.&lt;/p&gt;
 &lt;p&gt;If you experience problems with this new version, please let me know
-by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item><item><title>Preview of the improved new-session dialog</title><link>http://eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</link><description>&lt;p&gt;I've been working on the &lt;em&gt;new session&lt;/em&gt; dialog. Now it is a wizard with
+by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item><item><title>Preview of the improved new-session dialog</title><link>http://www.eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've been working on the &lt;em&gt;new session&lt;/em&gt; dialog. Now it is a wizard with
 three pages. The main novelties are that:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;You can now select more than one student list. All of them are used
@@ -110,16 +134,16 @@ the exam and choosing whether incorrect answers should penalize or
 not.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;You can try the new dialog in the development branch at GitHub, and
-see it this &lt;a class="reference external" href="http://eyegrade.org/galleries/screenshots-new-gui-2/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
+see it this &lt;a class="reference external" href="http://www.eyegrade.org/galleries/screenshots-new-gui-2/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
 &lt;div class="figure"&gt;
-&lt;img alt="Screenshot of a page of the new session dialog" class="thumbnail" src="http://eyegrade.org/galleries/screenshots-new-gui-2/screenshot-3.png"&gt;
+&lt;img alt="Screenshot of a page of the new session dialog" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-new-gui-2/screenshot-3.png"&gt;
 &lt;/div&gt;
 &lt;p&gt;This new dialog will appear in the 0.2 release. I have in mind for a
 future release the possibility of entering the exam configuration from
 the new session dialog, as an alternative to reading it from a
 file. This may be handy for users who do not create the exam with the
 command line tools that Eyegrade provides.&lt;/p&gt;
-&lt;p&gt;Comments and suggestions are welcome.&lt;/p&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>http://eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</guid><pubDate>Sun, 06 Jan 2013 22:49:08 GMT</pubDate></item><item><title>Teaser of the new PyQt-based eyegrade user interface</title><link>http://eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</link><description>&lt;p&gt;I'm programming from scratch the graphical user interface of
+&lt;p&gt;Comments and suggestions are welcome.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>pyqt</category><category>screenshots</category><guid>http://www.eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</guid><pubDate>Sun, 06 Jan 2013 22:49:08 GMT</pubDate></item><item><title>Teaser of the new PyQt-based eyegrade user interface</title><link>http://www.eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm programming from scratch the graphical user interface of
 Eyegrade. The old user interface uses Pygame. It allowed me to build
 the first interface of the program very quickly, but its lack of
 graphical components (buttons, dialogues, menus, etc.) was preventing me
@@ -129,9 +153,9 @@ new interface. Why PyQt? I programmed a game with Qt in C++ many years
 ago, and I liked the library a lot. With the python bindings, it is
 even easier to use.&lt;/p&gt;
 &lt;p&gt;The new user interface will be released with Eyegrade 0.2 (hopefully,
-before the end of January). Check the first &lt;a class="reference external" href="http://eyegrade.org/galleries/screenshots-new-gui-1/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
+before the end of January). Check the first &lt;a class="reference external" href="http://www.eyegrade.org/galleries/screenshots-new-gui-1/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
 &lt;div class="figure"&gt;
-&lt;img alt="Screenshot of the new user interface of Eyegrade" class="thumbnail" src="http://eyegrade.org/galleries/screenshots-new-gui-1/screenshot-4.png"&gt;
+&lt;img alt="Screenshot of the new user interface of Eyegrade" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-new-gui-1/screenshot-4.png"&gt;
 &lt;/div&gt;
 &lt;p&gt;Right now the program does more or less the same as the old interface,
 but it will be easier to add new features in the future.&lt;/p&gt;
@@ -146,4 +170,4 @@ conventions, the Python files are now directly under the &lt;cite&gt;eyegrade&lt
 subdirectory of the main directory of the project.&lt;/li&gt;
 &lt;li&gt;The main program does not receive command line arguments. The &lt;cite&gt;.eye&lt;/cite&gt;
 file and student list are selected at the &lt;em&gt;new session&lt;/em&gt; dialog.&lt;/li&gt;
-&lt;/ul&gt;</description><category>eyegrade</category><category>screenshots</category><category>pyqt</category><guid>http://eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</guid><pubDate>Wed, 02 Jan 2013 13:30:00 GMT</pubDate></item></channel></rss>
+&lt;/ul&gt;&lt;/div&gt;</description><category>eyegrade</category><category>pyqt</category><category>screenshots</category><guid>http://www.eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</guid><pubDate>Wed, 02 Jan 2013 13:30:00 GMT</pubDate></item></channel></rss>

@@ -5,7 +5,7 @@
 .. title: Eyegrade 0.4 released!
 .. slug: eyegrade-04-released
 
-I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
+I've released eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
 minor changes and a bug fix). There is only one main change in this
 release with respect to the 0.3 series, the ability to export grade
 listings from the user interface.

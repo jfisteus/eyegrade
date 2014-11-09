@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (documentation)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/documentation.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 10 Nov 2014 00:29:16 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Improved documentation about how to edit an exam with LaTeX</title><link>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The &lt;em&gt;official&lt;/em&gt; way of editting your exams for Eyegrade
+consists of creating an XML file with the questions,
+running on it the &lt;cite&gt;create_exam&lt;/cite&gt; script provided by Eyegrade
+and compiling the resulting files with LaTeX
+in order to get the final PDF documents.&lt;/p&gt;
+&lt;p&gt;Although exams can also be edited
+with a word processor such as OpenOffice or Microsoft Word
+(see &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#creating-the-exams-in-a-word-processor"&gt;Creating the exams in a word processor&lt;/a&gt;),
+following the official way has some advantages:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Eyegrade shuffles the questions
+and produces several models with different question orderings.&lt;/li&gt;
+&lt;li&gt;Eyegrade creates the exam configuration file (the &lt;cite&gt;.eye&lt;/cite&gt; file)
+automatically.&lt;/li&gt;
+&lt;li&gt;LaTeX-style equations may be used inside the questions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;However, editing an XML file and dealing with LaTeX
+may scare some users
+that are more used to graphical word processors.
+In order to make the procedure more approachable,
+the user manual describes now more in depth how to edit exams
+the official way in the section
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#editing-exams"&gt;Editing exams&lt;/a&gt;.
+Suggestions on how to improve that section further
+are most welcome.&lt;/p&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</guid><pubDate>Sun, 09 Nov 2014 23:28:00 GMT</pubDate></item></channel></rss>

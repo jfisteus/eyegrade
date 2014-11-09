@@ -1,156 +1,279 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eyegrade: grading multiple choice exams with a webcam | Eyegrade</title>
 
-<!DOCTYPE html
-   PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" >
+    
+            <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/rst.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/code.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
+        <link href="assets/css/theme.css" rel="stylesheet" type="text/css">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>Eyegrade: grading multiple choice questions with a webcam</title>
-    <link rel="stylesheet" type="text/css" href="eyegrade.css" />
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="blog/rss.xml"/>
-  </head>
-  <body>
+    
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="blog/rss.xml">
 
-    <div id="container">
-      <div id="top">
-<!--      <div class="title"> -->
-	<h1 >Eyegrade</h1>
-	<p>Grading multiple choice questions with a webcam</p>
-      </div>
+      <link rel="canonical" href="http://www.eyegrade.org/index.html">
 
-      <div id="leftnav">
-	<ul id="menu">
-	  <li class="menu-current">Main page</li>
-	  <li><a href="blog/">Blog</a></li>
-	  <li><a href="download.html">Download</a></li>
-	  <li><a href="doc/user-manual/">Documentation</a></li>
-	</ul>
-      </div>
 
-<!--
-      <div id="rightnav">
-	<p><img src="doc/user-manual/images/review-mode-normal.png"
-	alt="Eyegrade snapshot" width="320"></p>
-      </div>
--->
 
-      <div class="news">
-	<p><b>Latest news</b> <a href="blog/rss.xml"><img src="rss-icon.png" height="20"
-	      width="20" alt="RSS news feed"/></a></p>
-	<p>
-	  <a href="blog/">(see more news at the blog)</a>
-	</p>
-	<p>
-	  <b>[Jun 26, 2014]</b>
-	  Eyegrade 0.4 has been released! See the
-	  <a href="blog/posts/eyegrade-04-released.html">blog
-	  post</a>.
-	</p>
-	<p>
-	  <b>[May 08, 2014]</b>
-	  Eyegrade 0.3 has been released! See the
-	  <a href="blog/posts/eyegrade-03-released.html">blog
-	  post</a>.
-	</p>
-	<p>
-	  <b>[Jul 31, 2013]</b> Eyegrade moved to a new location at <a
-	  href="http://eyegrade.org/">eyegrade.org</a>. See the <a
-	  href="blog/posts/eyegrade-moved-to-a-new-location.html">blog
-	  post</a>.
-	</p>
-      </div>
 
-      <div id="content">
-	<h2>Introduction</h2>
-	<p>
-	  Eyegrade uses a webcam to grade MCQ (multiple choice
-	  question) exams. Needing just a cheap low-end webcam, it
-	  aims to be a low-cost and portable solution available to
-	  everyone, on the contrary to other solutions based on
-	  scanners. The program is free software, licensed under the
-	  terms of
-	  the <a href="http://www.gnu.org/licenses/gpl-3.0.html">GNU
-	  General Public License (GPL) version 3</a> or any later
-	  version.
-	</p>
+    
+        <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 
-	<p>
-	  Eyegrade is still alpha. It is fully functional and has been
-	  used in several courses
-	  at <a href="http://www.uc3m.es">Universidad Carlos III de
-	  Madrid</a> since 2010. Its use is encouraged for
-	  tech-savvy people. However, it still needs great
-	  improvements in its user-friendliness in order to be usable
-	  for the general public.
-	</p>
+    
 
-	<p>
-	  Its source code is hosted at <a
-	  href="https://github.com/jfisteus/eyegrade">Github:
-	  jfisteus/eyegrade</a>. Bug reports, feature requests and
-	  pull requests are welcome there.
-	</p>
 
-	<p>
-	  The main features of Eyegrade are:
-	</p>
-	<ul>
-	  <li><b>Exam typesetting:</b> Although you can create your
-	    exams with other tools, Eyegrade integrates an utility to
-	    creating MCQ exams. It is able to create your exams in PDF
-	    format.  Eyegrade can automatically build several versions
-	    of the exam by reordering questions and choices within
-	    questions.</li>
-	  <li><b>Grading exams:</b> Using a webcam, the graphical user
-	    interface of Eyegrade allows you to grade your
-	    exam. Eyegrade is able to recognize not only the answers
-	    to the questions, but also the identity of the student by
-	    using its hand-written digit cognition module. The whole
-	    process is supervised by the user in order to detect and
-	    fix potential errors of the system.</li>
-	  <li><b>Extracting statistics:</b> you can view
-	    question-by-question statistics in order to analyze which
-	    topics are clear to the majority of your students, and
-	    which topics need further work.</li>
-	  <li><b>Exporting grades:</b> grades can be exported in CSV
-	    format, compatible with other programs such as
-	    spreadsheets.</li>
-	</ul>
+    
 
-	<p>
-	  An article describing Eyegrade has been published by the
-	  Journal of Science Education and Technology:
-	</p>
-	<ul>
-	  <li>
-	    Jesus Arias Fisteus, Abelardo Pardo and Norberto
-	    Fernández García, <i>Grading Multiple Choice Exams with
-	      Low-Cost and Portable Computer-Vision
-	      Techniques</i>. Journal of Science Education and
-	    Technology. <a
-	      href="http://dx.doi.org/10.1007/s10956-012-9414-8">doi:10.1007/s10956-012-9414-8</a>
-	  </li>
-	</ul>
+    <meta name="author" content="Jesús Arias Fisteus">
+    
+    <meta property="og:site_name" content="Eyegrade">
+    <meta property="og:title" content="Eyegrade: grading multiple choice exams with a webcam">
+    <meta property="og:url" content="http://www.eyegrade.org/index.html">
+    <meta property="og:description" content="Eyegrade uses a webcam to grade multiple choice question exams.
+Needing just a cheap low-end webcam,
+it aims to be a low-cost and portable alternative
+to other solutions based on scanners.
 
-	<p>Here is a short demonstration video:</p>
+Latest ver">
+    <meta property="og:type" content="article">
+    <meta property="article:published_time" content="2014-11-09T23:32:13.967112+00:00">
 
-	<iframe class="youtube" width="640" height="480" src="http://www.youtube.com/embed/ajK9JAhsDH0" frameborder="0"></iframe>
+    
 
-      <p>And a screenshot:</p>
+    
 
-	<p><img src="doc/user-manual/images/review-mode-normal.png"
-	alt="Eyegrade screenshot"></p>
 
-      </div>
 
-      <div id="footer">
-	<img src="icon.png" alt="Eyegrade logo" />
-	  <i>Eyegrade</i>, copyright 2010-2014 <a
-	    href="http://www.it.uc3m.es/jaf/index.html">Jesús Arias
-	    Fisteus</a>
-      </div>
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://www.eyegrade.org/">
+
+                <span id="blog-title">Eyegrade</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                
+                <li>
+<a href="download.html">Download</a>
+                </li>
+<li>
+<a href="documentation.html">Documentation</a>
+                </li>
+<li>
+<a href="https://github.com/jfisteus/eyegrade/">GitHub</a>
+                </li>
+<li>
+<a href="blog/index.html">Blog</a>
+                </li>
+<li>
+<a href="blog/archive.html">Blog archive</a>
+                </li>
+<li>
+<a href="blog/categories/index.html">Blog tags</a>
+                </li>
+<li>
+<a href="blog/rss.xml">RSS feed</a>
+
+                
+            </li>
+</ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                    
+    <li>
+    <a href="./index.txt" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+        </div>
+<!-- /.navbar-collapse -->
     </div>
+<!-- /.container -->
+</nav>
+
+<!-- End of Menubar -->
+
+<div class="container" id="content">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="storypage" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <header>
+        
+    <h1 class="p-name entry-title" itemprop="headline name"><a href="#" class="u-url">Eyegrade: grading multiple choice exams with a webcam</a></h1>
+
+        
+
+    </header>
+    <div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p class="lead">Eyegrade uses a webcam to grade multiple choice question exams.
+Needing just a cheap low-end webcam,
+it aims to be a low-cost and portable alternative
+to other solutions based on scanners.</p>
+<div class="alert alert-info sidebar section" id="latest-version">
+<h2>Latest version</h2>
+<p>The latest available version is
+<strong>Eyegrade 0.4.2</strong>,
+which was released on June 26, 2014.</p>
+</div>
+<div class="alert alert-info sidebar section" id="news">
+<h2>News</h2>
+<p><a class="reference external" href="blog/rss,xml"><img alt="rssicon" src="rss-icon.png" style="height: 1em;"></a> <a class="reference external" href="blog/rss.xml">Subscribe</a>
+| <a class="reference external" href="blog/index,html">Read more news at the blog</a></p>
+<p><strong>[Nov 10, 2014]</strong>
+Improved documentation about how to typeset exams.
+See the <a class="reference external" href="blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html">blog post</a>.</p>
+<p><strong>[Jun 26, 2014]</strong>
+Eyegrade 0.4 has been released!
+See the <a class="reference external" href="blog/posts/eyegrade-04-released.html">blog post</a>.</p>
+<p><strong>[May 08, 2014]</strong>
+Eyegrade 0.3 has been released!
+See the <a class="reference external" href="blog/posts/eyegrade-03-released.html">blog post</a>.</p>
+</div>
+<div class="section" id="main-features">
+<h2>Main features</h2>
+<p>The main features of Eyegrade are:</p>
+<ul class="simple">
+<li>
+<strong>Grading the exams:</strong>
+By using a webcam,
+the graphical user interface of Eyegrade
+allows you to grade your exams.
+Eyegrade is able to recognize not only the answers to the questions,
+but also the identity of the student
+by using its hand-written digit recognition module.
+The whole process is supervised by the user
+in order to detect and fix potential detection errors.</li>
+<li>
+<strong>Exporting grades:</strong>
+Grades can be exported in CSV format,
+compatible with other programs such as spreadsheets.</li>
+<li>
+<strong>Typesetting the exams:</strong>
+Although you can create your exams with other tools,
+Eyegrade integrates an utility to creating MCQ exams.
+It is able to create your exams in PDF format.
+Eyegrade can automatically build several versions of the exam
+by shuffling questions and the choices within the questions.</li>
+</ul>
+<p>Here is a short demonstration video of an early version of Eyegrade.
+Please note that the user interface has been greatly improved since then:</p>
+<iframe class="youtube" width="500" height="375" src="http://www.youtube.com/embed/ajK9JAhsDH0" frameborder="0" style="display: block; margin: 0 auto;"></iframe><p>And here is a more current screenshot:</p>
+<div class="figure">
+<img alt="A screenshot of Eyegrade." class="thumbnail" src="galleries/screenshots-for-index/review-mode-normal.png">
+</div>
+<p class="lead">Target audience</p>
+<p>Eyegrade is still alpha.
+It is fully functional and has been used
+in several courses
+at <a class="reference external" href="http://www.uc3m.es">Universidad Carlos III de Madrid</a>
+since 2010
+as well as in other institutions worldwide.
+It still needs some improvements
+in its user-friendliness
+in order to be usable for the general public.
+Therefore, for now now we recommend it only for tech-savvy people
+(if you are not afraid of using a plain text editor
+and the command line,
+you won't have any problem getting used to it).</p>
+<p class="lead">How can you contribute?</p>
+<p>Eyegrade is free software, licensed under the terms of the
+<a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License (GPL) version 3</a>
+or any later version.</p>
+<p>The source code of Eyegrade
+is hosted at
+<a class="reference external" href="https://github.com/jfisteus/eyegrade">Github: jfisteus/eyegrade</a>.
+Bug reports, feature requests and pull requests are welcome there.</p>
+<p class="lead">How can you cite this work from academic papers?</p>
+<p>An article describing Eyegrade has been published
+by the Journal of Science Education and Technology:</p>
+<p>Jesus Arias Fisteus, Abelardo Pardo and Norberto Fernández García,
+<em>Grading Multiple Choice Exams with
+Low-Cost and Portable Computer-Vision Techniques</em>.
+Journal of Science Education and Technology.
+<a class="reference external" href="http://dx.doi.org/10.1007/s10956-012-9414-8">doi:10.1007/s10956-012-9414-8</a></p>
+<p>Please, cite the paper if you use Eyegrade for research activities.</p>
+</div>
+</div>
+    </div>
+    
+
+</article>
+
+        </div>
+        <!--End of body content-->
+
+        <footer>
+            Contents © 2014         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+    </div>
+</div>
+
+
+            <script src="assets/js/jquery.min.js"></script>
+            <script src="assets/js/bootstrap.min.js"></script>
+            <script src="assets/js/moment-with-locales.min.js"></script>
+            <script src="assets/js/fancydates.js"></script>
+        <script src="assets/js/jquery.colorbox-min.js"></script>
+    
+<!-- Social buttons -->
+<div id="addthisbox" class="addthis_toolbox addthis_peekaboo_style addthis_default_style addthis_label_style addthis_32x32_style">
+<a class="addthis_button_more">Share</a>
+<ul>
+<li>
+<a class="addthis_button_facebook"></a>
+</li>
+<li>
+<a class="addthis_button_google_plusone_share"></a>
+</li>
+<li>
+<a class="addthis_button_linkedin"></a>
+</li>
+<li>
+<a class="addthis_button_twitter"></a>
+</li>
+</ul>
+</div>
+<script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-4f7088a56bb93798"></script>
+<!-- End of social buttons -->
+
+
+    <script>jQuery("a.image-reference").colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script>
+    <!-- fancy dates -->
+    <script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script>
+    <!-- end fancy dates -->
+    
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -162,5 +285,6 @@
 
 </script>
 
-  </body>
+
+</body>
 </html>

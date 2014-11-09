@@ -1,0 +1,35 @@
+.. title: Download Eyegrade
+.. slug: download
+
+Download
+====================
+
+License:
+----------
+
+Eyegrade is distributed under the
+`GNU General Public License (GPL) version 3
+<http://www.gnu.org/licenses/gpl-3.0.html>`_
+or any later version.
+
+
+Source code repository:
+-------------------------
+
+The source code repository is available at
+`GitHub <https://github.com/jfisteus/eyegrade>`_.
+To download it through git::
+
+  git clone https://github.com/jfisteus/eyegrade.git
+
+The `Eyegrade User Manual <doc/user-manual>`_
+explains how to install or upgrade Eyegrade.
+
+
+Contribute!
+-------------
+
+**Want to contribute?** You can contribute or contact me
+through the `github page of Eyegrade <https://github.com/jfisteus/eyegrade>`_.
+
+

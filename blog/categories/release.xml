@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>The Eyegrade Blog (release)</title><link>http://eyegrade.org/blog</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://eyegrade.org/categories/release.xml" type="application/rss+xml" rel="self"></atom:link><lastBuildDate>Thu, 26 Jun 2014 18:30:03 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-04-released.html</link><description>&lt;p&gt;I've release eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 09 Nov 2014 13:42:09 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
 minor changes and a bug fix). There is only one main change in this
 release with respect to the 0.3 series, the ability to export grade
 listings from the user interface.&lt;/p&gt;
 &lt;p&gt;When you select in the menu &lt;em&gt;Exams / Export grade listing&lt;/em&gt; you get a dialog
 like the following one that allows you to configure the export options:&lt;/p&gt;
 &lt;div class="figure"&gt;
-&lt;img alt="The new export dialog." class="thumbnail" src="http://eyegrade.org/galleries/screenshots-04/export-dialog.png"&gt;
+&lt;img alt="The new export dialog." class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-04/export-dialog.png"&gt;
 &lt;/div&gt;
 &lt;p&gt;This new feature is easier to use and more flexible than the
 &lt;cite&gt;mix_grades&lt;/cite&gt; script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://eyegrade.org/blog/posts/eyegrade-03-released.html</link><description>&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
+script is now obsolete and will probably be removed in the future.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;Previously, exams could only be reviewed immediately after capturing
 them. Now you can review the exams, change answers or change the
@@ -39,7 +39,7 @@ the program from versions in the series 0.2.x by executing the command
 &lt;em&gt;git pull&lt;/em&gt; from inside the directory in which eyegrade is installed.&lt;/p&gt;
 &lt;p&gt;If you find bugs or problems with this new release, please open an
 issue at &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/"&gt;the GitHub project page&lt;/a&gt;, or just let me know by
-commenting on this post or sending me an email.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item><item><title>Eyegrade 0.2 released!</title><link>http://eyegrade.org/blog/posts/release-eyegrade-0.2.html</link><description>&lt;p&gt;Eyegrade 0.2 has been released! It features the shiny new PyQt-based
+commenting on this post or sending me an email.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item><item><title>Eyegrade 0.2 released!</title><link>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.2 has been released! It features the shiny new PyQt-based
 user interface that I showed in previous posts.&lt;/p&gt;
 &lt;p&gt;The &lt;a class="reference external" href="http://www.it.uc3m.es/jaf/eyegrade/doc/user-manual/"&gt;Eyegrade User Manual&lt;/a&gt; contains
 up-to-date instructions for using the new interface. If you have
@@ -51,4 +51,4 @@ in the future, such as the possibility of reviewing previously graded
 exams, editing the student list, writing grades to disk in several
 orders and formats, etc.&lt;/p&gt;
 &lt;p&gt;If you experience problems with this new version, please let me know
-by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;</description><category>eyegrade</category><category>release</category><guid>http://eyegrade.org/blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item></channel></rss>
+by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item></channel></rss>

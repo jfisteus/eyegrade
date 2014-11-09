@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>The Eyegrade Blog (requests)</title><link>http://eyegrade.org/blog</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://eyegrade.org/categories/requests.xml" type="application/rss+xml" rel="self"></atom:link><lastBuildDate>Thu, 08 May 2014 00:40:26 GMT</lastBuildDate><generator>nikola</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Requests for Eyegrade 0.3</title><link>http://eyegrade.org/blog/posts/requests-for-eyegrade-03.html</link><description>&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (requests)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/requests.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 09 Nov 2014 13:42:09 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Requests for Eyegrade 0.3</title><link>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
 September. There are some features I have in mind, but listening to
 the users from time to time does not harm ;) If there is a feature you
 are especially interested in, just let me know by commenting on this
@@ -30,4 +30,4 @@ to translate it to other tongues.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;I won't have time for all the features in the list, so you can help me
 to prioritize. Of course, you can also request features not in the
-list ;)&lt;/p&gt;</description><category>eyegrade</category><category>requests</category><guid>http://eyegrade.org/blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item></channel></rss>
+list ;)&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>requests</category><guid>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item></channel></rss>
