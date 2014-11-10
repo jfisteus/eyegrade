@@ -6,54 +6,54 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/documentation.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/pyqt.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/release.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/requests.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/screenshots.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/rss.xml</loc>
-  <lastmod>2014-11-09</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/rss.xml</loc>
-  <lastmod>2014-11-10</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-04/rss.xml</loc>
-  <lastmod>2014-11-10</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-for-index/rss.xml</loc>
-  <lastmod>2014-11-10</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-1/rss.xml</loc>
-  <lastmod>2014-11-10</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-2/rss.xml</loc>
-  <lastmod>2014-11-10</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/sitemap.xml</loc>
-  <lastmod>2014-11-10</lastmod>
+  <lastmod>2014-11-11</lastmod>
  </sitemap>
 </sitemapindex>
