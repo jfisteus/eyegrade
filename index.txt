@@ -29,10 +29,10 @@ News
 
 .. |rssicon| image:: rss-icon.png
              :height: 1em
-             :target: blog/rss,xml
+             :target: blog/rss.xml
 
 |rssicon| `Subscribe <blog/rss.xml>`_
-| `Read more news at the blog <blog/index,html>`_
+| `Read more news at the blog <blog/index.html>`_
 
 
 **[Nov 10, 2014]**
