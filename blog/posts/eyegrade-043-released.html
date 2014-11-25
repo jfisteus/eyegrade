@@ -3,7 +3,7 @@
     <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Improved documentation about how to edit an exam with LaTeX | Eyegrade</title>
+    <title>Eyegrade 0.4.3 released | Eyegrade</title>
 
     
             <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -15,7 +15,7 @@
     
             <link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
 
-      <link rel="canonical" href="http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html">
+      <link rel="canonical" href="http://www.eyegrade.org/blog/posts/eyegrade-043-released.html">
 
 
 
@@ -29,20 +29,22 @@
     
 
     <meta name="author" content="Jesús Arias Fisteus">
-        <link rel="prev" href="eyegrade-04-released.html" title="Eyegrade 0.4 released!" type="text/html">
-        <link rel="next" href="eyegrade-043-released.html" title="Eyegrade 0.4.3 released" type="text/html">
+        <link rel="prev" href="improved-documentation-about-how-to-edit-an-exam-with-latex.html" title="Improved documentation about how to edit an exam with LaTeX" type="text/html">
     
     <meta property="og:site_name" content="Eyegrade">
-    <meta property="og:title" content="Improved documentation about how to edit an exam with LaTeX">
-    <meta property="og:url" content="http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html">
-    <meta property="og:description" content="The official way of editting your exams for Eyegrade
-consists of creating an XML file with the questions,
-running on it the create_exam script provided by Eyegrade
-and compiling the resulting files wi">
+    <meta property="og:title" content="Eyegrade 0.4.3 released">
+    <meta property="og:url" content="http://www.eyegrade.org/blog/posts/eyegrade-043-released.html">
+    <meta property="og:description" content="I've just released Eyegrade 0.4.3.
+This release fixes a bug
+that made the functionality that exports grades fail
+when the program is run
+with the Python 2.6 version I distribute for Windows.
+Linux use">
     <meta property="og:type" content="article">
-    <meta property="article:published_time" content="2014-11-10T00:28:00+01:00">
-           <meta property="article:tag" content="documentation">
+    <meta property="article:published_time" content="2014-11-25T18:43:43+00:00">
+           <meta property="article:tag" content="bugfix">
            <meta property="article:tag" content="eyegrade">
+           <meta property="article:tag" content="release">
 
     
 
@@ -106,7 +108,7 @@ and compiling the resulting files wi">
                 
                     
     <li>
-    <a href="improved-documentation-about-how-to-edit-an-exam-with-latex.txt" id="sourcelink">Source</a>
+    <a href="eyegrade-043-released.rst" id="sourcelink">Source</a>
     </li>
 
                 
@@ -129,19 +131,19 @@ and compiling the resulting files wi">
     
     <header>
         
-    <h1 class="p-name entry-title" itemprop="headline name"><a href="#" class="u-url">Improved documentation about how to edit an exam with LaTeX</a></h1>
+    <h1 class="p-name entry-title" itemprop="headline name"><a href="#" class="u-url">Eyegrade 0.4.3 released</a></h1>
 
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="#" rel="bookmark"><time class="published dt-published" datetime="2014-11-10T00:28:00+01:00" itemprop="datePublished" title="2014-11-10 00:28">2014-11-10 00:28</time></a></p>
+            <p class="dateline"><a href="#" rel="bookmark"><time class="published dt-published" datetime="2014-11-25T18:43:43+00:00" itemprop="datePublished" title="2014-11-25 18:43">2014-11-25 18:43</time></a></p>
                 <p class="commentline">
         
-    <a href="improved-documentation-about-how-to-edit-an-exam-with-latex.html#disqus_thread" data-disqus-identifier="cache/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html">Comments</a>
+    <a href="eyegrade-043-released.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-043-released.html">Comments</a>
 
 
             
         </p>
-<p class="sourceline"><a href="improved-documentation-about-how-to-edit-an-exam-with-latex.txt" id="sourcelink">Source</a></p>
+<p class="sourceline"><a href="eyegrade-043-released.rst" id="sourcelink">Source</a></p>
 
         </div>
         
@@ -150,48 +152,32 @@ and compiling the resulting files wi">
 
     <div class="e-content entry-content" itemprop="articleBody text">
     <div>
-<p>The <em>official</em> way of editting your exams for Eyegrade
-consists of creating an XML file with the questions,
-running on it the <cite>create_exam</cite> script provided by Eyegrade
-and compiling the resulting files with LaTeX
-in order to get the final PDF documents.</p>
-<p>Although exams can also be edited
-with a word processor such as OpenOffice or Microsoft Word
-(see <a class="reference external" href="../../doc/user-manual/#creating-the-exams-in-a-word-processor">Creating the exams in a word processor</a>),
-following the official way has some advantages:</p>
-<ul class="simple">
-<li>Eyegrade shuffles the questions
-and produces several models with different question orderings.</li>
-<li>Eyegrade creates the exam configuration file (the <cite>.eye</cite> file)
-automatically.</li>
-<li>LaTeX-style equations may be used inside the questions.</li>
-</ul>
-<p>However, editing an XML file and dealing with LaTeX
-may scare some users
-that are more used to graphical word processors.
-In order to make the procedure more approachable,
-the user manual describes now more in depth how to edit exams
-the official way in the section
-<a class="reference external" href="../../doc/user-manual/#editing-exams">Editing exams</a>.
-Suggestions on how to improve that section further
-are most welcome.</p>
+<p>I've just released Eyegrade 0.4.3.
+This release fixes a bug
+that made the functionality that exports grades fail
+when the program is run
+with the Python 2.6 version I distribute for Windows.
+Linux users with a reasonably recent version of Python
+were not affected.
+This is the only change with respect to version 0.4.2.</p>
+<p>If you have installed Eyegrade through <em>git</em>, you can easily update
+the program by executing the command
+<em>git pull</em> from inside the directory in which Eyegrade is installed.</p>
 </div>
     </div>
     <aside class="postpromonav">
     <nav>
     
         <ul itemprop="keywords" class="tags">
-           <li><a class="tag p-category" href="../categories/documentation.html" rel="tag">documentation</a></li>
+           <li><a class="tag p-category" href="../categories/bugfix.html" rel="tag">bugfix</a></li>
            <li><a class="tag p-category" href="../categories/eyegrade.html" rel="tag">eyegrade</a></li>
+           <li><a class="tag p-category" href="../categories/release.html" rel="tag">release</a></li>
         </ul>
 
     
         <ul class="pager">
             <li class="previous">
-                <a href="eyegrade-04-released.html" rel="prev" title="Eyegrade 0.4 released!">Previous post</a>
-            </li>
-            <li class="next">
-                <a href="eyegrade-043-released.html" rel="next" title="Eyegrade 0.4.3 released">Next post</a>
+                <a href="improved-documentation-about-how-to-edit-an-exam-with-latex.html" rel="prev" title="Improved documentation about how to edit an exam with LaTeX">Previous post</a>
             </li>
         </ul>
 
@@ -204,9 +190,9 @@ are most welcome.</p>
         <div id="disqus_thread"></div>
         <script>
         var disqus_shortname ="eyegrade",
-            disqus_url="http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html",
-        disqus_title="Improved documentation about how to edit an exam with LaTeX",
-        disqus_identifier="cache/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html",
+            disqus_url="http://www.eyegrade.org/blog/posts/eyegrade-043-released.html",
+        disqus_title="Eyegrade 0.4.3 released",
+        disqus_identifier="cache/posts/eyegrade-043-released.html",
         disqus_config = function () {
             this.language = "en";
         };

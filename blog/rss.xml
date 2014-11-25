@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 24 Nov 2014 16:15:43 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Improved documentation about how to edit an exam with LaTeX</title><link>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The &lt;em&gt;official&lt;/em&gt; way of editting your exams for Eyegrade
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 25 Nov 2014 19:44:28 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4.3 released</title><link>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.4.3.
+This release fixes a bug
+that made the functionality that exports grades fail
+when the program is run
+with the Python 2.6 version I distribute for Windows.
+Linux users with a reasonably recent version of Python
+were not affected.
+This is the only change with respect to version 0.4.2.&lt;/p&gt;
+&lt;p&gt;If you have installed Eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
+the program by executing the command
+&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</guid><pubDate>Tue, 25 Nov 2014 18:43:43 GMT</pubDate></item><item><title>Improved documentation about how to edit an exam with LaTeX</title><link>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The &lt;em&gt;official&lt;/em&gt; way of editting your exams for Eyegrade
 consists of creating an XML file with the questions,
 running on it the &lt;cite&gt;create_exam&lt;/cite&gt; script provided by Eyegrade
 and compiling the resulting files with LaTeX
