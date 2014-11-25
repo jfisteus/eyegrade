@@ -1,3 +1,11 @@
+2014-11-25  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.4.3.
+
+	* Fix a bug when exporting grades. It affected older
+	Python 2.6 versions in Windows, but not the current
+	2.6 and 2.7 versions, at least in Linux.
+
 2014-06-26  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.4.2.
