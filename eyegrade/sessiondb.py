@@ -265,20 +265,13 @@ class SessionDB(object):
                      'INNER JOIN Students '
                      'ON Students.group_id=StudentGroups.group_id '
                      'GROUP BY Students.group_id')
-            for row in cursor.execute(query):
-                # Due to the behavior in old 2.6 python/sqlite versions
-                # we need to separate the two cases and ask explicitly
-                # for the StudentGroups.group_id key.
-                # Newer versions work with just group_id.
-                # Go back to normal when python 2.6 support is dropped.
-                groups.append(utils.StudentGroup(row['StudentGroups.group_id'],
-                                                 row['group_name']))
         else:
             query = ('SELECT group_id, group_name '
                      'FROM StudentGroups')
-            for row in cursor.execute(query):
-                groups.append(utils.StudentGroup(row['group_id'],
-                                                 row['group_name']))
+        for row in cursor.execute(query):
+            # Use index instead of name because of incompatibilities
+            # in the keys between older and newer versions of python/sql:
+            groups.append(utils.StudentGroup(row[0], row[1]))
         return groups
 
     def next_exam_id(self):
