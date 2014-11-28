@@ -269,8 +269,9 @@ class SessionDB(object):
             query = ('SELECT group_id, group_name '
                      'FROM StudentGroups')
         for row in cursor.execute(query):
-           groups.append(utils.StudentGroup(row['group_id'],
-                                            row['group_name']))
+            # Use index instead of name because of incompatibilities
+            # in the keys between older and newer versions of python/sql:
+            groups.append(utils.StudentGroup(row[0], row[1]))
         return groups
 
     def next_exam_id(self):
