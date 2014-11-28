@@ -1,3 +1,11 @@
+2014-11-28  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.4.4.
+
+	* Fix again the bug when exporting grades. The fix
+	in 0.4.3 inadvertently introduced the error in the
+	versions that previously were unaffected.
+
 2014-11-25  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.4.3.
