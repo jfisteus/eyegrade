@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 25 Nov 2014 19:44:28 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4.3 released</title><link>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.4.3.
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 28 Nov 2014 19:02:16 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.4.4 released</title><link>http://www.eyegrade.org/blog/posts/eyegrade-044-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.4.4.
+This version fixes a bug introduced by
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-043-released.html"&gt;the bugfix of version 0.4.3&lt;/a&gt;.
+Version 0.4.3 solved the problem for
+the older versions of Python,
+but inadvertently introduced exactly the same problem
+for the newer versions,
+which were previously unaffected.
+I've reverted the erroneous fix
+and solved the problem
+&lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/commit/e03da3762e748913db89e6470b3fe85b02f367df"&gt;in a better way&lt;/a&gt;.
+This new version should be able to export grades
+in any 2.6 and 2.7 version of Python,
+both Windows and Linux.&lt;/p&gt;
+&lt;p&gt;This is the only change with respect to version 0.4.3.&lt;/p&gt;
+&lt;p&gt;As always, if you have installed Eyegrade through &lt;em&gt;git&lt;/em&gt;,
+you can easily update the program by executing the command
+&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-044-released.html</guid><pubDate>Fri, 28 Nov 2014 17:46:54 GMT</pubDate></item><item><title>Eyegrade 0.4.3 released</title><link>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.4.3.
 This release fixes a bug
 that made the functionality that exports grades fail
 when the program is run

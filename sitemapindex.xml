@@ -6,7 +6,7 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/bugfix.xml</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/documentation.xml</loc>
@@ -14,7 +14,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.xml</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/pyqt.xml</loc>
@@ -22,7 +22,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/release.xml</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/requests.xml</loc>
@@ -34,7 +34,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/rss.xml</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/rss.xml</loc>
@@ -58,6 +58,6 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/sitemap.xml</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </sitemap>
 </sitemapindex>

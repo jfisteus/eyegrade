@@ -10,7 +10,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2014/index.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
@@ -18,7 +18,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/bugfix.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/documentation.html</loc>
@@ -26,7 +26,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/index.html</loc>
@@ -38,7 +38,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/release.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/requests.html</loc>
@@ -50,7 +50,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</loc>
@@ -62,7 +62,11 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/eyegrade-044-released.html</loc>
+  <lastmod>2014-11-28</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</loc>
@@ -130,6 +134,6 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/index.html</loc>
-  <lastmod>2014-11-25</lastmod>
+  <lastmod>2014-11-28</lastmod>
  </url>
 </urlset>
