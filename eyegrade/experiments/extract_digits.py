@@ -86,7 +86,6 @@ class LabeledDigit(object):
                                          new_geometry,
                                          identifier=self.identifier)
         else:
-            print('discard', self.identifier, active / total, self.image_file)
             cropped_digit = None
         return cropped_digit
 
