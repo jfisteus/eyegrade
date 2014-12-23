@@ -19,7 +19,6 @@
 import cherrypy
 import array
 import os
-import logging
 
 import eyegrade.server.utils as utils
 import eyegrade.imageproc as imageproc

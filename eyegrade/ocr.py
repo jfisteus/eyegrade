@@ -21,7 +21,7 @@
 import tre
 
 # Local imports
-from geometry import *
+from . import geometry as g
 import imageproc
 
 param_cross_num_lines = 15
@@ -109,10 +109,10 @@ def digit_ocr_by_line_crossing(image, cell_corners, debug, image_drawn):
         for point in points:
             imageproc.draw_point(image_drawn, point)
     plu, pru, pld, prd = points
-    points_left = interpolate_line(plu, pld, param_cross_num_lines)
-    points_right = interpolate_line(pru, prd, param_cross_num_lines)
-    points_up = interpolate_line(plu, pru, param_cross_num_lines)
-    points_down = interpolate_line(pld, prd, param_cross_num_lines)
+    points_left = g.interpolate_line(plu, pld, param_cross_num_lines)
+    points_right = g.interpolate_line(pru, prd, param_cross_num_lines)
+    points_up = g.interpolate_line(plu, pru, param_cross_num_lines)
+    points_down = g.interpolate_line(pld, prd, param_cross_num_lines)
     hcrossings = []
     vcrossings = []
     for i in range(0, param_cross_num_lines):
@@ -182,7 +182,7 @@ def decide_digit(hcrossings, vcrossings, debug = False):
 def crossings(image, p0, p1, h, debug = False, image_drawn = None):
     pixels = []
     crossings = []
-    for x, y in walk_line(p0, p1):
+    for x, y in g.walk_line(p0, p1):
         pixels.append(image[y, x] > 0)
         if debug:
             if image[y, x] > 0:
@@ -248,7 +248,7 @@ def crossings_signatures(hcrossings, vcrossings):
                     m[1] = False
                 for i in range(3):
                     mark[i] = mark[i] or m[i]
-            particles.append(''.join(['X' if m else '_' for m in mark]))
+            particles.append(''.join(['X' if mm else '_' for mm in mark]))
         particles.append('')
         signatures.append('/'.join(particles))
     return signatures
@@ -308,7 +308,7 @@ def adjust_cell_corners(image, corners):
 
 def adjust_cell_corner(image, corner, towards_corner):
     margin = None
-    for x, y in walk_line_ordered(corner, towards_corner):
+    for x, y in g.walk_line_ordered(corner, towards_corner):
         if margin is None:
             if image[y, x] == 0:
                 margin = param_cell_margin

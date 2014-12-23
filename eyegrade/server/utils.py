@@ -17,7 +17,6 @@
 #
 
 import array
-import cherrypy
 
 import eyegrade.utils as utils
 import eyegrade.imageproc as imageproc
@@ -93,7 +92,6 @@ def process_exam(bitmap, imageproc_context, exam_config, student_ids):
     """
     image = bitmap_to_image(640, 480, bitmap)
     cv.SaveImage('/tmp/eyegrade-server-%d.png'%time.time(), image)
-    config = utils.read_config()
     solutions = exam_config.solutions
     dimensions = exam_config.dimensions
     id_num_digits = exam_config.id_num_digits
@@ -171,7 +169,6 @@ def save_as_bitmap(image_filename, bitmap_filename):
         bitmap.tofile(f)
 
 def test():
-    import eyegrade.imageproc
     image = cv.LoadImage('../captures/test-001-processed.png')
     image_proc = imageproc.pre_process(image)
     bitmap = image_to_bitmap(image_proc)
@@ -194,7 +191,7 @@ def read_session_cookie(http_response):
 
 def test_server(host, image_filename, preprocess=True):
     """Sends a valid request to the server in order to test it."""
-    import httplib, urllib
+    import httplib
     import sys
 
     headers = {}
