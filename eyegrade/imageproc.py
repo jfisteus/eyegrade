@@ -316,24 +316,25 @@ class ExamDetector(object):
                                                 None, None)
                     row.append(cell)
                 cells.append(row)
+        print self.dimensions
         if self.options['left-to-right-numbering']:
-            cells = self._set_left_to_right(answer_cells)
+            cells = self._set_left_to_right(cells)
         return cells
 
-    def _set_left_to_right(self, answer_cells, corner_matrixes):
+    def _set_left_to_right(self, cells):
         """Sets left to right order in cell geometry."""
-        answer_cells2 = []
-        num_rows = max([len(c) for c in corner_matrixes]) - 1
+        cells_transposed = []
+        num_rows = max([questions for choices, questions in self.dimensions])
         heads = [1]
-        for corners in corner_matrixes[:-1]:
-            heads.append(heads[-1] + len(corners) - 1)
-        heads.append(len(self.centers) + 1)
+        for choices, questions in self.dimensions:
+            heads.append(heads[-1] + questions)
+        heads.append(len(cells) + 1)
         for row in range(0, num_rows):
-            for column in range(0, len(corner_matrixes)):
+            for column in range(0, len(self.dimensions)):
                 pos = heads[column] + row
                 if pos < heads[column + 1]:
-                    answer_cells2.append(answer_cells[pos - 1])
-        return answer_cells2
+                    cells_transposed.append(cells[pos - 1])
+        return cells_transposed
 
     def _compute_progress(self):
         progress = 0
