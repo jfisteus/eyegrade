@@ -369,8 +369,8 @@ class ExamDetector(object):
                                            self.image_to_show))
             digits.append(digit)
             id_scores.append(scores)
-        detected_id = "".join([str(digit) if digit is not None else '0' \
-                               for digit in digits])
+        detected_id = "".join([str(d) if d is not None else '0' \
+                               for d in digits])
         return detected_id, id_scores
 
     def _draw_status_flags(self):
@@ -1070,7 +1070,7 @@ def id_boxes_adjust_point_vertically(image, point, line, interval, iwidth):
         p = g.line_point(l, x=point[0])
         values.append((match, p[1], p))
     values.sort(reverse = True)
-    best = [(m, p) for (m, y, p) in values if m == values[0][0]]
+    best = [(m, ppp) for (m, yyy, ppp) in values if m == values[0][0]]
     return best[len(best) // 2][1]
 
 def id_boxes_match_level(image, p0, p1):

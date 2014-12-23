@@ -291,4 +291,4 @@ def distance_closest_axis(angle, axes_angles):
         else:
             axes_expanded.append(a + math.pi)
     angle_normalized = angle % math.pi
-    return min([abs(angle_normalized - a) for a in axes_expanded])
+    return min([abs(angle_normalized - aa) for aa in axes_expanded])
