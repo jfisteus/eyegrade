@@ -21,7 +21,7 @@ try:
     import cv
     cv_new_style = True
 except ImportError:
-    import cvwrapper
+    from . import cvwrapper
     cv = cvwrapper.CVWrapperObject()
     cv_new_style = False
 

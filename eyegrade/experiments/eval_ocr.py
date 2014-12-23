@@ -18,8 +18,8 @@
 
 import sys
 
-import eyegrade.imageproc as imageproc
-import eyegrade.ocr as ocr
+from .. import imageproc
+from .. import ocr
 
 class Digit(object):
     def __init__(self, image_path, position, correct_digit,

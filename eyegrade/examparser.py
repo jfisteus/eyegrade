@@ -19,7 +19,7 @@
 import xml.dom.minidom as dom
 import re
 
-import utils
+from . import utils
 
 EyegradeException = utils.EyegradeException
 

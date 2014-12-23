@@ -20,9 +20,9 @@ import cherrypy
 import array
 import os
 
-import eyegrade.server.utils as utils
-import eyegrade.imageproc as imageproc
-import eyegrade.utils
+from . import utils
+from .. import imageproc
+from .. import utils as utils_top
 
 # Needs CherryPy 3.2 or later.
 
@@ -44,7 +44,7 @@ class EyegradeServer(object):
         `application/x-eyegrade-exam-config`.
 
         """
-        exam_config = eyegrade.utils.ExamConfig()
+        exam_config = utils_top.ExamConfig()
         data = cherrypy.request.body.read()
         exam_config.read(data=data)
         cherrypy.session['exam_config'] = exam_config
@@ -62,7 +62,7 @@ class EyegradeServer(object):
         as multipart/form-data with name `Filedata`.
 
         """
-        exam_config = eyegrade.utils.ExamConfig()
+        exam_config = utils_top.ExamConfig()
         exam_config.read(file_=Filedata.file)
         cherrypy.session['exam_config'] = exam_config
         cherrypy.session['imageproc_context'] = imageproc.ExamCaptureContext()
@@ -108,8 +108,8 @@ class EyegradeServer(object):
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
         data = cherrypy.request.body.read()
-        student_ids = eyegrade.utils.read_student_ids(data=data,
-                                                      with_names=True)
+        student_ids = utils_top.read_student_ids(data=data,
+                                                 with_names=True)
         cherrypy.session['student_ids'] = student_ids
         cherrypy.log('Students: ' + str(student_ids))
         return 'OK'
@@ -126,8 +126,8 @@ class EyegradeServer(object):
         if not 'exam_config' in cherrypy.session:
             raise cherrypy.HTTPError('403 Forbidden',
                                      'Please, send exam configuration first')
-        student_ids = eyegrade.utils.read_student_ids(file_=Filedata.file,
-                                                      with_names=True)
+        student_ids = utils_top.read_student_ids(file_=Filedata.file,
+                                                 with_names=True)
         cherrypy.session['student_ids'] = student_ids
         cherrypy.log('Students: ' + str(student_ids))
         return 'OK'

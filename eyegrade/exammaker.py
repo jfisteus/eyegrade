@@ -20,8 +20,7 @@ import re
 import copy
 import sys
 
-# Local imports
-import utils
+from . import utils
 
 EyegradeException = utils.EyegradeException
 

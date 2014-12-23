@@ -21,8 +21,8 @@ import sys
 import locale
 
 # Local imports
-import utils
-import exammaker
+from . import utils
+from . import exammaker
 
 EyegradeException = utils.EyegradeException
 

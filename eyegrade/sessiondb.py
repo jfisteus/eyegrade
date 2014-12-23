@@ -20,8 +20,8 @@ import os
 import os.path
 import csv
 
-import utils
-import capture
+from . import utils
+from . import capture
 
 
 class SessionDB(object):

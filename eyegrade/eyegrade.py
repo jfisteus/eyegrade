@@ -34,10 +34,10 @@ import webbrowser
 import gettext
 
 # Local imports
-import imageproc
-import utils
-import qtgui.gui as gui
-import sessiondb
+from . import imageproc
+from . import utils
+from .qtgui import gui
+from . import sessiondb
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext

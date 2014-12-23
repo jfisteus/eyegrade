@@ -19,7 +19,7 @@
 from optparse import OptionParser
 import sys
 
-import utils
+from . import utils
 
 def read_cmd_options():
     parser = OptionParser(usage = 'usage: %prog [options] <results_filename>'

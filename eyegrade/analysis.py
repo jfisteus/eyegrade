@@ -21,8 +21,7 @@
 #
 from optparse import OptionParser
 
-# Local imports
-import utils
+from . import utils
 
 def stats_for_question(results, question, num_options = None):
     """Returns a tuple with the count of answers (blank, opt1,

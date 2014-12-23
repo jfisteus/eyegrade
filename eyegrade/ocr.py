@@ -20,9 +20,7 @@
 #
 import tre
 
-# Local imports
 from . import geometry as g
-import imageproc
 
 param_cross_num_lines = 15
 param_cell_margin = 2
@@ -105,9 +103,6 @@ def digit_ocr(image, cell_corners, debug = None, image_drawn = None):
 
 def digit_ocr_by_line_crossing(image, cell_corners, debug, image_drawn):
     points = adjust_cell_corners(image, cell_corners)
-    if debug:
-        for point in points:
-            imageproc.draw_point(image_drawn, point)
     plu, pru, pld, prd = points
     points_left = g.interpolate_line(plu, pld, param_cross_num_lines)
     points_right = g.interpolate_line(pru, prd, param_cross_num_lines)
@@ -184,12 +179,6 @@ def crossings(image, p0, p1, h, debug = False, image_drawn = None):
     crossings = []
     for x, y in g.walk_line(p0, p1):
         pixels.append(image[y, x] > 0)
-        if debug:
-            if image[y, x] > 0:
-                color = (255, 255, 0, 0)
-            else:
-                color = (200, 200, 200, 0)
-            imageproc.draw_point(image_drawn, (x, y), color, 0)
     # Filter the value sequence
     for i in range(1, len(pixels) - 1):
         if not pixels[i - 1] and not pixels[i + 1]:

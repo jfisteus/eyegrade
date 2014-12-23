@@ -19,7 +19,7 @@
 from optparse import OptionParser
 import sys
 
-import utils
+from . import utils
 
 utils.EyegradeException.register_error('bad_choice_letter',
      "Choices must be specified as letters 'a', 'b',...")
