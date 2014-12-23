@@ -19,12 +19,35 @@
 #
 from __future__ import division
 
+import gettext
+import fractions
+
 from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
                          QStatusBar, QLabel, QHBoxLayout, QCheckBox,
-                         QWidget, )
-from PyQt4.QtCore import Qt
+                         QWidget, QLineEdit, QPushButton, QIcon, QMessageBox,
+                         QFileDialog, QRegExpValidator,
+                         QListWidget, QAbstractItemView,
+                         QVBoxLayout, QImage, QPainter, QPixmap)
+from PyQt4.QtCore import (Qt, QRegExp, )
 
 from .. import utils
+from . import Colors
+
+t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+_ = t.ugettext
+
+
+class LineContainer(QWidget):
+    """Container that disposes other widgets horizontally."""
+    def __init__(self, parent, *widgets):
+        super(LineContainer, self).__init__(parent)
+        self.layout = QHBoxLayout(self)
+        self.setLayout(self.layout)
+        for widget in widgets:
+            self.add(widget)
+
+    def add(self, widget):
+        self.layout.addWidget(widget)
 
 
 class CompletingComboBox(QComboBox):
@@ -117,3 +140,283 @@ class LabelledCheckBox(QWidget):
     def is_checked(self):
         """Returns True if the checkbox is checked, False otherwise."""
         return self.checkbox.isChecked()
+
+
+class OpenFileWidget(QWidget):
+    """Dialog with a text field and a button to open a file selector."""
+    def __init__(self, parent, select_directory=False, name_filter='',
+                 minimum_width=200, title='', check_file_function=None):
+        super(OpenFileWidget, self).__init__(parent)
+        self.select_directory = select_directory
+        self.name_filter = name_filter
+        self.title = title
+        self._check_file = check_file_function
+        layout = QHBoxLayout(self)
+        self.setLayout(layout)
+        self.filename_widget = QLineEdit(self)
+        self.filename_widget.setMinimumWidth(minimum_width)
+        self.button = QPushButton(QIcon(utils.resource_path('open_file.svg')),
+                                  '', parent=self)
+        self.button.clicked.connect(self._open_dialog)
+        container = LineContainer(self, self.filename_widget, self.button)
+        layout.addWidget(container)
+        self.last_validated_value = None
+
+    def text(self):
+        return unicode(self.filename_widget.text())
+
+    def set_text(self, filename):
+        self.filename_widget.setText(filename)
+
+    def setEnabled(self, enabled):
+        self.filename_widget.setEnabled(enabled)
+        self.button.setEnabled(enabled)
+
+    def is_validated(self):
+        """Returns True if the value equals the latest validated value.
+
+        This way, the file needs not to be validated again if it has not been
+        changed since the last validation.
+
+        """
+        return self.last_validated_value == self.text()
+
+    def check_value(self, filename=None):
+        """Checks the file and returns True if it is valid.
+
+        If it is not valid, shows an error message. It the validation function
+        has not been set (it is None), returns always True.
+
+        If `filename` is None, the internal value is used instead.
+
+        """
+        if filename is None:
+            filename = self.text()
+        valid = True
+        if self._check_file is not None:
+            valid, msg = self._check_file(filename)
+        if not valid:
+            QMessageBox.critical(self, _('Error'), msg)
+        else:
+            self.last_validated_value = filename
+        return valid
+
+    def _open_dialog(self, value):
+        if self.select_directory:
+            filename = \
+                QFileDialog.getExistingDirectory(self, self.title, '',
+                                        (QFileDialog.ShowDirsOnly
+                                         | QFileDialog.DontResolveSymlinks
+                                         | QFileDialog.DontUseNativeDialog))
+        else:
+            filename = QFileDialog.getOpenFileName(self, self.title, '',
+                                              self.name_filter, None,
+                                              QFileDialog.DontUseNativeDialog)
+        if filename:
+            filename = unicode(filename)
+            valid = self.check_value(filename=filename)
+            if valid:
+                self.filename_widget.setText(filename)
+
+
+class InputScore(QLineEdit):
+    """Allows the user to enter a score."""
+    def __init__(self, parent=None, minimum_width=100, is_positive=True):
+        super(InputScore, self).__init__(parent=parent)
+        self.setMinimumWidth(minimum_width)
+        if is_positive:
+            placeholder = _('e.g.: 2; 2.5; 5/2')
+        else:
+            placeholder = _('e.g.: 0; -1; -1.25; -5/4')
+        self.setPlaceholderText(placeholder)
+        regex = r'((\d*(\.\d+))|(\d+\/\d+))'
+        if not is_positive:
+            regex = '-?' + regex
+        validator = QRegExpValidator(QRegExp(regex), self)
+        self.setValidator(validator)
+
+    def value(self, force_float=False):
+        """Returns the value as a fractions.Fraction or a float.
+
+        Returns None if the field is empty or the value is not
+        correct.  If `force_float` a float is returned always.
+
+        """
+        value_str = self.text()
+        if value_str:
+            if '/' in value_str:
+                parts = [int(v) for v in value_str.split('/')]
+                try:
+                    value = fractions.Fraction(parts[0], parts[1])
+                    if force_float:
+                        value = float(value)
+                except:
+                    value = None
+            elif not '.' in value_str:
+                value = fractions.Fraction(int(value_str), 1)
+            else:
+                value = float(value_str)
+        else:
+            value = None
+        return value
+
+    def setPlaceholderText(self, text):
+        """Proxy for the same method in QLineEdit.
+
+        This method is overridden because some old versions of Qt4 do
+        not provide the method. This proxy method just calls the one
+        from QLineEdit, and fails silently if the method does not
+        exist there.
+
+        """
+        try:
+            super(InputScore, self).setPlaceholderText(text)
+        except AttributeError:
+            # Just do nothing if the version of Qt/PyQt is old...
+            pass
+
+
+class MultipleFilesWidget(QWidget):
+    """Widget that allows the selection of multiple files."""
+    def __init__(self, title, file_name_filter='', check_file_function=None):
+        """Creates a new widget for selecting multiple files.
+
+        - `title`: title of the file selection dialog that is opened
+          when the user clicks on 'Add File'.
+
+        - `file_name_filter`: filter to use for the selection of files
+          (See the documentation of QFileDialog).
+
+        - `check_file_function`: function that receives a file name and
+          returns True if its contents are correct. If None, files are
+          not checked. An error dialog is shown for the files that are
+          not correct. The rest are just added.
+
+        """
+        super(MultipleFilesWidget, self).__init__()
+        self.title = title
+        self.file_name_filter = file_name_filter
+        self._check_file = check_file_function
+        self.file_list = QListWidget()
+        self.file_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        button_add = QPushButton(_('Add files'))
+        self.button_remove = QPushButton(_('Remove selected'))
+        self.button_remove.setEnabled(False)
+        buttons = QWidget()
+        buttons_layout = QVBoxLayout()
+        buttons_layout.setAlignment(Qt.AlignTop)
+        buttons.setLayout(buttons_layout)
+        buttons_layout.addWidget(button_add)
+        buttons_layout.addWidget(self.button_remove)
+        main_layout = QHBoxLayout()
+        self.setLayout(main_layout)
+        main_layout.addWidget(self.file_list)
+        main_layout.addWidget(buttons)
+        button_add.clicked.connect(self._add_files)
+        self.button_remove.clicked.connect(self._remove_files)
+        self.file_list.selectionModel().selectionChanged.connect( \
+                                                       self._selection_changed)
+
+    def get_files(self):
+        """Returns the list of selected file names."""
+        files = []
+        model = self.file_list.model()
+        count = model.rowCount()
+        for i in range(0, count):
+            index = model.index(i, 0)
+            files.append(unicode(model.data(index).toString()))
+        return files
+
+    def _add_files(self):
+        file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
+                                               self.file_name_filter, None,
+                                               QFileDialog.DontUseNativeDialog)
+        model = self.file_list.model()
+        for file_name in file_list_q:
+            valid = True
+            if self._check_file is not None:
+                valid, msg = self._check_file(unicode(file_name))
+            if valid:
+                # Check if the file is already in the list:
+                match = model.match(model.index(0, 0), 0, file_name, 1,
+                                    Qt.MatchExactly)
+                if len(match) == 0:
+                    self.file_list.addItem(file_name)
+
+    def _remove_files(self):
+        ranges = self.file_list.selectionModel().selection()
+        model = self.file_list.model()
+        to_remove = []
+        for r in ranges:
+            to_remove.extend(range(r.top(), r.bottom() + 1))
+        for row in sorted(to_remove, reverse=True):
+            model.removeRow(row)
+
+    def _selection_changed(self, deselected, selected):
+        if len(self.file_list.selectionModel().selection()) > 0:
+            self.button_remove.setEnabled(True)
+        else:
+            self.button_remove.setEnabled(False)
+
+
+class CamView(QWidget):
+    def __init__(self, size, parent, draw_logo=False, border=False):
+        super(CamView, self).__init__(parent)
+        if not border:
+            fixed_size = size
+        else:
+            fixed_size = (size[0] + 10, size[1] + 10)
+        self.setFixedSize(*fixed_size)
+        self.border = border
+        self.image_size = size
+        self.display_wait_image()
+        if draw_logo:
+            self.logo = QPixmap(utils.resource_path('logo.svg'))
+        else:
+            self.logo = None
+        self.mouse_listener = None
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        if self.border:
+            size = self.size()
+            painter.setPen(Colors.eyegrade_blue)
+            painter.drawRoundedRect(0, 0, size.width() - 2, size.height() - 2,
+                                    10, 10)
+            painter.drawImage(5, 5, self.image)
+        else:
+            painter.drawImage(event.rect(), self.image)
+
+    def display_capture(self, ipl_image):
+        """Displays a captured image in the window.
+
+        The image is in the OpenCV IPL format.
+
+        """
+        # It is important to use the variable data to prevent issue #58.
+        data = ipl_image.tostring()
+        self.image = QImage(data, ipl_image.width, ipl_image.height,
+                            QImage.Format_RGB888).rgbSwapped()
+        if self.logo is not None:
+            painter = QPainter(self.image)
+            painter.drawPixmap(ipl_image.width - 40, ipl_image.height - 40,
+                               36, 36, self.logo)
+        self.update()
+
+    def display_wait_image(self):
+        self.image = QImage(self.image_size[0], self.image_size[1],
+                            QImage.Format_RGB888)
+        self.image.fill(Qt.darkBlue)
+        self.update()
+
+    def register_mouse_pressed_listener(self, listener):
+        """Registers a function to receive a mouse clicked event.
+
+        The listener must receive as parameter a tuple (x, y).
+
+        """
+        self.mouse_listener = listener
+
+    def mousePressEvent(self, event):
+        if self.mouse_listener:
+            self.mouse_listener((event.x(), event.y()))
