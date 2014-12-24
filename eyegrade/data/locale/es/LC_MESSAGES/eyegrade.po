@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eyegrade\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-26 00:04+0200\n"
+"POT-Creation-Date: 2014-12-24 12:22+0100\n"
 "PO-Revision-Date: 2013-07-23 19:23+0200\n"
 "Last-Translator: Jesus Arias Fisteus\n"
 "Language-Team: \n"
@@ -109,494 +109,176 @@ msgid "No camera found. Connect a camera and start the session again."
 msgstr ""
 "No se ha encontrado ninguna cámara. Conecte una y abra de nuevo la sesión."
 
-#: eyegrade/qtgui/gui.py:55
-msgid "Exam configuration (*.eye)"
-msgstr "Configuración de examen (*.eye)"
-
-#: eyegrade/qtgui/gui.py:56
-msgid "Eyegrade session (*.eyedb)"
-msgstr "Sesión de Eyegrade (*.eyedb)"
-
-#: eyegrade/qtgui/gui.py:57
-msgid "Student list (*.csv *.tsv *.txt *.lst *.list)"
-msgstr "Lista de estudiantes (*.csv *.tsv *.txt *.lst *.list)"
-
-#: eyegrade/qtgui/gui.py:128 eyegrade/qtgui/gui.py:373
-#: eyegrade/qtgui/gui.py:549 eyegrade/qtgui/gui.py:561
-#: eyegrade/qtgui/gui.py:578
-msgid "Error"
-msgstr "Error"
-
-#: eyegrade/qtgui/gui.py:157
-msgid "e.g.: 2; 2.5; 5/2"
-msgstr "ejemplos: 2; 2.5; 5/2"
-
-#: eyegrade/qtgui/gui.py:159
-msgid "e.g.: 0; -1; -1.25; -5/4"
-msgstr "ejemplos: 0; -1; -1.25; -5/4"
-
-#: eyegrade/qtgui/gui.py:231
-msgid "Add files"
-msgstr "Añadir ficheros"
-
-#: eyegrade/qtgui/gui.py:232
-msgid "Remove selected"
-msgstr "Eliminar seleccionados"
-
-#: eyegrade/qtgui/gui.py:302
-msgid "Change the student id"
-msgstr "Cambiar estudiante"
-
-#: eyegrade/qtgui/gui.py:313
-msgid "Student id:"
-msgstr "Estudiante"
-
-#: eyegrade/qtgui/gui.py:341
-msgid "Compute default scores"
-msgstr "Calcular notas por defecto"
-
-#: eyegrade/qtgui/gui.py:345
-msgid "Penalize incorrect answers"
-msgstr "Penalizar respuestas incorrectas"
-
-#: eyegrade/qtgui/gui.py:348
-msgid "Maximum score"
-msgstr "Nota máxima"
-
-#: eyegrade/qtgui/gui.py:349
-msgid "Penalizations"
-msgstr "Penalizaciones"
-
-#: eyegrade/qtgui/gui.py:374
-msgid "Enter a valid score."
-msgstr "Introduzca una nota válida"
-
-#: eyegrade/qtgui/gui.py:390
-msgid "Directory and exam configuration"
-msgstr "Directorio y fichero de configuración"
-
-#: eyegrade/qtgui/gui.py:391
-msgid ""
-"Select or create an empty directory in which you want to store the session, "
-"and the exam configuration file."
-msgstr ""
-"Seleccione o cree un directorio vacío donde guardar la sesión y el fichero "
-"de configuración del examen."
-
-#: eyegrade/qtgui/gui.py:395
-msgid "Select or create an empty directory"
-msgstr "Seleccione o cree un directorio vacío"
-
-#: eyegrade/qtgui/gui.py:398
-msgid "Select the exam configuration file"
-msgstr "Seleccione el fichero de configuración de examen"
-
-#: eyegrade/qtgui/gui.py:411
-msgid "Directory"
-msgstr "Directorio"
-
-#: eyegrade/qtgui/gui.py:412
-msgid "Exam configuration file"
-msgstr "Fichero de configuración de examen"
-
-#: eyegrade/qtgui/gui.py:434
-msgid "The directory does not exist or is not a directory."
-msgstr "El directorio no existe o no es un directorio"
-
-#: eyegrade/qtgui/gui.py:439
-msgid ""
-"The directory is not empty. Choose another directory or create a new one."
-msgstr "El directorio no está vacío. Elija otro o cree uno nuevo."
-
-#: eyegrade/qtgui/gui.py:448
-msgid "The exam configuration file does not exist."
-msgstr "El fichero de configuración de examen no existe."
-
-#: eyegrade/qtgui/gui.py:451
-msgid "The exam configuration file is not a regular file."
-msgstr "El fichero de configuración de examen no es un fichero regular."
-
-#: eyegrade/qtgui/gui.py:457
-msgid "The exam configuration file cannot be read."
-msgstr "No se puede leer el fichero de configuración de examen."
-
-#: eyegrade/qtgui/gui.py:460
-msgid "The exam configuration file contains errors"
-msgstr "El fichero de configuración de examen contiene errores."
-
-#: eyegrade/qtgui/gui.py:473
-msgid "Scores for correct and incorrect answers"
-msgstr "Notas para respuestas correctas e incorrectas"
-
-#: eyegrade/qtgui/gui.py:474
-msgid ""
-"Enter the scores of correct and incorrect answers. The program will compute "
-"scores based on them. Setting these scores is optional."
-msgstr ""
-"Introduzca las puntuaciones de las respuestas correctas e incorrectas con "
-"las que se calcularán las notas. Este paso es opcional."
-
-#: eyegrade/qtgui/gui.py:482
-msgid "Clear values"
-msgstr "Limpiar valores"
-
-#: eyegrade/qtgui/gui.py:483
-msgid "Compute default values"
-msgstr "Calcular valores por defecto"
-
-#: eyegrade/qtgui/gui.py:484
-msgid "Score for correct answers"
-msgstr "Nota para respuestas correctas"
-
-#: eyegrade/qtgui/gui.py:485
-msgid "Score for incorrect answers"
-msgstr "Nota para respuestas incorrectas"
-
-#: eyegrade/qtgui/gui.py:486
-msgid "Score for blank answers"
-msgstr "Nota para respuestas en blanco"
-
-#: eyegrade/qtgui/gui.py:550
-msgid "Automatic scores cannot be computed for this exam."
-msgstr "No se pueden calcular notas automáticamente para este examen."
-
-#: eyegrade/qtgui/gui.py:562
-msgid "A correct score must be set, or the three scores must be left empty."
-msgstr "Se debe establecer una nota correcta, o dejar las tres en blanco."
-
-#: eyegrade/qtgui/gui.py:579
-msgid "The score for incorrect and blank answers cannot be greater than 0."
-msgstr ""
-"La nota de las respuestas incorrectas y en blanco no puede ser mayor que 0."
-
-#: eyegrade/qtgui/gui.py:610
-msgid "Create a new session"
-msgstr "Crear nueva sesión"
-
-#: eyegrade/qtgui/gui.py:648
-msgid "Student id files"
-msgstr "Listas de estudiantes"
-
-#: eyegrade/qtgui/gui.py:649
-msgid ""
-"You can select zero, one or more files with the list of student ids. Go to "
-"the user manual if you don't know the format of the files."
-msgstr ""
-"Puede seleccionar ninguno, uno o más ficheros de estudiantes. El manual de "
-"usuario explica el formato que deben tener."
-
-#: eyegrade/qtgui/gui.py:652
-msgid "Select student list files"
-msgstr "Seleccionar fichero de estudiantes"
-
-#: eyegrade/qtgui/gui.py:670
-msgid "Error in student list"
-msgstr "Error en la lista de estudiantes"
-
-#: eyegrade/qtgui/gui.py:699
-msgid "Select a camera"
-msgstr "Seleccionar cámara"
-
-#: eyegrade/qtgui/gui.py:704
-msgid "Try this camera"
-msgstr "Probar esta cámara"
-
-#: eyegrade/qtgui/gui.py:737 eyegrade/qtgui/gui.py:752
-msgid "Camera not available"
-msgstr "Cámara no disponible"
-
-#: eyegrade/qtgui/gui.py:738
-msgid "Eyegrade has not detected any camera in your system."
-msgstr "Eyegrade no ha detectado ninguna cámara."
-
-#: eyegrade/qtgui/gui.py:753
-#, python-brace-format
-msgid "Camera {0} is not available."
-msgstr "La cámara {0} no está disponible."
-
-#: eyegrade/qtgui/gui.py:758
-#, python-brace-format
-msgid "<center>Viewing camera: {0}</center>"
-msgstr "<center>Viendo cámara: {0}</center>"
-
-#: eyegrade/qtgui/gui.py:762
-msgid "<center>No camera</center>"
-msgstr "<center>No hay cámara</center>"
-
-#: eyegrade/qtgui/gui.py:784 eyegrade/qtgui/gui.py:791
-msgid "About"
-msgstr "Acerca de"
-
-#: eyegrade/qtgui/gui.py:792
-msgid "Developers"
-msgstr "Desarrolladores"
-
-#: eyegrade/qtgui/gui.py:793
-msgid "Translators"
-msgstr "Traductores"
-
-#: eyegrade/qtgui/gui.py:799
-#, python-brace-format
-msgid ""
-"\n"
-"             <center>\n"
-"             <p><img src='{0}' width='64'> <br>\n"
-"             {1} {2} <br>\n"
-"             (c) 2010-2014 Jesús Arias Fisteus <br>\n"
-"             <a href='{3}'>{3}</a> <br>\n"
-"             <a href='{4}'>{4}</a>\n"
-"\n"
-"             <p>\n"
-"             This program is free software: you can redistribute it<br>\n"
-"             and/or modify it under the terms of the GNU General<br>\n"
-"             Public License as published by the Free Software<br>\n"
-"             Foundation, either version 3 of the License, or (at your<br>\n"
-"             option) any later version.\n"
-"             </p>\n"
-"             <p>\n"
-"             This program is distributed in the hope that it will be<br>\n"
-"             useful, but WITHOUT ANY WARRANTY; without even the<br>\n"
-"             implied warranty of MERCHANTABILITY or FITNESS FOR A<br>\n"
-"             PARTICULAR PURPOSE. See the GNU General Public<br>\n"
-"             License for more details.\n"
-"             </p>\n"
-"             <p>\n"
-"             You should have received a copy of the GNU General<br>\n"
-"             Public License along with this program.  If not, see<br>\n"
-"             <a href='http://www.gnu.org/licenses/gpl.txt'>\n"
-"             http://www.gnu.org/licenses/gpl.txt</a>.\n"
-"             </p>\n"
-"             </center>\n"
-"             "
-msgstr ""
-"\n"
-"             <center>\n"
-"             <p><img src='{0}' width='64'> <br>\n"
-"             {1} {2} <br>\n"
-"             (c) 2010-2014 Jesus Arias Fisteus <br>\n"
-"             <a href='{3}'>{3}</a> <br>\n"
-"             <a href='{4}'>{4}</a>\n"
-"\n"
-"             <p>\n"
-"             Este programa es software libre. Puede redistribuirlo y/o<br>\n"
-"             modificarlo bajo los términos de la Licencia Pública<br>\n"
-"             Generalde GNU tal como está publicada por la Free Software<br>\n"
-"             Foundation, bien de la versión 3 de dicha Licencia o bien<br>\n"
-"             (según su elección) de cualquier versión posterior.             "
-"</p>\n"
-"             <p>\n"
-"             Este programa se distribuye con la esperanza de que sea<br>\n"
-"             útil, pero SIN NINGUNA GARANTÍA, incluso sin la garantía<br>\n"
-"             MERCANTIL implícita o sin garantizar la CONVENIENCIA PARA<br>\n"
-"             UN PROPÓSITO PARTICULAR. Véase la Licencia Pública General<br>\n"
-"             de GNU para más detalles.             </p>\n"
-"             <p>\n"
-"             Usted debería haber recibido una copia de la Licencia<br>\n"
-"             Pública General junto con este programa. Si no ha sido<br>\n"
-"             así, consulte <a href='http://www.gnu.org/licenses/gpl.txt'>\n"
-"             http://www.gnu.org/licenses/gpl.txt</a>.\n"
-"             </p>\n"
-"             </center>\n"
-"             "
-
-#: eyegrade/qtgui/gui.py:842
-msgid "Lead developers"
-msgstr "Desarrolladores principales"
-
-#: eyegrade/qtgui/gui.py:855
-msgid "Catalan"
-msgstr "Catalán"
-
-#: eyegrade/qtgui/gui.py:856
-msgid "German"
-msgstr "Alemán"
-
-#: eyegrade/qtgui/gui.py:857
-msgid "Galician"
-msgstr "Gallego"
-
-#: eyegrade/qtgui/gui.py:858
-msgid "French"
-msgstr "Francés"
-
-#: eyegrade/qtgui/gui.py:859
-msgid "Portuguese"
-msgstr "Portugués"
-
-#: eyegrade/qtgui/gui.py:860
-msgid "Spanish"
-msgstr "Español"
-
-#: eyegrade/qtgui/gui.py:929
+#: eyegrade/qtgui/gui.py:95
 msgid "&Start grading"
 msgstr "&Empezar a corregir"
 
-#: eyegrade/qtgui/gui.py:930
+#: eyegrade/qtgui/gui.py:96
 msgid "S&top grading"
 msgstr "&Dejar de corregir"
 
-#: eyegrade/qtgui/gui.py:931
+#: eyegrade/qtgui/gui.py:97
 msgid "&Back to session home"
 msgstr "&Volver a la vista principal de la sesión"
 
-#: eyegrade/qtgui/gui.py:932
+#: eyegrade/qtgui/gui.py:98
 msgid "Continue to the &next exam"
 msgstr "Continuar con el &siguiente examen"
 
-#: eyegrade/qtgui/gui.py:935
+#: eyegrade/qtgui/gui.py:101
 msgid "&Capture the current image"
 msgstr "&Capturar la imagen actual"
 
-#: eyegrade/qtgui/gui.py:938
+#: eyegrade/qtgui/gui.py:104
 msgid "&Manual detection of answer tables"
 msgstr "Detectar &manualmente tablas de respuestas"
 
-#: eyegrade/qtgui/gui.py:939
+#: eyegrade/qtgui/gui.py:105
 msgid "&Edit student id"
 msgstr "Editar la &identidad del estudiante"
 
-#: eyegrade/qtgui/gui.py:940
+#: eyegrade/qtgui/gui.py:106
 msgid "&Discard exam"
 msgstr "&Borrar examen"
 
-#: eyegrade/qtgui/gui.py:945
+#: eyegrade/qtgui/gui.py:111
 msgid "&New session"
 msgstr "&Nueva sesión"
 
-#: eyegrade/qtgui/gui.py:946
+#: eyegrade/qtgui/gui.py:112
 msgid "&Open session"
 msgstr "&Abrir sesión"
 
-#: eyegrade/qtgui/gui.py:947
+#: eyegrade/qtgui/gui.py:113
 msgid "&Close session"
 msgstr "&Cerrar sesión"
 
-#: eyegrade/qtgui/gui.py:949
+#: eyegrade/qtgui/gui.py:115
 msgid "&Exit"
 msgstr "&Salir"
 
-#: eyegrade/qtgui/gui.py:953
+#: eyegrade/qtgui/gui.py:119
 msgid "&Search"
 msgstr "&Buscar"
 
-#: eyegrade/qtgui/gui.py:954
+#: eyegrade/qtgui/gui.py:120
 msgid "&Export grades listing"
 msgstr "&Exportar listado de notas"
 
-#: eyegrade/qtgui/gui.py:958
+#: eyegrade/qtgui/gui.py:124
 msgid "Select &camera"
 msgstr "Seleccionar &cámara"
 
-#: eyegrade/qtgui/gui.py:962
+#: eyegrade/qtgui/gui.py:128
 msgid "Online &Help"
 msgstr "&Ayuda en línea"
 
-#: eyegrade/qtgui/gui.py:963
+#: eyegrade/qtgui/gui.py:129
 msgid "&Website"
 msgstr "Sitio &Web"
 
-#: eyegrade/qtgui/gui.py:964
+#: eyegrade/qtgui/gui.py:130
 msgid "&Source code at GitHub"
 msgstr "&Código fuente en GitHub"
 
-#: eyegrade/qtgui/gui.py:965
+#: eyegrade/qtgui/gui.py:131
 msgid "&About"
 msgstr "Ac&erca de"
 
-#: eyegrade/qtgui/gui.py:969
+#: eyegrade/qtgui/gui.py:135
 msgid "Show &status"
 msgstr "Mostrar &estado"
 
-#: eyegrade/qtgui/gui.py:970
+#: eyegrade/qtgui/gui.py:136
 msgid "Show &lines"
 msgstr "Mostrar &líneas"
 
-#: eyegrade/qtgui/gui.py:971
+#: eyegrade/qtgui/gui.py:137
 msgid "Show &processed image"
 msgstr "Mostrar imagen &procesada"
 
-#: eyegrade/qtgui/gui.py:975
+#: eyegrade/qtgui/gui.py:141
 msgid "Continue on exam &removal"
 msgstr "&Continuar cuando se retire examen"
 
-#: eyegrade/qtgui/gui.py:1177
+#: eyegrade/qtgui/gui.py:343
 msgid "&Session"
 msgstr "&Sesión"
 
-#: eyegrade/qtgui/gui.py:1178
+#: eyegrade/qtgui/gui.py:344
 msgid "&Grading"
 msgstr "&Corregir"
 
-#: eyegrade/qtgui/gui.py:1179
+#: eyegrade/qtgui/gui.py:345
 msgid "&Exams"
 msgstr "&Exámenes"
 
-#: eyegrade/qtgui/gui.py:1180
+#: eyegrade/qtgui/gui.py:346
 msgid "&Tools"
 msgstr "&Herramientas"
 
-#: eyegrade/qtgui/gui.py:1181
+#: eyegrade/qtgui/gui.py:347
 msgid "&Help"
 msgstr "&Ayuda"
 
-#: eyegrade/qtgui/gui.py:1213
+#: eyegrade/qtgui/gui.py:379
 msgid "&Debug options"
 msgstr "&Opciones de depuración"
 
-#: eyegrade/qtgui/gui.py:1223
+#: eyegrade/qtgui/gui.py:389
 msgid "&Experimental"
 msgstr "&Experimental"
 
-#: eyegrade/qtgui/gui.py:1326
+#: eyegrade/qtgui/gui.py:429
 #, python-brace-format
 msgid "Score: {0:.2f} / {1:.2f}"
 msgstr "Nota: {0:.2f} / {1:.2f}"
 
-#: eyegrade/qtgui/gui.py:1330
+#: eyegrade/qtgui/gui.py:433
 msgid "[Survey mode on]"
 msgstr "[Modo encuesta]"
 
-#: eyegrade/qtgui/gui.py:1333
+#: eyegrade/qtgui/gui.py:436
 msgid "Model:"
 msgstr "Modelo:"
 
-#: eyegrade/qtgui/gui.py:1335
+#: eyegrade/qtgui/gui.py:438
 msgid "Num.:"
 msgstr "Núm.:"
 
-#: eyegrade/qtgui/gui.py:1460
+#: eyegrade/qtgui/gui.py:563
 msgid "Grading - Scanning exam"
 msgstr "Corrigiendo - Escaneando un nuevo examen"
 
-#: eyegrade/qtgui/gui.py:1465
+#: eyegrade/qtgui/gui.py:568
 msgid "Grading - Reviewing exam"
 msgstr "Corrigiendo - Revisión de la corrección"
 
-#: eyegrade/qtgui/gui.py:1468
+#: eyegrade/qtgui/gui.py:571
 msgid "Session open - Reviewing exam"
 msgstr "Sesión abierta - Revisión de la corrección"
 
-#: eyegrade/qtgui/gui.py:1472
+#: eyegrade/qtgui/gui.py:575
 msgid "Click on the outer corners of the answer tables"
 msgstr "Pinche en las esquinas de las tablas de respuestas"
 
-#: eyegrade/qtgui/gui.py:1474
+#: eyegrade/qtgui/gui.py:577
 msgid "Grading - Manual detection mode"
 msgstr "Corrigiendo - Modo de detección manual"
 
-#: eyegrade/qtgui/gui.py:1480
+#: eyegrade/qtgui/gui.py:583
 msgid "Session open"
 msgstr "Sesión abierta"
 
-#: eyegrade/qtgui/gui.py:1486
+#: eyegrade/qtgui/gui.py:589
 msgid "No session: open or create a session to start"
 msgstr "No hay sesión abierta: abra o cree una sesión para comenzar"
 
-#: eyegrade/qtgui/gui.py:1640
+#: eyegrade/qtgui/gui.py:744
 msgid "Select the session file"
 msgstr "Seleccione el fichero de sesión"
 
-#: eyegrade/qtgui/gui.py:1682 eyegrade/qtgui/gui.py:1688
+#: eyegrade/qtgui/gui.py:788 eyegrade/qtgui/gui.py:794
 msgid "Warning"
 msgstr "Aviso"
 
@@ -691,6 +373,324 @@ msgstr "Nota"
 #: eyegrade/qtgui/export.py:141
 msgid "List of answers"
 msgstr "Lista de respuestas"
+
+#: eyegrade/qtgui/dialogs.py:52
+msgid "Change the student id"
+msgstr "Cambiar estudiante"
+
+#: eyegrade/qtgui/dialogs.py:63
+msgid "Student id:"
+msgstr "Estudiante"
+
+#: eyegrade/qtgui/dialogs.py:91
+msgid "Compute default scores"
+msgstr "Calcular notas por defecto"
+
+#: eyegrade/qtgui/dialogs.py:95
+msgid "Penalize incorrect answers"
+msgstr "Penalizar respuestas incorrectas"
+
+#: eyegrade/qtgui/dialogs.py:98
+msgid "Maximum score"
+msgstr "Nota máxima"
+
+#: eyegrade/qtgui/dialogs.py:99
+msgid "Penalizations"
+msgstr "Penalizaciones"
+
+#: eyegrade/qtgui/dialogs.py:123 eyegrade/qtgui/widgets.py:199
+#: eyegrade/qtgui/wizards.py:206 eyegrade/qtgui/wizards.py:218
+#: eyegrade/qtgui/wizards.py:235
+msgid "Error"
+msgstr "Error"
+
+#: eyegrade/qtgui/dialogs.py:124
+msgid "Enter a valid score."
+msgstr "Introduzca una nota válida"
+
+#: eyegrade/qtgui/dialogs.py:155
+msgid "Select a camera"
+msgstr "Seleccionar cámara"
+
+#: eyegrade/qtgui/dialogs.py:160
+msgid "Try this camera"
+msgstr "Probar esta cámara"
+
+#: eyegrade/qtgui/dialogs.py:194 eyegrade/qtgui/dialogs.py:209
+msgid "Camera not available"
+msgstr "Cámara no disponible"
+
+#: eyegrade/qtgui/dialogs.py:195
+msgid "Eyegrade has not detected any camera in your system."
+msgstr "Eyegrade no ha detectado ninguna cámara."
+
+#: eyegrade/qtgui/dialogs.py:210
+#, python-brace-format
+msgid "Camera {0} is not available."
+msgstr "La cámara {0} no está disponible."
+
+#: eyegrade/qtgui/dialogs.py:215
+#, python-brace-format
+msgid "<center>Viewing camera: {0}</center>"
+msgstr "<center>Viendo cámara: {0}</center>"
+
+#: eyegrade/qtgui/dialogs.py:219
+msgid "<center>No camera</center>"
+msgstr "<center>No hay cámara</center>"
+
+#: eyegrade/qtgui/dialogs.py:243 eyegrade/qtgui/dialogs.py:250
+msgid "About"
+msgstr "Acerca de"
+
+#: eyegrade/qtgui/dialogs.py:251
+msgid "Developers"
+msgstr "Desarrolladores"
+
+#: eyegrade/qtgui/dialogs.py:252
+msgid "Translators"
+msgstr "Traductores"
+
+#: eyegrade/qtgui/dialogs.py:258
+#, python-brace-format
+msgid ""
+"\n"
+"             <center>\n"
+"             <p><img src='{0}' width='64'> <br>\n"
+"             {1} {2} <br>\n"
+"             (c) 2010-2014 Jesús Arias Fisteus <br>\n"
+"             <a href='{3}'>{3}</a> <br>\n"
+"             <a href='{4}'>{4}</a>\n"
+"\n"
+"             <p>\n"
+"             This program is free software: you can redistribute it<br>\n"
+"             and/or modify it under the terms of the GNU General<br>\n"
+"             Public License as published by the Free Software<br>\n"
+"             Foundation, either version 3 of the License, or (at your<br>\n"
+"             option) any later version.\n"
+"             </p>\n"
+"             <p>\n"
+"             This program is distributed in the hope that it will be<br>\n"
+"             useful, but WITHOUT ANY WARRANTY; without even the<br>\n"
+"             implied warranty of MERCHANTABILITY or FITNESS FOR A<br>\n"
+"             PARTICULAR PURPOSE. See the GNU General Public<br>\n"
+"             License for more details.\n"
+"             </p>\n"
+"             <p>\n"
+"             You should have received a copy of the GNU General<br>\n"
+"             Public License along with this program.  If not, see<br>\n"
+"             <a href='http://www.gnu.org/licenses/gpl.txt'>\n"
+"             http://www.gnu.org/licenses/gpl.txt</a>.\n"
+"             </p>\n"
+"             </center>\n"
+"             "
+msgstr ""
+"\n"
+"             <center>\n"
+"             <p><img src='{0}' width='64'> <br>\n"
+"             {1} {2} <br>\n"
+"             (c) 2010-2014 Jesus Arias Fisteus <br>\n"
+"             <a href='{3}'>{3}</a> <br>\n"
+"             <a href='{4}'>{4}</a>\n"
+"\n"
+"             <p>\n"
+"             Este programa es software libre. Puede redistribuirlo y/o<br>\n"
+"             modificarlo bajo los términos de la Licencia Pública<br>\n"
+"             Generalde GNU tal como está publicada por la Free Software<br>\n"
+"             Foundation, bien de la versión 3 de dicha Licencia o bien<br>\n"
+"             (según su elección) de cualquier versión posterior.             "
+"</p>\n"
+"             <p>\n"
+"             Este programa se distribuye con la esperanza de que sea<br>\n"
+"             útil, pero SIN NINGUNA GARANTÍA, incluso sin la garantía<br>\n"
+"             MERCANTIL implícita o sin garantizar la CONVENIENCIA PARA<br>\n"
+"             UN PROPÓSITO PARTICULAR. Véase la Licencia Pública General<br>\n"
+"             de GNU para más detalles.             </p>\n"
+"             <p>\n"
+"             Usted debería haber recibido una copia de la Licencia<br>\n"
+"             Pública General junto con este programa. Si no ha sido<br>\n"
+"             así, consulte <a href='http://www.gnu.org/licenses/gpl.txt'>\n"
+"             http://www.gnu.org/licenses/gpl.txt</a>.\n"
+"             </p>\n"
+"             </center>\n"
+"             "
+
+#: eyegrade/qtgui/dialogs.py:304
+msgid "Lead developers"
+msgstr "Desarrolladores principales"
+
+#: eyegrade/qtgui/dialogs.py:317
+msgid "Catalan"
+msgstr "Catalán"
+
+#: eyegrade/qtgui/dialogs.py:318
+msgid "German"
+msgstr "Alemán"
+
+#: eyegrade/qtgui/dialogs.py:319
+msgid "Galician"
+msgstr "Gallego"
+
+#: eyegrade/qtgui/dialogs.py:320
+msgid "French"
+msgstr "Francés"
+
+#: eyegrade/qtgui/dialogs.py:321
+msgid "Portuguese"
+msgstr "Portugués"
+
+#: eyegrade/qtgui/dialogs.py:322
+msgid "Spanish"
+msgstr "Español"
+
+#: eyegrade/qtgui/widgets.py:228
+msgid "e.g.: 2; 2.5; 5/2"
+msgstr "ejemplos: 2; 2.5; 5/2"
+
+#: eyegrade/qtgui/widgets.py:230
+msgid "e.g.: 0; -1; -1.25; -5/4"
+msgstr "ejemplos: 0; -1; -1.25; -5/4"
+
+#: eyegrade/qtgui/widgets.py:302
+msgid "Add files"
+msgstr "Añadir ficheros"
+
+#: eyegrade/qtgui/widgets.py:303
+msgid "Remove selected"
+msgstr "Eliminar seleccionados"
+
+#: eyegrade/qtgui/wizards.py:47
+msgid "Directory and exam configuration"
+msgstr "Directorio y fichero de configuración"
+
+#: eyegrade/qtgui/wizards.py:48
+msgid ""
+"Select or create an empty directory in which you want to store the session, "
+"and the exam configuration file."
+msgstr ""
+"Seleccione o cree un directorio vacío donde guardar la sesión y el fichero "
+"de configuración del examen."
+
+#: eyegrade/qtgui/wizards.py:52
+msgid "Select or create an empty directory"
+msgstr "Seleccione o cree un directorio vacío"
+
+#: eyegrade/qtgui/wizards.py:55
+msgid "Select the exam configuration file"
+msgstr "Seleccione el fichero de configuración de examen"
+
+#: eyegrade/qtgui/wizards.py:68
+msgid "Directory"
+msgstr "Directorio"
+
+#: eyegrade/qtgui/wizards.py:69
+msgid "Exam configuration file"
+msgstr "Fichero de configuración de examen"
+
+#: eyegrade/qtgui/wizards.py:91
+msgid "The directory does not exist or is not a directory."
+msgstr "El directorio no existe o no es un directorio"
+
+#: eyegrade/qtgui/wizards.py:96
+msgid ""
+"The directory is not empty. Choose another directory or create a new one."
+msgstr "El directorio no está vacío. Elija otro o cree uno nuevo."
+
+#: eyegrade/qtgui/wizards.py:105
+msgid "The exam configuration file does not exist."
+msgstr "El fichero de configuración de examen no existe."
+
+#: eyegrade/qtgui/wizards.py:108
+msgid "The exam configuration file is not a regular file."
+msgstr "El fichero de configuración de examen no es un fichero regular."
+
+#: eyegrade/qtgui/wizards.py:114
+msgid "The exam configuration file cannot be read."
+msgstr "No se puede leer el fichero de configuración de examen."
+
+#: eyegrade/qtgui/wizards.py:117
+msgid "The exam configuration file contains errors"
+msgstr "El fichero de configuración de examen contiene errores."
+
+#: eyegrade/qtgui/wizards.py:130
+msgid "Scores for correct and incorrect answers"
+msgstr "Notas para respuestas correctas e incorrectas"
+
+#: eyegrade/qtgui/wizards.py:131
+msgid ""
+"Enter the scores of correct and incorrect answers. The program will compute "
+"scores based on them. Setting these scores is optional."
+msgstr ""
+"Introduzca las puntuaciones de las respuestas correctas e incorrectas con "
+"las que se calcularán las notas. Este paso es opcional."
+
+#: eyegrade/qtgui/wizards.py:139
+msgid "Clear values"
+msgstr "Limpiar valores"
+
+#: eyegrade/qtgui/wizards.py:140
+msgid "Compute default values"
+msgstr "Calcular valores por defecto"
+
+#: eyegrade/qtgui/wizards.py:141
+msgid "Score for correct answers"
+msgstr "Nota para respuestas correctas"
+
+#: eyegrade/qtgui/wizards.py:142
+msgid "Score for incorrect answers"
+msgstr "Nota para respuestas incorrectas"
+
+#: eyegrade/qtgui/wizards.py:143
+msgid "Score for blank answers"
+msgstr "Nota para respuestas en blanco"
+
+#: eyegrade/qtgui/wizards.py:207
+msgid "Automatic scores cannot be computed for this exam."
+msgstr "No se pueden calcular notas automáticamente para este examen."
+
+#: eyegrade/qtgui/wizards.py:219
+msgid "A correct score must be set, or the three scores must be left empty."
+msgstr "Se debe establecer una nota correcta, o dejar las tres en blanco."
+
+#: eyegrade/qtgui/wizards.py:236
+msgid "The score for incorrect and blank answers cannot be greater than 0."
+msgstr ""
+"La nota de las respuestas incorrectas y en blanco no puede ser mayor que 0."
+
+#: eyegrade/qtgui/wizards.py:267
+msgid "Create a new session"
+msgstr "Crear nueva sesión"
+
+#: eyegrade/qtgui/wizards.py:305
+msgid "Student id files"
+msgstr "Listas de estudiantes"
+
+#: eyegrade/qtgui/wizards.py:306
+msgid ""
+"You can select zero, one or more files with the list of student ids. Go to "
+"the user manual if you don't know the format of the files."
+msgstr ""
+"Puede seleccionar ninguno, uno o más ficheros de estudiantes. El manual de "
+"usuario explica el formato que deben tener."
+
+#: eyegrade/qtgui/wizards.py:310
+msgid "Select student list files"
+msgstr "Seleccionar fichero de estudiantes"
+
+#: eyegrade/qtgui/wizards.py:328
+msgid "Error in student list"
+msgstr "Error en la lista de estudiantes"
+
+#: eyegrade/qtgui/__init__.py:31
+msgid "Exam configuration (*.eye)"
+msgstr "Configuración de examen (*.eye)"
+
+#: eyegrade/qtgui/__init__.py:32
+msgid "Eyegrade session (*.eyedb)"
+msgstr "Sesión de Eyegrade (*.eyedb)"
+
+#: eyegrade/qtgui/__init__.py:33
+msgid "Student list (*.csv *.tsv *.txt *.lst *.list)"
+msgstr "Lista de estudiantes (*.csv *.tsv *.txt *.lst *.list)"
 
 #~ msgid "The file you selected contains no session marks."
 #~ msgstr "El fichero no contiene ninguna sesión."
