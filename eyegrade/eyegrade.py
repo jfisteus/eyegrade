@@ -601,26 +601,13 @@ class ProgramManager(object):
         students = self.exam.ranked_student_ids()
         student = self.interface.dialog_student_id(students)
         if student is not None:
-            updated = False
-            if student == '':
-                self.exam.update_student_id(None)
-                updated = True
-            else:
-                student_id, name = self._parse_student(student)
-                if student_id is not None:
-                    self.exam.update_student_id(student_id, name=name)
-                    updated = True
-                else:
-                    self.interface.show_error( \
-                        _('You typed and incorrect student id.'))
-            if updated:
-                self.exam_changed = True
-                self.interface.update_text_up( \
-                                    self.exam.get_student_id_and_name())
-                self.sessiondb.update_student(self.exam.exam_id,
-                                              self.exam.capture,
-                                              self.exam.decisions,
-                                              store_captures=False)
+            self.exam.update_student_id(student)
+            self.exam_changed = True
+            self.interface.update_text_up(self.exam.get_student_id_and_name())
+            self.sessiondb.update_student(self.exam.exam_id,
+                                          self.exam.capture,
+                                          self.exam.decisions,
+                                          store_captures=False)
 
     def _action_camera_selection(self):
         """Callback for opening the camera selection dialog."""
@@ -783,30 +770,6 @@ class ProgramManager(object):
     def _store_capture(self, exam):
         self.sessiondb.save_drawn_capture(exam.exam_id, exam.capture,
                                           exam.decisions.student)
-
-    def _parse_student(self, student):
-        """Parses a string with student id (first) and student name.
-
-        Returns the tuple (student_id, student_name).  If the student
-        id is not valid (incorrect length or contains non-digits)
-        returns (None, None). The returned name is None if not present
-        in the parsed string.
-
-        """
-        student_id = None
-        name = None
-        parts = [p for p in student.split(' ') if p.strip()]
-        if len(parts) > 0:
-            student_id = parts[0]
-            if len(parts) > 1:
-                name = ' '.join(parts[1:])
-            if (self.exam_data.id_num_digits > 0
-                and len(student_id) != self.exam_data.id_num_digits
-                or not min([c.isdigit() for c in student_id])):
-                student_id = None
-        if student_id is None:
-            name = None
-        return student_id, name
 
     def _register_listeners(self):
         listeners = {

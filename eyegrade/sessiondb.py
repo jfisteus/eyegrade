@@ -30,8 +30,8 @@ class SessionDB(object):
     This class encapsulates access functions to the session database.
 
     """
-    DB_SCHEMA_VERSION = 1
-    COMPATIBLE_SCHEMAS = (1, )
+    DB_SCHEMA_VERSION = 2
+    COMPATIBLE_SCHEMAS = (1, 2, )
 
     ALTERATION_REVOKE_QUESTION = 1
     ALTERATION_SET_SOLUTION = 2
@@ -81,7 +81,9 @@ class SessionDB(object):
         CREATE TABLE Students (
             db_id INTEGER PRIMARY KEY NOT NULL,
             student_id TEXT,
-            name TEXT,
+            full_name TEXT,
+            first_name TEXT,
+            last_name TEXT,
             email TEXT,
             group_id INTEGER NOT NULL,
             sequence_num INTEGER NOT NULL,
@@ -161,7 +163,7 @@ class SessionDB(object):
         self.conn = sqlite3.connect(db_file)
         self.conn.row_factory = sqlite3.Row
         self._enable_foreign_key_constrains()
-        self._check_schema()
+        self.schema_version = self._check_schema()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
         self.default_students_rank = sorted([s for s \
@@ -228,11 +230,24 @@ class SessionDB(object):
             student.group_id = 0
         if student.sequence_num is None:
             student.sequence_num = self._group_max_seq(student.group_id) + 1
-        cursor.execute('INSERT INTO Students '
-                       '(student_id, name, email, group_id, sequence_num) '
-                       'VALUES (:student_id, :name, :email, :group_id, '
-                       '        :sequence_num)',
-                       student.__dict__)
+        if self.schema_version > 1:
+            cursor.execute('INSERT INTO Students '
+                           '(student_id, full_name, first_name, '
+                           ' last_name, email, group_id, '
+                           ' sequence_num) '
+                           'VALUES (:student_id, :full_name, :first_name, '
+                           '        :last_name, :email, :group_id, '
+                           '        :sequence_num)',
+                           student.__dict__)
+        else:
+            cursor.execute('INSERT INTO Students '
+                           '(student_id, name, '
+                           ' email, group_id, '
+                           ' sequence_num) '
+                           'VALUES (:student_id, :full_name, '
+                           '        :email, :group_id, '
+                           '        :sequence_num)',
+                           student.__dict__)
         student.db_id = cursor.lastrowid
         if student.student_id is not None:
             self.students[student.student_id] = student
@@ -244,7 +259,7 @@ class SessionDB(object):
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM Students')
         for row in cursor:
-            student = _create_student_from_row(row)
+            student = self._student_from_row(row)
             self.students[student.student_id] = student
         return self.students
 
@@ -489,6 +504,7 @@ class SessionDB(object):
             raise utils.EyegradeException('', key='incompatible_schema',
                                         format_params=(utils.program_name,
                                                        utils.version, version))
+        return schema
 
     def _check_session_directory(self):
         db_file = os.path.join(self.session_dir, 'session.eyedb')
@@ -516,7 +532,7 @@ class SessionDB(object):
                        'WHERE exam_id = ?', (exam_id,))
         row = cursor.fetchone()
         if row is not None:
-            return _create_student_from_row(row)
+            return self._student_from_row(row)
         else:
             return None
 
@@ -639,6 +655,21 @@ class SessionDB(object):
     def _enable_foreign_key_constrains(self):
         cursor = self.conn.cursor()
         cursor.execute('PRAGMA foreign_keys=ON')
+
+    def _student_from_row(self, row):
+        if self.schema_version == 1:
+            student = utils.Student(row['db_id'], row['student_id'],
+                                    row['name'], None, None,
+                                    row['email'], row['group_id'],
+                                    row['sequence_num'], is_in_database=True)
+        else:
+            # DB schema 2 or later
+            student = utils.Student(row['db_id'], row['student_id'],
+                                    row['full_name'],
+                                    row['first_name'], row['last_name'],
+                                    row['email'], row['group_id'],
+                                    row['sequence_num'], is_in_database=True)
+        return student
 
 
 class ExamFromDB(utils.Exam):
@@ -788,14 +819,16 @@ def _save_exam_config(conn, exam_data):
                        exam_data.format_permutations(model)))
 
 def _save_student_list(conn, students_file):
-    students = utils.read_student_ids_same_order(filename=students_file,
-                                                 with_names=True)
+    students = utils.read_student_ids_same_order(filename=students_file)
     _create_student_group(conn, os.path.basename(students_file), students)
 
 def _create_student_group(conn, group_name, student_list):
     """Creates a new student group and loads students in it.
 
-    The student list is a list of tuples (student_id, name, email).
+    The student list is a list of tuples
+    (student_id, full_name, first_name, last_name, email)
+    where full_name is incompatible with first_name and last_name
+    (or the former is empty/None or the other two are empty/None).
 
     """
     cursor = conn.cursor()
@@ -805,17 +838,14 @@ def _create_student_group(conn, group_name, student_list):
     if len(student_list) > 0:
         internal_list = []
         for i, data in enumerate(student_list):
-            internal_list.append((data[0], data[1], data[2], group_id, i))
+            internal_list.append((data[0], data[1], data[2],
+                                  data[3], data[4], group_id, i))
         cursor.executemany('INSERT INTO Students '
-                           '(student_id, name, email, group_id,'
+                           '(student_id, full_name, '
+                           ' first_name, last_name, email, group_id, '
                            ' sequence_num) VALUES '
-                            '(?, ?, ?, ?, ?)',
+                            '(?, ?, ?, ?, ?, ?, ?)',
                            internal_list)
-
-def _create_student_from_row(row):
-    return utils.Student(row['db_id'], row['student_id'], row['name'],
-                         row['email'], row['group_id'],
-                         row['sequence_num'], is_in_database=True)
 
 def _create_cell_from_row(row, is_id_cell=False):
     plu = (row['lux'], row['luy'])

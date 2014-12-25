@@ -55,6 +55,7 @@ class DialogExportGrades(QDialog):
         self.sort_combo = QComboBox(parent=self)
         self.sort_combo.addItem(_('Student list'))
         self.sort_combo.addItem(_('Exam grading sequence'))
+        self.sort_combo.addItem(_('Last name'))
         if len(student_groups) > 1:
             self.groups_combo = QComboBox(parent=self)
             self.groups_combo.addItem(_('All the groups'))
@@ -126,7 +127,11 @@ class ExportItems(QWidget):
             ('student_id',
              LabelledCheckBox(_('Student id number'), self, True)),
             ('student_name',
-             LabelledCheckBox(_('Student name'), self, True)),
+             LabelledCheckBox(_('Student full name'), self, True)),
+            ('student_last_name',
+             LabelledCheckBox(_('Student last name'), self, True)),
+            ('student_first_name',
+             LabelledCheckBox(_('Student first name'), self, True)),
             ('seq_num',
              LabelledCheckBox(_('Exam sequence number'), self, True)),
             ('model',

@@ -73,13 +73,26 @@ class CompletingComboBox(QComboBox):
 class StudentComboBox(CompletingComboBox):
     def __init__(self, parent=None, editable=True):
         super(StudentComboBox, self).__init__(parent=parent, editable=editable)
+        self.lineEdit().selectAll()
+        self.lineEdit().setFocus()
+        self.students = []
 
     def add_students(self, students):
         for student in students:
             self.add_student(student)
 
-    def add_student(self, student):
-        self.addItem(student.get_id_and_name())
+    def add_student(self, student, set_current=False):
+        self.addItem(student.id_and_name)
+        self.students.append(student)
+        if set_current:
+            self.setCurrentIndex(len(self.students) - 1)
+
+    def current_student(self):
+        student = self.students[self.currentIndex()]
+        if self.currentText() != student.id_and_name:
+            # The user has edited the text of this item
+            student = None
+        return student
 
 
 class StatusBar(QStatusBar):

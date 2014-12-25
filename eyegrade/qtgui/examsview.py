@@ -47,7 +47,7 @@ class ThumbnailsViewItem(QListWidgetItem):
 
     def _label(self):
         if self.exam.decisions.student:
-            label = self.exam.decisions.student.get_name_or_id()
+            label = self.exam.decisions.student.name_or_id
         else:
             label = ''
         return label
