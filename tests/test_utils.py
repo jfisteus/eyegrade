@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Eyegrade: grading multiple choice questions with a webcam
 # Copyright (C) 2014 Jesus Arias Fisteus
 #
@@ -15,58 +17,144 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-import unittest
+from __future__ import unicode_literals
 
-from eyegrade.utils import Student
+import unittest
+import StringIO
+
+import eyegrade.utils as utils
 
 class TestStudent(unittest.TestCase):
 
     def test_full_name(self):
-        student = Student(1, '0000', 'John Doe', None, None,
-                          'john@example.com', 2, 3)
+        student = utils.Student(1, '0000', 'John Doe', None, None,
+                                'john@example.com', 2, 3)
         self.assertEqual(student.name, 'John Doe')
         self.assertEqual(student.id_and_name, '0000 John Doe')
         self.assertEqual(student.name_or_id, 'John Doe')
 
     def test_first_and_last_name(self):
-        student = Student(1, '0000', None, 'John', 'Doe',
-                          'john@example.com', 2, 3)
+        student = utils.Student(1, '0000', None, 'John', 'Doe',
+                                'john@example.com', 2, 3)
         self.assertEqual(student.name, 'John Doe')
         self.assertEqual(student.id_and_name, '0000 John Doe')
         self.assertEqual(student.name_or_id, 'John Doe')
         self.assertEqual(student.last_comma_first_name, 'Doe, John')
 
     def test_last_name(self):
-        student = Student(1, '0000', None, None, 'Doe',
-                          'doe@example.com', 2, 3)
+        student = utils.Student(1, '0000', None, None, 'Doe',
+                                'doe@example.com', 2, 3)
         self.assertEqual(student.name, 'Doe')
         self.assertEqual(student.id_and_name, '0000 Doe')
         self.assertEqual(student.name_or_id, 'Doe')
         self.assertEqual(student.last_comma_first_name, 'Doe')
 
     def test_first_name(self):
-        student = Student(1, '0000', None, 'John', '',
-                          'john@example.com', 2, 3)
+        student = utils.Student(1, '0000', None, 'John', '',
+                                'john@example.com', 2, 3)
         self.assertEqual(student.name, 'John')
         self.assertEqual(student.id_and_name, '0000 John')
         self.assertEqual(student.name_or_id, 'John')
         self.assertEqual(student.last_comma_first_name, 'John')
 
     def test_no_name(self):
-        student = Student(1, '0000', None, None, None,
-                          'doe@example.com', 2, 3)
+        student = utils.Student(1, '0000', None, None, None,
+                                'doe@example.com', 2, 3)
         self.assertEqual(student.name, '')
         self.assertEqual(student.id_and_name, '0000')
         self.assertEqual(student.name_or_id, '0000')
         self.assertEqual(student.last_comma_first_name, '')
 
     def test_name_errors(self):
-        self.assertRaises(ValueError, Student,
+        self.assertRaises(ValueError, utils.Student,
                           1, '0000', 'John Doe', 'John', '',
                           'doe@example.com', 2, 3)
-        self.assertRaises(ValueError, Student,
+        self.assertRaises(ValueError, utils.Student,
                           1, '0000', 'John Doe', '', 'Doe',
                           'doe@example.com', 2, 3)
-        self.assertRaises(ValueError, Student,
+        self.assertRaises(ValueError, utils.Student,
                           1, '0000', 'John Doe', 'John', 'Doe',
                           'doe@example.com', 2, 3)
+
+
+class TestReadStudentsFromFile(unittest.TestCase):
+
+    def setUp(self):
+        self.students = [
+            ('101010101', 'Donald Duck', 'Donald', 'Duck', 'duck@d.com'),
+            ('202020202', 'Marty McFly', 'Marty', 'McFly', 'fly@d.com'),
+            ('313131313', 'Peter Pan', 'Peter', 'Pan', 'pan@pan.com'),
+        ]
+        self.bad_students = [
+            ('1010a0101', 'Bad Boy', 'Bad', 'Boy', 'boy@bad.com'),
+        ]
+        self.non_ascii_students = [
+            ('404040404', 'Rey León', 'Rey', 'León', 'lion@jungle.com'),
+        ]
+
+    def test_empty(self):
+        text = ''
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        self.assertEqual(data, [])
+
+    def test_read_id(self):
+        text = '\n'.join([s[0] for s in self.students])
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        key = [(s[0], '', '', '', '') for s in self.students]
+        self.assertEqual(data, key)
+
+    def test_read_id_full_name(self):
+        text = '\n'.join(['\t'.join((s[0], s[1])) \
+                          for s in self.students])
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        key = [(s[0], s[1], '', '', '') for s in self.students]
+        self.assertEqual(data, key)
+
+    def test_read_id_full_name_email(self):
+        text = '\n'.join(['\t'.join((s[0], s[1], s[4])) \
+                          for s in self.students])
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        key = [(s[0], s[1], '', '', s[4]) for s in self.students]
+        self.assertEqual(data, key)
+
+    def test_read_id_name_surname(self):
+        text = '\n'.join(['\t'.join((s[0], s[2], s[3])) \
+                          for s in self.students])
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        key = [(s[0], '', s[2], s[3], '') for s in self.students]
+        self.assertEqual(data, key)
+
+    def test_read_id_name_surname_email(self):
+        text = '\n'.join(['\t'.join((s[0], s[2], s[3], s[4])) \
+                          for s in self.students])
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        key = [(s[0], '', s[2], s[3], s[4]) for s in self.students]
+        self.assertEqual(data, key)
+
+    def test_errors(self):
+        text = '\n'
+        f = StringIO.StringIO(text.encode('utf-8'))
+        self.assertRaises(utils.EyegradeException,
+                          utils.read_student_ids_same_order,
+                          file_=f)
+        text = '\n'.join(['\t'.join((s[0], s[1], s[4])) \
+                          for s in self.students + self.bad_students])
+        f = StringIO.StringIO(text)
+        self.assertRaises(utils.EyegradeException,
+                          utils.read_student_ids_same_order,
+                          file_=f)
+
+    def test_non_ascii(self):
+        text = '\n'.join(['\t'.join((s[0], s[2], s[3], s[4])) \
+                          for s in self.students + self.non_ascii_students])
+        f = StringIO.StringIO(text.encode('utf-8'))
+        data = utils.read_student_ids_same_order(file_=f)
+        key = [(s[0], '', s[2], s[3], s[4]) \
+               for s in self.students + self.non_ascii_students]
+        self.assertEqual(data, key)

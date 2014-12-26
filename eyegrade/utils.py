@@ -339,20 +339,24 @@ def read_student_ids_same_order(filename=None, file_=None, data=None):
         if len(row) == 0:
             raise EyegradeException('Empty line in student list',
                                     key='error_student_list')
-        sid = row[0]
+        sid = _read_unicode_string(row[0],
+                                   'error_student_list_encoding')
         _check_student_id(sid)
         if len(row) > 1:
             name1 = _read_unicode_string(row[1],
                                          'error_student_list_encoding')
         if len(row) > 2:
-            if _check_email(row[2]):
-                email = row[2]
+            item = _read_unicode_string(row[2],
+                                        'error_student_list_encoding')
+            if _check_email(item):
+                email = item
             else:
-                name2 = _read_unicode_string(row[2],
-                                             'error_student_list_encoding')
+                name2 = item
         if len(row) > 3:
-            if _check_email(row[3]):
-                email = row[3]
+            item = _read_unicode_string(row[3],
+                                        'error_student_list_encoding')
+            if _check_email(item):
+                email = item
         if not name2:
             full_name = name1
             first_name = ''
