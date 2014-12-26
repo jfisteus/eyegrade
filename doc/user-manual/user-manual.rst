@@ -345,12 +345,10 @@ needs for creating the session:
     this exam. If you printed the sample exam distributed with
     Eyegrade, use the ``exam.eye`` file from the same directory.
 
-- Student id files: select zero, one or more files that contain the
+- Student list files: select zero, one or more files that contain the
   list of students in the class. The files should be plain text and
-  contain a line per student. Each line must have a first field with
-  the student id and, optionally, a second field with the student
-  name. It may have more fields, which Eyegrade will ignore. Fields
-  must be separated by one tabulator character.
+  contain a line per student. See `Student list files`_ for more
+  information on the format of these files.
 
 - Scores for correct and incorrect answers: this step is optional. If
   you provide the scores awarded to correct answers (and optionally
@@ -362,6 +360,68 @@ shows the image from the webcam and starts scanning for the
 exam. Point the camera to the exam until the image is locked. At this
 point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.
+
+
+Student list files
+...................
+
+The accuracy in the detection of the student identity
+improves dramatically when you supply
+the list of student ids of the class.
+The student list can be provided as one or more plain text files
+with one student per line.
+Each line may have several tab-separated columns.
+Eyegrade accepts lines with the following formats:
+
+- Student id (1 column):
+  just one column with the id number of the student::
+
+    100000333
+    100777777
+    100999997
+
+- Student id and full name (2 columns):
+  the first column contains the student id number
+  and the second one their full name.
+  You are free to chose the last name - comma - first name
+  order or the first name - last name order::
+
+    100000333	Baggins, Frodo
+    100777777	Bunny, Bugs
+    100999997	Bux, Bastian
+
+- Student id, full name and e-mail (3 columns):
+  the first column contains the student id number,
+  the second one their full name
+  and the third one their e-mail address::
+
+    100000333	Baggins, Frodo	frodo@shire.com
+    100777777	Bunny, Bugs	bugs@cartoon.com
+    100999997	Bux, Bastian	bux@fantastica.com
+
+- Student id, first name and last name (3 columns):
+  the first column contains the student id number,
+  the second one their first (given) name
+  and the third one their last (family) name::
+
+    100000333	Frodo	Baggins
+    100777777	Bugs	Bunny
+    100999997	Bastian	Bux
+
+- Student id, first name, last name and e-mail (4 columns):
+  the first column contains the student id number,
+  the second one their first (given) name,
+  the third one their last (family) name
+  and the fourth one their e-mail address::
+
+    100000333	Frodo	Baggins	frodo@shire.com
+    100777777	Bugs	Bunny	bugs@cartoon.com
+    100999997	Bastian	Bux	bux@fantastica.com
+
+The student id number must be composed just by digits.
+The student name may contain non-ASCII characters.
+In that case the file must be UTF-8 encoded.
+
 
 
 The session directory
@@ -600,9 +660,10 @@ id is in the exam. You just choose one in the drop-down menu. In
 addition, you can filter students by writing part of their id number
 or their name.
 
-If the student is not in your list, you can also enter in the dialog
-her id number and name. If you do that, follow the same format:
-student id, white space, student name.
+If the student is not in your list, you can also push the
+*New student* button to create a new student.
+It opens a dialog in which you can enter the data.
+The only mandatory field is this dialog is the student id number.
 
 
 The manual detection mode
