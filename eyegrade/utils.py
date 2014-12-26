@@ -198,6 +198,13 @@ EyegradeException.register_error('error_student_list_encoding',
     'The student list contains erroneously-encoded characters.')
 
 
+class ExportSortKey(object):
+    """Constants for the export dialog."""
+    STUDENT_LIST = 1
+    STUDENT_LAST_NAME = 2
+    GRADING_SEQUENCE = 3
+
+
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
     if path.endswith('.zip'):

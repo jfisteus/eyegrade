@@ -54,8 +54,8 @@ class DialogExportGrades(QDialog):
                                       ' the exam'))
         self.sort_combo = QComboBox(parent=self)
         self.sort_combo.addItem(_('Student list'))
-        self.sort_combo.addItem(_('Exam grading sequence'))
         self.sort_combo.addItem(_('Last name'))
+        self.sort_combo.addItem(_('Exam grading sequence'))
         if len(student_groups) > 1:
             self.groups_combo = QComboBox(parent=self)
             self.groups_combo.addItem(_('All the groups'))
@@ -97,11 +97,18 @@ class DialogExportGrades(QDialog):
                     idx = self.groups_combo.currentIndex()
                     if idx > 0:
                         selected_group = self.student_groups[idx - 1]
+                idx = self.sort_combo.currentIndex()
+                if idx == 0:
+                    selected_sort_key = utils.ExportSortKey.STUDENT_LIST
+                elif idx == 1:
+                    selected_sort_key = utils.ExportSortKey.STUDENT_LAST_NAME
+                elif idx == 2:
+                    selected_sort_key = utils.ExportSortKey.GRADING_SEQUENCE
                 result = (filename,
                           self.type_combo.currentIndex(),
                           self.students_combo.currentIndex(),
                           selected_group,
-                          self.sort_combo.currentIndex(),
+                          selected_sort_key,
                           self.export_items.get_state())
         return result
 
@@ -125,25 +132,27 @@ class ExportItems(QWidget):
         super(ExportItems, self).__init__(parent=parent)
         self.checkboxes = [
             ('student_id',
-             LabelledCheckBox(_('Student id number'), self, True)),
+             LabelledCheckBox(_('Student id number'), self, checked=True)),
             ('student_name',
-             LabelledCheckBox(_('Student full name'), self, True)),
+             LabelledCheckBox(_('Student full name'), self, checked=True)),
             ('student_last_name',
-             LabelledCheckBox(_('Student last name'), self, True)),
+             LabelledCheckBox(_('Student last name'), self, checked=False)),
             ('student_first_name',
-             LabelledCheckBox(_('Student first name'), self, True)),
+             LabelledCheckBox(_('Student first name'), self, checked=False)),
             ('seq_num',
-             LabelledCheckBox(_('Exam sequence number'), self, True)),
+             LabelledCheckBox(_('Exam sequence number'), self, checked=True)),
             ('model',
-             LabelledCheckBox(_('Exam model letter'), self, True)),
+             LabelledCheckBox(_('Exam model letter'), self, checked=True)),
             ('correct',
-             LabelledCheckBox(_('Number of correct answers'), self, True)),
+             LabelledCheckBox(_('Number of correct answers'), self,
+                              checked=True)),
             ('incorrect',
-             LabelledCheckBox(_('Number of incorrect answers'), self, True)),
+             LabelledCheckBox(_('Number of incorrect answers'), self,
+                              checked=True)),
             ('score',
-             LabelledCheckBox(_('Score'), self, True)),
+             LabelledCheckBox(_('Score'), self, checked=True)),
             ('answers',
-             LabelledCheckBox(_('List of answers'), self, True)),
+             LabelledCheckBox(_('List of answers'), self, checked=True)),
         ]
         layout = QVBoxLayout(self)
         for key, checkbox in self.checkboxes:

@@ -316,19 +316,26 @@ class SessionDB(object):
 
     def export_grades(self, file_name, csv_dialect, all_students=True,
                       seq_num=True, student_id=True, student_name=True,
+                      student_last_name=False, student_first_name=False,
                       correct=True, incorrect=True, score=True,
-                      model=True, answers=True, sort_by_student=True,
+                      model=True, answers=True,
+                      sort_key=utils.ExportSortKey.STUDENT_LIST,
                       student_group=None):
         with open(file_name, "wb") as f:
             writer = csv.writer(f, dialect=csv_dialect)
             for exam in self.grades_iterator(all_students=all_students,
-                                             sort_by_student=sort_by_student,
+                                             sort_key=sort_key,
                                              student_group=student_group):
+                student = exam['student']
                 data = []
                 if student_id:
-                    data.append(exam['student_id'])
+                    data.append(student.student_id)
                 if student_name:
-                    data.append(utils.encode_string(exam['name']))
+                    data.append(utils.encode_string(student.name))
+                if student_last_name:
+                    data.append(utils.encode_string(student.last_name))
+                if student_first_name:
+                    data.append(utils.encode_string(student.first_name))
                 if seq_num:
                     data.append(exam['exam_id'])
                 if model:
@@ -356,16 +363,22 @@ class SessionDB(object):
             exam['answers'] = self.read_answers(exam['exam_id'])
             yield exam
 
-    def grades_iterator(self, all_students=True, sort_by_student=True,
+    def grades_iterator(self, all_students=True,
+                        sort_key=utils.ExportSortKey.STUDENT_LIST,
                         student_group=None):
         cursor = self.conn.cursor()
         if all_students:
             join_type = 'LEFT'
         else:
             join_type = 'INNER'
-        if sort_by_student:
+        if sort_key == utils.ExportSortKey.STUDENT_LIST:
             sort_clause = 'ORDER BY group_id, sequence_num'
-        else:
+        elif sort_key == utils.ExportSortKey.STUDENT_LAST_NAME:
+            if self.schema_version == 1:
+                sort_clause = 'ORDER BY name, group_id, sequence_num'
+            else:
+                sort_clause = 'ORDER BY last_name, group_id, sequence_num'
+        elif sort_key == utils.ExportSortKey.GRADING_SEQUENCE:
             sort_clause = 'ORDER BY exam_id'
         if student_group is not None:
             where_clause = 'WHERE group_id = {0.identifier} '\
@@ -373,14 +386,16 @@ class SessionDB(object):
         else:
             where_clause = ''
         query = ('SELECT '
-                 'exam_id, student_id, name, model, '
-                 'correct, incorrect, score '
+                 '* '
                  'FROM Students '
                  '{0} JOIN Exams ON student = db_id '
                  '{1}'
                  '{2}').format(join_type, where_clause, sort_clause)
         for row in cursor.execute(query):
-            exam = dict(row)
+            student = self._student_from_row(row)
+            exam = {'student': student}
+            for key in ('exam_id', 'model', 'correct', 'incorrect', 'score'):
+                exam[key] = row[key]
             if exam['correct'] is not None:
                 exam['model'] = _Adapter.dec_model(exam['model'])
                 exam['answers'] = self.read_answers(exam['exam_id'])
