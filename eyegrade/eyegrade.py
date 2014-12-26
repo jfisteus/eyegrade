@@ -215,7 +215,6 @@ class ProgramManager(object):
         self._register_listeners()
         self.from_manual_detection = False
         self.manual_detect_manager = None
-        self.exam_changed = False
         if session_file is not None:
             self._try_session_file(session_file)
 
@@ -259,7 +258,6 @@ class ProgramManager(object):
                 self._start_auto_change_detection()
             self.drop_next_capture = False
         self.mode.enter_review()
-        self.exam_changed = False
         self.interface.activate_review_mode(self.mode.in_review_from_grading())
         self.interface.display_capture(self.exam.get_image_drawn())
         self.interface.update_text_up(self.exam.get_student_id_and_name())
@@ -272,6 +270,8 @@ class ProgramManager(object):
             self.interface.update_text_down('')
         if not self.exam.decisions.model:
             self.interface.enable_manual_detect(True)
+        if self.mode.in_grading():
+            self.interface.run_later(self._store_capture_and_add)
 
     def _start_auto_change_detection(self):
         if not self.from_manual_detection:
@@ -556,6 +556,7 @@ class ProgramManager(object):
         """Callback for cancelling/removing the current capture."""
         if self.mode.in_review_from_grading():
             self.sessiondb.remove_exam(self.exam.exam_id)
+            self.interface.remove_exam(self.exam)
             self._start_search_mode()
         elif self.mode.in_manual_detect():
             self._start_search_mode()
@@ -576,8 +577,6 @@ class ProgramManager(object):
     def _action_continue(self):
         """Callback for saving the current capture."""
         if self.mode.in_review_from_grading():
-            self._store_capture(self.exam)
-            self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
             self.exam_id += 1
             self._start_search_mode()
         elif self.mode.in_review_from_session():
@@ -602,12 +601,12 @@ class ProgramManager(object):
         student = self.interface.dialog_student_id(students)
         if student is not None:
             self.exam.update_student_id(student)
-            self.exam_changed = True
             self.interface.update_text_up(self.exam.get_student_id_and_name())
             self.sessiondb.update_student(self.exam.exam_id,
                                           self.exam.capture,
                                           self.exam.decisions,
                                           store_captures=False)
+            self.interface.run_later(self._store_capture_and_update)
 
     def _action_camera_selection(self):
         """Callback for opening the camera selection dialog."""
@@ -667,7 +666,6 @@ class ProgramManager(object):
     def _mouse_pressed_change_answer(self, point):
         question, answer = self.exam.capture.get_cell_clicked(point)
         if question is not None:
-            self.exam_changed = True
             self.exam.toggle_answer(question, answer)
             self.interface.display_capture(self.exam.get_image_drawn())
             self.interface.update_status(self.exam.score,
@@ -678,6 +676,7 @@ class ProgramManager(object):
                                          self.exam.capture,
                                          self.exam.decisions, self.exam.score,
                                          store_captures=False)
+            self.interface.run_later(self._store_capture_and_update)
 
     def _mouse_pressed_manual_detection(self, point):
         manager = self.manual_detect_manager
@@ -704,12 +703,8 @@ class ProgramManager(object):
     def _exam_selected(self, exam):
         if self.mode.in_grading():
             if self.mode.in_review_from_grading():
-                self._store_capture(self.exam)
-                self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
                 self.exam_id += 1
             self._activate_session_mode()
-        elif self.mode.in_review_from_session():
-            self._store_capture_if_changed()
         exam.load_capture()
         exam.reset_image()
         exam.draw_answers()
@@ -747,19 +742,19 @@ class ProgramManager(object):
     def _stop_grading(self):
         if self.mode.in_grading():
             self.imageproc_context.close_camera()
-            if self.mode.in_review_from_grading():
-                self._store_capture(self.exam)
-                self.interface.add_exam(self.sessiondb.read_exam(self.exam_id))
-        elif self.mode.in_review_from_session() and self.exam_changed:
-            self._store_capture_if_changed()
         self._activate_session_mode()
 
-    def _store_capture_if_changed(self):
-        if self.exam_changed:
-            self._store_capture(self.exam)
-            self.interface.update_exam(self.exam)
-            self.exam.clear_capture()
-            self.exam_changed = False
+    def _store_capture_and_add(self):
+        capture = self.exam.capture
+        self._store_capture(self.exam)
+        # self.exam needs to be replaced by an exam object from the DB
+        self.exam = self.sessiondb.read_exam(self.exam_id)
+        self.exam.capture = capture
+        self.interface.add_exam(self.exam)
+
+    def _store_capture_and_update(self):
+        self._store_capture(self.exam)
+        self.interface.update_exam(self.exam)
 
     def _store_exam(self, exam):
         self.sessiondb.store_exam(exam.exam_id, exam.capture, exam.decisions,

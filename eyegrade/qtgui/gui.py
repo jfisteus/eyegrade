@@ -684,6 +684,10 @@ class Interface(object):
         timer.setInterval(time_delta)
         timer.start()
 
+    def run_later(self, callback):
+        """Registers a callback for immediate enqueueing in the event loop."""
+        self.register_timer(0, callback)
+
     def display_capture(self, ipl_image):
         """Displays a captured image in the window.
 
