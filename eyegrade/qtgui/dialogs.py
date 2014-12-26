@@ -27,9 +27,10 @@ from PyQt4.QtGui import (QMessageBox, QVBoxLayout,
                          QScrollArea, QDialogButtonBox,
                          QCheckBox, QSpinBox,
                          QPushButton, QTabWidget,
-                         QDialog, QLabel, )
+                         QDialog, QLabel, QLineEdit,
+                         QRegExpValidator, QIcon, )
 
-from PyQt4.QtCore import (Qt, QTimer, pyqtSignal, )
+from PyQt4.QtCore import (Qt, QTimer, pyqtSignal, QRegExp, )
 
 from .. import utils
 from . import widgets
@@ -54,14 +55,77 @@ class DialogStudentId(QDialog):
         self.setLayout(layout)
         self.combo = widgets.StudentComboBox(parent=self, editable=True)
         self.combo.add_students(students)
-        self.combo.lineEdit().selectAll()
-        self.combo.lineEdit().setFocus()
-        buttons = QDialogButtonBox((QDialogButtonBox.Ok
-                                    | QDialogButtonBox.Cancel))
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
+        self.combo.editTextChanged.connect(self._check_value)
+        self.combo.currentIndexChanged.connect(self._check_value)
+        new_student_button = QPushButton( \
+                                 QIcon(utils.resource_path('new_id.svg')),
+                                 _('New student'), parent=self)
+        new_student_button.clicked.connect(self._new_student)
+        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
+                                         | QDialogButtonBox.Cancel))
+        self.buttons.addButton(new_student_button, QDialogButtonBox.ActionRole)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
         layout.addRow(_('Student id:'), self.combo)
-        layout.addRow(buttons)
+        layout.addRow(self.buttons)
+
+    def exec_(self):
+        """Shows the dialog and waits until it is closed.
+
+        Returns a student object with the option selected by the user.
+        The return value is None if the user cancels the dialog.
+
+        """
+        result = super(DialogStudentId, self).exec_()
+        if result == QDialog.Accepted:
+            return self.combo.current_student()
+        else:
+            return None
+
+    def _new_student(self):
+        dialog = NewStudentDialog(parent=self)
+        student = dialog.exec_()
+        if student is not None:
+            self.combo.add_student(student, set_current=True)
+            self.buttons.button(QDialogButtonBox.Ok).setFocus()
+
+    def _check_value(self, param):
+        if self.combo.current_student() is not None:
+            self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
+        else:
+            self.buttons.button(QDialogButtonBox.Ok).setEnabled(False)
+
+
+class NewStudentDialog(QDialog):
+    """Dialog to ask for a new student.
+
+    It returns a Student object with the data of the student.
+
+    """
+    def __init__(self, parent=None):
+        super(NewStudentDialog, self).__init__(parent)
+        self.setWindowTitle(_('Add a new student'))
+        layout = QFormLayout()
+        self.setLayout(layout)
+        self.id_field = QLineEdit(self)
+        self.id_field.setValidator(QRegExpValidator(QRegExp(r'\d+'), self))
+        self.id_field.textEdited.connect(self._check_values)
+        self.name_field = QLineEdit(self)
+        self.surname_field = QLineEdit(self)
+        self.email_field = QLineEdit(self)
+        self.email_field.setValidator( \
+                        QRegExpValidator(QRegExp(utils.re_exp_email), self))
+        self.email_field.textEdited.connect(self._check_values)
+        layout.addRow(_('Id number'), self.id_field)
+        layout.addRow(_('Given name'), self.name_field)
+        layout.addRow(_('Surname'), self.surname_field)
+        layout.addRow(_('Email'), self.email_field)
+        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
+                                         | QDialogButtonBox.Cancel))
+        layout.addRow(self.buttons)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+        self._check_values()
 
     def exec_(self):
         """Shows the dialog and waits until it is closed.
@@ -70,11 +134,24 @@ class DialogStudentId(QDialog):
         the dialog is cancelled.
 
         """
-        result = super(DialogStudentId, self).exec_()
+        result = super(NewStudentDialog, self).exec_()
         if result == QDialog.Accepted:
-            return unicode(self.combo.currentText())
+            student = utils.Student(None, unicode(self.id_field.text()),
+                                    None, unicode(self.name_field.text()),
+                                    unicode(self.surname_field.text()),
+                                    unicode(self.email_field.text()),
+                                    0, None)
         else:
-            return None
+            student = None
+        return student
+
+    def _check_values(self):
+        if (self.id_field.hasAcceptableInput()
+            and (not self.email_field.text()
+                 or self.email_field.hasAcceptableInput())):
+            self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
+        else:
+            self.buttons.button(QDialogButtonBox.Ok).setEnabled(False)
 
 
 class DialogComputeScores(QDialog):

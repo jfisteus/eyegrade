@@ -16,6 +16,8 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import unicode_literals
+
 import ConfigParser
 import csv
 import os
@@ -31,13 +33,14 @@ program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.4.4'
+version = '0.4.4+'
 version_status = 'alpha'
 
-re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
+re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
+re_email = re.compile(re_exp_email)
 re_model_letter = re.compile('[0a-zA-Z]')
 
-csv.register_dialect('tabs', delimiter = '\t')
+csv.register_dialect('tabs', delimiter=str('\t'))
 
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'score', 'answers']
@@ -195,6 +198,13 @@ EyegradeException.register_error('error_student_list_encoding',
     'The student list contains erroneously-encoded characters.')
 
 
+class ExportSortKey(object):
+    """Constants for the export dialog."""
+    STUDENT_LIST = 1
+    STUDENT_LAST_NAME = 2
+    GRADING_SEQUENCE = 3
+
+
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
     if path.endswith('.zip'):
@@ -258,7 +268,7 @@ def write_results(results, filename, csv_dialect, append=False):
             file_ = open(filename, 'ab')
     else:
         file_ = sys.stdout
-    writer = csv.writer(file_, dialect = csv_dialect)
+    writer = csv.writer(file_, dialect=csv_dialect)
     for result in results:
         data = [str(result['seq-num']),
                 result['student-id'],
@@ -285,7 +295,7 @@ def check_model_letter(model, allow_question_mark=False):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename=None, file_=None, data=None, with_names=False):
+def read_student_ids(filename=None, file_=None, data=None):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
     Either 'filename', 'file_' or 'data' must be provided.  'filename'
@@ -298,17 +308,13 @@ def read_student_ids(filename=None, file_=None, data=None, with_names=False):
 
     """
     students = read_student_ids_same_order(filename=filename, file_=file_,
-                                           data=data, with_names=with_names)
-    if not with_names:
-        return [s[0] for s in students]
-    else:
-        students_dict = {}
-        for student_id, name, email in students:
-            students_dict[student_id] = name
-        return students_dict
+                                           data=data)
+    students_dict = {}
+    for sid, full_name, first_name, last_name, email in students:
+        students_dict[sid] = (full_name, first_name, last_name, email)
+    return students_dict
 
-def read_student_ids_same_order(filename=None, file_=None, data=None,
-                                with_names=False):
+def read_student_ids_same_order(filename=None, file_=None, data=None):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
     Either 'filename', 'file_' or 'data' must be provided.  'filename'
@@ -332,34 +338,53 @@ def read_student_ids_same_order(filename=None, file_=None, data=None,
         reader = csv.reader(file_, 'tabs')
     elif data is not None:
         reader = csv.reader(io.BytesIO(data), 'tabs')
-    if not with_names:
-        student_ids = [(row[0], '', '') for row in reader]
-        for sid in student_ids:
-            _check_student_id(sid[0])
-    else:
-        student_ids = []
-        for row in reader:
-            name = ''
-            email = ''
-            if len(row) == 0:
-                raise EyegradeException('Empty line in student list',
-                                        key='error_student_list')
-            sid = row[0]
-            _check_student_id(sid)
-            if len(row) > 1:
-                try:
-                    name = unicode(row[1], config['default-charset'])
-                except ValueError:
-                    raise EyegradeException('Error while processing {0} data'\
-                                            .format(config['default-charset']),
-                                            key='error_student_list_encoding')
-            if len(row) > 2:
-                if _check_email(row[2]):
-                    email = row[2]
-            student_ids.append((sid, name, email))
+    student_ids = []
+    for row in reader:
+        name1 = ''
+        name2 = ''
+        email = ''
+        if len(row) == 0:
+            raise EyegradeException('Empty line in student list',
+                                    key='error_student_list')
+        sid = _read_unicode_string(row[0],
+                                   'error_student_list_encoding')
+        _check_student_id(sid)
+        if len(row) > 1:
+            name1 = _read_unicode_string(row[1],
+                                         'error_student_list_encoding')
+        if len(row) > 2:
+            item = _read_unicode_string(row[2],
+                                        'error_student_list_encoding')
+            if _check_email(item):
+                email = item
+            else:
+                name2 = item
+        if len(row) > 3:
+            item = _read_unicode_string(row[3],
+                                        'error_student_list_encoding')
+            if _check_email(item):
+                email = item
+        if not name2:
+            full_name = name1
+            first_name = ''
+            last_name = ''
+        else:
+            full_name = ''
+            first_name = name1
+            last_name = name2
+        student_ids.append((sid, full_name, first_name, last_name, email))
     if csvfile is not None:
         csvfile.close()
     return student_ids
+
+def _read_unicode_string(text, error_key):
+    try:
+        value = unicode(text, config['default-charset'])
+    except ValueError:
+        raise EyegradeException('Error while processing {0} data'\
+                                .format(config['default-charset']),
+                                key=error_key)
+    return value
 
 
 class _UTF8Recoder:
@@ -408,24 +433,16 @@ def _check_email(email):
     else:
         return False
 
-def read_student_ids_multiple(filenames, with_names=False):
+def read_student_ids_multiple(filenames):
     """Reads student ids from multiple files.
 
-    `filenames` is an iterable of filenames. It may be empty. `with_names`
-    has the same meaning as in `read_student_ids(...)`.
-
-    Returns a combined list or dictionary, depending on the value of
-    `with_names`.
+    `filenames` is an iterable of filenames. It may be empty.
+    Returns a dictionary.
 
     """
-    if not with_names:
-        st = []
-        for f in filenames:
-            st.extend(read_student_ids(filename=f, with_names=False))
-    else:
-        st = {}
-        for f in filenames:
-            st.update(read_student_ids(filename=f, with_names=True))
+    st = {}
+    for f in filenames:
+        st.update(read_student_ids(filename=f))
     return st
 
 def mix_results(results_filename, student_list_filename, dump_missing,
@@ -481,7 +498,7 @@ def write_grades(grades, file_, csv_dialect):
        Results are a list of tuples student_id, good_answers, bad_answers.
 
     """
-    writer = csv.writer(file_, dialect = csv_dialect)
+    writer = csv.writer(file_, dialect=csv_dialect)
     for grade in grades:
         writer.writerow(grade)
 
@@ -667,23 +684,54 @@ class Score(object):
 
 
 class Student(object):
-    def __init__(self, db_id, student_id, name, email, group_id,
+    def __init__(self, db_id, student_id, full_name,
+                 first_name, last_name, email, group_id,
                  sequence_num, is_in_database=False):
+        if full_name and (first_name or last_name):
+            raise ValueError('Full name incompatible with first / last name')
         self.db_id = db_id
         self.student_id = student_id
-        self.name = name
+        self.full_name = full_name
+        self.first_name = first_name
+        self.last_name = last_name
         self.email = email
         self.group_id = group_id
         self.sequence_num = sequence_num
         self.is_in_database = is_in_database
 
-    def get_id_and_name(self):
+    @property
+    def name(self):
+        if self.full_name:
+            return self.full_name
+        elif self.last_name:
+            if self.first_name:
+                return '{0} {1}'.format(self.first_name, self.last_name)
+            else:
+                return self.last_name
+        elif self.first_name:
+            return self.first_name
+        else:
+            return ''
+
+    @property
+    def last_comma_first_name(self):
+        if self.last_name:
+            if self.first_name:
+                return '{0}, {1}'.format(self.last_name, self.first_name)
+            else:
+                return self.last_name
+        else:
+            return self.name
+
+    @property
+    def id_and_name(self):
         if self.name:
             return ' '.join((self.student_id, self.name))
         else:
             return self.student_id
 
-    def get_name_or_id(self):
+    @property
+    def name_or_id(self):
         if self.name:
             return self.name
         elif self.student_id:
@@ -692,7 +740,7 @@ class Student(object):
             return ''
 
     def __unicode__(self):
-        return u'student: ' + self.get_id_and_name()
+        return u'student: ' + self.id_and_name
 
 
 class StudentGroup(object):
@@ -757,14 +805,14 @@ class Exam(object):
                                  in sorted(rank, reverse = True)]
             else:
                 students_rank = [Student(None, self.decisions.detected_id,
-                                         None, None, None, None)]
+                                         None, None, None, None, None, None)]
         else:
             students_rank = list(self.students.itervalues())
         return students_rank
 
     def get_student_id_and_name(self):
         if self.decisions.student is not None:
-            return self.decisions.student.get_id_and_name()
+            return self.decisions.student.id_and_name
         else:
             return None
 
@@ -786,20 +834,13 @@ class Exam(object):
             rank = self.decisions.students_rank
         return rank
 
-    def update_student_id(self, new_id, name=None):
+    def update_student_id(self, student):
         """Updates the student id of the current exam.
 
-        If a student name is given and there is no name for the
-        student, this name is added to the list of extra student
-        names, with validity only for this exam.
+        Receives the Student object of the new identity
+        (or None for clearing the student identity).
 
         """
-        if new_id is None or new_id == '-1':
-            student = None
-        elif new_id in self.students:
-            student = self.students[new_id]
-        else:
-            student = Student(None, new_id, name, None, None, None)
         self.decisions.set_student(student)
 
     def _id_rank(self, student, scores):

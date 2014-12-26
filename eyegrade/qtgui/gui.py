@@ -725,9 +725,7 @@ class Interface(object):
     def dialog_student_id(self, student_ids):
         """Displays a dialog to change the student id.
 
-        A string with the option selected by the user (possibly
-        student id and name) is returned.
-
+        Returns a student object with the option selected by the user.
         The return value is None if the user cancels the dialog.
 
         """
