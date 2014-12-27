@@ -413,7 +413,8 @@ class ProgramManager(object):
                                       self.exam_data.get_solutions(model),
                                       self.sessiondb.students,
                                       self.exam_id,
-                                      self.exam_data.score_weights)
+                                      self.exam_data.score_weights,
+                                      sessiondb=self.sessiondb)
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
                     msg = _('There are no solutions for model {0}.')\
@@ -541,7 +542,8 @@ class ProgramManager(object):
             detector = self.latest_detector
             self.exam = utils.Exam(detector.capture, detector.decisions,
                                    [], self.sessiondb.students,
-                                   self.exam_id, self.exam_data.score_weights)
+                                   self.exam_id, self.exam_data.score_weights,
+                                   sessiondb=self.sessiondb)
             self.exam.reset_image()
             enable_manual_detection = True
         else:
@@ -589,7 +591,8 @@ class ProgramManager(object):
             self.exam = utils.Exam(self.latest_detector.capture,
                                    self.latest_detector.decisions,
                                    [], self.sessiondb.students,
-                                   self.exam_id, self.exam_data.score_weights)
+                                   self.exam_id, self.exam_data.score_weights,
+                                   sessiondb=self.sessiondb)
         self.exam.reset_image()
         self._start_manual_detect_mode()
 
@@ -745,11 +748,7 @@ class ProgramManager(object):
         self._activate_session_mode()
 
     def _store_capture_and_add(self):
-        capture = self.exam.capture
         self._store_capture(self.exam)
-        # self.exam needs to be replaced by an exam object from the DB
-        self.exam = self.sessiondb.read_exam(self.exam_id)
-        self.exam.capture = capture
         self.interface.add_exam(self.exam)
 
     def _store_capture_and_update(self):

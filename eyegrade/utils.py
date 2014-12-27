@@ -754,7 +754,7 @@ class StudentGroup(object):
 
 class Exam(object):
     def __init__(self, capture_, decisions, solutions, valid_students,
-                 exam_id, score_weights):
+                 exam_id, score_weights, sessiondb=None):
         self.capture = capture_
         self.decisions = decisions
         if valid_students is not None:
@@ -767,6 +767,7 @@ class Exam(object):
         self.decisions.set_students_rank(rank)
         if len(rank) > 0:
             self.decisions.set_student(rank[0])
+        self.sessiondb = sessiondb
 
     def update_grade(self):
         self.score.update()
@@ -842,6 +843,19 @@ class Exam(object):
 
         """
         self.decisions.set_student(student)
+
+    def load_capture(self):
+        if self.capture is None:
+            self.capture = self.sessiondb.read_capture(self.exam_id)
+
+    def clear_capture(self):
+        if self.capture is not None:
+            self.capture = None
+
+    def image_drawn_path(self):
+        image_name = capture_name(self.sessiondb.exam_config.capture_pattern,
+                                  self.exam_id, self.decisions.student)
+        return os.path.join(self.sessiondb.session_dir, 'captures', image_name)
 
     def _id_rank(self, student, scores):
         rank = 0.0
