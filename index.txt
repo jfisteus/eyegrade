@@ -35,6 +35,10 @@ News
 | `Read more news at the blog <blog/index.html>`_
 
 
+**[Dec 28, 2014]**
+Advancing the features of the upcoming eyegrade 0.5.
+See the `blog post <blog/posts/what-will-eyegrade-05-include-part-1.html>`__.
+
 **[Nov 28, 2014]**
 Eyegrade 0.4.4 has been released!
 This version fixes a bug caused by the bug fix of release 0.4.3.
