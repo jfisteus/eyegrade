@@ -17,6 +17,10 @@
   <lastmod>2014-12-28</lastmod>
  </sitemap>
  <sitemap>
+  <loc>http://www.eyegrade.org/blog/categories/new-features.xml</loc>
+  <lastmod>2014-12-28</lastmod>
+ </sitemap>
+ <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/pyqt.xml</loc>
   <lastmod>2014-12-28</lastmod>
  </sitemap>

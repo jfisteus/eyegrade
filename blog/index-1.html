@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="description" content="Blog for the free software tool Eyegrade">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eyegrade (old posts, page 1) | Eyegrade</title>
+
+    
+            <link href="../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+
+    
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+
+      <link rel="canonical" href="http://www.eyegrade.org/blog/index-1.html">
+
+
+
+        <link rel="prev" href="index.html" type="text/html">
+
+    
+        <!--[if lt IE 9]><script src="../assets/js/html5.js"></script><![endif]-->
+
+    
+
+
+
+
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://www.eyegrade.org/">
+                <img src="../assets/img/title-logo.svg" alt="Eyegrade" id="logo">
+
+                <span id="blog-title">Eyegrade</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                
+                <li>
+<a href="../download.html">Download</a>
+                </li>
+<li>
+<a href="../documentation.html">Documentation</a>
+                </li>
+<li>
+<a href="https://github.com/jfisteus/eyegrade/">GitHub</a>
+                </li>
+<li>
+<a href="index.html">Blog</a>
+                </li>
+<li>
+<a href="archive.html">Blog archive</a>
+                </li>
+<li>
+<a href="categories/index.html">Blog tags</a>
+                </li>
+<li>
+<a href="rss.xml">RSS feed</a>
+
+                
+            </li>
+</ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                    
+                
+            </ul>
+        </div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav>
+
+<!-- End of Menubar -->
+
+<div class="container" id="content">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<div class="postindex">
+    <article class="h-entry post-text">
+    <header>
+        <h1 class="p-name entry-title"><a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html" class="u-url">Teaser of the new PyQt-based eyegrade user interface</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html" rel="bookmark"><time class="published dt-published" datetime="2013-01-02T13:30:00+00:00" itemprop="datePublished" title="2013-01-02 13:30">2013-01-02 13:30</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html#disqus_thread" data-disqus-identifier="cache/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>I'm programming from scratch the graphical user interface of
+Eyegrade. The old user interface uses Pygame. It allowed me to build
+the first interface of the program very quickly, but its lack of
+graphical components (buttons, dialogues, menus, etc.) was preventing me
+from programming a more user-friendly interface.  I've decided to use
+<a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/">PyQt</a> for the
+new interface. Why PyQt? I programmed a game with Qt in C++ many years
+ago, and I liked the library a lot. With the python bindings, it is
+even easier to use.</p>
+<p>The new user interface will be released with Eyegrade 0.2 (hopefully,
+before the end of January). Check the first <a class="reference external" href="../galleries/screenshots-new-gui-1/">screenshots gallery</a>!</p>
+<div class="figure">
+<img alt="Screenshot of the new user interface of Eyegrade" class="thumbnail" src="../galleries/screenshots-new-gui-1/screenshot-4.png">
+</div>
+<p>Right now the program does more or less the same as the old interface,
+but it will be easier to add new features in the future.</p>
+<p>The brave can give it a try before the release (it is available at the
+<a class="reference external" href="https://github.com/jfisteus/eyegrade">development branch of Eyegrade at GitHub</a>). Suggestions are welcome
+(just post a comment here or write me an email.) I have tested it only
+in Linux, although it should work in Windows too. If you try it, notice that:</p>
+<ul class="simple">
+<li>You need PyQt (package <em>python-qt4</em> in Debian and Ubuntu).</li>
+<li>There is no <cite>src</cite> directory anymore. Following the Python
+conventions, the Python files are now directly under the <cite>eyegrade</cite>
+subdirectory of the main directory of the project.</li>
+<li>The main program does not receive command line arguments. The <cite>.eye</cite>
+file and student list are selected at the <em>new session</em> dialog.</li>
+</ul>
+</div>
+    </div>
+    </article>
+</div>
+
+        <nav class="postindexpager">
+        <ul class="pager">
+            <li class="previous">
+                <a href="index.html" rel="prev">Newer posts</a>
+            </li>
+        </ul>
+        </nav>
+
+
+        
+       <script>var disqus_shortname="eyegrade";(function(){var a=document.createElement("script");a.async=true;a.src="//"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script>
+
+
+
+
+
+        </div>
+        <!--End of body content-->
+
+        <footer>
+            Contents © 2014         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+    </div>
+</div>
+
+
+            <script src="../assets/js/all-nocdn.js"></script>
+    
+<!-- Social buttons -->
+<div id="addthisbox" class="addthis_toolbox addthis_peekaboo_style addthis_default_style addthis_label_style addthis_32x32_style">
+<a class="addthis_button_more">Share</a>
+<ul>
+<li>
+<a class="addthis_button_facebook"></a>
+</li>
+<li>
+<a class="addthis_button_google_plusone_share"></a>
+</li>
+<li>
+<a class="addthis_button_linkedin"></a>
+</li>
+<li>
+<a class="addthis_button_twitter"></a>
+</li>
+</ul>
+</div>
+<script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-4f7088a56bb93798"></script>
+<!-- End of social buttons -->
+
+
+    <script>jQuery("a.image-reference").colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script>
+    <!-- fancy dates -->
+    <script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script>
+    <!-- end fancy dates -->
+    
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-42957388-1', 'eyegrade.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</body>
+</html>

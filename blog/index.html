@@ -16,6 +16,7 @@
 
 
 
+        <link rel="next" href="index-1.html" type="text/html">
 
     
         <!--[if lt IE 9]><script src="../assets/js/html5.js"></script><![endif]-->
@@ -97,6 +98,53 @@
             
             
 <div class="postindex">
+    <article class="h-entry post-text">
+    <header>
+        <h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-05-include-part-1.html" class="u-url">What will eyegrade 0.5 include? (part 1)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/what-will-eyegrade-05-include-part-1.html" rel="bookmark"><time class="published dt-published" datetime="2014-12-28T13:46:16+00:00" itemprop="datePublished" title="2014-12-28 13:46">2014-12-28 13:46</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/what-will-eyegrade-05-include-part-1.html#disqus_thread" data-disqus-identifier="cache/posts/what-will-eyegrade-05-include-part-1.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>Apart from fixing some minor issues here and there,
+I'm currently busy adding some new features to eyegrade.
+Some of them are already integrated into the
+<a class="reference external" href="https://github.com/jfisteus/eyegrade/tree/development">development branch at GitHub</a>.
+The plan is releasing them with eyegrade 0.5 sometime in January.
+I'm not sure yet which new features will make it into the release but,
+starting with this post,
+I'll describe some of them once they are more or less ready.</p>
+<p>The first feature I'll talk about is actually a fix
+for a counter-intuitive behavior
+of the right-side view of exams
+(the one I introduced in eyegrade 0.3
+that shows miniatures of the exams
+that have been graded in the current session).
+Up to now,
+the miniature was not immediately updated
+when the webcam captured a new exam
+or you edited something on a previously graded exam.
+It was updated later, when you changed to another exam
+or started to grade a new one.
+That was somewhat confusing for many users.
+From version 0.5 onward
+the miniatures will get updated immediately
+when the webcam captures a new exam or you edit an exam.
+I believe that having that immediate feedback
+will improve the overall user experience.</p>
+<p>More posts will follow with the description of other
+new features.</p>
+</div>
+    </div>
+    </article>
     <article class="h-entry post-text">
     <header>
         <h1 class="p-name entry-title"><a href="posts/eyegrade-044-released.html" class="u-url">Eyegrade 0.4.4 released</a></h1>
@@ -452,55 +500,15 @@ command line tools that Eyegrade provides.</p>
 </div>
     </div>
     </article>
-    <article class="h-entry post-text">
-    <header>
-        <h1 class="p-name entry-title"><a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html" class="u-url">Teaser of the new PyQt-based eyegrade user interface</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html" rel="bookmark"><time class="published dt-published" datetime="2013-01-02T13:30:00+00:00" itemprop="datePublished" title="2013-01-02 13:30">2013-01-02 13:30</time></a></p>
-                <p class="commentline">
-        
-    <a href="posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html#disqus_thread" data-disqus-identifier="cache/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html">Comments</a>
-
-
-        </p>
-</div>
-    </header>
-    <div class="e-content entry-content">
-    <div>
-<p>I'm programming from scratch the graphical user interface of
-Eyegrade. The old user interface uses Pygame. It allowed me to build
-the first interface of the program very quickly, but its lack of
-graphical components (buttons, dialogues, menus, etc.) was preventing me
-from programming a more user-friendly interface.  I've decided to use
-<a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/">PyQt</a> for the
-new interface. Why PyQt? I programmed a game with Qt in C++ many years
-ago, and I liked the library a lot. With the python bindings, it is
-even easier to use.</p>
-<p>The new user interface will be released with Eyegrade 0.2 (hopefully,
-before the end of January). Check the first <a class="reference external" href="../galleries/screenshots-new-gui-1/">screenshots gallery</a>!</p>
-<div class="figure">
-<img alt="Screenshot of the new user interface of Eyegrade" class="thumbnail" src="../galleries/screenshots-new-gui-1/screenshot-4.png">
-</div>
-<p>Right now the program does more or less the same as the old interface,
-but it will be easier to add new features in the future.</p>
-<p>The brave can give it a try before the release (it is available at the
-<a class="reference external" href="https://github.com/jfisteus/eyegrade">development branch of Eyegrade at GitHub</a>). Suggestions are welcome
-(just post a comment here or write me an email.) I have tested it only
-in Linux, although it should work in Windows too. If you try it, notice that:</p>
-<ul class="simple">
-<li>You need PyQt (package <em>python-qt4</em> in Debian and Ubuntu).</li>
-<li>There is no <cite>src</cite> directory anymore. Following the Python
-conventions, the Python files are now directly under the <cite>eyegrade</cite>
-subdirectory of the main directory of the project.</li>
-<li>The main program does not receive command line arguments. The <cite>.eye</cite>
-file and student list are selected at the <em>new session</em> dialog.</li>
-</ul>
-</div>
-    </div>
-    </article>
 </div>
 
+        <nav class="postindexpager">
+        <ul class="pager">
+            <li class="next">
+                <a href="index-1.html" rel="next">Older posts</a>
+            </li>
+        </ul>
+        </nav>
 
 
         
