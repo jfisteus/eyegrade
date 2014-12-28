@@ -150,14 +150,15 @@ class NewSessionPageScores(QWizardPage):
         """Loads the values from the exam config, if any."""
         if (not self.correct_score.text() and not self.correct_score.text()
             and not self.blank_score.text()):
-            # Change values only if they have been not been set manually
-            weights = self.wizard().exam_config.score_weights
-            if weights is not None:
-                self.correct_score.setText(self._format_score(weights[0],
-                                                              True))
-                self.incorrect_score.setText(self._format_score(weights[1],
-                                                                False))
-                self.blank_score.setText(self._format_score(weights[2], False))
+            # Change values only if they have not been set manually
+            scores = self.wizard().exam_config.base_scores
+            if scores is not None:
+                self.correct_score.setText(scores.format_score( \
+                               utils.QuestionScores.CORRECT, signed=False))
+                self.incorrect_score.setText(scores.format_score( \
+                               utils.QuestionScores.INCORRECT, signed=True))
+                self.blank_score.setText(scores.format_score( \
+                               utils.QuestionScores.BLANK, signed=True))
         # If the exam is a survey, disable all the controls
         if self.wizard().exam_config.survey_mode:
             self.correct_score.setEnabled(False)
@@ -238,7 +239,9 @@ class NewSessionPageScores(QWizardPage):
             else:
                 scores = None
             if valid:
-                self.wizard().exam_config.score_weights = scores
+                base_scores = utils.QuestionScores(*scores)
+                self.wizard().exam_config.set_base_scores(base_scores,
+                                                          same_weights=True)
         return valid
 
     def _format_score(self, value, is_positive):

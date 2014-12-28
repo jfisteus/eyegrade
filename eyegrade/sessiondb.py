@@ -581,19 +581,23 @@ class SessionDB(object):
             True if row['survey_mode'] else False
         self.exam_config.left_to_right_numbering = \
             True if row['left_to_right_numbering'] else False
+        self.exam_config.capture_pattern = row['capture_pattern']
         if row['correct_weight'] is not None:
-            self.exam_config.set_score_weights(row['correct_weight'],
+            # This must be done after having set the solutions
+            base_scores = utils.QuestionScores(row['correct_weight'],
                                                row['incorrect_weight'],
                                                row['blank_weight'])
         else:
-            self.exam_config.score_weights = None
-        self.exam_config.capture_pattern = row['capture_pattern']
+            base_scores = None
         for row in cursor.execute('SELECT * FROM Solutions'):
             self.exam_config.set_solutions(_Adapter.dec_model(row['model']),
                                            row['solutions'])
         for row in cursor.execute('SELECT * FROM Permutations'):
             self.exam_config.set_permutations(_Adapter.dec_model(row['model']),
                                               row['permutations'])
+        if base_scores is not None:
+            # This must be done after having set the solutions
+            self.exam_config.set_base_scores(base_scores, same_weights=True)
         return self.exam_config
 
     def _update_answer(self, exam_id, question, new_answer, commit=True):
@@ -709,8 +713,8 @@ class ExamFromDB(utils.Exam):
                                          sessiondb.default_students_rank,
                                          _Adapter.dec_model(db_dict['model']))
         solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
-        score_weights = sessiondb.exam_config.score_weights
-        self.score = utils.Score(answers, solutions, score_weights)
+        question_scores = sessiondb.exam_config.scores[self.decisions.model]
+        self.score = utils.Score(answers, solutions, question_scores)
 
 
 class ExamDecisionsFromDB(capture.ExamDecisions):
@@ -793,19 +797,23 @@ def _create_tables(conn):
     cursor.execute('INSERT INTO StudentGroups VALUES (0, "INSERTED")')
 
 def _save_exam_config(conn, exam_data):
-    if exam_data.score_weights is None:
+    if exam_data.base_scores is None:
         weights = (None, None, None)
     else:
-        weights = exam_data.score_weights
+        weights = (
+            exam_data.base_scores.format_score(utils.QuestionScores.CORRECT),
+            exam_data.base_scores.format_score(utils.QuestionScores.INCORRECT),
+            exam_data.base_scores.format_score(utils.QuestionScores.BLANK)
+        )
     cursor = conn.cursor()
     cursor.execute('INSERT INTO Session '
                    'VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)',
         (SessionDB.DB_SCHEMA_VERSION,
          utils.version,
          exam_data.format_dimensions(),
-         exam_data.format_weight(weights[0]),
-         exam_data.format_weight(weights[1]),
-         exam_data.format_weight(weights[2]),
+         weights[0],
+         weights[1],
+         weights[2],
          exam_data.id_num_digits,
          1 if exam_data.survey_mode else 0,
          1 if exam_data.left_to_right_numbering else 0,

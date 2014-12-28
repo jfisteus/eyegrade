@@ -413,7 +413,7 @@ class ProgramManager(object):
                                       self.exam_data.get_solutions(model),
                                       self.sessiondb.students,
                                       self.exam_id,
-                                      self.exam_data.score_weights,
+                                      self.exam_data.scores[model],
                                       sessiondb=self.sessiondb)
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
@@ -542,7 +542,7 @@ class ProgramManager(object):
             detector = self.latest_detector
             self.exam = utils.Exam(detector.capture, detector.decisions,
                                    [], self.sessiondb.students,
-                                   self.exam_id, self.exam_data.score_weights,
+                                   self.exam_id, None,
                                    sessiondb=self.sessiondb)
             self.exam.reset_image()
             enable_manual_detection = True
@@ -591,7 +591,7 @@ class ProgramManager(object):
             self.exam = utils.Exam(self.latest_detector.capture,
                                    self.latest_detector.decisions,
                                    [], self.sessiondb.students,
-                                   self.exam_id, self.exam_data.score_weights,
+                                   self.exam_id, None,
                                    sessiondb=self.sessiondb)
         self.exam.reset_image()
         self._start_manual_detect_mode()

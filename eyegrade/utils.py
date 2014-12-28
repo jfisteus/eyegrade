@@ -205,6 +205,40 @@ class ExportSortKey(object):
     GRADING_SEQUENCE = 3
 
 
+class ComparableMixin(object):
+    """For implementing comparable classes.
+
+    As seen on http://regebro.wordpress.com/2010/12/13/
+                      python-implementing-rich-comparison-the-correct-way/
+
+    """
+    def _compare(self, other, method):
+        try:
+            return method(self._cmpkey(), other._cmpkey())
+        except (AttributeError, TypeError):
+            # _cmpkey not implemented, or return different type,
+            # so I can't compare with "other".
+            return NotImplemented
+
+    def __lt__(self, other):
+        return self._compare(other, lambda s,o: s < o)
+
+    def __le__(self, other):
+        return self._compare(other, lambda s,o: s <= o)
+
+    def __eq__(self, other):
+       return self._compare(other, lambda s,o: s == o)
+
+    def __ge__(self, other):
+        return self._compare(other, lambda s,o: s >= o)
+
+    def __gt__(self, other):
+        return self._compare(other, lambda s,o: s > o)
+
+    def __ne__(self, other):
+        return self._compare(other, lambda s,o: s != o)
+
+
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
     if path.endswith('.zip'):
@@ -644,7 +678,13 @@ def increment_list(list_):
 
 
 class Score(object):
-    def __init__(self, answers, solutions, score_weights):
+    def __init__(self, answers, solutions, question_scores):
+        if (answers is not None and solutions is not None
+            and len(answers) != len(solutions)):
+            raise ValueError('Parameters must have the same length in Score')
+        if (solutions is not None and question_scores is not None
+            and len(solutions) != len(question_scores)):
+            raise ValueError('Parameters must have the same length in Score')
         self.correct = None
         self.incorrect = None
         self.blank = None
@@ -652,35 +692,34 @@ class Score(object):
         self.max_score = None
         self.answers = answers
         self.solutions = solutions
-        self.score_weights = score_weights
+        self.question_scores = question_scores
         if answers and solutions:
             self.update()
 
     def update(self):
-        self._count_answers()
-        if self.score_weights is not None:
-            self._compute_score()
-        else:
-            self.score = None
-            self.max_score = None
-
-    def _count_answers(self):
         self.correct = 0
         self.incorrect = 0
         self.blank = 0
+        question_status = []
         for answer, solution in zip(self.answers, self.solutions):
             if answer == 0:
                 self.blank += 1
+                question_status.append(QuestionScores.BLANK)
             elif answer == solution:
                 self.correct += 1
+                question_status.append(QuestionScores.CORRECT)
             else:
                 self.incorrect += 1
-
-    def _compute_score(self):
-        self.score = float(self.correct * self.score_weights[0]
-                           - self.incorrect * self.score_weights[1]
-                           - self.blank * self.score_weights[2])
-        self.max_score = float(len(self.answers) * self.score_weights[0])
+                question_status.append(QuestionScores.INCORRECT)
+        if self.question_scores is not None:
+            self.score = float(sum([q.score(status) \
+                                    for q, status in zip(self.question_scores,
+                                                         question_status)]))
+            self.max_score = float(sum([q.score(QuestionScores.CORRECT)
+                                        for q in self.question_scores]))
+        else:
+            self.score = None
+            self.max_score = None
 
 
 class Student(object):
@@ -754,7 +793,7 @@ class StudentGroup(object):
 
 class Exam(object):
     def __init__(self, capture_, decisions, solutions, valid_students,
-                 exam_id, score_weights, sessiondb=None):
+                 exam_id, question_scores, sessiondb=None):
         self.capture = capture_
         self.decisions = decisions
         if valid_students is not None:
@@ -762,7 +801,7 @@ class Exam(object):
         else:
             self.students = {}
         self.exam_id = exam_id
-        self.score = Score(decisions.answers, solutions, score_weights)
+        self.score = Score(decisions.answers, solutions, question_scores)
         rank = self.rank_students()
         self.decisions.set_students_rank(rank)
         if len(rank) > 0:
@@ -888,16 +927,22 @@ class ExamConfig(object):
             self.dimensions = []
             self.permutations = {}
             self.models = []
-            self.score_weights = None
+            self.scores = {}
+            self.base_scores = None
             self.left_to_right_numbering = False
             self.survey_mode = None
+
+    def add_model(self, model):
+        if not model in self.models:
+            self.models.append(model)
 
     def set_solutions(self, model, solutions):
         if not isinstance(solutions, list):
             solutions = self._parse_solutions(solutions)
+        if len(solutions) != self.num_questions:
+            raise ValueError('Solutions with an incorrect number of questions')
         self.solutions[model] = solutions
-        if not model in self.models:
-            self.models.append(model)
+        self.add_model(model)
 
     def get_solutions(self, model):
         """Returns the solutions for the given model.
@@ -918,19 +963,75 @@ class ExamConfig(object):
         if not isinstance(permutations, list):
             permutations = self._parse_permutations(permutations)
         self.permutations[model] = permutations
+        self.add_model(model)
 
     def set_dimensions(self, dimensions):
         self.dimensions, self.num_options = parse_dimensions(dimensions)
         self.num_questions = sum(dim[1] for dim in self.dimensions)
 
-    def set_score_weights(self, correct_weight, incorrect_weight, blank_weight):
-        if isinstance(correct_weight, basestring):
-            correct_weight = self._parse_score(correct_weight)
-        if isinstance(incorrect_weight, basestring):
-            incorrect_weight = self._parse_score(incorrect_weight)
-        if isinstance(blank_weight, basestring):
-            blank_weight = self._parse_score(blank_weight)
-        self.score_weights = (correct_weight, incorrect_weight, blank_weight)
+    def set_base_scores(self, scores, same_weights=False):
+        """Set the base scores for the questions of this exam.
+
+        The `scores` parameter must be an instance of QuestionScores.
+        It must be done before setting the weights of each question.
+
+        """
+        if scores.weight != 1:
+            raise ValueError('The base score must have weigth 1')
+        self.base_scores = scores
+        if same_weights:
+            for model in self.models:
+                self.set_equal_scores(model)
+
+    def set_equal_scores(self, model):
+        """Set the base scores for the questions of this exam.
+
+        The `scores` parameter must be an instance of QuestionScores.
+        It must be done before setting the weights of each question.
+
+        """
+        if self.base_scores is None:
+            raise ValueError('Invalid state at ExamConfig: no base_scores set')
+        scores = [self.base_scores.clone(new_weight=1) \
+                  for i in range(self.num_questions)]
+        self.set_question_scores(model, scores, check_base_scores=False)
+
+    def set_question_weights(self, model, weights):
+        """Set the scores for a given model from question weights.
+
+        The `weights` parameter can be a list with the weight of each
+        question of that model.
+        The final scores must be the same as in the scores for the rest of
+        the models, possibly in a different order.
+
+        A base score must have already been set.
+
+        """
+        if self.base_scores is None:
+            raise ValueError('Invalid state at ExamConfig: no base_scores set')
+        scores = [self.base_scores.clone(new_weight=weight) \
+                  for weight in weights]
+        self.set_question_scores(model, scores, check_base_scores=False)
+
+    def set_question_scores(self, model, scores, check_base_scores=True):
+        """Set the scores for a given model from question weights.
+
+        The `scores` parameter must be a list of QuestionScores objects.
+        The scores must be the same as in the scores for the rest of
+        the models, possibly in a different order.
+
+        A base score cannot have already been set.
+
+        """
+        if check_base_scores and self.base_scores is not None:
+            raise ValueError('Invalid state at ExamConfig: base_scores is set')
+        if len(scores) != self.num_questions:
+            raise ValueError('Scores with an incorrect number of questions')
+        if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
+            raise ValueError('Scores for all models must be equal '
+                             'but their order')
+        self.scores[model] = scores
+        self.add_model(model)
 
     def get_num_choices(self):
         """Returns the number of choices per question.
@@ -994,16 +1095,17 @@ class ExamConfig(object):
         has_correct_weight = exam_data.has_option('exam', 'correct-weight')
         has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
         has_blank_weight = exam_data.has_option('exam', 'blank-weight')
+        self.scores = {}
         if has_correct_weight and has_incorrect_weight:
-            cw = self._parse_score(exam_data.get('exam', 'correct-weight'))
-            iw = self._parse_score(exam_data.get('exam', 'incorrect-weight'))
+            cw = exam_data.get('exam', 'correct-weight')
+            iw = exam_data.get('exam', 'incorrect-weight')
             if has_blank_weight:
-                bw = self._parse_score(exam_data.get('exam', 'blank-weight'))
+                bw = exam_data.get('exam', 'blank-weight')
             else:
-                bw = 0.0
-            self.score_weights = (cw, iw, bw)
+                bw = 0
+            self.set_base_scores(QuestionScores(cw, iw, bw), same_weights=True)
         elif not has_correct_weight and not has_incorrect_weight:
-            self.score_weights = None
+            self.base_scores = None
         else:
             raise Exception('Exam config must contain correct and incorrect '
                             'weight or none')
@@ -1027,13 +1129,13 @@ class ExamConfig(object):
             data.append('left-to-right-numbering: yes')
         if self.survey_mode:
             data.append('survey-mode: yes')
-        if self.score_weights is not None:
-            data.append(('correct-weight: '
-                         + self.format_weight(self.score_weights[0])))
-            data.append(('incorrect-weight: '
-                         + self.format_weight(self.score_weights[1])))
-            data.append(('blank-weight: '
-                         + self.format_weight(self.score_weights[2])))
+        if self.base_scores is not None:
+            data.append('correct-weight: {0}'\
+              .format(self.base_scores.format_score(QuestionScores.CORRECT)))
+            data.append('incorrect-weight: {0}'\
+              .format(self.base_scores.format_score(QuestionScores.INCORRECT)))
+            data.append('blank-weight: {0}'\
+              .format(self.base_scores.format_score(QuestionScores.BLANK)))
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')
@@ -1050,19 +1152,6 @@ class ExamConfig(object):
         file_ = open(filename, 'w')
         file_.write('\n'.join(data))
         file_.close()
-
-    def format_weight(self, weight):
-        if weight is None:
-            return None
-        elif type(weight) == fractions.Fraction:
-            if weight.denominator != 1:
-                return '{0}/{1}'.format(weight.numerator, weight.denominator)
-            else:
-                return str(weight.numerator)
-        elif type(weight) == float:
-            return '{0:.16f}'.format(weight)
-        else:
-            return str(weight)
 
     def format_dimensions(self):
         return ';'.join(['%d,%d'%(cols, rows) \
@@ -1099,16 +1188,102 @@ class ExamConfig(object):
             permutation.append((num_question, options))
         return permutation
 
+
+class QuestionScores(ComparableMixin):
+    """Compute the score of a question."""
+    CORRECT = 1
+    INCORRECT = 2
+    BLANK = 3
+
+    def __init__(self, correct_score, incorrect_score, blank_score,
+                 weight=1):
+        if isinstance(correct_score, basestring):
+            self.correct_score = self._parse_score(correct_score)
+        else:
+            self.correct_score = correct_score
+        if isinstance(incorrect_score, basestring):
+            self.incorrect_score = self._parse_score(incorrect_score)
+        else:
+            self.incorrect_score = incorrect_score
+        if isinstance(blank_score, basestring):
+            self.blank_score = self._parse_score(blank_score)
+        else:
+            self.blank_score = blank_score
+        if isinstance(weight, basestring):
+            self.weight = self._parse_score(weight)
+        else:
+            self.weight = weight
+
+    def score(self, answer_type):
+        if answer_type == QuestionScores.CORRECT:
+            return self.weight * self.correct_score
+        elif answer_type == QuestionScores.INCORRECT:
+            return -self.weight * self.incorrect_score
+        elif answer_type == QuestionScores.BLANK:
+            return -self.weight * self.blank_score
+        else:
+            raise Exception('Bad answer_type value in QuestionScore')
+
+    def format_all(self):
+        data = (self._format_score(self.weight * self.correct_score),
+                self._format_score(self.weight * self.incorrect_score),
+                self._format_score(self.weight * self.blank_score))
+        return ';'.join(data)
+
+    def format_weight(self):
+        return self._format_score(self.weight)
+
+    def format_score(self, answer_type, signed=False):
+        if answer_type == QuestionScores.CORRECT:
+            return self._format_score(self.correct_score, signed=False)
+        elif answer_type == QuestionScores.INCORRECT:
+            return self._format_score(self.incorrect_score, signed=signed)
+        elif answer_type == QuestionScores.BLANK:
+            return self._format_score(self.blank_score, signed=signed)
+        else:
+            raise ValueError('Bad answer_type value in QuestionScore')
+
+    def clone(self, new_weight=None):
+        if new_weight is not None:
+            weight = new_weight
+        else:
+            weight = self.weight
+        return QuestionScores(self.correct_score, self.incorrect_score,
+                              self.blank_score, weight=weight)
+
     def _parse_score(self, score):
         if score.find('-') != -1:
-            raise Exception('Scores in exam config must be positive'%score)
+            raise ValueError('Scores in exam config must be positive: "{0}"'\
+                             .format(score))
         if not _re_score.match(score):
-            raise Exception('Bad score value: "{0}"'.format(score))
+            raise ValueError('Bad score value: "{0}"'.format(score))
         parts = [p.strip() for p in score.split('/')]
         if len(parts) == 1:
-            return float(parts[0])
+            if not '.' in score:
+                return int(score)
+            else:
+                return float(score)
         elif len(parts) == 2:
             return fractions.Fraction(int(parts[0]), int(parts[1]))
+
+    def _format_score(self, score, signed=False):
+        if signed:
+            score = -score
+        if score is None:
+            return None
+        elif type(score) == fractions.Fraction:
+            if score.denominator != 1:
+                return '{0}/{1}'.format(score.numerator, score.denominator)
+            else:
+                return str(score.numerator)
+        elif type(score) == float:
+            return '{0:.16f}'.format(score)
+        else:
+            return str(score)
+
+    def _cmpkey(self):
+        return (self.correct_score, self.incorrect_score,
+                self.blank_score, self.weight)
 
 
 def parse_dimensions(text, check_equal_num_choices=False):
