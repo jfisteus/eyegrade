@@ -690,31 +690,32 @@ class Score(object):
         self.blank = None
         self.score = None
         self.max_score = None
+        self.answer_status = None
         self.answers = answers
         self.solutions = solutions
         self.question_scores = question_scores
-        if answers and solutions:
+        if answers is not None and solutions is not None:
             self.update()
 
     def update(self):
         self.correct = 0
         self.incorrect = 0
         self.blank = 0
-        question_status = []
+        self.answer_status = []
         for answer, solution in zip(self.answers, self.solutions):
             if answer == 0:
                 self.blank += 1
-                question_status.append(QuestionScores.BLANK)
+                self.answer_status.append(QuestionScores.BLANK)
             elif answer == solution:
                 self.correct += 1
-                question_status.append(QuestionScores.CORRECT)
+                self.answer_status.append(QuestionScores.CORRECT)
             else:
                 self.incorrect += 1
-                question_status.append(QuestionScores.INCORRECT)
+                self.answer_status.append(QuestionScores.INCORRECT)
         if self.question_scores is not None:
             self.score = float(sum([q.score(status) \
                                     for q, status in zip(self.question_scores,
-                                                         question_status)]))
+                                                         self.answer_status)]))
             self.max_score = float(sum([q.score(QuestionScores.CORRECT)
                                         for q in self.question_scores]))
         else:
@@ -815,7 +816,7 @@ class Exam(object):
         self.capture.reset_image()
 
     def draw_answers(self):
-        self.capture.draw_answers(self.decisions.answers, self.score.solutions)
+        self.capture.draw_answers(self.score)
 
     def draw_status(self):
         self.capture.draw_status()
@@ -833,8 +834,7 @@ class Exam(object):
             self.decisions.change_answer(question, answer)
         self.score.update()
         self.capture.reset_image()
-        self.capture.draw_answers(self.decisions.answers,
-                                  self.score.solutions)
+        self.draw_answers()
 
     def rank_students(self):
         if self.decisions.detected_id is not None:
