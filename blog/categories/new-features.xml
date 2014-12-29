@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (new-features)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/new-features.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 28 Dec 2014 14:47:08 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Apart from fixing some minor issues here and there,
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (new-features)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/new-features.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 29 Dec 2014 17:54:17 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 2)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;This post describes another feature that will be available
+in eyegrade 0.5 (see &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;the first installment of this series of posts&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;I've largely reworked the code that handles the student lists.
+In eyegrade 0.5 you'll see two visible changes regarding this.
+Firstly, you'll be able to specify the first and last name of
+students in two separate fields.
+Secondly, there is a new dialog for entering,
+while grading an exam,
+new students.&lt;/p&gt;
+&lt;p&gt;Separating first and last name will be optional.
+Eyegrade will infer, from the student lists it imports,
+whether you are providing separate first and last name fields,
+or the whole name together in just one field.
+When exporting grades, you'll have control
+over which name fields get exported and will be able
+to sort the listing by last name if you wish so.&lt;/p&gt;
+&lt;p&gt;Regarding the second change,
+there will be a new button
+in the dialog for editing the student id
+that lets you open a dialog for entering the data
+for a student that is not in your student lists:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Screenshot of the new version of the student id edit dialog" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/change-id-preview.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;The dialog asks for the numerical id, first name, last name and email.
+Only the numerical id is mandatory.
+This is the current look of the dialog,
+although it might change before the release:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Screenshot of the new dialog for adding a new student" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/new-student-preview.png"&gt;
+&lt;/div&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</guid><pubDate>Mon, 29 Dec 2014 16:54:15 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Apart from fixing some minor issues here and there,
 I'm currently busy adding some new features to eyegrade.
 Some of them are already integrated into the
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/tree/development"&gt;development branch at GitHub&lt;/a&gt;.

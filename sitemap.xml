@@ -10,7 +10,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2014/index.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
@@ -26,7 +26,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/index.html</loc>
@@ -34,7 +34,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/new-features.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/pyqt.html</loc>
@@ -54,11 +54,11 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-1.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</loc>
@@ -102,7 +102,11 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</loc>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.1/index.html</loc>
@@ -126,11 +130,15 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/index.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-04/index.html</loc>
   <lastmod>2014-12-28</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/galleries/screenshots-05/index.html</loc>
+  <lastmod>2014-12-29</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-for-index/index.html</loc>
@@ -146,6 +154,6 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/index.html</loc>
-  <lastmod>2014-12-28</lastmod>
+  <lastmod>2014-12-29</lastmod>
  </url>
 </urlset>

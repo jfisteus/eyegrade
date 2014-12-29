@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 28 Dec 2014 18:00:53 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Apart from fixing some minor issues here and there,
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 29 Dec 2014 17:55:40 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 2)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;This post describes another feature that will be available
+in eyegrade 0.5 (see &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;the first installment of this series of posts&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;I've largely reworked the code that handles the student lists.
+In eyegrade 0.5 you'll see two visible changes regarding this.
+Firstly, you'll be able to specify the first and last name of
+students in two separate fields.
+Secondly, there is a new dialog for entering,
+while grading an exam,
+new students.&lt;/p&gt;
+&lt;p&gt;Separating first and last name will be optional.
+Eyegrade will infer, from the student lists it imports,
+whether you are providing separate first and last name fields,
+or the whole name together in just one field.
+When exporting grades, you'll have control
+over which name fields get exported and will be able
+to sort the listing by last name if you wish so.&lt;/p&gt;
+&lt;p&gt;Regarding the second change,
+there will be a new button
+in the dialog for editing the student id
+that lets you open a dialog for entering the data
+for a student that is not in your student lists:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Screenshot of the new version of the student id edit dialog" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/change-id-preview.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;The dialog asks for the numerical id, first name, last name and email.
+Only the numerical id is mandatory.
+This is the current look of the dialog,
+although it might change before the release:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Screenshot of the new dialog for adding a new student" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/new-student-preview.png"&gt;
+&lt;/div&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</guid><pubDate>Mon, 29 Dec 2014 16:54:15 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Apart from fixing some minor issues here and there,
 I'm currently busy adding some new features to eyegrade.
 Some of them are already integrated into the
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/tree/development"&gt;development branch at GitHub&lt;/a&gt;.
@@ -175,26 +205,4 @@ in the future, such as the possibility of reviewing previously graded
 exams, editing the student list, writing grades to disk in several
 orders and formats, etc.&lt;/p&gt;
 &lt;p&gt;If you experience problems with this new version, please let me know
-by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item><item><title>Preview of the improved new-session dialog</title><link>http://www.eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've been working on the &lt;em&gt;new session&lt;/em&gt; dialog. Now it is a wizard with
-three pages. The main novelties are that:&lt;/p&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;You can now select more than one student list. All of them are used
-when detecting the student id.&lt;/li&gt;
-&lt;li&gt;You can now enter the scores for correct and incorrect answers. If
-the exam configuration file already contains the scores, you'll see
-them as default values. In addition, you can let Eyegrade choose
-appropriate values for you, by just entering the maximum score of
-the exam and choosing whether incorrect answers should penalize or
-not.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;You can try the new dialog in the development branch at GitHub, and
-see it this &lt;a class="reference external" href="http://www.eyegrade.org/galleries/screenshots-new-gui-2/"&gt;screenshots gallery&lt;/a&gt;!&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="Screenshot of a page of the new session dialog" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-new-gui-2/screenshot-3.png"&gt;
-&lt;/div&gt;
-&lt;p&gt;This new dialog will appear in the 0.2 release. I have in mind for a
-future release the possibility of entering the exam configuration from
-the new session dialog, as an alternative to reading it from a
-file. This may be handy for users who do not create the exam with the
-command line tools that Eyegrade provides.&lt;/p&gt;
-&lt;p&gt;Comments and suggestions are welcome.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>pyqt</category><category>screenshots</category><guid>http://www.eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</guid><pubDate>Sun, 06 Jan 2013 22:49:08 GMT</pubDate></item></channel></rss>
+by commenting on this blog or &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues?sort=created&amp;amp;state=open"&gt;posting an issue at GitHub&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</guid><pubDate>Thu, 28 Feb 2013 00:15:00 GMT</pubDate></item></channel></rss>
