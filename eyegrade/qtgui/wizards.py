@@ -20,7 +20,6 @@
 from __future__ import division
 
 import gettext
-import fractions
 import os.path
 
 from PyQt4.QtGui import (QPushButton, QMessageBox, QVBoxLayout,
@@ -153,12 +152,7 @@ class NewSessionPageScores(QWizardPage):
             # Change values only if they have not been set manually
             scores = self.wizard().exam_config.base_scores
             if scores is not None:
-                self.correct_score.setText(scores.format_score( \
-                               utils.QuestionScores.CORRECT, signed=False))
-                self.incorrect_score.setText(scores.format_score( \
-                               utils.QuestionScores.INCORRECT, signed=True))
-                self.blank_score.setText(scores.format_score( \
-                               utils.QuestionScores.BLANK, signed=True))
+                self._set_score_fields(scores)
         # If the exam is a survey, disable all the controls
         if self.wizard().exam_config.survey_mode:
             self.correct_score.setEnabled(False)
@@ -188,25 +182,24 @@ class NewSessionPageScores(QWizardPage):
         config = self.wizard().exam_config
         choices = config.get_num_choices()
         if config.num_questions and choices and choices > 1:
-            i_score = '0'
-            b_score = '0'
-            if type(score) == fractions.Fraction:
-                c_score = utils.fraction_to_str(score / config.num_questions)
-                if penalize:
-                    i_score = utils.fraction_to_str( \
-                        -score / (choices - 1) / config.num_questions)
+            c_score = score / config.num_questions
+            if penalize:
+                i_score = score / (choices - 1) / config.num_questions
             else:
-                c_score = str(score / config.num_questions)
-                if penalize:
-                    i_score = str(-score / config.num_questions
-                                  / (choices - 1))
-            self.correct_score.setText(c_score)
-            self.incorrect_score.setText(i_score)
-            self.blank_score.setText(b_score)
+                i_score = 0
+            b_score = 0
+            scores = utils.QuestionScores(c_score, i_score, b_score)
+            self._set_score_fields(scores)
         else:
              QMessageBox.critical(self, _('Error'),
                                  _('Automatic scores cannot be computed for '
                                    'this exam.'))
+
+    def _set_score_fields(self, scores):
+        self.correct_score.setText(scores.format_correct_score(signed=False))
+        self.incorrect_score.setText( \
+                                 scores.format_incorrect_score(signed=True))
+        self.blank_score.setText(scores.format_blank_score(signed=True))
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""

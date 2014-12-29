@@ -45,6 +45,8 @@ csv.register_dialect('tabs', delimiter=str('\t'))
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'score', 'answers']
 
+_default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
+
 def _read_config():
     """Reads the general config file and returns the resulting config object.
 
@@ -53,7 +55,7 @@ def _read_config():
 
     """
     config = {'camera-dev': '0',
-              'save-filename-pattern': 'exam-{student-id}-{seq-number}.png',
+              'save-filename-pattern': _default_capture_pattern,
               'csv-dialect': 'tabs',
               'default-charset': 'utf8', # special value: 'system-default'
               }
@@ -679,10 +681,10 @@ def increment_list(list_):
 
 class Score(object):
     def __init__(self, answers, solutions, question_scores):
-        if (answers is not None and solutions is not None
+        if (answers is not None and solutions
             and len(answers) != len(solutions)):
             raise ValueError('Parameters must have the same length in Score')
-        if (solutions is not None and question_scores is not None
+        if (solutions and question_scores is not None
             and len(solutions) != len(question_scores)):
             raise ValueError('Parameters must have the same length in Score')
         self.correct = None
@@ -694,7 +696,7 @@ class Score(object):
         self.answers = answers
         self.solutions = solutions
         self.question_scores = question_scores
-        if answers is not None and solutions is not None:
+        if answers and solutions:
             self.update()
 
     def update(self):
@@ -912,6 +914,10 @@ class ExamConfig(object):
        to get the data. The constructor reads data from a file. See
        doc/exam-data.sample for an example of such a file."""
 
+    SCORES_MODE_NONE = 1
+    SCORES_MODE_WEIGHTS = 2
+    SCORES_MODE_INDIVIDUAL = 3
+
     re_model = re.compile('model-[0a-zA-Z]')
 
     def __init__(self, filename=None, capture_pattern=None):
@@ -923,7 +929,6 @@ class ExamConfig(object):
             self.num_questions = 0
             self.solutions = {}
             self.id_num_digits = 0
-            self.capture_pattern = capture_pattern
             self.dimensions = []
             self.permutations = {}
             self.models = []
@@ -931,6 +936,11 @@ class ExamConfig(object):
             self.base_scores = None
             self.left_to_right_numbering = False
             self.survey_mode = None
+            self.scores_mode = ExamConfig.SCORES_MODE_NONE
+        if capture_pattern is not None:
+            self.capture_pattern = capture_pattern
+        else:
+            self.capture_pattern = _default_capture_pattern
 
     def add_model(self, model):
         if not model in self.models:
@@ -940,7 +950,7 @@ class ExamConfig(object):
         if not isinstance(solutions, list):
             solutions = self._parse_solutions(solutions)
         if len(solutions) != self.num_questions:
-            raise ValueError('Solutions with an incorrect number of questions')
+            raise ValueError('Solutions with incorrect number of questions')
         self.solutions[model] = solutions
         self.add_model(model)
 
@@ -948,7 +958,7 @@ class ExamConfig(object):
         """Returns the solutions for the given model.
 
         If in survey mode it returns []. If there are no solutions for
-        this, model it returns None.
+        this model, it returns None.
 
         """
         if not self.survey_mode:
@@ -962,8 +972,24 @@ class ExamConfig(object):
     def set_permutations(self, model, permutations):
         if not isinstance(permutations, list):
             permutations = self._parse_permutations(permutations)
+        elif len(permutations) > 0 and isinstance(permutations[0], basestring):
+            permutations = [self._parse_permutation(p, i) \
+                            for i, p in enumerate(permutations)]
+        if len(permutations) != self.num_questions:
+            raise ValueError('Permutations with incorrect number of questions')
         self.permutations[model] = permutations
         self.add_model(model)
+
+    def get_permutations(self, model):
+        """Returns the permutations for the given model.
+
+        If there are no permutations for this model, it returns None.
+
+        """
+        if model in self.permutations:
+            return self.permutations[model]
+        else:
+            return None
 
     def set_dimensions(self, dimensions):
         self.dimensions, self.num_options = parse_dimensions(dimensions)
@@ -978,6 +1004,10 @@ class ExamConfig(object):
         """
         if scores.weight != 1:
             raise ValueError('The base score must have weigth 1')
+        if self.scores_mode == ExamConfig.SCORES_MODE_NONE:
+            self.scores_mode = ExamConfig.SCORES_MODE_WEIGHTS
+        elif self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
+            raise ValueError('The score mode does not allow base scores')
         self.base_scores = scores
         if same_weights:
             for model in self.models:
@@ -990,11 +1020,11 @@ class ExamConfig(object):
         It must be done before setting the weights of each question.
 
         """
-        if self.base_scores is None:
-            raise ValueError('Invalid state at ExamConfig: no base_scores set')
+        if self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
+            raise ValueError('Invalid scores mode for set_equal_scores')
         scores = [self.base_scores.clone(new_weight=1) \
                   for i in range(self.num_questions)]
-        self.set_question_scores(model, scores, check_base_scores=False)
+        self._set_question_scores_internal(model, scores)
 
     def set_question_weights(self, model, weights):
         """Set the scores for a given model from question weights.
@@ -1011,9 +1041,24 @@ class ExamConfig(object):
             raise ValueError('Invalid state at ExamConfig: no base_scores set')
         scores = [self.base_scores.clone(new_weight=weight) \
                   for weight in weights]
-        self.set_question_scores(model, scores, check_base_scores=False)
+        self._set_question_scores_internal(model, scores)
 
-    def set_question_scores(self, model, scores, check_base_scores=True):
+    def get_question_weights(self, model, formatted=False):
+        """Return the list of question weights for a given model.
+
+        Returns None if scores are not set by means of a base score,
+        or there are no scores for this model.
+
+        """
+        if (self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
+            or self.scores is None or not model in self.scores):
+            return None
+        elif not formatted:
+            return [s.weight for s in self.scores[model]]
+        else:
+            return [s.format_weight() for s in self.scores[model]]
+
+    def set_question_scores(self, model, scores, check_scores_mode=True):
         """Set the scores for a given model from question weights.
 
         The `scores` parameter must be a list of QuestionScores objects.
@@ -1023,8 +1068,25 @@ class ExamConfig(object):
         A base score cannot have already been set.
 
         """
-        if check_base_scores and self.base_scores is not None:
-            raise ValueError('Invalid state at ExamConfig: base_scores is set')
+        if self.scores_mode == ExamConfig.SCORES_MODE_NONE:
+            self.scores_mode = ExamConfig.SCORES_MODE_INDIVIDUAL
+        elif self.scores_mode != ExamConfig.SCORES_MODE_INDIVIDUAL:
+            raise ValueError('Invalid scores mode at set_question_scores')
+        for s in scores:
+            if s.weight != 1:
+                raise ValueError('Only weight 1 scores allowed')
+        self._set_question_scores_internal(model, scores)
+
+    def _set_question_scores_internal(self, model, scores):
+        """Set the scores for a given model from question weights.
+
+        Internal method that does not check the current mode.
+
+        The `scores` parameter must be a list of QuestionScores objects.
+        The scores must be the same as in the scores for the rest of
+        the models, possibly in a different order.
+
+        """
         if len(scores) != self.num_questions:
             raise ValueError('Scores with an incorrect number of questions')
         if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
@@ -1103,9 +1165,11 @@ class ExamConfig(object):
                 bw = exam_data.get('exam', 'blank-weight')
             else:
                 bw = 0
+            self.scores_mode = ExamConfig.SCORES_MODE_WEIGHTS
             self.set_base_scores(QuestionScores(cw, iw, bw), same_weights=True)
         elif not has_correct_weight and not has_incorrect_weight:
             self.base_scores = None
+            self.scores_mode = ExamConfig.SCORES_MODE_NONE
         else:
             raise Exception('Exam config must contain correct and incorrect '
                             'weight or none')
@@ -1131,11 +1195,11 @@ class ExamConfig(object):
             data.append('survey-mode: yes')
         if self.base_scores is not None:
             data.append('correct-weight: {0}'\
-              .format(self.base_scores.format_score(QuestionScores.CORRECT)))
+              .format(self.base_scores.format_correct_score()))
             data.append('incorrect-weight: {0}'\
-              .format(self.base_scores.format_score(QuestionScores.INCORRECT)))
+              .format(self.base_scores.format_incorrect_score()))
             data.append('blank-weight: {0}'\
-              .format(self.base_scores.format_score(QuestionScores.BLANK)))
+              .format(self.base_scores.format_blank_score()))
         if len(self.solutions) > 0:
             data.append('')
             data.append('[solutions]')
@@ -1161,10 +1225,10 @@ class ExamConfig(object):
         return '/'.join([str(n) for n in self.solutions[model]])
 
     def format_permutations(self, model):
-        return '/'.join([self._format_permutation(p) \
-                             for p in self.permutations[model]])
+        return '/'.join([self.format_permutation(p) \
+                         for p in self.permutations[model]])
 
-    def _format_permutation(self, permutation):
+    def format_permutation(self, permutation):
         num_question, options = permutation
         return '%d{%s}'%(num_question, ','.join([str(n) for n in options]))
 
@@ -1175,18 +1239,21 @@ class ExamConfig(object):
         return [int(num) for num in pieces]
 
     def _parse_permutations(self, s):
-        permutation = []
+        permutations = []
         pieces = s.split('/')
         if len(pieces) != self.num_questions:
             raise Exception('Wrong number of permutations')
         for i, piece in enumerate(pieces):
-            splitted = piece.split('{')
-            num_question = int(splitted[0])
-            options = [int(p) for p in splitted[1][:-1].split(',')]
-            if len(options) > self.num_options[i]:
-                raise Exception('Wrong number of options in permutation')
-            permutation.append((num_question, options))
-        return permutation
+            permutations.append(self._parse_permutation(piece, i))
+        return permutations
+
+    def _parse_permutation(self, str_value, question_number):
+        splitted = str_value.split('{')
+        num_question = int(splitted[0])
+        options = [int(p) for p in splitted[1][:-1].split(',')]
+        if len(options) > self.num_options[question_number]:
+            raise Exception('Wrong number of options in permutation')
+        return (num_question, options)
 
 
 class QuestionScores(ComparableMixin):
@@ -1242,6 +1309,15 @@ class QuestionScores(ComparableMixin):
             return self._format_score(self.blank_score, signed=signed)
         else:
             raise ValueError('Bad answer_type value in QuestionScore')
+
+    def format_correct_score(self, signed=False):
+        return self._format_score(self.correct_score, signed=False)
+
+    def format_incorrect_score(self, signed=False):
+        return self._format_score(self.incorrect_score, signed=signed)
+
+    def format_blank_score(self, signed=False):
+        return self._format_score(self.blank_score, signed=signed)
 
     def clone(self, new_weight=None):
         if new_weight is not None:
@@ -1443,16 +1519,6 @@ class QuestionComponent(object):
         if not self.in_choice and self.text is None:
             raise Exception('Questions must have a text')
 
-def fraction_to_str(fraction):
-    """Returns as a string the given fraction, simplified if possible.
-
-    The return string can be things such as '-5/2', '2', etc.
-
-    """
-    if fraction.denominator != 1:
-        return str(fraction.numerator) + '/' + str(fraction.denominator)
-    else:
-        return str(fraction.numerator)
 
 # Regular expressions used for capture filename patterns
 regexp_id = re.compile('\{student-id\}')

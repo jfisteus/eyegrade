@@ -171,10 +171,13 @@ class TestQuestionScores(unittest.TestCase):
         self.assertEqual(score.format_all(), ';'.join((key_1, key_2, key_3)))
         self.assertEqual(score.format_score(utils.QuestionScores.CORRECT),
                          key_1)
+        self.assertEqual(score.format_correct_score(), key_1)
         self.assertEqual(score.format_score(utils.QuestionScores.INCORRECT),
                          key_2)
+        self.assertEqual(score.format_incorrect_score(), key_2)
         self.assertEqual(score.format_score(utils.QuestionScores.BLANK),
                          key_3)
+        self.assertEqual(score.format_blank_score(), key_3)
         self.assertEqual(score.score(utils.QuestionScores.CORRECT), 1.0)
         self.assertEqual(score.score(utils.QuestionScores.INCORRECT), -0.5)
         self.assertEqual(score.score(utils.QuestionScores.BLANK), 0.0)
@@ -202,6 +205,12 @@ class TestQuestionScores(unittest.TestCase):
         result = score.format_score(utils.QuestionScores.INCORRECT, signed=True)
         self.assertEqual(result, '-1/3')
         result = score.format_score(utils.QuestionScores.BLANK, signed=True)
+        self.assertEqual(result, '-1/6')
+        result = score.format_correct_score(signed=True)
+        self.assertEqual(result, '1')
+        result = score.format_incorrect_score(signed=True)
+        self.assertEqual(result, '-1/3')
+        result = score.format_blank_score(signed=True)
         self.assertEqual(result, '-1/6')
         score = utils.QuestionScores('1.0', '0.5', '0.25')
         result = score.format_score(utils.QuestionScores.CORRECT, signed=True)
@@ -343,6 +352,23 @@ class TestExamConfigScores(unittest.TestCase):
         exam.set_base_scores(utils.QuestionScores('1', '1/3', '0'))
         exam.set_question_weights('A', [1, 2, 2])
         self.assertRaises(ValueError, exam.set_question_weights, 'B', [2, 1, 1])
+
+    def testGetQuestionWeights(self):
+        exam = utils.ExamConfig()
+        exam.num_questions = 3
+        self.assertEqual(exam.get_question_weights('A'), None)
+        exam.set_base_scores(utils.QuestionScores('1', '1/2', '0'))
+        self.assertEqual(exam.get_question_weights('A'), None)
+        exam.set_question_weights('A', [1, 2, '1/2'])
+        exam.set_question_weights('B', ['1/2', '1', '2'])
+        self.assertEqual(exam.get_question_weights('A'),
+                         [1, 2, fractions.Fraction(1, 2)])
+        self.assertEqual(exam.get_question_weights('B'),
+                         [fractions.Fraction(1, 2), 1, 2])
+        self.assertEqual(exam.get_question_weights('A', formatted=True),
+                         ['1', '2', '1/2'])
+        self.assertEqual(exam.get_question_weights('B', formatted=True),
+                         ['1/2', '1', '2'])
 
 
 class TestScore(unittest.TestCase):

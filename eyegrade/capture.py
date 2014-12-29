@@ -166,7 +166,7 @@ class ExamCapture(object):
 
     def draw_answers(self, score):
         assert self.image_drawn is not None
-        if score.solutions is not None:
+        if score.solutions:
             self._draw_answers_solutions(score)
         else:
             self._draw_answers_no_solutions(score)
