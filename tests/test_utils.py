@@ -222,7 +222,7 @@ class TestQuestionScores(unittest.TestCase):
 
     def testWeight(self):
         score = utils.QuestionScores('1', '1/3', '1/6', weight='3/2')
-        self.assertEqual(score.format_all(), '3/2;1/2;1/4')
+        self.assertEqual(score.format_all(), '1;1/3;1/6')
         self.assertEqual(score.format_score(utils.QuestionScores.CORRECT),
                          '1')
         self.assertEqual(score.format_score(utils.QuestionScores.INCORRECT),
@@ -369,6 +369,24 @@ class TestExamConfigScores(unittest.TestCase):
                          ['1', '2', '1/2'])
         self.assertEqual(exam.get_question_weights('B', formatted=True),
                          ['1/2', '1', '2'])
+
+    def testAllWeightsAreOneWeights(self):
+        exam = utils.ExamConfig()
+        exam.num_questions = 5
+        self.assertFalse(exam.all_weights_are_one())
+        exam.models = ['A', 'B']
+        self.assertFalse(exam.all_weights_are_one())
+        exam.set_base_scores(utils.QuestionScores('1', '1/2', '0'),
+                             same_weights=True)
+        self.assertTrue(exam.all_weights_are_one())
+
+    def testAllWeightsAreOneWeightsNegative(self):
+        exam = utils.ExamConfig()
+        exam.num_questions = 5
+        exam.set_base_scores(utils.QuestionScores('1', '1/2', '0'))
+        exam.set_question_weights('A', [1, 2, 1, '1/2', 1])
+        exam.set_question_weights('B', [2, 1, 1, 1, '1/2'])
+        self.assertFalse(exam.all_weights_are_one())
 
 
 class TestScore(unittest.TestCase):

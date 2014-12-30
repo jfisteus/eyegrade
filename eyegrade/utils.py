@@ -1037,8 +1037,10 @@ class ExamConfig(object):
         A base score must have already been set.
 
         """
-        if self.base_scores is None:
-            raise ValueError('Invalid state at ExamConfig: no base_scores set')
+        if self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
+            raise ValueError('Not in scores weight mode.')
+        if isinstance(weights, basestring):
+            weights = self._parse_weights(weights)
         scores = [self.base_scores.clone(new_weight=weight) \
                   for weight in weights]
         self._set_question_scores_internal(model, scores)
@@ -1058,7 +1060,19 @@ class ExamConfig(object):
         else:
             return [s.format_weight() for s in self.scores[model]]
 
-    def set_question_scores(self, model, scores, check_scores_mode=True):
+    def all_weights_are_one(self):
+        """Return True if all the score weights are 1.
+
+        It returns False if there are no scores set for at least one model.
+
+        """
+        if len(self.scores) > 0:
+            # We only need to check one list of scores
+            return all(s.weight == 1 for s in self.scores.values()[0])
+        else:
+            return False
+
+    def set_question_scores(self, model, scores):
         """Set the scores for a given model from question weights.
 
         The `scores` parameter must be a list of QuestionScores objects.
@@ -1148,12 +1162,11 @@ class ExamConfig(object):
                 if not self.re_model.match(key):
                     raise Exception('Incorrect key in exam config: ' + key)
                 model = key[-1].upper()
-                self.models.append(model)
-                self.solutions[model] = self._parse_solutions(value)
+                self.set_solutions(model, value)
                 if has_permutations:
                     key = 'permutations-' + model
                     value = exam_data.get('permutations', key)
-                    self.permutations[model] = self._parse_permutations(value)
+                    self.set_permutations(model, value)
         has_correct_weight = exam_data.has_option('exam', 'correct-weight')
         has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
         has_blank_weight = exam_data.has_option('exam', 'blank-weight')
@@ -1166,7 +1179,15 @@ class ExamConfig(object):
             else:
                 bw = 0
             self.scores_mode = ExamConfig.SCORES_MODE_WEIGHTS
-            self.set_base_scores(QuestionScores(cw, iw, bw), same_weights=True)
+            base_scores = QuestionScores(cw, iw, bw)
+            if not exam_data.has_section('question-score-weights'):
+                self.set_base_scores(base_scores, same_weights=True)
+            else:
+                self.set_base_scores(base_scores)
+                for model in self.models:
+                    key = 'weights-' + model
+                    value = exam_data.get('question-score-weights', key)
+                    self.set_question_weights(model, value)
         elif not has_correct_weight and not has_incorrect_weight:
             self.base_scores = None
             self.scores_mode = ExamConfig.SCORES_MODE_NONE
@@ -1204,14 +1225,23 @@ class ExamConfig(object):
             data.append('')
             data.append('[solutions]')
             for model in sorted(self.models):
-                data.append('model-%s: %s'%(model,
-                                            self.format_solutions(model)))
+                data.append('model-{0}: {1}'\
+                            .format(model, self.format_solutions(model)))
         if len(self.permutations) > 0:
             data.append('')
             data.append('[permutations]')
             for model in sorted(self.models):
-                data.append('permutations-%s: %s'%(model,
-                                            self.format_permutations(model)))
+                data.append('permutations-{0}: {1}'\
+                            .format(model, self.format_permutations(model)))
+        if (self.scores_mode == ExamConfig.SCORES_MODE_WEIGHTS
+            and len(self.scores)
+            and not self.all_weights_are_one()):
+            # If all the scores are equal, there is no need to specify weights
+            data.append('')
+            data.append('[question-score-weights]')
+            for model in sorted(self.models):
+                data.append('weights-{0}: {1}'\
+                            .format(model, self.format_weights(model)))
         data.append('')
         file_ = open(filename, 'w')
         file_.write('\n'.join(data))
@@ -1231,6 +1261,9 @@ class ExamConfig(object):
     def format_permutation(self, permutation):
         num_question, options = permutation
         return '%d{%s}'%(num_question, ','.join([str(n) for n in options]))
+
+    def format_weights(self, model):
+        return ','.join([s.format_weight() for s in self.scores[model]])
 
     def _parse_solutions(self, s):
         pieces = s.split('/')
@@ -1254,6 +1287,12 @@ class ExamConfig(object):
         if len(options) > self.num_options[question_number]:
             raise Exception('Wrong number of options in permutation')
         return (num_question, options)
+
+    def _parse_weights(self, s):
+        pieces = s.split(',')
+        if len(pieces) != self.num_questions:
+            raise Exception('Wrong number of weight items')
+        return [p for p in pieces]
 
 
 class QuestionScores(ComparableMixin):
@@ -1292,9 +1331,9 @@ class QuestionScores(ComparableMixin):
             raise Exception('Bad answer_type value in QuestionScore')
 
     def format_all(self):
-        data = (self._format_score(self.weight * self.correct_score),
-                self._format_score(self.weight * self.incorrect_score),
-                self._format_score(self.weight * self.blank_score))
+        data = (self._format_score(self.correct_score),
+                self._format_score(self.incorrect_score),
+                self._format_score(self.blank_score))
         return ';'.join(data)
 
     def format_weight(self):
