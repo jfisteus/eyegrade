@@ -17,7 +17,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division
+from __future__ import unicode_literals, division
 
 import gettext
 import locale
@@ -28,7 +28,8 @@ from PyQt4.QtGui import (QMessageBox, QVBoxLayout,
                          QCheckBox, QSpinBox,
                          QPushButton, QTabWidget,
                          QDialog, QLabel, QLineEdit,
-                         QRegExpValidator, QIcon, )
+                         QRegExpValidator, QIcon,
+                         QComboBox, )
 
 from PyQt4.QtCore import (Qt, QTimer, pyqtSignal, QRegExp, )
 
@@ -102,8 +103,11 @@ class NewStudentDialog(QDialog):
     It returns a Student object with the data of the student.
 
     """
+    _last_combo_value = None
+
     def __init__(self, parent=None):
         super(NewStudentDialog, self).__init__(parent)
+        self.setMinimumWidth(300)
         self.setWindowTitle(_('Add a new student'))
         layout = QFormLayout()
         self.setLayout(layout)
@@ -112,13 +116,23 @@ class NewStudentDialog(QDialog):
         self.id_field.textEdited.connect(self._check_values)
         self.name_field = QLineEdit(self)
         self.surname_field = QLineEdit(self)
+        self.full_name_field = QLineEdit(self)
+        self.name_label = QLabel(_('Given name'))
+        self.surname_label = QLabel(_('Surname'))
+        self.full_name_label = QLabel(_('Full name'))
         self.email_field = QLineEdit(self)
         self.email_field.setValidator( \
                         QRegExpValidator(QRegExp(utils.re_exp_email), self))
         self.email_field.textEdited.connect(self._check_values)
+        self.combo = QComboBox(parent=self)
+        self.combo.addItem(_('Given name and surname'))
+        self.combo.addItem(_('Full name'))
+        self.combo.currentIndexChanged.connect(self._update_combo)
+        layout.addRow(self.combo)
         layout.addRow(_('Id number'), self.id_field)
-        layout.addRow(_('Given name'), self.name_field)
-        layout.addRow(_('Surname'), self.surname_field)
+        layout.addRow(self.name_label, self.name_field)
+        layout.addRow(self.surname_label, self.surname_field)
+        layout.addRow(self.full_name_label, self.full_name_field)
         layout.addRow(_('Email'), self.email_field)
         self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                          | QDialogButtonBox.Cancel))
@@ -126,6 +140,11 @@ class NewStudentDialog(QDialog):
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
         self._check_values()
+        # Set the combo box
+        if NewStudentDialog._last_combo_value is None:
+            NewStudentDialog._last_combo_value = 0
+        self.combo.setCurrentIndex(NewStudentDialog._last_combo_value)
+        self._update_combo(NewStudentDialog._last_combo_value)
 
     def exec_(self):
         """Shows the dialog and waits until it is closed.
@@ -136,11 +155,24 @@ class NewStudentDialog(QDialog):
         """
         result = super(NewStudentDialog, self).exec_()
         if result == QDialog.Accepted:
-            student = utils.Student(None, unicode(self.id_field.text()),
-                                    None, unicode(self.name_field.text()),
-                                    unicode(self.surname_field.text()),
-                                    unicode(self.email_field.text()),
-                                    0, None)
+            NewStudentDialog._last_combo_value = self.combo.currentIndex()
+            email = unicode(self.email_field.text())
+            if not email:
+                email = None
+            if self.combo.currentIndex() == 0:
+                # First name, last name
+                student = utils.Student(None, unicode(self.id_field.text()),
+                                        None,
+                                        unicode(self.name_field.text()),
+                                        unicode(self.surname_field.text()),
+                                        email, 0, None)
+            else:
+                # Full name
+                student = utils.Student(None, unicode(self.id_field.text()),
+                                        unicode(self.full_name_field.text()),
+                                        None,
+                                        None,
+                                        email, 0, None)
         else:
             student = None
         return student
@@ -152,6 +184,25 @@ class NewStudentDialog(QDialog):
             self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
         else:
             self.buttons.button(QDialogButtonBox.Ok).setEnabled(False)
+
+    def _update_combo(self, new_index):
+        if new_index == 0:
+            self.name_field.setEnabled(True)
+            self.surname_field.setEnabled(True)
+            self.full_name_field.setEnabled(False)
+            self.name_label.setEnabled(True)
+            self.surname_label.setEnabled(True)
+            self.full_name_label.setEnabled(False)
+            self.full_name_field.setText('')
+        else:
+            self.name_field.setEnabled(False)
+            self.surname_field.setEnabled(False)
+            self.full_name_field.setEnabled(True)
+            self.name_label.setEnabled(False)
+            self.surname_label.setEnabled(False)
+            self.full_name_label.setEnabled(True)
+            self.name_field.setText('')
+            self.surname_field.setText('')
 
 
 class DialogComputeScores(QDialog):
