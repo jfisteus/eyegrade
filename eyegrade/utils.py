@@ -995,6 +995,12 @@ class ExamConfig(object):
         self.dimensions, self.num_options = parse_dimensions(dimensions)
         self.num_questions = sum(dim[1] for dim in self.dimensions)
 
+    def enter_score_mode_none(self):
+        """Resets the object to no scores."""
+        self.scores_mode = ExamConfig.SCORES_MODE_NONE
+        self.base_scores = None
+        self.scores = {}
+
     def set_base_scores(self, scores, same_weights=False):
         """Set the base scores for the questions of this exam.
 
@@ -1020,7 +1026,8 @@ class ExamConfig(object):
         It must be done before setting the weights of each question.
 
         """
-        if self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
+        if (self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
+            or self.base_scores is None):
             raise ValueError('Invalid scores mode for set_equal_scores')
         scores = [self.base_scores.clone(new_weight=1) \
                   for i in range(self.num_questions)]
@@ -1053,7 +1060,7 @@ class ExamConfig(object):
 
         """
         if (self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
-            or self.scores is None or not model in self.scores):
+            or self.base_scores is None or not model in self.scores):
             return None
         elif not formatted:
             return [s.weight for s in self.scores[model]]
@@ -1367,39 +1374,53 @@ class QuestionScores(ComparableMixin):
                               self.blank_score, weight=weight)
 
     def _parse_score(self, score):
-        if score.find('-') != -1:
-            raise ValueError('Scores in exam config must be positive: "{0}"'\
-                             .format(score))
-        if not _re_score.match(score):
-            raise ValueError('Bad score value: "{0}"'.format(score))
-        parts = [p.strip() for p in score.split('/')]
-        if len(parts) == 1:
-            if not '.' in score:
-                return int(score)
-            else:
-                return float(score)
-        elif len(parts) == 2:
-            return fractions.Fraction(int(parts[0]), int(parts[1]))
+        return parse_number(score)
 
     def _format_score(self, score, signed=False):
         if signed:
             score = -score
-        if score is None:
-            return None
-        elif type(score) == fractions.Fraction:
-            if score.denominator != 1:
-                return '{0}/{1}'.format(score.numerator, score.denominator)
-            else:
-                return str(score.numerator)
-        elif type(score) == float:
-            return '{0:.16f}'.format(score)
-        else:
-            return str(score)
+        return format_number(score)
 
     def _cmpkey(self):
         return (self.correct_score, self.incorrect_score,
                 self.blank_score, self.weight)
 
+
+def parse_number(number):
+    if number.find('-') != -1:
+        raise ValueError('The number must be positive: {0}'\
+                         .format(number))
+    if not _re_score.match(number):
+        raise ValueError('Syntax error in number: "{0}"'.format(number))
+    parts = [p.strip() for p in number.split('/')]
+    if len(parts) == 1:
+        if not '.' in number:
+            return int(number)
+        else:
+            return float(number)
+    elif len(parts) == 2:
+        return fractions.Fraction(int(parts[0]), int(parts[1]))
+
+def format_number(number, short=False, no_fraction=False):
+    if number is None:
+        return None
+    elif no_fraction and type(number) == fractions.Fraction:
+        if number.denominator != 1:
+            number = float(number)
+        else:
+            number = number.numerator
+    if type(number) == fractions.Fraction:
+        if number.denominator != 1:
+            return '{0}/{1}'.format(number.numerator, number.denominator)
+        else:
+            return unicode(number.numerator)
+    elif type(number) == float:
+        if short:
+            return '{0:.2f}'.format(number)
+        else:
+            return '{0:.16f}'.format(number)
+    else:
+        return unicode(number)
 
 def parse_dimensions(text, check_equal_num_choices=False):
     dimensions = []
