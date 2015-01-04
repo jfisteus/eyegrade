@@ -146,7 +146,7 @@ class NewSessionPageScores(QWizardPage):
         self.combo = widgets.CustomComboBox(parent=self)
         self.combo.set_items([
             _('No scores'),
-            _('Same score for all questions'),
+            _('Same score for all the questions'),
             _('Base score plus per-question weight'),
         ])
         self.combo.currentIndexChanged.connect(self._update_combo)
@@ -199,12 +199,15 @@ class NewSessionPageScores(QWizardPage):
             initial_mode = 0
             self.weights_table.model().clear()
         else:
-            # Just in case the exam config changes in the lifetime of this
-            #   wizard.
-            self.combo.set_item_enabled(1, True)
-            self.combo.set_item_enabled(2, True)
-            initial_mode = 1
-            self.weights_table.model().clear()
+            if not exam_config.scores or exam_config.all_weights_are_one():
+                self.combo.set_item_enabled(1, True)
+                self.combo.set_item_enabled(2, True)
+                initial_mode = 1
+                self.weights_table.model().clear()
+            else:
+                self.combo.set_item_enabled(1, True)
+                self.combo.set_item_enabled(2, True)
+                initial_mode = 2
         self.combo.setCurrentIndex(initial_mode)
 
     def validatePage(self):
