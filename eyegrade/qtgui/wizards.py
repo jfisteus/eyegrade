@@ -24,7 +24,8 @@ import os.path
 
 from PyQt4.QtGui import (QPushButton, QMessageBox, QVBoxLayout,
                          QWizard, QWizardPage, QFormLayout,
-                         QTableView, QLabel, )
+                         QLabel, QWidget, )
+from PyQt4.QtCore import Qt
 
 from .. import utils
 from . import widgets
@@ -131,8 +132,17 @@ class NewSessionPageScores(QWizardPage):
         self.setSubTitle(_('Enter the scores of correct and incorrect '
                            'answers. The program will compute scores based '
                            'on them. Setting these scores is optional.'))
-        layout = QFormLayout(self)
-        self.setLayout(layout)
+        form_widget = QWidget(parent=self)
+        table_widget = QWidget(parent=self)
+        main_layout = QVBoxLayout(self)
+        form_layout = QFormLayout(form_widget)
+        table_layout = QVBoxLayout(table_widget)
+        self.setLayout(main_layout)
+        form_widget.setLayout(form_layout)
+        table_widget.setLayout(table_layout)
+        main_layout.addWidget(form_widget)
+        main_layout.addWidget(table_widget)
+        main_layout.setAlignment(table_widget, Qt.AlignHCenter)
         self.combo = widgets.CustomComboBox(parent=self)
         self.combo.set_items([
             _('No scores'),
@@ -147,17 +157,17 @@ class NewSessionPageScores(QWizardPage):
         self.incorrect_score = widgets.InputScore(is_positive=False)
         self.blank_score = widgets.InputScore(is_positive=False)
         self.button_defaults = QPushButton(_('Compute default values'))
-        self.weights_table = QTableView()
-        self.weights_table.setMinimumHeight(300)
+        self.weights_table = widgets.CustomTableView()
         weights_table_label = QLabel(_('Per-question score weights:'))
-        layout.addRow(self.combo)
-        layout.addRow(correct_score_label, self.correct_score)
-        layout.addRow(incorrect_score_label, self.incorrect_score)
-        layout.addRow(blank_score_label, self.blank_score)
-        layout.addRow(self.button_defaults)
-        layout.addRow(QLabel(''))
-        layout.addRow(weights_table_label)
-        layout.addRow(self.weights_table)
+        form_layout.addRow(self.combo)
+        form_layout.addRow(correct_score_label, self.correct_score)
+        form_layout.addRow(incorrect_score_label, self.incorrect_score)
+        form_layout.addRow(blank_score_label, self.blank_score)
+        form_layout.addRow(self.button_defaults)
+        table_layout.addWidget(weights_table_label)
+        table_layout.addWidget(self.weights_table)
+        table_layout.setAlignment(weights_table_label, Qt.AlignHCenter)
+        table_layout.setAlignment(self.weights_table, Qt.AlignHCenter)
         self.button_defaults.clicked.connect(self._compute_default_values)
         self.base_score_widgets = [
             self.correct_score, correct_score_label,
@@ -175,8 +185,7 @@ class NewSessionPageScores(QWizardPage):
         exam_config = self.wizard().exam_config
         self.weights_table.setModel(widgets.ScoreWeightsTableModel( \
                                                  exam_config, parent=self))
-        self.weights_table.resizeRowsToContents()
-        self.weights_table.resizeColumnsToContents()
+        self.weights_table.adjust_size()
         if (not self.correct_score.text() and not self.correct_score.text()
             and not self.blank_score.text()):
             # Change values only if they have not been set manually
@@ -188,13 +197,14 @@ class NewSessionPageScores(QWizardPage):
             self.combo.set_item_enabled(1, False)
             self.combo.set_item_enabled(2, False)
             initial_mode = 0
+            self.weights_table.model().clear()
         else:
             # Just in case the exam config changes in the lifetime of this
             #   wizard.
             self.combo.set_item_enabled(1, True)
             self.combo.set_item_enabled(2, True)
             initial_mode = 1
-        self.weights_table.model().clear()
+            self.weights_table.model().clear()
         self.combo.setCurrentIndex(initial_mode)
 
     def validatePage(self):

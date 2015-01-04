@@ -27,7 +27,8 @@ from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
                          QWidget, QLineEdit, QPushButton, QIcon, QMessageBox,
                          QFileDialog, QRegExpValidator,
                          QListWidget, QAbstractItemView,
-                         QVBoxLayout, QImage, QPainter, QPixmap)
+                         QVBoxLayout, QImage, QPainter, QPixmap,
+                         QTableView, QStyle, )
 from PyQt4.QtCore import (Qt, QRegExp, QAbstractTableModel,
                           QAbstractListModel,
                           QModelIndex, QVariant, )
@@ -624,6 +625,54 @@ class ScoreWeightsTableModel(QAbstractTableModel):
     def _to_model_0(self, model_idx, question):
         question_0, opt = self.permutations[self.models[model_idx]][question]
         return question_0 - 1
+
+
+class CustomTableView(QTableView):
+    """QTableView that can compute its own size."""
+    def __init__(self, parent=None, maximum_width=500, maximum_height=300):
+        super(CustomTableView, self).__init__(parent=parent)
+        self.maximum_height = maximum_height
+        self.maximum_width=maximum_width
+
+    def adjust_size(self):
+        self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+        self._set_dimension_hints()
+
+    def _set_dimension_hints(self):
+        # Maximum width:
+        vwidth = self.verticalHeader().width()
+        hwidth = self.horizontalHeader().length()
+        swidth = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
+        fwidth = self.frameWidth() * 2
+        current_width = vwidth + hwidth + swidth + fwidth + 1
+        # Minimum and maximum height:
+        vheight = 0
+        for i in range(self.model().rowCount()):
+            vheight += self.rowHeight(i)
+        hheight = self.horizontalHeader().height()
+        sheight = swidth
+        fheight = fwidth
+        current_height = vheight + hheight + sheight + fheight
+        # Check whether the scrollbars are visible:
+        if current_height < self.maximum_height:
+            # vertical scrollbar not visible
+            current_width -= swidth
+        if current_width < self.maximum_width:
+            current_height -= swidth
+        # Set the table dimensions
+        if self.maximum_width < current_width:
+            self.setMinimumWidth(self.maximum_width)
+            self.setMaximumWidth(self.maximum_width)
+        else:
+            self.setMinimumWidth(current_width)
+            self.setMaximumWidth(current_width)
+        if self.maximum_height < current_height:
+            self.setMinimumHeight(self.maximum_height)
+            self.setMaximumHeight(self.maximum_height)
+        else:
+            self.setMinimumHeight(current_height)
+            self.setMaximumHeight(current_height)
 
 
 class CustomComboBox(QComboBox):
