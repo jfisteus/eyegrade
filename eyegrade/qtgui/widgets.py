@@ -593,6 +593,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                 old_value = self.weights[0][r_0]
                 self.weights[0][r_0] = value
             if (old_value != value):
+                self.changes = True
                 # Emit the signal for all the affected cells
                 if not self.has_permutations:
                     self.dataChanged.emit(index, index)
@@ -605,8 +606,6 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                                 changed_idx = self.index(i, model_idx)
                                 self.dataChanged.emit(changed_idx, changed_idx)
             success = True
-        if success:
-            self.changes = True
         return success
 
     def _update_weights_sum(self, index_1, index_2):
@@ -616,11 +615,18 @@ class ScoreWeightsTableModel(QAbstractTableModel):
             col_2 = index_2.column()
             if self.has_permutations:
                 # Only changes to column 0 are relevant
-                col_2 = 0
-            for i in range(col_1, col_2 + 1):
+                col_end = 0
+            else:
+                col_end = col_2
+            for i in range(col_1, col_end + 1):
                 self.sum_weights[i] = sum(self.weights[i])
-                changed_idx = self.index(self.exam_config.num_questions, i)
-                self.dataChanged.emit(changed_idx, changed_idx)
+            if col_1 <= col_end:
+                if self.has_permutations:
+                    # The change affects all the sums
+                    col_2 = len(self.models) - 1
+                changed_1 = self.index(self.exam_config.num_questions, col_1)
+                changed_2 = self.index(self.exam_config.num_questions, col_2)
+                self.dataChanged.emit(changed_1, changed_2)
 
     def _to_model_0(self, model_idx, question):
         question_0, opt = self.permutations[self.models[model_idx]][question]

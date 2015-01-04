@@ -156,24 +156,29 @@ class NewSessionPageScores(QWizardPage):
         blank_score_label = QLabel(_('Score for blank answers'))
         self.incorrect_score = widgets.InputScore(is_positive=False)
         self.blank_score = widgets.InputScore(is_positive=False)
-        self.button_defaults = QPushButton(_('Compute default values'))
+        self.button_reset = QPushButton(_('Reset question weights'))
+        button_defaults = QPushButton(_('Compute default scores'))
         self.weights_table = widgets.CustomTableView()
         weights_table_label = QLabel(_('Per-question score weights:'))
         form_layout.addRow(self.combo)
         form_layout.addRow(correct_score_label, self.correct_score)
         form_layout.addRow(incorrect_score_label, self.incorrect_score)
         form_layout.addRow(blank_score_label, self.blank_score)
-        form_layout.addRow(self.button_defaults)
         table_layout.addWidget(weights_table_label)
         table_layout.addWidget(self.weights_table)
+        table_layout.addWidget(self.button_reset)
+        table_layout.addWidget(button_defaults)
         table_layout.setAlignment(weights_table_label, Qt.AlignHCenter)
         table_layout.setAlignment(self.weights_table, Qt.AlignHCenter)
-        self.button_defaults.clicked.connect(self._compute_default_values)
+        table_layout.setAlignment(self.button_reset, Qt.AlignHCenter)
+        table_layout.setAlignment(button_defaults, Qt.AlignHCenter)
+        self.button_reset.clicked.connect(self._reset_weights)
+        button_defaults.clicked.connect(self._compute_default_values)
         self.base_score_widgets = [
             self.correct_score, correct_score_label,
             self.incorrect_score, incorrect_score_label,
             self.blank_score, blank_score_label,
-            self.button_defaults,
+            button_defaults,
         ]
         self.weights_widgets = [
             self.weights_table, weights_table_label,
@@ -185,6 +190,7 @@ class NewSessionPageScores(QWizardPage):
         exam_config = self.wizard().exam_config
         self.weights_table.setModel(widgets.ScoreWeightsTableModel( \
                                                  exam_config, parent=self))
+        self.weights_table.model().dataChanged.connect(self._weights_changed)
         self.weights_table.adjust_size()
         if (not self.correct_score.text() and not self.correct_score.text()
             and not self.blank_score.text()):
@@ -236,16 +242,10 @@ class NewSessionPageScores(QWizardPage):
             # Ask the user if changes to weights may be lost
             if (self.current_mode == 2
                 and self.weights_table.model().changes):
-                result = QMessageBox.warning(self, _('Warning'),
-                                 _('The changes you have done in the weights '
-                                   'table will be lost. '
-                                   'Are you sure you want to switch the '
-                                   'score mode?'),
-                                 QMessageBox.Yes | QMessageBox.No,
-                                 QMessageBox.No)
-                if result != QMessageBox.Yes:
+                if not self._show_warning_weights_reset():
                     self.combo.setCurrentIndex(self.current_mode)
                     return
+            self.button_reset.setEnabled(False)
             if new_index == 0:
                 for widget in self.base_score_widgets:
                     widget.setEnabled(False)
@@ -270,6 +270,14 @@ class NewSessionPageScores(QWizardPage):
             if new_index == 0:
                 self.clear_base_scores()
             self.current_mode = new_index
+
+    def _reset_weights(self):
+        if (self.weights_table.model().changes
+            and self._show_warning_weights_reset()):
+            self.weights_table.model().data_reset()
+
+    def _weights_changed(self, index_1, index_2):
+        self.button_reset.setEnabled(self.weights_table.model().changes)
 
     def _compute_default_values(self):
         if (self.current_mode == 2
@@ -357,6 +365,15 @@ class NewSessionPageScores(QWizardPage):
                                'be in a different order. '
                                'You must fix this before computing '
                                'default scores.'))
+
+    def _show_warning_weights_reset(self):
+        result = QMessageBox.warning(self, _('Warning'),
+                             _('The changes you have done to the weights '
+                               'table will be lost. '
+                               'Are you sure you want to continue?'),
+                             QMessageBox.Yes | QMessageBox.No,
+                             QMessageBox.No)
+        return (result == QMessageBox.Yes)
 
 
 class WizardNewSession(QWizard):
