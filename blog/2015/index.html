@@ -2,16 +2,17 @@
 <html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
     <head>
     <meta charset="utf-8">
+    <meta name="description" content="Blog for the free software tool Eyegrade">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>index | Eyegrade</title>
+    <title>Posts for year 2015 | Eyegrade</title>
 
     
             <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 
     
-            <link rel="alternate" type="application/rss+xml" title="RSS" href="../../blog/rss.xml">
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
 
-      <link rel="canonical" href="http://www.eyegrade.org/galleries/screenshots-04/index.html">
+      <link rel="canonical" href="http://www.eyegrade.org/blog/2015/index.html">
 
 
 
@@ -22,16 +23,6 @@
     
 
 
-
-
-<style type="text/css">
-    .image-block {
-        display: inline-block;
-    }
-    .flowr_row {
-        width: 100%;
-    }
-    </style>
 
 
 </head>
@@ -70,16 +61,16 @@
 <a href="https://github.com/jfisteus/eyegrade/">GitHub</a>
                 </li>
 <li>
-<a href="../../blog/index.html">Blog</a>
+<a href="../index.html">Blog</a>
                 </li>
 <li>
-<a href="../../blog/archive.html">Blog archive</a>
+<a href="../archive.html">Blog archive</a>
                 </li>
 <li>
-<a href="../../blog/categories/index.html">Blog tags</a>
+<a href="../categories/index.html">Blog tags</a>
                 </li>
 <li>
-<a href="../../blog/rss.xml">RSS feed</a>
+<a href="../rss.xml">RSS feed</a>
 
                 
             </li>
@@ -105,29 +96,16 @@
         <div class="row">
             
             
-    
-<nav class="breadcrumbs">
-<ul class="breadcrumb">
-        <li><a href="../">galleries</a></li>
-        <li><a href="#">index</a></li>
-</ul>
-</nav>
-
-    <h1>index</h1>
-    <p>
-        </p>
-<p>Screenshot of the new export grades feature.</p>
-    
-
-<div id="gallery_container"></div>
-<noscript>
-<ul class="thumbnails">
+<article class="listpage">
+    <header>
+        <h1>Posts for year 2015</h1>
+    </header>
+    <ul class="postlist">
         <li>
-<a href="export-dialog.png" class="thumbnail image-reference" title="Export dialog">
-            <img src="export-dialog.thumbnail.png" alt="Export dialog"></a>
+<a href="../posts/what-will-eyegrade-05-include-part-3.html" class="listtitle">What will eyegrade 0.5 include? (part 3)</a> <time class="listdate" datetime="2015-01-04T18:23:42+00:00" title="2015-01-04 18:23">2015-01-04 18:23</time>
 </li>
-</ul>
-</noscript>
+    </ul>
+</article>
 
         </div>
         <!--End of body content-->
@@ -172,45 +150,6 @@
     </script>
     <!-- end fancy dates -->
     
-<script src="../../assets/js/flowr.plugin.js"></script>
-<script>
-jsonContent = [{"url": "export-dialog.png", "title": "Export dialog", "size": {"h": 180, "w": 170}, "url_thumb": "export-dialog.thumbnail.png"}];
-$("#gallery_container").flowr({
-        data : jsonContent,
-        height : 180*.6,
-        padding: 5,
-        rows: -1,
-        render : function(params) {
-            // Just return a div, string or a dom object, anything works fine
-            img = $("<img />").attr({
-                'src': params.itemData.url_thumb,
-                'width' : params.width,
-                'height' : params.height
-            }).css('max-width', '100%');
-            link = $( "<a></a>").attr({
-                'href': params.itemData.url,
-                'class': 'image-reference'
-            });
-            div = $("<div />").addClass('image-block').attr({
-                'title': params.itemData.title,
-                'data-toggle': "tooltip",
-            });
-            link.append(img);
-            div.append(link);
-            div.hover(div.tooltip());
-            return div;
-        },
-        itemWidth : function(data) { return data.size.w; },
-        itemHeight : function(data) { return data.size.h; },
-        complete : function(params) {
-            if( jsonContent.length > params.renderedItems ) {
-                nextRenderList = jsonContent.slice( params.renderedItems );
-            }
-        }
-    });
-$("a.image-reference").colorbox({rel:"gal", maxWidth:"100%",maxHeight:"100%",scalePhotos:true});
-</script>
-
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
