@@ -108,7 +108,8 @@ class ExamMaker(object):
         else:
             self.exam_config = None
         if score_weights is not None and self.exam_config is not None:
-            self.exam_config.score_weights = score_weights
+            scores = utils.QuestionScores(*score_weights)
+            self.exam_config.set_base_scores(scores)
         self.empty_variables = []
 
     def set_exam_questions(self, exam):

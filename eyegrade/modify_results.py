@@ -101,6 +101,9 @@ def modify(result, exam_data, invalidate, set_correct):
                                 - blank * exam_data.score_weights[2])
 
 def main():
+    print >>sys.stderr, ('This script is temporarily disabled '
+                         'for it being outdated')
+    sys.exit(1)
     try:
         options, args = read_cmd_options()
         modify_results(options.results_file, options.exam_config,

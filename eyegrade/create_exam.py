@@ -65,10 +65,10 @@ def read_cmd_options():
     parser.add_option('-f', '--force', dest='force_config_overwrite',
                       action='store_true', default=False,
                       help='force removal of the previous .eye exam file')
-    parser.add_option('--cw', '--correct-weight', type='float',
+    parser.add_option('--cw', '--correct-weight',
                       dest='correct_weight',
                       help='weight of correct answers', default=None)
-    parser.add_option('--iw', '--incorrect-weight', type='float',
+    parser.add_option('--iw', '--incorrect-weight',
                       dest='incorrect_weight',
                       help='negative weight of incorrect answers', default=None)
     # The -w below is maintained for compatibility; its use is deprecated
@@ -192,10 +192,10 @@ def create_exam():
 
     if options.correct_weight is not None:
         if options.incorrect_weight is None:
-            options.incorrect_weight = 0.0
+            options.incorrect_weight = 0
         if options.incorrect_weight < 0:
             options.incorrect_weight = -options.incorrect_weight
-        score_weights = (options.correct_weight, options.incorrect_weight, 0.0)
+        score_weights = (options.correct_weight, options.incorrect_weight, 0)
     elif options.incorrect_weight is not None:
         raise EyegradeException('', 'correct_weight_none')
     else:
