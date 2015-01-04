@@ -35,6 +35,10 @@ News
 | `Read more news at the blog <blog/index.html>`_
 
 
+**[Jan 4, 2015]**
+Advancing the features of the upcoming eyegrade 0.5,
+`part 3 <blog/posts/what-will-eyegrade-05-include-part-3.html>`__.
+
 **[Dec 29, 2014]**
 Advancing the features of the upcoming eyegrade 0.5.
 See the blog posts:
