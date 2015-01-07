@@ -24,7 +24,8 @@ import fractions
 import os.path
 
 from PyQt4.QtGui import (QPushButton, QMessageBox, QVBoxLayout,
-                         QWizard, QWizardPage, QFormLayout, )
+                         QWizard, QWizardPage, QFormLayout, QCheckBox, QTabWidget, QWidget, QHBoxLayout,
+                         QTabBar, QScrollArea, QComboBox, QGroupBox, QRadioButton, QButtonGroup, )
 
 from .. import utils
 from . import widgets
@@ -33,7 +34,6 @@ from . import FileNameFilters
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
-
 
 class NewSessionPageInitial(QWizardPage):
     """First page of WizardNewSession.
@@ -59,14 +59,21 @@ class NewSessionPageInitial(QWizardPage):
             self.config_file.set_text(config_filename)
         self.registerField('directory*', self.directory.filename_widget)
         if config_filename is None:
-            self.registerField('config_file*', self.config_file.filename_widget)
-        else:
-            # If '*' is used, the next button is not enabled.
             self.registerField('config_file', self.config_file.filename_widget)
+            #self.registerField('config_file*', self.config_file.filename_widget)
+        #else:
+            ## If '*' is used, the next button is not enabled.
+            #self.registerField('config_file', self.config_file.filename_widget)
+
+        self.new_config_file = QCheckBox(_('QCheckBox new_config_file'))
+        self.new_config_file.stateChanged.connect(self._validate_config_file)
+
         layout = QFormLayout(self)
         self.setLayout(layout)
         layout.addRow(_('Directory'), self.directory)
+        layout.addRow(self.new_config_file)
         layout.addRow(_('Exam configuration file'), self.config_file)
+
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -79,8 +86,10 @@ class NewSessionPageInitial(QWizardPage):
         else:
             ok_config = True
         if ok_dir and ok_config:
-            self.wizard().exam_config = \
-                           utils.ExamConfig(filename=self.config_file.text())
+            if not self.new_config_file.isChecked():
+                self.wizard().exam_config = \
+                               utils.ExamConfig(filename=self.config_file.text())
+
         return ok_dir and ok_config
 
     def _check_directory(self, dir_name):
@@ -122,6 +131,196 @@ class NewSessionPageInitial(QWizardPage):
         self.wizard().exam_config_reset()
         return valid, msg
 
+    def _validate_config_file(self):
+        """Validates if the user needs to create a new exam config file"""
+        state = self.new_config_file.isChecked()
+        if state:
+            self.config_file.setEnabled(False)
+        else:
+            self.config_file.setEnabled(True)
+        return
+
+    def nextId(self):
+        if self.new_config_file.isChecked():
+            return WizardNewSession.PageExamParams
+        else:
+            return WizardNewSession.PageIdFiles
+
+class NewSessionPageExamParams(QWizardPage):
+
+    def __init__(self):
+        super(NewSessionPageExamParams, self).__init__()
+        self.setTitle(_('Title NewSessionPageExamParams'))
+        self.setSubTitle(_('SubTitle NewSessionPageExamParams'))
+        layout = QFormLayout(self)
+        self.setLayout(layout)
+
+        self.paramNEIDs = widgets.InputCustomPattern(fixed_size=100, regex=r'\d+')
+        self.registerField("paramNEIDs",self.paramNEIDs)
+        #self.registerField("paramNEIDs",self.paramNEIDs, "currentItemData")
+        
+        self.paramNAlts = widgets.InputCustomPattern(fixed_size=100, regex=r'\d+')
+        self.registerField("paramNAlts",self.paramNAlts)
+        #self.registerField("paramNAlts",self.paramNAlts, "currentItemData")
+        
+        self.paramNCols = widgets.InputCustomPattern(fixed_size=100, regex=r'\d+(\,\d+)+', placeholder='num,num,...')
+        self.registerField("paramNCols",self.paramNCols)
+        #self.registerField("paramNCols",self.paramNCols, "currentItemData")
+        
+        self.paramNPerm = widgets.InputCustomPattern(fixed_size=100, regex=r'\d+')
+        self.registerField("paramNPerm",self.paramNPerm)
+        #self.registerField("paramNPerm",self.paramNPerm, "currentItemData")
+
+        layout.addRow(_('params_eids_numb'), self.paramNEIDs)
+        layout.addRow(_('params_alts_numb'), self.paramNAlts)
+        layout.addRow(_('params_cols_numb'), self.paramNCols)
+        layout.addRow(_('params_perm_numb'), self.paramNPerm)
+
+    def validatePage(self):
+
+        if not self.paramNEIDs.text():
+            QMessageBox.critical(self, _('Error'), _('validatePage paramNEIDs'))
+            return False       
+
+        if not self.paramNAlts.text():
+            QMessageBox.critical(self, _('Error'), _('validatePage paramNAlts'))
+            return False 
+
+        if not self.paramNCols.text():
+            QMessageBox.critical(self, _('Error'), _('validatePage paramNCols'))
+            return False    
+
+        if not self.paramNPerm.text():
+            QMessageBox.critical(self, _('Error'), _('validatePage paramNPerm'))
+            return False  
+
+        return True
+
+    def nextId(self):
+        return WizardNewSession.PageExamAnswers
+
+class NewSessionPageExamAnswers(QWizardPage):
+
+    def __init__(self):
+        super(NewSessionPageExamAnswers, self).__init__() 
+        self.setTitle(_('Title NewSessionPageExamAnswers'))
+        self.setSubTitle(_('SubTitle NewSessionPageExamAnswers'))
+
+        layout = QFormLayout()
+        self.setLayout(layout)
+
+        self.tabs = QTabWidget()
+        layout.addRow(self.tabs)
+
+    def initializePage(self):
+        self.paramNAlts     = self.field("paramNAlts")
+        self.paramNCols     = self.field("paramNCols")
+        self.paramNPerm     = self.field("paramNPerm")
+
+        self.total_answers  = 0
+        
+        self.radioGroups    = {}
+
+        for x in range(int(self.paramNPerm.toString())):
+
+            mygroupbox          = QScrollArea()
+            mygroupbox.setWidget(QWidget())
+            mygroupbox.setWidgetResizable(True)
+            myform              = QHBoxLayout(mygroupbox.widget())
+
+            cols            = self.paramNCols.toString().split(',')
+            ansID           = 0
+            radioGroupList  = {}
+            
+            for col in cols:
+                mygroupboxCol   = QGroupBox()
+                myformCol       = QFormLayout()
+                mygroupboxCol.setLayout(myformCol)
+
+                for y in range(int(col)):
+                    ansID += 1     
+                    radioGroupList[ansID] = QButtonGroup()
+                    layoutRow = QHBoxLayout()
+
+                    for j in range(int(self.paramNAlts.toString())):
+                        myradio = QRadioButton(chr(97+j).upper())
+                        layoutRow.addWidget(myradio)
+                        radioGroupList[ansID].addButton(myradio)
+
+                    self.total_answers  += 1
+                    myformCol.addRow(str(ansID), layoutRow)
+                myform.addWidget(mygroupboxCol)
+
+            self.radioGroups[chr(97+x).upper()] = radioGroupList
+            self.tabs.addTab(mygroupbox, "Fila %s" % chr(97+x).upper())
+
+    def _get_values(self, formated=False):
+        response = dict()
+        for k, v in self.radioGroups.iteritems():
+            answer = dict()
+            for ak, av in v.iteritems():
+                answer[ak] = abs(int(av.checkedId())) - 1
+            
+            if formated:
+                answer = answer.values()
+            
+            response[k] = answer
+        return response
+
+    def _check_count_answers(self):
+
+        local_radioGroups   = self._get_values(formated=True)
+        local_total_answers = sum(len(filter(lambda a: a != 0, v)) for v in local_radioGroups.itervalues())
+
+        if self.total_answers == local_total_answers:
+            return True
+        else:
+            return False
+
+    def validatePage(self):
+        valid = True
+        msg = ''
+        if not self._check_count_answers():
+            valid = False
+            msg = _('Select all answers for the exam.')
+        else:
+            try:
+
+                self.wizard().exam_config = utils.ExamConfig()
+
+                # solutions generation
+                current_solutions = self._get_values(formated=True)
+                for k, v in current_solutions.iteritems():
+                    self.wizard().exam_config.set_solutions(k, v)
+
+                # dimentions generation
+                dimensions = [] 
+                for c in self.paramNCols.toString().split(','):
+                    dimensions.append("%s,%s" % (self.paramNAlts.toString(),c))
+
+                self.wizard().exam_config.set_dimensions(';'.join(dimensions))
+
+                # students ids generation
+                self.wizard().exam_config.id_num_digits = int(self.field("paramNEIDs").toString())
+
+            except IOError:
+                valid = False
+                msg = _('The exam configuration file cannot be read.')
+            except Exception as e:
+                valid = False
+                msg = _('The exam configuration file contains errors')
+                if str(e):
+                    msg += ':<br><br>' + str(e)
+                else:
+                    msg += '.'
+        
+        if not valid:
+            QMessageBox.critical(self, _('Error'), msg)
+
+        return valid
+
+    def nextId(self):
+        return WizardNewSession.PageIdFiles
 
 class NewSessionPageScores(QWizardPage):
     """Page of WizardNewSession that asks for the scores for answers."""
@@ -250,6 +449,8 @@ class NewSessionPageScores(QWizardPage):
             else:
                 return '-' + str(value)
 
+    def nextId(self):
+        return -1
 
 class WizardNewSession(QWizard):
     """Wizard for the creation of a new session.
@@ -261,6 +462,9 @@ class WizardNewSession(QWizard):
     `config_filename`.
 
     """
+    NUM_PAGES = 5
+    (PageInitial, PageExamParams, PageExamAnswers, PageIdFiles, PageScores) = range(NUM_PAGES)
+
     def __init__(self, parent, config_filename=None):
         super(WizardNewSession, self).__init__(parent)
         self.exam_config = None
@@ -268,11 +472,17 @@ class WizardNewSession(QWizard):
         self.page_initial = \
                  self._create_page_initial(config_filename=config_filename)
         self.page_id_files = self._create_page_id_files()
+        self.page_exam_params = self._create_page_exam_file()
+        self.page_exam_answers = self._create_page_exam_answers()
         self.page_scores = self._create_page_scores()
-        self.page_scores.setFinalPage(True)
-        self.addPage(self.page_initial)
-        self.addPage(self.page_id_files)
-        self.addPage(self.page_scores)
+
+        self.setPage(self.PageInitial, self.page_initial)
+        self.setPage(self.PageExamParams, self.page_exam_params)
+        self.setPage(self.PageExamAnswers, self.page_exam_answers)
+        self.setPage(self.PageIdFiles, self.page_id_files)
+        self.setPage(self.PageScores, self.page_scores)
+
+        self.setStartId(self.PageInitial)
 
     def get_directory(self):
         return unicode(self.page_initial.directory.text())
@@ -298,6 +508,12 @@ class WizardNewSession(QWizard):
     def _create_page_initial(self, config_filename=None):
         """Creates the first page, which asks for directory and .eye file."""
         return NewSessionPageInitial(config_filename=config_filename)
+
+    def _create_page_exam_file(self):
+        return NewSessionPageExamParams()
+
+    def _create_page_exam_answers(self):
+        return NewSessionPageExamAnswers()
 
     def _create_page_id_files(self):
         """Creates a page for selecting student id files."""

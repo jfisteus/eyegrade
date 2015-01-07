@@ -169,8 +169,18 @@ class OpenFileWidget(QWidget):
         self.filename_widget.setText(filename)
 
     def setEnabled(self, enabled):
+        """ Toggle enabled status of this widget.
+
+        If the widget is disabled, the validated status 
+        is forced to True with the statement self.last_validated_value = self.text()
+
+        """
         self.filename_widget.setEnabled(enabled)
         self.button.setEnabled(enabled)
+        if not enabled:
+            self.last_validated_value = self.text()
+        else:
+            self.last_validated_value = None
 
     def is_validated(self):
         """Returns True if the value equals the latest validated value.
@@ -420,3 +430,16 @@ class CamView(QWidget):
     def mousePressEvent(self, event):
         if self.mouse_listener:
             self.mouse_listener((event.x(), event.y()))
+
+
+class InputCustomPattern(QLineEdit):
+    """Allows the user to enter a string with a specific pattern validation (regex)"""
+    def __init__(self, parent=None, fixed_size=40, regex=r'.+', placeholder=None):
+        super(InputCustomPattern, self).__init__(parent=parent)
+        
+        if placeholder:
+            self.setPlaceholderText(placeholder)
+
+        self.setFixedWidth(fixed_size)
+        validator = QRegExpValidator(QRegExp(regex), self)
+        self.setValidator(validator)
