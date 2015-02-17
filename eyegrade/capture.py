@@ -16,14 +16,11 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-# Import the cv module. If new style bindings not found, use the old ones:
+# Import the cv module. It might be cv2.cv in newer versions.
 try:
     import cv
-    cv_new_style = True
 except ImportError:
-    from . import cvwrapper
-    cv = cvwrapper.CVWrapperObject()
-    cv_new_style = False
+    import cv2.cv as cv
 
 import geometry
 import utils

@@ -20,7 +20,11 @@ from __future__ import print_function, division
 import sys
 import random
 
-import cv
+# Import the cv module. It might be cv2.cv in newer versions.
+try:
+    import cv
+except ImportError:
+    import cv2.cv as cv
 
 from .. import sessiondb
 from .. import imageproc

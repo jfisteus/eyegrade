@@ -27,14 +27,11 @@ from . import geometry as g
 from . import ocr
 from . import capture
 
-# Import the cv module. If new style bindings not found, use the old ones:
+# Import the cv module. It might be cv2.cv in newer versions.
 try:
     import cv
-    cv_new_style = True
 except ImportError:
-    from . import cvwrapper
-    cv = cvwrapper.CVWrapperObject()
-    cv_new_style = False
+    import cv2.cv as cv
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
@@ -625,7 +622,7 @@ def detect_lines(image, hough_threshold):
                            1, 0.01, hough_threshold)
 
     # Trick to use both new and old style bindings
-    len_lines = len(lines) if cv_new_style else lines.total
+    len_lines = len(lines)
     if len_lines > 500:
         return []
 
