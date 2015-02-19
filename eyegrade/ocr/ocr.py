@@ -20,11 +20,19 @@
 #
 import tre
 
+import cv2
+
+import numpy as np ###
+import image_preprocessing as imp ###
+
 from . import geometry as g
 
 param_cross_num_lines = 15
 param_cell_margin = 2
 param_max_errors = 4
+
+classifier = cv2.SVM() ###
+classifier.load('eyegrade_SVM.dat') ###
 
 # Tre initializations
 tre_fz = tre.Fuzzyness(maxerr = param_max_errors)
@@ -99,7 +107,12 @@ limits = [(4, 4, 3, 3, 1, 1, 2, 2), # zero
 
 def digit_ocr(image, cell_corners, debug = None, image_drawn = None):
     assert(not debug or image_drawn is not None)
-    return digit_ocr_by_line_crossing(image, cell_corners, debug, image_drawn)
+    image_as_vector = imp.image_preprocessing(np.asarray(image[:,:])) ###
+    prediction = int(classifier.predict(image_as_vector)) ###
+    weights = [0.0]*10 ###
+    weights[prediction] = 1.0 ###
+
+    return (prediction, weights) ###
 
 def digit_ocr_by_line_crossing(image, cell_corners, debug, image_drawn):
     points = adjust_cell_corners(image, cell_corners)
