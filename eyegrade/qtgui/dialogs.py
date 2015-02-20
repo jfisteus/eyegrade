@@ -364,7 +364,7 @@ class DialogAbout(QDialog):
     values = dialog.exec_()
 
     """
-    _tuple_strcoll = lambda x, y: locale.strcoll(x[0], y[0])
+    _tuple_strcoll = staticmethod(lambda x, y: locale.strcoll(x[0], y[0]))
 
     def __init__(self, parent):
         super(DialogAbout, self).__init__(parent)
