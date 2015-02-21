@@ -446,3 +446,7 @@ class TestScore(unittest.TestCase):
         ]
         self.assertRaises(ValueError, utils.Score,
                           answers, solutions, question_scores)
+
+                          
+if __name__ == '__main__':
+    unittest.main()
