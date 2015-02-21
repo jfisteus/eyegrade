@@ -82,12 +82,6 @@ def cell_clicked(image, point):
     else:
         return None
 
-def dump_camera_buffer(camera, delay_suffered):
-    if camera is not None and delay_suffered > 0.1:
-        frames_to_drop = min(8, int(1 + (delay_suffered - 0.1) / 0.04))
-        for i in range(0, frames_to_drop):
-            imageproc.capture_image(camera, False)
-
 def select_camera(options, config):
     if options.camera_dev is None:
         camera = config['camera-dev']
@@ -207,8 +201,7 @@ class ProgramManager(object):
         self.mode = ProgramMode()
         self.config = utils.config
         self.sessiondb = None
-        self.imageproc_context = \
-            imageproc.ExamDetectorContext(camera_id=self.config['camera-dev'])
+        self.imageproc_context = self._get_imageproc_context()
         self.imageproc_options = None
         self.drop_next_capture = False
         self.dump_buffer = False
@@ -221,6 +214,14 @@ class ProgramManager(object):
     def run(self):
         """Starts the program manager."""
         self.interface.run()
+
+    def _get_imageproc_context(self):
+        false_detector_session = os.getenv('EYEGRADE_CAMERA_SESSION')
+        if not false_detector_session:
+            return imageproc.ExamDetectorContext( \
+                                        camera_id=self.config['camera-dev'])
+        else:
+            return imageproc.FalseExamDetectorContext(false_detector_session)
 
     def _try_session_file(self, session_file):
         if os.path.isdir(session_file):
@@ -247,7 +248,7 @@ class ProgramManager(object):
         self.latest_detector = None
         self.manual_detect_manager = None
         self.interface.register_timer(50, self._next_search)
-        dump_camera_buffer(self.imageproc_context.camera, 1.0)
+        self.imageproc_context.dump_buffer(1.0)
         self.next_capture = time.time() + 0.05
 
     def _start_review_mode(self):
@@ -291,8 +292,7 @@ class ProgramManager(object):
             return
         if self.dump_buffer:
             self.dump_buffer = False
-            dump_camera_buffer(self.imageproc_context.camera,
-                               after_removal_delay)
+            self.imageproc_context.dump_buffer(after_removal_delay)
         detector = imageproc.ExamDetector(self.exam_data.dimensions,
                                           self.imageproc_context,
                                           self.imageproc_options)
@@ -343,7 +343,7 @@ class ProgramManager(object):
         if (not self.mode.in_review_from_grading()
             or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
-        dump_camera_buffer(self.imageproc_context.camera, 1.0)
+        self.imageproc_context.dump_buffer(1.0)
         detector = imageproc.ExamDetector(self.exam_data.dimensions,
                                           self.imageproc_context,
                                           self.imageproc_options)
@@ -393,8 +393,8 @@ class ProgramManager(object):
         current_time = time.time()
         self.next_capture += period
         if current_time > self.next_capture:
-            dump_camera_buffer(self.imageproc_context.camera,
-                               current_time - self.next_capture)
+            self.imageproc_context.dump_buffer((current_time
+                                                - self.next_capture))
             wait = 0.010
             self.next_capture = time.time() + 0.010
         else:

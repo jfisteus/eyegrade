@@ -26,6 +26,7 @@ import sys
 from . import geometry as g
 from . import ocr
 from . import capture
+from . import sessiondb
 
 # Import the cv module. It might be cv2.cv in newer versions.
 try:
@@ -399,7 +400,7 @@ class ExamDetector(object):
                     draw_point(self.image_to_show, c)
 
 
-class ExamDetectorContext:
+class ExamDetectorContext(object):
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 
@@ -528,6 +529,12 @@ class ExamDetectorContext:
                 image = resize_image(image, resize)
         return image
 
+    def dump_buffer(self, delay_suffered):
+        if self.camera is not None and delay_suffered > 0.1:
+            frames_to_drop = min(8, int(1 + (delay_suffered - 0.1) / 0.04))
+            for i in range(0, frames_to_drop):
+                capture_image(self.camera, False)
+
     def _try_next_camera(self, cur_camera_id):
         camera = None
         camera_id = -1
@@ -545,6 +552,46 @@ class ExamDetectorContext:
             return cam
         else:
             return None
+
+
+class FalseExamDetectorContext(ExamDetectorContext):
+    def __init__(self, session_file):
+        super(FalseExamDetectorContext, self).__init__()
+        self.session = sessiondb.SessionDB(session_file)
+        self.camera_id = 99
+        self.camera = 'Something'
+        self.exams = []
+        self.next_exam_idx = 0
+
+    def open_camera(self, camera_id=None):
+        self.exams = self.session.read_exams()
+        self.next_exam_idx = 0
+
+    def current_camera_id(self):
+        return 99
+
+    def next_camera(self):
+        return True
+
+    def close_camera(self):
+        self.exams = []
+
+    def capture(self, clone=False, resize=None):
+        if self.exams:
+            exam = self.exams[self.next_exam_idx]
+            image = self.session.load_raw_capture(exam.exam_id)
+        else:
+            image = None
+        return image
+
+    def dump_buffer(self, delay_suffered):
+        pass
+
+    def notify_success(self):
+        super(FalseExamDetectorContext, self).notify_success()
+        self.next_exam_idx += 1
+        if self.next_exam_idx == len(self.exams):
+            self.next_exam_idx = 0
 
 
 def init_camera(input_dev = -1):
