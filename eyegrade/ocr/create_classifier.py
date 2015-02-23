@@ -2,7 +2,7 @@ import cv2, sys
 import numpy as np
 from os import walk, path
 
-import image_preprocessing as imp
+from . import preprocessing as imp
 
 #################################################################################
 #########################DATASET LOADING FUNCTIONS###############################
@@ -113,7 +113,7 @@ def test_parameters(x_train, y_train, x_test, y_test):
 '''
 Main function for creating the SVM classifier
 '''
-def create_SVM(C=10, gamma=0.01, classifier_name='eyegrade_SVM.dat'):
+def create_SVM(C=10, gamma=0.01, classifier_name='ocr_svm.dat'):
     print 'Loading dataset...'
     dataset, labels = load_dataset(digits_folder, labels_file)
     print 'Dataset loaded succesfully!'
