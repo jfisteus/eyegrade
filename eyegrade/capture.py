@@ -191,6 +191,8 @@ class ExamCapture(object):
                 self._draw_cell_center(cells[solution - 1], _color_dot_bad)
             elif status == utils.QuestionScores.BLANK:
                 self._draw_cell_center(cells[solution - 1], _color_dot_blank)
+            elif status == utils.QuestionScores.VOID:
+                self._draw_void_question(cells)
 
     def _draw_answers_no_solutions(self, score):
         for answer, cells in zip(score.answers, self.answer_cells):
@@ -203,6 +205,10 @@ class ExamCapture(object):
 
     def _draw_cell_center(self, cell, color):
         cv.Circle(self.image_drawn, cell.center, 4, color, cv.CV_FILLED)
+
+    def _draw_void_question(self, cells):
+        cv.Line(self.image_drawn, cells[0].center, cells[-1].center,
+                _color_bad, 3)
 
 
 def load_image(filename):

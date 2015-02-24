@@ -704,8 +704,14 @@ class Score(object):
         self.incorrect = 0
         self.blank = 0
         self.answer_status = []
-        for answer, solution in zip(self.answers, self.solutions):
-            if answer == 0:
+        question_scores = self.question_scores
+        if question_scores is None:
+            question_scores = [None] * len(self.answers)
+        for answer, solution, q in zip(self.answers, self.solutions,
+                                       question_scores):
+            if q is not None and q.weight == 0:
+                self.answer_status.append(QuestionScores.VOID)
+            elif answer == 0:
                 self.blank += 1
                 self.answer_status.append(QuestionScores.BLANK)
             elif answer == solution:
@@ -714,9 +720,9 @@ class Score(object):
             else:
                 self.incorrect += 1
                 self.answer_status.append(QuestionScores.INCORRECT)
-        if self.question_scores is not None:
+        if question_scores is not None:
             self.score = float(sum([q.score(status) \
-                                    for q, status in zip(self.question_scores,
+                                    for q, status in zip(question_scores,
                                                          self.answer_status)]))
             self.max_score = float(sum([q.score(QuestionScores.CORRECT)
                                         for q in self.question_scores]))
@@ -1307,6 +1313,7 @@ class QuestionScores(ComparableMixin):
     CORRECT = 1
     INCORRECT = 2
     BLANK = 3
+    VOID = 4
 
     def __init__(self, correct_score, incorrect_score, blank_score,
                  weight=1):
@@ -1334,6 +1341,8 @@ class QuestionScores(ComparableMixin):
             return -self.weight * self.incorrect_score
         elif answer_type == QuestionScores.BLANK:
             return -self.weight * self.blank_score
+        elif answer_type == QuestionScores.VOID:
+            return 0
         else:
             raise Exception('Bad answer_type value in QuestionScore')
 
