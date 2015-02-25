@@ -272,7 +272,7 @@ class ProgramManager(object):
         if not self.exam.decisions.model:
             self.interface.enable_manual_detect(True)
         if self.mode.in_grading():
-            self._store_capture_and_add()
+            self.interface.run_later(self._store_capture_and_add)
 
     def _start_auto_change_detection(self):
         if not self.from_manual_detection:
@@ -609,7 +609,7 @@ class ProgramManager(object):
                                           self.exam.capture,
                                           self.exam.decisions,
                                           store_captures=False)
-            self._store_capture_and_update()
+            self.interface.run_later(self._store_capture_and_update)
 
     def _action_camera_selection(self):
         """Callback for opening the camera selection dialog."""
@@ -679,7 +679,7 @@ class ProgramManager(object):
                                          self.exam.capture,
                                          self.exam.decisions, self.exam.score,
                                          store_captures=False)
-            self._store_capture_and_update()
+            self.interface.run_later(self._store_capture_and_update)
 
     def _mouse_pressed_manual_detection(self, point):
         manager = self.manual_detect_manager
