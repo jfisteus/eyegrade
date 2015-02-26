@@ -1076,6 +1076,9 @@ class ExamConfig(object):
         else:
             return [s.format_weight() for s in self.scores[model]]
 
+    def reset_question_weights(self):
+        self.scores = {}
+
     def all_weights_are_one(self):
         """Return True if all the score weights are 1.
 
@@ -1384,6 +1387,9 @@ class QuestionScores(ComparableMixin):
             weight = self.weight
         return QuestionScores(self.correct_score, self.incorrect_score,
                               self.blank_score, weight=weight)
+
+    def __str__(self):
+        return '({0}) * {1}'.format(self.format_all(), self.format_weight())
 
     def _parse_score(self, score):
         return parse_number(score)

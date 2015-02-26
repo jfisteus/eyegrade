@@ -517,6 +517,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
         """
         if not self.validate():
             return False
+        self.exam_config.reset_question_weights()
         if self.has_permutations:
             for i, model in enumerate(self.models[1:]):
                 w = []
