@@ -1,5 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 04 Jan 2015 22:03:43 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 3)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Continuing the series of posts
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 26 Feb 2015 09:53:19 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
+because I plan to add a couple of features more.
+Today I'll talk about one of them.
+Roberto González, a long time user and contributor of Eyegrade,
+wondered in
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html#disqus_thread"&gt;his comment to my previous blog post&lt;/a&gt;
+whether the new feature for assigning different scores to questions
+could be used to void those questions that one doesn't want to grade.
+This may be useful, for example,
+when, being late for doing changes to the text of the exam,
+you want to invalidate a question
+because you discover that there is a severe error in how it's stated.
+Roberto commented another situation
+in which voiding a question would be very useful for him.&lt;/p&gt;
+&lt;p&gt;Roberto cleverly suggested that assigning weight zero
+to those questions would make it.
+I've been working on his idea.
+When you set the scores of the questions
+and select the &lt;em&gt;base score plus per-question weight&lt;/em&gt; option,
+you'll be able to assign weight zero to some questions:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Set weight zero to void a question" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/void-question-set-weight.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;The example above voids question 5 in model A,
+which is also question 1 in model B, question 2 in model C
+and question 3 in model D.
+Void questions will be clearly displayed
+in the capture of the exam,
+and won't be considered either for the score
+or the count of correct and incorrect questions:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Set weight zero to void a question" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/void-question-capture.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;This new feature has a limitation though:
+you'll have to void the questions when you create the session.
+You won't be able to do it once the session has been created.
+For future releases
+I'll try to allow changing question scores for existing sessions,
+so that the scores of the exams that have already been graded
+get computed again and their captures get updated.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</guid><pubDate>Thu, 26 Feb 2015 08:50:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 3)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Continuing the series of posts
 that describe the new features of the future eyegrade 0.5 release
 (see the &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;first&lt;/a&gt;
 and &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html"&gt;second&lt;/a&gt; posts),
@@ -233,35 +272,4 @@ redirections won't work. However, the new addresses will work properly
 even in that case.&lt;/p&gt;
 &lt;p&gt;The new website is hosted at the &lt;a class="reference external" href="http://pages.github.com/"&gt;GitHub Pages&lt;/a&gt; service. My experience so far with this
 service has been very satisfactory. The availability of the website
-with the new hosting will definitely be much better.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</guid><pubDate>Wed, 31 Jul 2013 16:55:00 GMT</pubDate></item><item><title>Requests for Eyegrade 0.3</title><link>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm planning the next major release (0.3) of Eyegrade for
-September. There are some features I have in mind, but listening to
-the users from time to time does not harm ;) If there is a feature you
-are especially interested in, just let me know by commenting on this
-post.&lt;/p&gt;
-&lt;p&gt;Apart from some polishing here and there, these are things I'm
-thinking about:&lt;/p&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;Right now, you can review and fix detection errors in an exam only
-at the moment you scan it. What if you discover an error later on?
-It think it would be great if the interface allowed you to open a
-grading session anytime later and use the same reviewing/fixing
-features.  This feature would probably include a list of students
-and grades in the interface, so that you can quickly access the exam
-of a specific student.&lt;/li&gt;
-&lt;li&gt;A user interface for entering the questions of an exam, creating the
-PDFs, etc. This would probably include dropping LaTeX in favor of
-something else (my main option is the &lt;a class="reference external" href="http://www.reportlab.com/software/opensource/"&gt;ReportLab library&lt;/a&gt;). Using the
-current command-line interface and LaTeX would still be possible,
-but not the preferred method.&lt;/li&gt;
-&lt;li&gt;Making life easier for users that only want to use Eyegrade for
-grading, but not for creating the exams. I include here features
-such as creating a &lt;cite&gt;.eye&lt;/cite&gt; file through guided dialogues or creating
-the PDF of a personalized answer sheet in the user interface.  It's
-about time to close &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/36"&gt;issue 36&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Adapting the user interface for multiple languages. I can start with
-an English, Spanish and Galician interface, and wait for volunteers
-to translate it to other tongues.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;I won't have time for all the features in the list, so you can help me
-to prioritize. Of course, you can also request features not in the
-list ;)&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>requests</category><guid>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</guid><pubDate>Fri, 21 Jun 2013 18:45:00 GMT</pubDate></item></channel></rss>
+with the new hosting will definitely be much better.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</guid><pubDate>Wed, 31 Jul 2013 16:55:00 GMT</pubDate></item></channel></rss>

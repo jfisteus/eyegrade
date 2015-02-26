@@ -14,7 +14,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2015/index.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
@@ -30,7 +30,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/index.html</loc>
@@ -38,7 +38,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/new-features.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/pyqt.html</loc>
@@ -58,11 +58,11 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-1.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</loc>
@@ -114,7 +114,11 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</loc>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.1/index.html</loc>
@@ -146,7 +150,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-05/index.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-for-index/index.html</loc>
@@ -162,6 +166,6 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/index.html</loc>
-  <lastmod>2015-01-04</lastmod>
+  <lastmod>2015-02-26</lastmod>
  </url>
 </urlset>
