@@ -409,11 +409,15 @@ class ProgramManager(object):
             if model is not None:
                 if (model in self.exam_data.solutions
                     or self.exam_data.survey_mode):
+                    if model in self.exam_data.scores:
+                        scores = self.exam_data.scores[model]
+                    else:
+                        scores = None
                     exam = utils.Exam(detector.capture, detector.decisions,
                                       self.exam_data.get_solutions(model),
                                       self.sessiondb.students,
                                       self.exam_id,
-                                      self.exam_data.scores[model],
+                                      scores,
                                       sessiondb=self.sessiondb)
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:

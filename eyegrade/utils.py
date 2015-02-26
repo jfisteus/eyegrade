@@ -707,6 +707,9 @@ class Score(object):
         question_scores = self.question_scores
         if question_scores is None:
             question_scores = [None] * len(self.answers)
+            has_scores = False
+        else:
+            has_scores = True
         for answer, solution, q in zip(self.answers, self.solutions,
                                        question_scores):
             if q is not None and q.weight == 0:
@@ -720,7 +723,7 @@ class Score(object):
             else:
                 self.incorrect += 1
                 self.answer_status.append(QuestionScores.INCORRECT)
-        if question_scores is not None:
+        if has_scores:
             self.score = float(sum([q.score(status) \
                                     for q, status in zip(question_scores,
                                                          self.answer_status)]))
