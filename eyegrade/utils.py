@@ -851,10 +851,13 @@ class Exam(object):
         if self.decisions.detected_id is not None:
             if self.students:
                 rank = [(self._id_rank(s, self.decisions.id_scores), s) \
-                         for s in self.students.itervalues()]
+                         for s in self.students.itervalues() \
+                         if s.group_id > 0]
                 students_rank = [student for score, student \
                                  in sorted(rank, reverse = True)]
             else:
+                students_rank = []
+            if students_rank == []:
                 students_rank = [Student(None, self.decisions.detected_id,
                                          None, None, None, None, None, None)]
         else:
