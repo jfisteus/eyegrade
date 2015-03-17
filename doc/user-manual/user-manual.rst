@@ -654,16 +654,20 @@ selecting the student id is shown:
 .. image:: images/change-student-id.png
    :alt: Dialog for changing the student id
 
-The dialog shows the students from the student list sorted by their
+The dialog shows a drop-down menu with the students from the student
+list sorted by their
 probability (according to the OCR module) of being the student whose
-id is in the exam. You just choose one in the drop-down menu. In
-addition, you can filter students by writing part of their id number
+id is in the exam. You just choose any student in the list.
+In addition, you can filter students by writing part of their id number
 or their name.
 
 If the student is not in your list, you can also push the
 *New student* button to create a new student.
 It opens a dialog in which you can enter the data.
-The only mandatory field is this dialog is the student id number.
+The only mandatory field is this dialog is the student id number:
+
+.. image:: images/new-student-dialog.png
+   :alt: Dialog for creating a new student
 
 
 The manual detection mode
