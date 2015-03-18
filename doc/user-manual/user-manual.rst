@@ -39,8 +39,14 @@ Eyegrade depends on the following free-software projects:
 Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5
 ................................................................
 
-In order to upgrade from eyegrade 0.2.x, 0.3.x and 0.4.x to eyegrade 0.5,
+In order to upgrade from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5,
 follow the instructions at `Updating Eyegrade`_.
+
+Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work with sessions created
+by the previous versions of Eyegrade,
+those previous versions don't work
+with sessions created by Eyegrade 0.5.
 
 The main changes of the most recent versions are described in the following
 blog posts:
