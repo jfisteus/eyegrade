@@ -978,7 +978,8 @@ In this dialog you have to select:
   exams.
 
 - Which fields to include in the listing: student id number, student
-  name, grading sequence number, exam model letter, number of correct
+  full name, student last name, student first name,
+  grading sequence number, exam model letter, number of correct
   and incorrect answers, score and full list of answers. Only the
   fields you check are exported (as columns of the exported file). The
   order of these fields in the exported file is the same you see in
