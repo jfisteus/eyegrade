@@ -446,6 +446,155 @@ session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.
 
 
+
+Scores
+.......
+
+Eyegrade can compute the scores of the exams.
+When you create a new session, you can select
+in the last page of the wizard one
+of the following three options:
+
+- No scores: Eyegrade shows the number of correct and incorrect questions,
+  but does not compute scores.
+
+- Same score for all the questions: all the questions
+  are awarded the same score.
+  You must specify the score for each correct question.
+  Optionally, if you want incorrect or blank questions
+  to have a penalty in the score,
+  you can also specify a (negative) score for incorrect
+  questions and for blank questions.
+
+- Base score plus per-question weight:
+  in this mode, not all the questions have the same score.
+  You must define a *base score*
+  (a reference score for correct, incorrect and blank questions)
+  and, for each question, a relative *weight*.
+  The final score for a question is computed as the multiplication
+  of its weight and the base score.
+  This mode can also be used for voiding questions:
+  when you assign a weight of 0 to a question,
+  that question is not graded.
+
+
+Same score for all the questions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you select this option,
+all the questions count the same in the grade of the exam.
+Eyegrade counts the number of correct, incorrect and blank answers,
+and multiplies each one by the score assigned
+to each of those types of answers.
+
+For example, suppose an exam with 10 questions,
+in which correct answers add 1 point to the score
+and incorrect answers subtract 1/3 points (one third of a point).
+A student having 7 correct and 3 incorrect answers
+will get 6 points (7 * 1 - 3 * 1/3).
+
+You specify those scores in the last step of the session creation wizard:
+
+.. image:: images/same-score-dialog.png
+   :alt: Dialog for specifying the same score for all the questions
+
+Giving a positive score for correct answers is mandatory in this mode.
+The score for incorrect and blank answers is optional,
+and defaults to 0 when you don't enter it.
+
+Eyegrade can automatically compute the appropriate scores for you
+if you specify the total score that a perfect exam would achieve.
+In order to do that, press the *Compute default scores* button,
+and the following dialog appears:
+
+.. image:: images/compute-default-scores-dialog.png
+   :alt: Dialog for computing the default scores
+
+The dialog computes the score for correct answers
+as the total score for a perfect exam divided by the number of questions.
+If you select the *Penalize incorrect answers* option,
+a score for incorrect answers is also computed
+as the score for correct answers divided by
+the number of choices of each question minus one.
+This way, the expected score for an exam with random answers
+(all the questions have the same probability of being marked by the student)
+is zero.
+
+
+Base score plus per-question weight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you select this option for computing scores,
+not all the questions are awarded the same score.
+Important questions may get bigger scores than less important ones.
+In order to do that, you define a base score
+(e.g. 2 points for correct answers and -2/3 for incorrect ones)
+and a relative *weight* for each question.
+The *weight* of a question is a factor that multiplies the base score
+in order to get the actual score of that question.
+For example, for a question that you want to score double than the base score
+(4 points for correct answers and -4/3 for incorrect ones)
+you would set a weight of 2.
+For a question you want to have exactly the base score,
+you would set a weight of 1.
+You can even decrease the score of a question with respect to he base score.
+A weight of 1/2 would mean
+1 point for correct answers and -1/3 for incorrect ones
+in our example.
+
+You need to edit the scores in the table at the center of the dialog:
+
+.. figure:: images/weights-table.png
+   :class: thumbnail
+   :alt: View of the table for entering question weights
+
+You can enter in each cell integer numbers (e.g. "2"),
+fractions (e.g. "1/2")
+or decimal numbers with fractional digits (e.g. "2.5").
+If you have several exam models
+(alternative orderings of the questions),
+eyegrade will check that you enter the same weights
+in all the models, possibly in a different order for each model:
+
+.. figure:: images/error-different-weights.png
+   :class: thumbnail
+   :alt: Error message when the weights in some models are different
+
+In addition, if your session configuration file
+contains the permutations done to each model
+(if you create the documents of your exams with eyegrade,
+it will),
+Eyegrade automatically updates the value in all the models
+every time you change the weight of a question in one of them.
+However, if the file does not contain the permutations,
+you'll need to enter the weights for all the models yourself.
+
+The *Compute default scores* button works as expected
+in this mode also.
+It takes into account the question weights you entered
+in order to compute the base scores.
+You should edit the question weights
+*before* computing the default base scores.
+
+Assigning weight 0 to a question voids it:
+
+.. figure:: images/void-question-set-weight.png
+   :class: thumbnail
+   :alt: Set weight zero to void a question
+
+The example above voids question 5 in model A,
+which is also question 1 in model B, question 2 in model C
+and question 3 in model D.
+Void questions will be clearly displayed
+in the capture of the exam,
+and won't be considered either for the score
+or the count of correct and incorrect questions:
+
+.. figure:: images/void-question-capture.png
+   :class: thumbnail
+   :alt: Set weight zero to void a question
+
+
 Application modes
 .................
 
