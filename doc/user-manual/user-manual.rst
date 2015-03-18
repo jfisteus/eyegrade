@@ -6,8 +6,8 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.3 and later versions. For the
-0.2.x series see `this other user manual <../user-manual-0.2/>`_.
+This user manual refers to Eyegrade 0.5 and later versions. For the
+0.3 and 0.4 series see `this other user manual <../user-manual-0.3/>`_.
 
 Installing Eyegrade
 -------------------
@@ -36,16 +36,24 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.2.x and 0.3.x to Eyegrade 0.4
-.......................................................
+Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5
+................................................................
 
-In order to upgrade from eyegrade 0.2.x or 0.3.x to eyegrade 0.4,
+In order to upgrade from eyegrade 0.2.x, 0.3.x and 0.4.x to eyegrade 0.5,
 follow the instructions at `Updating Eyegrade`_.
 
-The main changes are described in the blog posts `Eyegrade 0.3
-released <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
-and `Eyegrade 0.4 released
-<http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+The main changes of the most recent versions are described in the following
+blog posts:
+
+- `Eyegrade 0.5 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-05-released.html>`_
+
+- `Eyegrade 0.4 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+
+- `Eyegrade 0.3 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
+
 
 Installation on GNU/Linux
 .........................
