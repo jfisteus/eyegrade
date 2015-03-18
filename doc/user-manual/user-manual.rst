@@ -489,14 +489,14 @@ of the following three options:
   of its weight and the base score.
   This mode can also be used for voiding questions:
   when you assign a weight of 0 to a question,
-  that question is not graded.
+  it does not contribute to the score of the exam.
 
 
 Same score for all the questions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When you select this option,
-all the questions count the same in the grade of the exam.
+all the questions count the same in the score of the exam.
 Eyegrade counts the number of correct, incorrect and blank answers,
 and multiplies each one by the score assigned
 to each of those types of answers.
@@ -576,15 +576,15 @@ in all the models, possibly in a different order for each model:
 
 In addition, if your session configuration file
 contains the permutations done to each model
-(if you create the documents of your exams with eyegrade,
+(if you create the documents of your exams with Eyegrade,
 it will),
 Eyegrade automatically updates the value in all the models
 every time you change the weight of a question in one of them.
 However, if the file does not contain the permutations,
 you'll need to enter the weights for all the models yourself.
 
-The *Compute default scores* button works as expected
-in this mode also.
+The *Compute default scores* button works also as expected
+in this mode.
 It takes into account the question weights you entered
 in order to compute the base scores.
 You should edit the question weights
