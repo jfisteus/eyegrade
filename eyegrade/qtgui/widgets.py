@@ -91,9 +91,12 @@ class StudentComboBox(CompletingComboBox):
             self.setCurrentIndex(len(self.students) - 1)
 
     def current_student(self):
-        student = self.students[self.currentIndex()]
-        if self.currentText() != student.id_and_name:
-            # The user has edited the text of this item
+        if self.currentIndex() < len(self.students):
+            student = self.students[self.currentIndex()]
+            if self.currentText() != student.id_and_name:
+                # The user has edited the text of this item
+                student = None
+        else:
             student = None
         return student
 
