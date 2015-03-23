@@ -1028,6 +1028,7 @@ class ExamConfig(object):
             raise ValueError('The score mode does not allow base scores')
         self.base_scores = scores
         if same_weights:
+            self.reset_question_weights()
             for model in self.models:
                 self.set_equal_scores(model)
 

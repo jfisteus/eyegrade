@@ -318,6 +318,26 @@ class TestExamConfigScores(unittest.TestCase):
         for scores in exam.scores['A'] + exam.scores['B']:
             self.assertEqual(scores, exam.base_scores)
 
+    def testSetEqualScores3(self):
+        """Test for issue #96.
+
+        An exception because of different weights was raised because
+        of the issue.
+
+        """
+        exam = utils.ExamConfig()
+        exam.num_questions = 5
+        exam.set_base_scores(utils.QuestionScores('1', '1/2', '0'),
+                             same_weights=True)
+        exam.set_equal_scores('A')
+        exam.set_equal_scores('B')
+        for scores in exam.scores['A'] + exam.scores['B']:
+            self.assertEqual(scores, exam.base_scores)
+        exam.set_base_scores(utils.QuestionScores('2', '1', '0'),
+                             same_weights=True)
+        for scores in exam.scores['A'] + exam.scores['B']:
+            self.assertEqual(scores, exam.base_scores)
+
     def testSetBaseScoresError(self):
         exam = utils.ExamConfig()
         scores = utils.QuestionScores('1', '1/2', '0', weight='2')
