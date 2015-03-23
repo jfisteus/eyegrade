@@ -251,10 +251,10 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade.zip
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_. Extract
-it in your file system, in a directory with no white-spaces in its
-path.
+1.- Download the ZIP file `eyegrade-5.0.zip
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-5.0.zip>`_.
+Extract it in your file system,
+in a directory with no white-spaces in its path.
 
 Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
