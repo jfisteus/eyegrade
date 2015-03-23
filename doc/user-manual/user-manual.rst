@@ -296,7 +296,7 @@ prompt window, enter the Eyegrade installation directory and type::
 This should work on any platform (Linux, Windows, etc.)
 
 If you didn't use Git to install Eyegrade, `download the new version
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_,
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-5.0.zip>`_,
 uncompress it and replace your ``eyegrade`` directory by the one you
 have uncompressed.
 
