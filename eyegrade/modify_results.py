@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 from optparse import OptionParser
 import sys
 
-import utils
+from . import utils
 
 utils.EyegradeException.register_error('bad_choice_letter',
      "Choices must be specified as letters 'a', 'b',...")
@@ -101,6 +101,9 @@ def modify(result, exam_data, invalidate, set_correct):
                                 - blank * exam_data.score_weights[2])
 
 def main():
+    print >>sys.stderr, ('This script is temporarily disabled '
+                         'for it being outdated')
+    sys.exit(1)
     try:
         options, args = read_cmd_options()
         modify_results(options.results_file, options.exam_config,

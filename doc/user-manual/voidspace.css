@@ -8,12 +8,18 @@
 Stylesheet for Docutils.
 Based on ``blue_box.css`` by Ian Bicking
 and ``html4css1.css`` revision 1.46.
+
+Minor changes by Jesus Arias Fisteus.
 */
 
 @import url(html4css1.css);
 
 body {
   font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: justify;
 }
 
 em, i {
@@ -122,6 +128,7 @@ table.citation {
 pre.literal-block, pre.doctest-block {
   border: thin black solid;
   padding: 5px;
+  overflow: auto;
 }
 
 .image img { border-style : solid;

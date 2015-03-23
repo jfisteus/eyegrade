@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 import xml.dom.minidom as dom
 import re
 
-import utils
+from . import utils
 
 EyegradeException = utils.EyegradeException
 

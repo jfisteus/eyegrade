@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@ import re
 import copy
 import sys
 
-# Local imports
-import utils
+from . import utils
 
 EyegradeException = utils.EyegradeException
 
@@ -109,7 +108,8 @@ class ExamMaker(object):
         else:
             self.exam_config = None
         if score_weights is not None and self.exam_config is not None:
-            self.exam_config.score_weights = score_weights
+            scores = utils.QuestionScores(*score_weights)
+            self.exam_config.set_base_scores(scores)
         self.empty_variables = []
 
     def set_exam_questions(self, exam):

@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,7 @@
 #
 from optparse import OptionParser
 
-# Local imports
-import utils
+from . import utils
 
 def stats_for_question(results, question, num_options = None):
     """Returns a tuple with the count of answers (blank, opt1,

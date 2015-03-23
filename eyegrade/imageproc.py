@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2013 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,18 +23,16 @@ import copy
 import sys
 
 # Local imports
-from geometry import *
-import ocr
-import capture
+from . import geometry as g
+from . import ocr
+from . import capture
+from . import sessiondb
 
-# Import the cv module. If new style bindings not found, use the old ones:
+# Import the cv module. It might be cv2.cv in newer versions.
 try:
     import cv
-    cv_new_style = True
 except ImportError:
-    import cvwrapper
-    cv = cvwrapper.CVWrapperObject()
-    cv_new_style = False
+    import cv2.cv as cv
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
@@ -317,23 +315,23 @@ class ExamDetector(object):
                     row.append(cell)
                 cells.append(row)
         if self.options['left-to-right-numbering']:
-            cells = self._set_left_to_right(answer_cells)
+            cells = self._set_left_to_right(cells)
         return cells
 
-    def _set_left_to_right(self, answer_cells, corner_matrixes):
+    def _set_left_to_right(self, cells):
         """Sets left to right order in cell geometry."""
-        answer_cells2 = []
-        num_rows = max([len(c) for c in corner_matrixes]) - 1
+        cells_transposed = []
+        num_rows = max([questions for choices, questions in self.dimensions])
         heads = [1]
-        for corners in corner_matrixes[:-1]:
-            heads.append(heads[-1] + len(corners) - 1)
-        heads.append(len(self.centers) + 1)
+        for choices, questions in self.dimensions:
+            heads.append(heads[-1] + questions)
+        heads.append(len(cells) + 1)
         for row in range(0, num_rows):
-            for column in range(0, len(corner_matrixes)):
+            for column in range(0, len(self.dimensions)):
                 pos = heads[column] + row
                 if pos < heads[column + 1]:
-                    answer_cells2.append(answer_cells[pos - 1])
-        return answer_cells2
+                    cells_transposed.append(cells[pos - 1])
+        return cells_transposed
 
     def _compute_progress(self):
         progress = 0
@@ -368,8 +366,8 @@ class ExamDetector(object):
                                            self.image_to_show))
             digits.append(digit)
             id_scores.append(scores)
-        detected_id = "".join([str(digit) if digit is not None else '0' \
-                               for digit in digits])
+        detected_id = "".join([str(d) if d is not None else '0' \
+                               for d in digits])
         return detected_id, id_scores
 
     def _draw_status_flags(self):
@@ -402,7 +400,7 @@ class ExamDetector(object):
                     draw_point(self.image_to_show, c)
 
 
-class ExamDetectorContext:
+class ExamDetectorContext(object):
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 
@@ -531,6 +529,12 @@ class ExamDetectorContext:
                 image = resize_image(image, resize)
         return image
 
+    def dump_buffer(self, delay_suffered):
+        if self.camera is not None and delay_suffered > 0.1:
+            frames_to_drop = min(8, int(1 + (delay_suffered - 0.1) / 0.04))
+            for i in range(0, frames_to_drop):
+                capture_image(self.camera, False)
+
     def _try_next_camera(self, cur_camera_id):
         camera = None
         camera_id = -1
@@ -548,6 +552,46 @@ class ExamDetectorContext:
             return cam
         else:
             return None
+
+
+class FalseExamDetectorContext(ExamDetectorContext):
+    def __init__(self, session_file):
+        super(FalseExamDetectorContext, self).__init__()
+        self.session = sessiondb.SessionDB(session_file)
+        self.camera_id = 99
+        self.camera = 'Something'
+        self.exams = []
+        self.next_exam_idx = 0
+
+    def open_camera(self, camera_id=None):
+        self.exams = self.session.read_exams()
+        self.next_exam_idx = 0
+
+    def current_camera_id(self):
+        return 99
+
+    def next_camera(self):
+        return True
+
+    def close_camera(self):
+        self.exams = []
+
+    def capture(self, clone=False, resize=None):
+        if self.exams:
+            exam = self.exams[self.next_exam_idx]
+            image = self.session.load_raw_capture(exam.exam_id)
+        else:
+            image = None
+        return image
+
+    def dump_buffer(self, delay_suffered):
+        pass
+
+    def notify_success(self):
+        super(FalseExamDetectorContext, self).notify_success()
+        self.next_exam_idx += 1
+        if self.next_exam_idx == len(self.exams):
+            self.next_exam_idx = 0
 
 
 def init_camera(input_dev = -1):
@@ -595,11 +639,11 @@ def draw_line(image, line, color = (0, 0, 255, 0)):
     theta = line[1]
     points = set()
     if math.sin(theta) != 0.0:
-        points.add(line_point(line, x = 0))
-        points.add(line_point(line, x = image.width - 1))
+        points.add(g.line_point(line, x=0))
+        points.add(g.line_point(line, x=image.width - 1))
     if math.cos(theta) != 0.0:
-        points.add(line_point(line, y = 0))
-        points.add(line_point(line, y = image.height - 1))
+        points.add(g.line_point(line, y=0))
+        points.add(g.line_point(line, y=image.height - 1))
     p_draw = [p for p in points if p[0] >= 0 and p[1] >= 0
               and p[0] < image.width and p[1] < image.height]
     if len(p_draw) == 2:
@@ -625,7 +669,7 @@ def detect_lines(image, hough_threshold):
                            1, 0.01, hough_threshold)
 
     # Trick to use both new and old style bindings
-    len_lines = len(lines) if cv_new_style else lines.total
+    len_lines = len(lines)
     if len_lines > 500:
         return []
 
@@ -663,9 +707,9 @@ def detect_boxes(lines, dimensions):
     # If there are spurious axes, try to filter them out:
     if len(axes) == 3:
         # Take the perpendicular angles
-        if angles_perpendicular(axes[0][0], axes[1][0]):
+        if g.angles_perpendicular(axes[0][0], axes[1][0]):
             del axes[2]
-        elif angles_perpendicular(axes[0][0], axes[2][0]):
+        elif g.angles_perpendicular(axes[0][0], axes[2][0]):
             del axes[1]
         else:
             del axes[0]
@@ -673,10 +717,10 @@ def detect_boxes(lines, dimensions):
         # Take the angles which are the closest to 0 and pi/2.
         # The image is assumed to have its horizontal and vertical lines closer
         # to zero or pi/2 than spureous lines.
-        axes.sort(key=lambda x:distance_closest_axis(x[0], (0, math.pi / 2)))
+        axes.sort(key=lambda x:g.distance_closest_axis(x[0], (0, math.pi / 2)))
         axes = axes[:2]
     if len(axes) == 2:
-        if angles_perpendicular(axes[0][0], axes[1][0]):
+        if g.angles_perpendicular(axes[0][0], axes[1][0]):
             return axes
     else:
         return None
@@ -693,14 +737,16 @@ def filter_axes(axes, dimensions, image_width, image_height, read_id):
 
     """
     # First, filter out lines too close to image borders
-    axes = ((axes[0][0], [l for l in axes[0][1] \
-                             if ((abs(l[0]) < 0.97 * image_width and
-                                  abs(l[0]) > 0.03 * image_width) or
-                                 not angles_perpendicular(math.pi / 2, l[1]))]),
-            (axes[1][0], [l for l in axes[1][1] \
-                              if ((abs(l[0]) < 0.97 * image_height and
-                                  abs(l[0]) > 0.03 * image_height) or
-                                  not angles_perpendicular(0.0, l[1]))]))
+    axes = ((axes[0][0],
+             [l for l in axes[0][1] \
+                 if ((abs(l[0]) < 0.97 * image_width and
+                      abs(l[0]) > 0.03 * image_width) or
+                     not g.angles_perpendicular(math.pi / 2, l[1]))]),
+            (axes[1][0],
+             [l for l in axes[1][1] \
+                 if ((abs(l[0]) < 0.97 * image_height and
+                      abs(l[0]) > 0.03 * image_height) or
+                     not g.angles_perpendicular(0.0, l[1]))]))
     # Now, colapse lines that are too close
     v_expected = len(dimensions) + sum([box[0] for box in dimensions])
     h_expected = 1 + max([box[1] for box in dimensions])
@@ -767,7 +813,7 @@ def cell_corners(hlines, vlines, iwidth, iheight, dimensions):
             cpart = []
             corners.append(cpart)
             for j in range(vini, vini + width + 1):
-                c = intersection(hlines[i], vlines[j])
+                c = g.intersection(hlines[i], vlines[j])
                 cpart.append(c)
         corner_matrixes.append(corners)
         vini += 1 + width
@@ -832,16 +878,16 @@ def decide_cells(image, answer_cells):
     return decisions
 
 def decide_cell(image, mask, masked, plu, pru, pld, prd):
-    thickness = distance(plu, pru) * param_cross_mask_thickness
+    thickness = g.distance(plu, pru) * param_cross_mask_thickness
     cv.SetZero(mask)
-    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin,
+    iplu, iprd = g.closer_points_rel(plu, prd, param_cross_mask_margin,
                                    thickness / 2)
-    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin,
+    ipru, ipld = g.closer_points_rel(pru, pld, param_cross_mask_margin,
                                    thickness / 2)
     draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness)
-    iplu, iprd = closer_points_rel(plu, prd, param_cross_mask_margin_2,
+    iplu, iprd = g.closer_points_rel(plu, prd, param_cross_mask_margin_2,
                                    thickness / 4)
-    ipru, ipld = closer_points_rel(pru, pld, param_cross_mask_margin_2,
+    ipru, ipld = g.closer_points_rel(pru, pld, param_cross_mask_margin_2,
                                    thickness / 4)
     draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness / 2)
     mask_pixels = cv.CountNonZero(mask)
@@ -850,8 +896,8 @@ def decide_cell(image, mask, masked, plu, pru, pld, prd):
     cell_marked = masked_pixels > param_cross_mask_threshold * mask_pixels
     # If the whole cell is marked, don't count the result:
     if cell_marked:
-        iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
-        ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
+        iplu, iprd = g.closer_points_rel(plu, prd, param_cell_mask_margin)
+        ipru, ipld = g.closer_points_rel(pru, pld, param_cell_mask_margin)
         pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
         cell_marked = (masked_pixels < param_clear_in_threshold * mask_pixels or
                        (pix_set - masked_pixels) < (pix_total - mask_pixels) * \
@@ -872,10 +918,10 @@ def read_infobits(image, corner_matrixes):
     bits = []
     for corners in corner_matrixes:
         for i in range(1, len(corners[0])):
-            dx = diff_points(corners[-1][i - 1], corners[-1][i])
-            dy = diff_points(corners[-1][i], corners[-2][i])
-            center = round_point((corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.6,
-                                 corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.6))
+            dx = g.diff_points(corners[-1][i - 1], corners[-1][i])
+            dy = g.diff_points(corners[-1][i], corners[-2][i])
+            center = g.round_point((corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.6,
+                                   corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.6))
             bits.append(decide_infobit(image, mask, masked, center, dy))
     # Check validity
     if min([b[0] ^ b[1] for b in bits]) == True:
@@ -884,7 +930,7 @@ def read_infobits(image, corner_matrixes):
         return None
 
 def decide_infobit(image, mask, masked, center_up, dy):
-    center_down = add_points(center_up, dy)
+    center_down = g.add_points(center_up, dy)
     radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) \
                            * param_bit_mask_radius_multiplier))
     if radius == 0:
@@ -957,10 +1003,10 @@ def id_boxes_check_points(image, points, hlines, iwidth, num_cells):
     success = id_boxes_adjust(image, outer_up, outer_down,
                               hlines[0], hlines[1], 10, 5, iwidth)
     if success:
-        corners_up = interpolate_line(outer_up[0], outer_up[1],
-                                      num_cells + 1)
-        corners_down = interpolate_line(outer_down[0], outer_down[1],
+        corners_up = g.interpolate_line(outer_up[0], outer_up[1],
                                         num_cells + 1)
+        corners_down = g.interpolate_line(outer_down[0], outer_down[1],
+                                          num_cells + 1)
         success = id_boxes_adjust(image, corners_up, corners_down,
                                   hlines[0], hlines[1], 10, 5, iwidth)
     if success:
@@ -1013,11 +1059,11 @@ def id_boxes_adjust_points(image, p_up, p_down, line_up, line_down,
     points_up = []
     points_down = []
     for x in range(p_up[0] - x_var, p_up[0] + x_var + 1):
-        p = line_point(line_up, x = x)
+        p = g.line_point(line_up, x=x)
         if p[0] >= 0 and p[0] < iwidth and p[1] >= 0:
             points_up.append(p)
     for x in range(p_down[0] - x_var, p_down[0] + x_var + 1):
-        p = line_point(line_down, x = x)
+        p = g.line_point(line_down, x=x)
         if p[0] >= 0 and p[0] < iwidth and p[1] >= 0:
             points_down.append(p)
     pairs = [(u, v) for u in points_up for v in points_down]
@@ -1061,17 +1107,17 @@ def id_boxes_adjust_point_vertically(image, point, line, interval, iwidth):
     for l in lines:
         match = 0
         for xx in range(point[0] - 2, point[0] + 3):
-            x, y = line_point(l, x = xx)
+            x, y = g.line_point(l, x=xx)
             if y >= 0 and x >= 0 and x < iwidth and image[y, x] > 0:
                 match += 1
-        p = line_point(l, x = point[0])
+        p = g.line_point(l, x=point[0])
         values.append((match, p[1], p))
     values.sort(reverse = True)
-    best = [(m, p) for (m, y, p) in values if m == values[0][0]]
+    best = [(m, ppp) for (m, yyy, ppp) in values if m == values[0][0]]
     return best[len(best) // 2][1]
 
 def id_boxes_match_level(image, p0, p1):
-    points = [(x, y) for (x, y) in walk_line(p0, p1)]
+    points = [(x, y) for (x, y) in g.walk_line(p0, p1)]
     active = len([(x, y) for (x, y) in points if image[y, x] > 0])
     return float(active) / len(points)
 
@@ -1094,33 +1140,33 @@ def count_pixels_in_cell(image, plu, pru, pld, prd):
     same_side = (points[0][0] < points[1][0] and points[2][0] < points[3][0] or
                  points[0][0] > points[1][0] and points[2][0] > points[3][0])
     if points[0][1] < points[1][1]:
-        slope1 = slope_inv(points[0], points[1])
+        slope1 = g.slope_inv(points[0], points[1])
         if same_side:
-            slope2 = slope_inv(points[0], points[2])
+            slope2 = g.slope_inv(points[0], points[2])
         else:
-            slope2 = slope_inv(points[0], points[3])
+            slope2 = g.slope_inv(points[0], points[3])
         t, m = count_pixels_horiz(image, points[0], slope1, points[0], slope2,
                                   points[0][1], points[1][1])
         total += t
         marked += m
     if points[1][1] < points[2][1]:
         if same_side:
-            slope1 = slope_inv(points[0], points[2])
-            slope2 = slope_inv(points[1], points[3])
+            slope1 = g.slope_inv(points[0], points[2])
+            slope2 = g.slope_inv(points[1], points[3])
         else:
-            slope1 = slope_inv(points[0], points[3])
-            slope2 = slope_inv(points[1], points[2])
+            slope1 = g.slope_inv(points[0], points[3])
+            slope2 = g.slope_inv(points[1], points[2])
         t, m = count_pixels_horiz(image, points[0], slope1, points[1], slope2,
                                   points[1][1], points[2][1])
         total += t
         marked += m
     if points[2][1] < points[3][1]:
-        slope1 = slope_inv(points[2], points[3])
+        slope1 = g.slope_inv(points[2], points[3])
         if same_side:
-            slope2 = slope_inv(points[1], points[3])
+            slope2 = g.slope_inv(points[1], points[3])
             point2 = points[1]
         else:
-            slope2 = slope_inv(points[2], points[3])
+            slope2 = g.slope_inv(points[2], points[3])
             point2 = points[2]
         t, m = count_pixels_horiz(image, points[2], slope1, point2, slope2,
                                   points[2][1], points[3][1])
@@ -1158,8 +1204,8 @@ def line_bounds_adaptive(image, line_up, line_down, iwidth, rho_var):
                  if pair[0] <= param_id_boxes_discard_distance])
 
 def line_bounds_rank(p_up, p_down, line_up, line_down):
-    p_down_ideal = project_point(p_up, line_up, line_down)
-    rank = distance(p_down, p_down_ideal)
+    p_down_ideal = g.project_point(p_up, line_up, line_down)
+    rank = g.distance(p_down, p_down_ideal)
     return (rank, p_up, p_down)
 
 def line_bounds_one_line(image, line, iwidth, rho_var):
@@ -1179,15 +1225,15 @@ def line_bounds_one_line(image, line, iwidth, rho_var):
 
 def line_bounds(image, line, iwidth):
     # points of intersection with x = 0 and x = width - 1
-    p0 = line_point(line, x = 0)
+    p0 = g.line_point(line, x=0)
     if p0[1] < 0:
-        p0 = line_point(line, y = 0)
-    p1 = line_point(line, x = iwidth - 1)
+        p0 = g.line_point(line, y=0)
+    p1 = g.line_point(line, x=iwidth - 1)
     if p1[1] < 0:
-        p1 = line_point(line, y = 0)
+        p1 = g.line_point(line, y=0)
 
-    if not point_is_valid(p0, (image.width, image.height)) \
-            or not point_is_valid(p1, (image.width, image.height)):
+    if (not g.point_is_valid(p0, (image.width, image.height))
+        or not g.point_is_valid(p1, (image.width, image.height))):
         return None, None
 
     # get bounds
@@ -1196,7 +1242,7 @@ def line_bounds(image, line, iwidth):
     end = None
     last = 0
     count = 0
-    for x, y in walk_line(p0, p1):
+    for x, y in g.walk_line(p0, p1):
         value = 1 if image[y, x] > 0 else 0
         if value == last:
             count += 1
@@ -1218,14 +1264,14 @@ def line_bounds(image, line, iwidth):
     return ini, end
 
 def count_pixels_in_horizontal_line(image, line):
-    p0 = line_point(line, x = 0)
+    p0 = g.line_point(line, x=0)
     if p0[1] < 0:
-        p0 = line_point(line, y = 0)
-    p1 = line_point(line, x = image.width - 1)
+        p0 = g.line_point(line, y=0)
+    p1 = g.line_point(line, x=image.width - 1)
     if p1[1] < 0:
-        p1 = line_point(line, y = 0)
+        p1 = g.line_point(line, y=0)
     active_points = 0
-    for x, y in walk_line(p0, p1):
+    for x, y in g.walk_line(p0, p1):
         if image[y, x] > 0:
             active_points += 1
     return active_points
@@ -1247,16 +1293,18 @@ def process_box_corners(points, dimensions):
     group2 = []
     # First, look for the other left-most point that is opposite to points[0]
     for i in range(1, len(points)):
-        if points_closer_to_horizontal(points[0], points[i]):
+        if g.points_closer_to_horizontal(points[0], points[i]):
             group1.append(points[i])
         else:
             group2.append(points[i])
             break
-    vertical = diff_points(group2[0], group1[0])
+    vertical = g.diff_points(group2[0], group1[0])
     # Now, classify all the other points
     for i in range(len(group1) + len(group2), len(points)):
-        cos1 = abs(angle_cosine(vertical, diff_points(points[i], group1[-1])))
-        cos2 = abs(angle_cosine(vertical, diff_points(points[i], group2[-1])))
+        cos1 = abs(g.angle_cosine(vertical,
+                                  g.diff_points(points[i], group1[-1])))
+        cos2 = abs(g.angle_cosine(vertical,
+                                  g.diff_points(points[i], group2[-1])))
         if cos1 < cos2:
             group1.append(points[i])
         else:
@@ -1285,20 +1333,22 @@ def construct_box(outer_corners, num_columns, num_rows):
 
     """
     plu, pru, pld, prd = outer_corners
-    line_up_len = distance(plu, pru)
-    line_down_len = distance(pld, prd)
-    line_left_len = distance(plu, pld)
-    line_right_len = distance(pru, prd)
+    line_up_len = g.distance(plu, pru)
+    line_down_len = g.distance(pld, prd)
+    line_left_len = g.distance(plu, pld)
+    line_right_len = g.distance(pru, prd)
     factor_h = line_down_len / line_up_len
     factor_v = line_right_len / line_left_len
-    vert_left = interpolate_line_progressive(plu, pld, num_rows + 1, factor_h)
-    vert_right = interpolate_line_progressive(pru, prd, num_rows + 1, factor_h)
+    vert_left = g.interpolate_line_progressive(plu, pld,
+                                               num_rows + 1, factor_h)
+    vert_right = g.interpolate_line_progressive(pru, prd,
+                                                num_rows + 1, factor_h)
     corners = []
     for i in range(0, num_rows + 1):
         pl = vert_left[i]
         pr = vert_right[i]
-        corners.append(interpolate_line_progressive(pl, pr, num_columns + 1,
-                                                    factor_v))
+        corners.append(g.interpolate_line_progressive(pl, pr, num_columns + 1,
+                                                      factor_v))
     return corners
 
 def fix_box_if_needed(box_corners):

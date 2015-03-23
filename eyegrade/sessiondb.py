@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2013 Jesus Arias Fisteus
+# Copyright (C) 2013-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ import os
 import os.path
 import csv
 
-import utils
-import capture
+from . import utils
+from . import capture
 
 
 class SessionDB(object):
@@ -30,10 +30,10 @@ class SessionDB(object):
     This class encapsulates access functions to the session database.
 
     """
-    DB_SCHEMA_VERSION = 1
-    COMPATIBLE_SCHEMAS = (1, )
+    DB_SCHEMA_VERSION = 3
+    COMPATIBLE_SCHEMAS = (1, 2, 3, )
 
-    ALTERATION_REVOKE_QUESTION = 1
+    ALTERATION_VOID_QUESTION = 1
     ALTERATION_SET_SOLUTION = 2
     ALTERATION_ADD_CORRECT = 3
 
@@ -44,25 +44,26 @@ class SessionDB(object):
             title TEXT,
             description TEXT,
             dimensions TEXT NOT NULL,
-            correct_weight TEXT,
-            incorrect_weight TEXT,
-            blank_weight TEXT,
+            scores_mode INT NOT NULL,
+            base_score_correct TEXT,
+            base_score_incorrect TEXT,
+            base_score_blank TEXT,
             id_num_digits INTEGER NOT NULL,
             survey_mode INTEGER NOT NULL,
             left_to_right_numbering INTEGER NOT NULL,
             capture_pattern TEXT NOT NULL
         )"""
 
-    _table_solutions = """
-        CREATE TABLE Solutions (
+    _table_questions = """
+        CREATE TABLE Questions (
             model INTEGER NOT NULL,
-            solutions TEXT NOT NULL
-        )"""
-
-    _table_permutations = """
-        CREATE TABLE Permutations (
-            model INTEGER NOT NULL,
-            permutations TEXT NOT NULL
+            question INTEGER NOT NULL,
+            solution INTEGER,
+            permutation TEXT,
+            score_correct TEXT,
+            score_incorrect TEXT,
+            score_blank TEXT,
+            score_weight TEXT
         )"""
 
     _table_exams = """
@@ -81,7 +82,9 @@ class SessionDB(object):
         CREATE TABLE Students (
             db_id INTEGER PRIMARY KEY NOT NULL,
             student_id TEXT,
-            name TEXT,
+            full_name TEXT,
+            first_name TEXT,
+            last_name TEXT,
             email TEXT,
             group_id INTEGER NOT NULL,
             sequence_num INTEGER NOT NULL,
@@ -161,7 +164,7 @@ class SessionDB(object):
         self.conn = sqlite3.connect(db_file)
         self.conn.row_factory = sqlite3.Row
         self._enable_foreign_key_constrains()
-        self._check_schema()
+        self.schema_version = self._check_schema()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
         self.default_students_rank = sorted([s for s \
@@ -228,11 +231,24 @@ class SessionDB(object):
             student.group_id = 0
         if student.sequence_num is None:
             student.sequence_num = self._group_max_seq(student.group_id) + 1
-        cursor.execute('INSERT INTO Students '
-                       '(student_id, name, email, group_id, sequence_num) '
-                       'VALUES (:student_id, :name, :email, :group_id, '
-                       '        :sequence_num)',
-                       student.__dict__)
+        if self.schema_version >= 2:
+            cursor.execute('INSERT INTO Students '
+                           '(student_id, full_name, first_name, '
+                           ' last_name, email, group_id, '
+                           ' sequence_num) '
+                           'VALUES (:student_id, :full_name, :first_name, '
+                           '        :last_name, :email, :group_id, '
+                           '        :sequence_num)',
+                           student.__dict__)
+        else:
+            cursor.execute('INSERT INTO Students '
+                           '(student_id, name, '
+                           ' email, group_id, '
+                           ' sequence_num) '
+                           'VALUES (:student_id, :full_name, '
+                           '        :email, :group_id, '
+                           '        :sequence_num)',
+                           student.__dict__)
         student.db_id = cursor.lastrowid
         if student.student_id is not None:
             self.students[student.student_id] = student
@@ -244,7 +260,7 @@ class SessionDB(object):
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM Students')
         for row in cursor:
-            student = _create_student_from_row(row)
+            student = self._student_from_row(row)
             self.students[student.student_id] = student
         return self.students
 
@@ -301,19 +317,26 @@ class SessionDB(object):
 
     def export_grades(self, file_name, csv_dialect, all_students=True,
                       seq_num=True, student_id=True, student_name=True,
+                      student_last_name=False, student_first_name=False,
                       correct=True, incorrect=True, score=True,
-                      model=True, answers=True, sort_by_student=True,
+                      model=True, answers=True,
+                      sort_key=utils.ExportSortKey.STUDENT_LIST,
                       student_group=None):
         with open(file_name, "wb") as f:
             writer = csv.writer(f, dialect=csv_dialect)
             for exam in self.grades_iterator(all_students=all_students,
-                                             sort_by_student=sort_by_student,
+                                             sort_key=sort_key,
                                              student_group=student_group):
+                student = exam['student']
                 data = []
                 if student_id:
-                    data.append(exam['student_id'])
+                    data.append(student.student_id)
                 if student_name:
-                    data.append(utils.encode_string(exam['name']))
+                    data.append(utils.encode_string(student.name))
+                if student_last_name:
+                    data.append(utils.encode_string(student.last_name))
+                if student_first_name:
+                    data.append(utils.encode_string(student.first_name))
                 if seq_num:
                     data.append(exam['exam_id'])
                 if model:
@@ -341,16 +364,22 @@ class SessionDB(object):
             exam['answers'] = self.read_answers(exam['exam_id'])
             yield exam
 
-    def grades_iterator(self, all_students=True, sort_by_student=True,
+    def grades_iterator(self, all_students=True,
+                        sort_key=utils.ExportSortKey.STUDENT_LIST,
                         student_group=None):
         cursor = self.conn.cursor()
         if all_students:
             join_type = 'LEFT'
         else:
             join_type = 'INNER'
-        if sort_by_student:
+        if sort_key == utils.ExportSortKey.STUDENT_LIST:
             sort_clause = 'ORDER BY group_id, sequence_num'
-        else:
+        elif sort_key == utils.ExportSortKey.STUDENT_LAST_NAME:
+            if self.schema_version >= 2:
+                sort_clause = 'ORDER BY last_name, group_id, sequence_num'
+            else:
+                sort_clause = 'ORDER BY name, group_id, sequence_num'
+        elif sort_key == utils.ExportSortKey.GRADING_SEQUENCE:
             sort_clause = 'ORDER BY exam_id'
         if student_group is not None:
             where_clause = 'WHERE group_id = {0.identifier} '\
@@ -358,14 +387,16 @@ class SessionDB(object):
         else:
             where_clause = ''
         query = ('SELECT '
-                 'exam_id, student_id, name, model, '
-                 'correct, incorrect, score '
+                 '* '
                  'FROM Students '
                  '{0} JOIN Exams ON student = db_id '
                  '{1}'
                  '{2}').format(join_type, where_clause, sort_clause)
         for row in cursor.execute(query):
-            exam = dict(row)
+            student = self._student_from_row(row)
+            exam = {'student': student}
+            for key in ('exam_id', 'model', 'correct', 'incorrect', 'score'):
+                exam[key] = row[key]
             if exam['correct'] is not None:
                 exam['model'] = _Adapter.dec_model(exam['model'])
                 exam['answers'] = self.read_answers(exam['exam_id'])
@@ -459,9 +490,11 @@ class SessionDB(object):
         capture.save_image_raw(raw_name)
 
     def load_raw_capture(self, exam_id):
-        raw_name = os.path.join(self.session_dir, 'internal',
-                                'raw-{0}.png'.format(exam_id))
-        return capture.load_image(raw_name)
+        return capture.load_image(self.get_raw_capture_path(exam_id))
+
+    def get_raw_capture_path(self, exam_id):
+        return os.path.join(self.session_dir, 'internal',
+                            'raw-{0}.png'.format(exam_id))
 
     def remove_drawn_capture(self, exam_id, student):
         name = utils.capture_name(self.exam_config.capture_pattern,
@@ -487,6 +520,7 @@ class SessionDB(object):
             raise utils.EyegradeException('', key='incompatible_schema',
                                         format_params=(utils.program_name,
                                                        utils.version, version))
+        return schema
 
     def _check_session_directory(self):
         db_file = os.path.join(self.session_dir, 'session.eyedb')
@@ -514,7 +548,7 @@ class SessionDB(object):
                        'WHERE exam_id = ?', (exam_id,))
         row = cursor.fetchone()
         if row is not None:
-            return _create_student_from_row(row)
+            return self._student_from_row(row)
         else:
             return None
 
@@ -548,20 +582,96 @@ class SessionDB(object):
             True if row['survey_mode'] else False
         self.exam_config.left_to_right_numbering = \
             True if row['left_to_right_numbering'] else False
-        if row['correct_weight'] is not None:
-            self.exam_config.set_score_weights(row['correct_weight'],
-                                               row['incorrect_weight'],
-                                               row['blank_weight'])
-        else:
-            self.exam_config.score_weights = None
         self.exam_config.capture_pattern = row['capture_pattern']
-        for row in cursor.execute('SELECT * FROM Solutions'):
-            self.exam_config.set_solutions(_Adapter.dec_model(row['model']),
-                                           row['solutions'])
-        for row in cursor.execute('SELECT * FROM Permutations'):
-            self.exam_config.set_permutations(_Adapter.dec_model(row['model']),
-                                              row['permutations'])
+        if self.schema_version >= 3:
+            scores_mode = row['scores_mode']
+            self.exam_config.scores_mode = scores_mode
+            if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+                if row['base_score_correct'] is not None:
+                    base_scores = utils.QuestionScores( \
+                                            row['base_score_correct'],
+                                            row['base_score_incorrect'],
+                                            row['base_score_blank'])
+                    self.exam_config.set_base_scores(base_scores)
+                else:
+                    raise utils.EyegradeException('', key='session_invalid')
+            else:
+                if row['base_score_correct'] is not None:
+                    raise utils.EyegradeException('', key='session_invalid')
+        else:
+            # Schema version < 3
+            if row['correct_weight'] is not None:
+                base_scores = utils.QuestionScores(row['correct_weight'],
+                                                   row['incorrect_weight'],
+                                                   row['blank_weight'])
+            else:
+                base_scores = None
+        if self.schema_version >= 3:
+            self._load_solutions_permutations_scores()
+        else:
+            # Schema version < 3
+            for row in cursor.execute('SELECT * FROM Solutions'):
+                self.exam_config.set_solutions(
+                                        _Adapter.dec_model(row['model']),
+                                                           row['solutions'])
+            for row in cursor.execute('SELECT * FROM Permutations'):
+                self.exam_config.set_permutations( \
+                                        _Adapter.dec_model(row['model']),
+                                                           row['permutations'])
+            if base_scores is not None:
+                # This must be done after having set the solutions
+                self.exam_config.set_base_scores(base_scores,
+                                                 same_weights=True)
         return self.exam_config
+
+    def _load_solutions_permutations_scores(self):
+        cursor = self.conn.cursor()
+        scores_mode = self.exam_config.scores_mode
+        solutions = {}
+        permutations = {}
+        scores = {}
+        if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+            weights = {}
+        elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+            scores = {}
+        models = []
+        model = None
+        for row in cursor.execute('SELECT * FROM Questions '
+                                  'ORDER BY model, question'):
+            if row['model'] != model:
+                model = row['model']
+                models.append(model)
+                model_solutions = []
+                solutions[model] = model_solutions
+                model_permutations = []
+                permutations[model] = model_permutations
+                if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+                    model_weights = []
+                    weights[model] = model_weights
+                elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+                    model_scores = []
+                    scores[model] = model_scores
+            if row['question'] != len(model_solutions):
+                raise utils.EyegradeException('', key='session_invalid')
+            model_solutions.append(row['solution'])
+            model_permutations.append(row['permutation'])
+            if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+                model_weights.append(row['score_weight'])
+            elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+                model_scores = utils.QuestionScores(row['score_correct'],
+                                                    row['score_incorrect'],
+                                                    row['score_blank'])
+                model_scores.append(scores)
+        for m in models:
+            model = _Adapter.dec_model(m)
+            if solutions[m][0] is not None:
+                self.exam_config.set_solutions(model, solutions[m])
+            if permutations[m][0] is not None:
+                self.exam_config.set_permutations(model, permutations[m])
+            if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+                self.exam_config.set_question_weights(model, weights[m])
+            elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+                self.exam_config.set_question_scores(model, scores[m])
 
     def _update_answer(self, exam_id, question, new_answer, commit=True):
         cursor = self.conn.cursor()
@@ -638,6 +748,20 @@ class SessionDB(object):
         cursor = self.conn.cursor()
         cursor.execute('PRAGMA foreign_keys=ON')
 
+    def _student_from_row(self, row):
+        if self.schema_version >= 2:
+            student = utils.Student(row['db_id'], row['student_id'],
+                                    row['full_name'],
+                                    row['first_name'], row['last_name'],
+                                    row['email'], row['group_id'],
+                                    row['sequence_num'], is_in_database=True)
+        else:
+            student = utils.Student(row['db_id'], row['student_id'],
+                                    row['name'], None, None,
+                                    row['email'], row['group_id'],
+                                    row['sequence_num'], is_in_database=True)
+        return student
+
 
 class ExamFromDB(utils.Exam):
     def __init__(self, db_dict, sessiondb):
@@ -661,22 +785,8 @@ class ExamFromDB(utils.Exam):
                                          sessiondb.default_students_rank,
                                          _Adapter.dec_model(db_dict['model']))
         solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
-        score_weights = sessiondb.exam_config.score_weights
-        self.score = utils.Score(answers, solutions, score_weights)
-
-    def load_capture(self):
-        if self.capture is None:
-            self.capture = self.sessiondb.read_capture(self.exam_id)
-
-    def clear_capture(self):
-        if self.capture is not None:
-            self.capture = None
-
-    def image_drawn_path(self):
-        image_name = utils.capture_name(self.sessiondb.exam_config\
-                                                           .capture_pattern,
-                                        self.exam_id, self.decisions.student)
-        return os.path.join(self.sessiondb.session_dir, 'captures', image_name)
+        question_scores = sessiondb.exam_config.scores[self.decisions.model]
+        self.score = utils.Score(answers, solutions, question_scores)
 
 
 class ExamDecisionsFromDB(capture.ExamDecisions):
@@ -747,8 +857,7 @@ def _create_session_db(db_file, exam_data, id_files):
 def _create_tables(conn):
     cursor = conn.cursor()
     cursor.execute(SessionDB._table_session)
-    cursor.execute(SessionDB._table_solutions)
-    cursor.execute(SessionDB._table_permutations)
+    cursor.execute(SessionDB._table_questions)
     cursor.execute(SessionDB._table_exams)
     cursor.execute(SessionDB._table_students)
     cursor.execute(SessionDB._table_student_groups)
@@ -759,41 +868,75 @@ def _create_tables(conn):
     cursor.execute('INSERT INTO StudentGroups VALUES (0, "INSERTED")')
 
 def _save_exam_config(conn, exam_data):
-    if exam_data.score_weights is None:
-        weights = (None, None, None)
+    if exam_data.base_scores is None:
+        base_scores = (None, None, None)
     else:
-        weights = exam_data.score_weights
+        base_scores = (
+            exam_data.base_scores.format_correct_score(),
+            exam_data.base_scores.format_incorrect_score(),
+            exam_data.base_scores.format_blank_score(),
+        )
     cursor = conn.cursor()
     cursor.execute('INSERT INTO Session '
-                   'VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)',
+                   'VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         (SessionDB.DB_SCHEMA_VERSION,
          utils.version,
          exam_data.format_dimensions(),
-         exam_data.format_weight(weights[0]),
-         exam_data.format_weight(weights[1]),
-         exam_data.format_weight(weights[2]),
+         exam_data.scores_mode,
+         base_scores[0],
+         base_scores[1],
+         base_scores[2],
          exam_data.id_num_digits,
          1 if exam_data.survey_mode else 0,
          1 if exam_data.left_to_right_numbering else 0,
          exam_data.capture_pattern))
-    for model in exam_data.solutions:
-        cursor.execute('INSERT INTO Solutions VALUES (?, ?)',
-                       (_Adapter.enc_model(model),
-                        exam_data.format_solutions(model)))
-    for model in exam_data.permutations:
-        cursor.execute('INSERT INTO Permutations VALUES (?, ?)',
-                      (_Adapter.enc_model(model),
-                       exam_data.format_permutations(model)))
+    # Store the question solutions, permutations and scores
+    data = []
+    for model in exam_data.models:
+        all_model = exam_data.num_questions * [_Adapter.enc_model(model)]
+        all_none = exam_data.num_questions * [None]
+        solutions = exam_data.get_solutions(model)
+        if not solutions:
+            solutions = all_none
+        permutations = exam_data.get_permutations(model)
+        if permutations:
+            permutations = [exam_data.format_permutation(p) \
+                            for p in permutations]
+        else:
+            permutations = all_none
+        if exam_data.scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+            weights = all_none
+            scores_c = [s.format_correct_score() \
+                        for s in exam_data.scores[model]]
+            scores_i = [s.format_incorrect_score() \
+                        for s in exam_data.scores[model]]
+            scores_b = [s.format_blank_score() \
+                        for s in exam_data.scores[model]]
+        else:
+            if exam_data.scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+                weights = exam_data.get_question_weights(model, formatted=True)
+            else:
+                weights = all_none
+            scores_c = all_none
+            scores_i = all_none
+            scores_b = all_none
+        data.extend(zip(all_model, range(exam_data.num_questions),
+                        solutions, permutations,
+                        scores_c, scores_i, scores_b, weights))
+    cursor.executemany('INSERT INTO Questions VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                       data)
 
 def _save_student_list(conn, students_file):
-    students = utils.read_student_ids_same_order(filename=students_file,
-                                                 with_names=True)
+    students = utils.read_student_ids_same_order(filename=students_file)
     _create_student_group(conn, os.path.basename(students_file), students)
 
 def _create_student_group(conn, group_name, student_list):
     """Creates a new student group and loads students in it.
 
-    The student list is a list of tuples (student_id, name, email).
+    The student list is a list of tuples
+    (student_id, full_name, first_name, last_name, email)
+    where full_name is incompatible with first_name and last_name
+    (or the former is empty/None or the other two are empty/None).
 
     """
     cursor = conn.cursor()
@@ -803,17 +946,14 @@ def _create_student_group(conn, group_name, student_list):
     if len(student_list) > 0:
         internal_list = []
         for i, data in enumerate(student_list):
-            internal_list.append((data[0], data[1], data[2], group_id, i))
+            internal_list.append((data[0], data[1], data[2],
+                                  data[3], data[4], group_id, i))
         cursor.executemany('INSERT INTO Students '
-                           '(student_id, name, email, group_id,'
+                           '(student_id, full_name, '
+                           ' first_name, last_name, email, group_id, '
                            ' sequence_num) VALUES '
-                            '(?, ?, ?, ?, ?)',
+                            '(?, ?, ?, ?, ?, ?, ?)',
                            internal_list)
-
-def _create_student_from_row(row):
-    return utils.Student(row['db_id'], row['student_id'], row['name'],
-                         row['email'], row['group_id'],
-                         row['sequence_num'], is_in_database=True)
 
 def _create_cell_from_row(row, is_id_cell=False):
     plu = (row['lux'], row['luy'])

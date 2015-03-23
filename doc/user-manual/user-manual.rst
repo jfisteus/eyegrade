@@ -6,8 +6,8 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.3 and later versions. For the
-0.2.x series see `this other user manual <../user-manual-0.2/>`_.
+This user manual refers to Eyegrade 0.5 and later versions. For the
+0.3 and 0.4 series see `this other user manual <../user-manual-0.3/>`_.
 
 Installing Eyegrade
 -------------------
@@ -36,14 +36,29 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.2.x to Eyegrade 0.3
-.............................................
+Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5
+................................................................
 
-In order to upgrade from eyegrade 0.2.x to eyegrade 0.3, follow the
-instructions at `Updating Eyegrade`_.
+In order to upgrade from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5,
+follow the instructions at `Updating Eyegrade`_.
 
-The main changes are described in the blog post `Eyegrade 0.3
-released <http://eyegrade.org/blog/posts/eyegrade-03-released.html>`_
+Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work with sessions created
+by the previous versions of Eyegrade,
+those previous versions don't work
+with sessions created by Eyegrade 0.5.
+
+The main changes of the most recent versions are described in the following
+blog posts:
+
+- `Eyegrade 0.5 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-05-released.html>`_
+
+- `Eyegrade 0.4 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+
+- `Eyegrade 0.3 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
 
 
 Installation on GNU/Linux
@@ -236,10 +251,10 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade.zip
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_. Extract
-it in your file system, in a directory with no white-spaces in its
-path.
+1.- Download the ZIP file `eyegrade-5.0.zip
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-5.0.zip>`_.
+Extract it in your file system,
+in a directory with no white-spaces in its path.
 
 Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
@@ -281,7 +296,7 @@ prompt window, enter the Eyegrade installation directory and type::
 This should work on any platform (Linux, Windows, etc.)
 
 If you didn't use Git to install Eyegrade, `download the new version
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_,
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-5.0.zip>`_,
 uncompress it and replace your ``eyegrade`` directory by the one you
 have uncompressed.
 
@@ -344,12 +359,10 @@ needs for creating the session:
     this exam. If you printed the sample exam distributed with
     Eyegrade, use the ``exam.eye`` file from the same directory.
 
-- Student id files: select zero, one or more files that contain the
+- Student list files: select zero, one or more files that contain the
   list of students in the class. The files should be plain text and
-  contain a line per student. Each line must have a first field with
-  the student id and, optionally, a second field with the student
-  name. It may have more fields, which Eyegrade will ignore. Fields
-  must be separated by one tabulator character.
+  contain a line per student. See `Student list files`_ for more
+  information on the format of these files.
 
 - Scores for correct and incorrect answers: this step is optional. If
   you provide the scores awarded to correct answers (and optionally
@@ -361,6 +374,68 @@ shows the image from the webcam and starts scanning for the
 exam. Point the camera to the exam until the image is locked. At this
 point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.
+
+
+Student list files
+...................
+
+The accuracy in the detection of the student identity
+improves dramatically when you supply
+the list of student ids of the class.
+The student list can be provided as one or more plain text files
+with one student per line.
+Each line may have several tab-separated columns.
+Eyegrade accepts lines with the following formats:
+
+- Student id (1 column):
+  just one column with the id number of the student::
+
+    100000333
+    100777777
+    100999997
+
+- Student id and full name (2 columns):
+  the first column contains the student id number
+  and the second one their full name.
+  You are free to chose the last name - comma - first name
+  order or the first name - last name order::
+
+    100000333	Baggins, Frodo
+    100777777	Bunny, Bugs
+    100999997	Bux, Bastian
+
+- Student id, full name and e-mail (3 columns):
+  the first column contains the student id number,
+  the second one their full name
+  and the third one their e-mail address::
+
+    100000333	Baggins, Frodo	frodo@shire.com
+    100777777	Bunny, Bugs	bugs@cartoon.com
+    100999997	Bux, Bastian	bux@fantastica.com
+
+- Student id, first name and last name (3 columns):
+  the first column contains the student id number,
+  the second one their first (given) name
+  and the third one their last (family) name::
+
+    100000333	Frodo	Baggins
+    100777777	Bugs	Bunny
+    100999997	Bastian	Bux
+
+- Student id, first name, last name and e-mail (4 columns):
+  the first column contains the student id number,
+  the second one their first (given) name,
+  the third one their last (family) name
+  and the fourth one their e-mail address::
+
+    100000333	Frodo	Baggins	frodo@shire.com
+    100777777	Bugs	Bunny	bugs@cartoon.com
+    100999997	Bastian	Bux	bux@fantastica.com
+
+The student id number must be composed just by digits.
+The student name may contain non-ASCII characters.
+In that case the file must be UTF-8 encoded.
+
 
 
 The session directory
@@ -383,6 +458,155 @@ option of the *Session* menu. In the file selection dialog that
 appears, select the ``session.eyedb`` file inside the directory of the
 session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.
+
+
+
+Scores
+.......
+
+Eyegrade can compute the scores of the exams.
+When you create a new session, you can select
+in the last page of the wizard one
+of the following three options:
+
+- No scores: Eyegrade shows the number of correct and incorrect questions,
+  but does not compute scores.
+
+- Same score for all the questions: all the questions
+  are awarded the same score.
+  You must specify the score for each correct question.
+  Optionally, if you want incorrect or blank questions
+  to have a penalty in the score,
+  you can also specify a (negative) score for incorrect
+  questions and for blank questions.
+
+- Base score plus per-question weight:
+  in this mode, not all the questions have the same score.
+  You must define a *base score*
+  (a reference score for correct, incorrect and blank questions)
+  and, for each question, a relative *weight*.
+  The final score for a question is computed as the multiplication
+  of its weight and the base score.
+  This mode can also be used for voiding questions:
+  when you assign a weight of 0 to a question,
+  it does not contribute to the score of the exam.
+
+
+Same score for all the questions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you select this option,
+all the questions count the same in the score of the exam.
+Eyegrade counts the number of correct, incorrect and blank answers,
+and multiplies each one by the score assigned
+to each of those types of answers.
+
+For example, suppose an exam with 10 questions,
+in which correct answers add 1 point to the score
+and incorrect answers subtract 1/3 points (one third of a point).
+A student having 7 correct and 3 incorrect answers
+will get 6 points (7 * 1 - 3 * 1/3).
+
+You specify those scores in the last step of the session creation wizard:
+
+.. image:: images/same-score-dialog.png
+   :alt: Dialog for specifying the same score for all the questions
+
+Giving a positive score for correct answers is mandatory in this mode.
+The score for incorrect and blank answers is optional,
+and defaults to 0 when you don't enter it.
+
+Eyegrade can automatically compute the appropriate scores for you
+if you specify the total score that a perfect exam would achieve.
+In order to do that, press the *Compute default scores* button,
+and the following dialog appears:
+
+.. image:: images/compute-default-scores-dialog.png
+   :alt: Dialog for computing the default scores
+
+The dialog computes the score for correct answers
+as the total score for a perfect exam divided by the number of questions.
+If you select the *Penalize incorrect answers* option,
+a score for incorrect answers is also computed
+as the score for correct answers divided by
+the number of choices of each question minus one.
+This way, the expected score for an exam with random answers
+(all the questions have the same probability of being marked by the student)
+is zero.
+
+
+Base score plus per-question weight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you select this option for computing scores,
+not all the questions are awarded the same score.
+Important questions may get bigger scores than less important ones.
+In order to do that, you define a base score
+(e.g. 2 points for correct answers and -2/3 for incorrect ones)
+and a relative *weight* for each question.
+The *weight* of a question is a factor that multiplies the base score
+in order to get the actual score of that question.
+For example, for a question that you want to score double than the base score
+(4 points for correct answers and -4/3 for incorrect ones)
+you would set a weight of 2.
+For a question you want to have exactly the base score,
+you would set a weight of 1.
+You can even decrease the score of a question with respect to he base score.
+A weight of 1/2 would mean
+1 point for correct answers and -1/3 for incorrect ones
+in our example.
+
+You need to edit the scores in the table at the center of the dialog:
+
+.. figure:: images/weights-table.png
+   :class: thumbnail
+   :alt: View of the table for entering question weights
+
+You can enter in each cell integer numbers (e.g. "2"),
+fractions (e.g. "1/2")
+or decimal numbers with fractional digits (e.g. "2.5").
+If you have several exam models
+(alternative orderings of the questions),
+eyegrade will check that you enter the same weights
+in all the models, possibly in a different order for each model:
+
+.. figure:: images/error-different-weights.png
+   :class: thumbnail
+   :alt: Error message when the weights in some models are different
+
+In addition, if your session configuration file
+contains the permutations done to each model
+(if you create the documents of your exams with Eyegrade,
+it will),
+Eyegrade automatically updates the value in all the models
+every time you change the weight of a question in one of them.
+However, if the file does not contain the permutations,
+you'll need to enter the weights for all the models yourself.
+
+The *Compute default scores* button works also as expected
+in this mode.
+It takes into account the question weights you entered
+in order to compute the base scores.
+You should edit the question weights
+*before* computing the default base scores.
+
+Assigning weight 0 to a question voids it:
+
+.. figure:: images/void-question-set-weight.png
+   :class: thumbnail
+   :alt: Set weight zero to void a question
+
+The example above voids question 5 in model A,
+which is also question 1 in model B, question 2 in model C
+and question 3 in model D.
+Void questions will be clearly displayed
+in the capture of the exam,
+and won't be considered either for the score
+or the count of correct and incorrect questions:
+
+.. figure:: images/void-question-capture.png
+   :class: thumbnail
+   :alt: Set weight zero to void a question
 
 
 Application modes
@@ -593,15 +817,20 @@ selecting the student id is shown:
 .. image:: images/change-student-id.png
    :alt: Dialog for changing the student id
 
-The dialog shows the students from the student list sorted by their
+The dialog shows a drop-down menu with the students from the student
+list sorted by their
 probability (according to the OCR module) of being the student whose
-id is in the exam. You just choose one in the drop-down menu. In
-addition, you can filter students by writing part of their id number
+id is in the exam. You just choose any student in the list.
+In addition, you can filter students by writing part of their id number
 or their name.
 
-If the student is not in your list, you can also enter in the dialog
-her id number and name. If you do that, follow the same format:
-student id, white space, student name.
+If the student is not in your list, you can also push the
+*New student* button to create a new student.
+It opens a dialog in which you can enter the data.
+The only mandatory field is this dialog is the student id number:
+
+.. image:: images/new-student-dialog.png
+   :alt: Dialog for creating a new student
 
 
 The manual detection mode
@@ -714,99 +943,253 @@ order that best fits your needs.
 Exporting a listing of scores
 .............................
 
-You will probably want to import the listing of scores from your
-grade-book. You can easily process ``eyegrade-answers.csv`` to produce
-a CSV-formatted file with three columns: student id, number of correct
-answers and number of incorrect answers, in the order you want. You
-can even produce the listing to for just a subset of the students.
+You will probably want to export your listing of scores in order to
+import it into the grade-book, spreadsheet, etc. you use. Since
+version 0.4 this can be done from the user interface (menu *Exams /
+Export grades listing*).
 
-In order to do that, you need a listing of students whose grades you
-want to list. The listing must be a CSV file in which the first column
-contains the student ids (the rest of the columns will be just
-ignored). Normally, you will use the same listing of students you used
-to run Eyegrade. This is an example of such a file::
+First, the program shows a dialog like the following one:
 
-    100000333	 Baggins, Frodo
-    100777777	 Bunny, Bugs
-    100999997	 Bux, Bastian B.
-    100999991	 Potter, Harry
-    100800003	 Simpson, Lisa
+.. image:: images/export-dialog.png
+   :alt: Export dialog.
 
-This command will produce the listing in a file named
-``sorted-listing.csv``::
+In this dialog you have to select:
 
-    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -o sorted-listing.csv
+- The format of the output file. The only option right now is a text
+  file with one row per student and fields separated by tabulators.
+  It is a usual data exchange format compatible with spreadsheet
+  software (such as Microsoft Office and OpenOffice) and databases.
+  Other formats might be added in future versions.
 
-The output for the listing above, and the sample file shown in `The
-answers file`_, would be::
+- The students to include in the listing: all the students in the
+  student list or just the students whose exam has been graded in this
+  session.
 
-    100000333		
-    100777777	 7	13
-    100999997	 15	1
-    100999991	 9	6
-    100800003	 7	13
+- The student groups to include in the listing: the grades for just a
+  specific group of students or the grades for all the groups. This
+  option is hidden if there is just one student group in the current
+  session. Each student-list file you import in the session is treated
+  as a distinct group. This option is useful when, for example, you
+  teach the course in several separate classes. In that case you can
+  export a separate grades listing for each class.
 
-Scores will be in the same order as the student list. The second and third
-columns represent the number of correct and wrong answers, respectively.
-In the example, the first student has those columns empty because there
-is no exam associated to his id.
+- How the grades are sorted: according to the order in the student
+  list you imported or according to the order in which you graded the
+  exams.
 
-Importing the previous file in a spreadsheet should be
-straightforward, because the list of students will now be in the same
-order as your spreadsheet.
+- Which fields to include in the listing: student id number, student
+  full name, student last name, student first name,
+  grading sequence number, exam model letter, number of correct
+  and incorrect answers, score and full list of answers. Only the
+  fields you check are exported (as columns of the exported file). The
+  order of these fields in the exported file is the same you see in
+  the dialog (first the student id number, then her name, etc.)
 
-If there are exams in the answers file of students not in your list,
-the default behavior is including them in the listing, after the rest
-of the students. The rationale behind this behavior is apreventing
-accidental losses of student scores. This behavior can be changed (see
-`Exporting a listing for a subset of students`_).
-
-See `Mixing manually-graded questions`_ if you need to produce
-listings in exams combining MCQ questions with manually-graded
-questions.
-
-
-Exporting a listing for a subset of students
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to extract the scores for just a subset of the students,
-create a student list with the ids of the students you want and run
-the program with the ``-i`` option::
-
-    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -i -o sorted-listing.csv
-
-The ``-i`` option makes Eyegrade ignore students that are in the
-answers file but not in the student list. That is, the listing will
-only contain the students that are in the student list you provide.
-
-This option may be useful, for example, if you examine students coming
-from different classes or groups. With this option you can produce a
-separate listing for each class.
+Once you complete the selection of options and press the *OK* button,
+a new dialog allows you to select the location and name with which the
+file will be saved.  The `.csv` filename extension is recommended in
+order to improve compatibility with external programs in which you
+might want to open the grades. This extension is automatically set if
+you type a name without extension.
 
 
 Editing exams
 -------------
 
 Although you can use any software of your preference to typeset the
-exams, Eyegrade provides a module for doing that in combination to the
-LaTeX document preparation system.
+exams, Eyegrade provides a module for doing that
+in combination with the LaTeX document preparation system.
 
-First, write your questions in an XML document like the following one:
+The procedure consists of four steps,
+which are described in the next sections:
 
-    .. include:: ../sample-files/exam-questions.xml
-       :literal:
+#. Edit an XML file with the questions themselves.
 
-Then, create a LaTeX template for the exam. This is an example:
+#. Edit a LaTeX template for your exam
+   with your institution's look and feel,
+   instructions to students, etc.
+   This template is reusable for other exams in the future.
 
-    .. include:: ../sample-files/template.tex
-       :literal:
+#. Automatically generate the LaTeX source files
+   from the XML file and the template.
+
+#. Generate the PDF files from the LaTeX source files.
+
+The example files used in the following explanations
+are provided with Eyegrade
+inside its `doc/sample-files` directory
+(also `accessible at GitHub
+<https://github.com/jfisteus/eyegrade/tree/development/doc/sample-files>`_).
+
+This guide assumes that you have a LaTeX system installed.
+If you don't have it in your system,
+follow the instructions in `Installing the LaTeX system`_.
+
+
+Editing the questions of the exam
+..................................
+
+You need to typeset your questions in an XML document.
+You may use your favorite text editor for that.
+
+At the beginning of the file
+you should provide some basic data about the exam,
+such as:
+the name of the course/subject,
+the name of the degree,
+the name of the exam,
+the date
+and the duration of the exam.
+You don't need to provide all those values,
+just the ones you want printed in the exam.
+
+Then, write the questions one by one.
+For each question, you have to provide:
+
+- The statement of the question.
+
+- An optional picture to be displayed with the question.
+
+- An optional block of code (for programming exams and the like)
+  to be formatted with a fixed-width font
+  and preserving spacing.
+
+- The text of the correct choice.
+
+- The text of the incorrect choices.
+
+The XML markup must be like shown in the following example:
+
+.. include:: ../sample-files/exam-questions.xml
+   :literal:
+
+You can insert LaTeX markup
+within the text of the statement and the choices
+if you need, for example,
+to insert a math equation
+or format a piece of text in italics, boldface
+or typewriter font::
+
+    <question>
+      <text>
+        Text in \emph{italics}, \textbf{boldface}
+        and \texttt{typewriter} font style.
+      </text>
+      <choices>
+        <correct>A LaTeX equation: $x^2 - 1$</correct>
+        <incorrect>Nothing</incorrect>
+      </choices>
+    </question>
+
+
+Inserting pictures
+~~~~~~~~~~~~~~~~~~~
+
+For inserting a picture in the statement of the question,
+you use the `<figure>` tag.
+Its file name must be provided within
+the `<figure>` and `</figure>` tags.
+It takes the following configuration attributes:
+
+- `eye:width`: width of the picture relative to
+  paragraph width
+  (1.0 means the full width, 0.5 means half width, etc.)
+  The picture will be scaled up or down accordingly.
+  This attribute is mandatory.
+
+- `eye:position`: position of the picture.
+  Use `center` for placing it just below the statement of the question
+  and above the choices.
+  Use `right` for laying out the question in two columns:
+  the statement of the question and the choices at the left
+  and the picture at the right.
+  The default value is `center`.
+
+This is an example::
+
+  <question>
+    <text>
+      Is the thing in the right a logo?
+    </text>
+    <figure eye:width="0.16" eye:position="right">sample-logo.eps</figure>
+    <choices>
+      <correct>Well, it tries to be a logo, to be honest.</correct>
+      <incorrect>No, it's a tree.</incorrect>
+      <incorrect>No, it's a perfect square.</incorrect>
+      <incorrect>Who knows!</incorrect>
+    </choices>
+  </question>
+
+Pictures can also be used inside a choice.
+It that case, the choice can only contain the picture
+and the `eye:position` attribute must not be used::
+
+  <correct>
+    <figure eye:width="0.2">sample-logo.eps</figure>
+  </correct>
+
+
+Inserting blocks of code
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For inserting a block of code in the statement of the question,
+you use the `<code>` tag.
+The code itself is given within the `<code>` and `</code>` tags.
+White space and end-of-line characters
+are displayed as you provide them.
+It takes the following configuration attributes:
+
+- `eye:position`: position of the block of code.
+  Use `center` for placing it just below the statement of the question
+  and above the choices.
+  Use `right` for laying out the question in two columns:
+  the statement of the question and the choices at the left
+  and the piece of code at the right.
+  The default value is `center`.
+
+- `eye:width`: only if you select the two column layout
+  (position `right`),
+  provide the width of the right column relative to
+  paragraph width
+  (0.5 means half width, etc.)
+  Remember to leave enough place for the left side.
+  This attribute is mandatory for the `right` position
+  and forbidden for the `center` position.
+
+This is an example::
+
+    <code eye:position="right" eye:width="0.4">for letter in ['a', 'b', 'c']:
+        print letter</code>
+
+Blocks of code can also be used inside a choice.
+It that case, the choice can only contain the block of code
+and neither attribute can be used::
+
+    <incorrect>
+    <code>class MyClass:
+        pass
+    </code>
+    </incorrect>
+
+
+Editing the LaTeX template
+...........................
+
+In addition to the questions of the exam,
+you'll need a LaTeX template.
+It allows you to design the front page of the exam
+and other aspects (fonts, margins, etc.)
+This is an example:
+
+.. include:: ../sample-files/template.tex
+   :literal:
 
 In the template, notice that there are some marks within {{ and }}
 that are intended to be replaced by the script with data from the
 exam:
 
-- `{{declarations}}`: the script will put there declarations needed
-  for the generate LaTeX file.
+- `{{declarations}}`: the script will put there some LaTeX declarations
+  it needs.
 - `{{subject}}`, `{{degree}}`: name of the subject and degree it
   belongs to. Taken from the XML file with the questions.
 - `{{title}}`: the title of the exam. Taken from the XML file with the
@@ -825,18 +1208,24 @@ exam:
 Note that a template is highly reusable for different exams and
 subjects.
 
+
+Creating the LaTeX source files
+................................
+
 Once the exam file and the template have been created, the script
 `create_exam.py` parses them and generates the exam in LaTeX format::
 
   python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
 
 The previous command will create models 0, A and B of the exam with
-names `exam-0.tex`, `exam-A.tex` and `exam-B.tex`. Exam model 0 is a
-special exam in which questions are not reordered. The correct answer
-is always the first choice. Those files can be compiled with LaTeX to
-obtain a PDF that can be printed. In addition, the ``exam.eye`` file
-needed to grade the exam is automatically created (or updated if it
-already exists).
+names `exam-0.tex`, `exam-A.tex` and `exam-B.tex`. The exam model 0 is a
+special exam in which questions are not reordered.
+The correct answer is always the first choice in the model 0.
+The model 0 is convenient while editing the questions,
+but you must remember not to use it in the exam itself.
+
+In addition, Eyegrade will automatically create the ``exam.eye`` file
+needed to grade the exams, or update it if it already exists.
 
 The script `create_exam.py` has other features, like creating just the
 front page of the exam (no questions needed). They can be explored with
@@ -850,6 +1239,49 @@ default size, using the `-S` option and passing a scale factor
 The following command enlarges the default size in a 50% (factor 1.5)::
 
   python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
+
+
+Creating the PDF files
+.......................
+
+Once the `.tex` files have been created,
+you have to use LaTeX to produce the PDF files.
+For each file, run the following command::
+
+  pdflatex exam-A.tex
+
+If you have several exam models,
+running that command for each one may be tedious.
+On Linux systems you can produce all of them
+with just a couple of commands::
+
+  find -name "exam-*.tex" -exec pdflatex \{\} \;
+
+That's it! Now you can print the PDF files of your exams.
+
+
+Installing the LaTeX system
+.............................
+
+LaTeX is included in the repositories of the major Linux distributions.
+In Debian and Ubuntu you can simply
+install the package `texlive-latex-recommended`::
+
+  sudo apt-get install texlive-latex-recommended
+
+For MS Windows there are some LaTeX distributions
+that provide a graphical installer,
+such as `ProText <https://www.tug.org/protext/>`_:
+
+#. Download the ProText installer
+   (be aware that the size of the download is about 1.7 GB).
+
+#. From the installer, choose to install MiKTex.
+   When you are offered a minimal or full installation,
+   the minimal one is enough.
+
+#. You probably won't need to install TeXstudio,
+   which is also offered by the installer.
 
 
 
@@ -887,52 +1319,6 @@ the configuration file::
 
 Save it in your user account with name ``.eyegrade.cfg``. In Windows systems,
 your account is at ``C:\Documents and Settings\<your_user_name>``.
-
-
-Mixing manually-graded questions
-................................
-
-You may want to mix in the same exam MCQ questions with other type
-of questions that must be graded manually. Even though Eyegrade can
-only grade the MCQ questions of the exam, it can simplify a little
-bit the process of mixing grades.
-
-First, grade the MCQ exams with Eyegrade. Then, grade the other
-questions *without* changing the ordering of the exams.
-
-Create a new CSV file with only one column, which contains the student
-ids of the students that submitted the exam. It will help a lot
-producing this listing in the same order you have graded the
-exams. Such a listing can be trivially obtained from the file
-``eyegrade-answers.csv``. In Linux, it can be done with just a
-command::
-
-    cut eyegrade-answers.csv -f 2 >extra-marks.csv
-
-Edit that listing to include the marks of the manually-graded
-questions. Write marks in one or more columns at the right of the
-student id. Having this file the same order of your exams, introducing
-manual marks should be easier, since you do not need to search.  This
-is an example with only one manual mark per exam (just one column)::
-
-    100999991   7
-    100999997   8
-    100800003   5
-    100777777   9.5
-
-The final listing that combines the results of all the questions can
-be produced with ``mix_grades``::
-
-    python -m eyegrade.mix_grades eyegrade-answers.csv student-list.csv -x extra-marks.csv -o sorted-listing.csv
-
-The columns with the manual marks would appear at the right in the
-resulting file::
-
-    100000333			
-    100777777	 7	13	9.5
-    100999997	 15	1	8
-    100999991	 9	6	7
-    100800003	 7	13	5
 
 
 Creating the exams in a word processor
