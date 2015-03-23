@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eyegrade\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-17 11:04+0100\n"
+"POT-Creation-Date: 2015-03-23 19:19+0100\n"
 "PO-Revision-Date: 2015-03-17 11:04+0100\n"
 "Last-Translator: Jesus Arias Fisteus\n"
 "Language-Team: \n"
@@ -100,7 +100,7 @@ msgstr "Error de entrada/salida: {0}"
 msgid "Manual detection failed"
 msgstr "Ha fallado la detección manual"
 
-#: eyegrade/eyegrade.py:742
+#: eyegrade/eyegrade.py:743
 msgid "No camera found. Connect a camera and start the session again."
 msgstr ""
 "No se ha encontrado ninguna cámara. Conecte una y abra de nuevo la sesión."
@@ -401,19 +401,23 @@ msgstr "Añadir un nuevo estudiante"
 
 #: eyegrade/qtgui/dialogs.py:120
 msgid "Given name"
-msgstr "Nombre de pila"
+msgstr "Nombre"
 
 #: eyegrade/qtgui/dialogs.py:121
 msgid "Surname"
 msgstr "Apellidos"
 
-#: eyegrade/qtgui/dialogs.py:122 eyegrade/qtgui/dialogs.py:129
+#: eyegrade/qtgui/dialogs.py:122
 msgid "Full name"
 msgstr "Nombre y apellidos"
 
 #: eyegrade/qtgui/dialogs.py:128
-msgid "Given name and surname"
-msgstr "Nombre y apellidos"
+msgid "Separate given name and surname"
+msgstr "Nombre y apellidos por separado"
+
+#: eyegrade/qtgui/dialogs.py:129
+msgid "Full name in just one field"
+msgstr "Nombre completo en un solo campo"
 
 #: eyegrade/qtgui/dialogs.py:132
 msgid "Id number"
@@ -439,7 +443,7 @@ msgstr "Nota máxima"
 msgid "Penalizations"
 msgstr "Penalizaciones"
 
-#: eyegrade/qtgui/dialogs.py:251 eyegrade/qtgui/widgets.py:215
+#: eyegrade/qtgui/dialogs.py:251 eyegrade/qtgui/widgets.py:218
 #: eyegrade/qtgui/wizards.py:311 eyegrade/qtgui/wizards.py:346
 #: eyegrade/qtgui/wizards.py:350 eyegrade/qtgui/wizards.py:362
 msgid "Error"
@@ -583,31 +587,31 @@ msgstr "Portugués"
 msgid "Spanish"
 msgstr "Español"
 
-#: eyegrade/qtgui/widgets.py:244
+#: eyegrade/qtgui/widgets.py:247
 msgid "e.g.: 2; 2.5; 5/2"
 msgstr "ejemplos: 2; 2.5; 5/2"
 
-#: eyegrade/qtgui/widgets.py:246
+#: eyegrade/qtgui/widgets.py:249
 msgid "e.g.: 0; -1; -1.25; -5/4"
 msgstr "ejemplos: 0; -1; -1.25; -5/4"
 
-#: eyegrade/qtgui/widgets.py:318
+#: eyegrade/qtgui/widgets.py:321
 msgid "Add files"
 msgstr "Añadir ficheros"
 
-#: eyegrade/qtgui/widgets.py:319
+#: eyegrade/qtgui/widgets.py:322
 msgid "Remove selected"
 msgstr "Eliminar seleccionados"
 
-#: eyegrade/qtgui/widgets.py:543
+#: eyegrade/qtgui/widgets.py:546
 msgid "Model"
 msgstr "Modelo"
 
-#: eyegrade/qtgui/widgets.py:546
+#: eyegrade/qtgui/widgets.py:549
 msgid "Question"
 msgstr "Pregunta"
 
-#: eyegrade/qtgui/widgets.py:548
+#: eyegrade/qtgui/widgets.py:551
 msgid "Total"
 msgstr "Total"
 
@@ -726,9 +730,9 @@ msgid ""
 "The weights must be the same in all the models, although they may be in a "
 "different order. You must fix this before computing default scores."
 msgstr ""
-"Los pesos deben ser iguales en todos los modelos, aunque pueden estar "
-"en distinto orden. Debe arreglar este problema antes de calcular "
-"las notas por defecto."
+"Los pesos deben ser iguales en todos los modelos, aunque pueden estar en "
+"distinto orden. Debe arreglar este problema antes de calcular las notas por "
+"defecto."
 
 #: eyegrade/qtgui/wizards.py:371
 msgid ""
