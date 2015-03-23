@@ -33,7 +33,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.4.4+'
+version = '0.5'
 version_status = 'alpha'
 
 re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
@@ -1028,6 +1028,7 @@ class ExamConfig(object):
             raise ValueError('The score mode does not allow base scores')
         self.base_scores = scores
         if same_weights:
+            self.reset_question_weights()
             for model in self.models:
                 self.set_equal_scores(model)
 

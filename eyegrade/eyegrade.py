@@ -694,16 +694,17 @@ class ProgramManager(object):
         if manager.is_ready():
             success = manager.detect()
             if success:
-                self.exam = self._process_capture(manager.detector)
-                if self.exam is not None:
-                    self.exam.draw_answers()
+                new_exam = self._process_capture(manager.detector)
+                if new_exam is not None:
+                    new_exam.draw_answers()
                 else:
                     success = False
             if not success:
                 self.exam.reset_image()
                 self.interface.show_error(_('Manual detection failed'))
-                self._start_manual_detect_mode()
+                self._start_search_mode()
             else:
+                self.exam = new_exam
                 self.from_manual_detection = True
                 self._start_review_mode()
 

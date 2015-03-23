@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-17 11:04+0100\n"
+"POT-Creation-Date: 2015-03-23 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,7 +105,7 @@ msgstr "Error d'entrada/sortida"
 msgid "Manual detection failed"
 msgstr "Ha fallat la detecció manual"
 
-#: eyegrade/eyegrade.py:742
+#: eyegrade/eyegrade.py:743
 msgid "No camera found. Connect a camera and start the session again."
 msgstr ""
 "No s'ha trobat cap càmara. Connecti'n una i obri la sessió un altre cop."
@@ -426,12 +426,16 @@ msgstr "Estudiant:"
 msgid "Surname"
 msgstr "Estudiant:"
 
-#: eyegrade/qtgui/dialogs.py:122 eyegrade/qtgui/dialogs.py:129
+#: eyegrade/qtgui/dialogs.py:122
 msgid "Full name"
 msgstr ""
 
 #: eyegrade/qtgui/dialogs.py:128
-msgid "Given name and surname"
+msgid "Separate given name and surname"
+msgstr ""
+
+#: eyegrade/qtgui/dialogs.py:129
+msgid "Full name in just one field"
 msgstr ""
 
 #: eyegrade/qtgui/dialogs.py:132
@@ -459,7 +463,7 @@ msgstr "Nota màxima"
 msgid "Penalizations"
 msgstr "Penalitzacions"
 
-#: eyegrade/qtgui/dialogs.py:251 eyegrade/qtgui/widgets.py:215
+#: eyegrade/qtgui/dialogs.py:251 eyegrade/qtgui/widgets.py:218
 #: eyegrade/qtgui/wizards.py:311 eyegrade/qtgui/wizards.py:346
 #: eyegrade/qtgui/wizards.py:350 eyegrade/qtgui/wizards.py:362
 msgid "Error"
@@ -607,32 +611,32 @@ msgstr "Portuguès"
 msgid "Spanish"
 msgstr "Espanyol"
 
-#: eyegrade/qtgui/widgets.py:244
+#: eyegrade/qtgui/widgets.py:247
 msgid "e.g.: 2; 2.5; 5/2"
 msgstr "exemples: 2; 2.5; 5/2"
 
-#: eyegrade/qtgui/widgets.py:246
+#: eyegrade/qtgui/widgets.py:249
 msgid "e.g.: 0; -1; -1.25; -5/4"
 msgstr "exemples: 0; -1; -1.25; -5/4"
 
-#: eyegrade/qtgui/widgets.py:318
+#: eyegrade/qtgui/widgets.py:321
 msgid "Add files"
 msgstr "Afegir fitxers"
 
-#: eyegrade/qtgui/widgets.py:319
+#: eyegrade/qtgui/widgets.py:322
 msgid "Remove selected"
 msgstr "Eliminar seleccionats"
 
-#: eyegrade/qtgui/widgets.py:543
+#: eyegrade/qtgui/widgets.py:546
 #, fuzzy
 msgid "Model"
 msgstr "Model:"
 
-#: eyegrade/qtgui/widgets.py:546
+#: eyegrade/qtgui/widgets.py:549
 msgid "Question"
 msgstr ""
 
-#: eyegrade/qtgui/widgets.py:548
+#: eyegrade/qtgui/widgets.py:551
 msgid "Total"
 msgstr ""
 

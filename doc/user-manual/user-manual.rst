@@ -39,8 +39,14 @@ Eyegrade depends on the following free-software projects:
 Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5
 ................................................................
 
-In order to upgrade from eyegrade 0.2.x, 0.3.x and 0.4.x to eyegrade 0.5,
+In order to upgrade from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5,
 follow the instructions at `Updating Eyegrade`_.
+
+Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work with sessions created
+by the previous versions of Eyegrade,
+those previous versions don't work
+with sessions created by Eyegrade 0.5.
 
 The main changes of the most recent versions are described in the following
 blog posts:
@@ -245,10 +251,10 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade.zip
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_. Extract
-it in your file system, in a directory with no white-spaces in its
-path.
+1.- Download the ZIP file `eyegrade-5.0.zip
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-5.0.zip>`_.
+Extract it in your file system,
+in a directory with no white-spaces in its path.
 
 Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
@@ -290,7 +296,7 @@ prompt window, enter the Eyegrade installation directory and type::
 This should work on any platform (Linux, Windows, etc.)
 
 If you didn't use Git to install Eyegrade, `download the new version
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_,
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-5.0.zip>`_,
 uncompress it and replace your ``eyegrade`` directory by the one you
 have uncompressed.
 
@@ -483,14 +489,14 @@ of the following three options:
   of its weight and the base score.
   This mode can also be used for voiding questions:
   when you assign a weight of 0 to a question,
-  that question is not graded.
+  it does not contribute to the score of the exam.
 
 
 Same score for all the questions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When you select this option,
-all the questions count the same in the grade of the exam.
+all the questions count the same in the score of the exam.
 Eyegrade counts the number of correct, incorrect and blank answers,
 and multiplies each one by the score assigned
 to each of those types of answers.
@@ -570,15 +576,15 @@ in all the models, possibly in a different order for each model:
 
 In addition, if your session configuration file
 contains the permutations done to each model
-(if you create the documents of your exams with eyegrade,
+(if you create the documents of your exams with Eyegrade,
 it will),
 Eyegrade automatically updates the value in all the models
 every time you change the weight of a question in one of them.
 However, if the file does not contain the permutations,
 you'll need to enter the weights for all the models yourself.
 
-The *Compute default scores* button works as expected
-in this mode also.
+The *Compute default scores* button works also as expected
+in this mode.
 It takes into account the question weights you entered
 in order to compute the base scores.
 You should edit the question weights
@@ -972,7 +978,8 @@ In this dialog you have to select:
   exams.
 
 - Which fields to include in the listing: student id number, student
-  name, grading sequence number, exam model letter, number of correct
+  full name, student last name, student first name,
+  grading sequence number, exam model letter, number of correct
   and incorrect answers, score and full list of answers. Only the
   fields you check are exported (as columns of the exported file). The
   order of these fields in the exported file is the same you see in

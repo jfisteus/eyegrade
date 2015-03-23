@@ -1,3 +1,26 @@
+2015-03-18  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.5.
+
+	* Reworked student management. New dialog for entering
+	new students. Import students with separate first and last name.
+
+	* Immediate saving of captures and presentation of the capture
+	miniature. Before, they weren't saved until the user selected
+	the next exam.
+
+	* Questions in the same exam can now have a different score,
+	configured through a reference base score and a per-question
+	weight that multiplies the base score.
+
+	* Questions can be voided, by assigning them a weight of 0.
+
+	* Modified session format.
+
+	* Bugfixes.
+
+	* Some code refactorings.
+
 2014-11-28  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.4.4.
