@@ -100,6 +100,61 @@
 <div class="postindex">
     <article class="h-entry post-text">
     <header>
+        <h1 class="p-name entry-title"><a href="posts/eyegrade-05-released.html" class="u-url">Eyegrade 0.5 released!</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/eyegrade-05-released.html" rel="bookmark"><time class="published dt-published" datetime="2015-03-23T18:39:00+00:00" itemprop="datePublished" title="2015-03-23 18:39">2015-03-23 18:39</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/eyegrade-05-released.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-05-released.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>I've finally released Eyegrade 0.5.
+As I've advanced in the previous four posts,
+its new features are:</p>
+<ul class="simple">
+<li>It stores exam captures and updates their miniatures immediately
+when they are captured or you edit an answer or the student id
+(<a class="reference external" href="posts/what-will-eyegrade-05-include-part-1.html">blog post</a>).</li>
+<li>I've reworked the subsystem that manages the identity of the students.
+Optionally, students may now have separate first and last name,
+and there is a new dialog for entering new students
+when they aren't in your student lists
+(<a class="reference external" href="posts/what-will-eyegrade-05-include-part-2.html">blog post</a>,
+<a class="reference external" href="../doc/user-manual/index.html#student-list-files">explanation in the user manual</a>).</li>
+<li>Each question in a exam can have now a different weight in the final scores.
+This way, you can assign a bigger weight to the most important questions
+(<a class="reference external" href="posts/what-will-eyegrade-05-include-part-3.html">blog post</a>,
+<a class="reference external" href="../doc/user-manual/index.html#scores">explanation in the user manual</a>).</li>
+<li>If you don't want a question to contribute to the score of the exam,
+now you can do it when creating the session.
+For example, it is useful when you discover an error
+in the statement of a question,
+but it's too late for fixing it.
+With this feature you can avoid grading that question
+(<a class="reference external" href="posts/what-will-eyegrade-05-include-part-4.html">blog post</a>,
+<a class="reference external" href="../doc/user-manual/index.html#modifying-the-student-id">explanation in the user manual</a>).</li>
+</ul>
+<p>If you have installed eyegrade through <em>git</em>, you can easily update
+the program from versions in the series 0.2.x and later
+by executing the command
+<em>git pull</em> from inside the directory in which Eyegrade is installed
+(<a class="reference external" href="../doc/user-manual/index.html#updating-eyegrade">explanation in the user manual</a>).</p>
+<p>Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work
+with sessions created by the previous versions of Eyegrade,
+those previous versions don't work
+with sessions created by Eyegrade 0.5.</p>
+</div>
+    </div>
+    </article>
+    <article class="h-entry post-text">
+    <header>
         <h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-05-include-part-4.html" class="u-url">What will eyegrade 0.5 include? (part 4)</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
@@ -533,45 +588,6 @@ the program from versions in the series 0.2.x by executing the command
 <p>If you find bugs or problems with this new release, please open an
 issue at <a class="reference external" href="https://github.com/jfisteus/eyegrade/">the GitHub project page</a>, or just let me know by
 commenting on this post or sending me an email.</p>
-</div>
-    </div>
-    </article>
-    <article class="h-entry post-text">
-    <header>
-        <h1 class="p-name entry-title"><a href="posts/eyegrade-moved-to-a-new-location.html" class="u-url">Eyegrade moved to a new location</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="posts/eyegrade-moved-to-a-new-location.html" rel="bookmark"><time class="published dt-published" datetime="2013-07-31T16:55:00+00:00" itemprop="datePublished" title="2013-07-31 16:55">2013-07-31 16:55</time></a></p>
-                <p class="commentline">
-        
-    <a href="posts/eyegrade-moved-to-a-new-location.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-moved-to-a-new-location.html">Comments</a>
-
-
-        </p>
-</div>
-    </header>
-    <div class="e-content entry-content">
-    <div>
-<p>I've just moved Eyegrade to a new Web location at <a class="reference external" href="http://eyegrade.org/">eyegrade.org</a>. These are the important links:</p>
-<ul class="simple">
-<li>Project homepage: <a class="reference external" href="http://eyegrade.org/">http://eyegrade.org/</a>
-</li>
-<li>User manual: <a class="reference external" href="http://eyegrade.org/doc/user-manual/">http://eyegrade.org/doc/user-manual/</a>
-</li>
-<li>Blog: <a class="reference external" href="http://eyegrade.org/blog/">http://eyegrade.org/blog/</a>
-</li>
-<li>RSS feed: <a class="reference external" href="http://eyegrade.org/blog/rss.xml">http://eyegrade.org/blog/rss.xml</a>
-</li>
-</ul>
-<p>Requests for the old addresses will automatically be redirected to the
-new location. However, the old server may be down for some periods of
-August. In fact, the frequent downtimes of the old hosting are one of
-the main reasons for the change. During those downtime periods
-redirections won't work. However, the new addresses will work properly
-even in that case.</p>
-<p>The new website is hosted at the <a class="reference external" href="http://pages.github.com/">GitHub Pages</a> service. My experience so far with this
-service has been very satisfactory. The availability of the website
-with the new hosting will definitely be much better.</p>
 </div>
     </div>
     </article>

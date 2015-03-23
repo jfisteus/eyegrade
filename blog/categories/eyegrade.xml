@@ -1,5 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 26 Feb 2015 09:53:19 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 23 Mar 2015 19:40:04 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.5 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've finally released Eyegrade 0.5.
+As I've advanced in the previous four posts,
+its new features are:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;It stores exam captures and updates their miniatures immediately
+when they are captured or you edit an answer or the student id
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;blog post&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;I've reworked the subsystem that manages the identity of the students.
+Optionally, students may now have separate first and last name,
+and there is a new dialog for entering new students
+when they aren't in your student lists
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html"&gt;blog post&lt;/a&gt;,
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#student-list-files"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Each question in a exam can have now a different weight in the final scores.
+This way, you can assign a bigger weight to the most important questions
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html"&gt;blog post&lt;/a&gt;,
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#scores"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;If you don't want a question to contribute to the score of the exam,
+now you can do it when creating the session.
+For example, it is useful when you discover an error
+in the statement of a question,
+but it's too late for fixing it.
+With this feature you can avoid grading that question
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html"&gt;blog post&lt;/a&gt;,
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#modifying-the-student-id"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you have installed eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
+the program from versions in the series 0.2.x and later
+by executing the command
+&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed
+(&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#updating-eyegrade"&gt;explanation in the user manual&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work
+with sessions created by the previous versions of Eyegrade,
+those previous versions don't work
+with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
 because I plan to add a couple of features more.
 Today I'll talk about one of them.
 Roberto González, a long time user and contributor of Eyegrade,
@@ -257,19 +292,4 @@ the program from versions in the series 0.2.x by executing the command
 &lt;em&gt;git pull&lt;/em&gt; from inside the directory in which eyegrade is installed.&lt;/p&gt;
 &lt;p&gt;If you find bugs or problems with this new release, please open an
 issue at &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/"&gt;the GitHub project page&lt;/a&gt;, or just let me know by
-commenting on this post or sending me an email.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item><item><title>Eyegrade moved to a new location</title><link>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just moved Eyegrade to a new Web location at &lt;a class="reference external" href="http://eyegrade.org/"&gt;eyegrade.org&lt;/a&gt;. These are the important links:&lt;/p&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;Project homepage: &lt;a class="reference external" href="http://eyegrade.org/"&gt;http://eyegrade.org/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;User manual: &lt;a class="reference external" href="http://eyegrade.org/doc/user-manual/"&gt;http://eyegrade.org/doc/user-manual/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Blog: &lt;a class="reference external" href="http://eyegrade.org/blog/"&gt;http://eyegrade.org/blog/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;RSS feed: &lt;a class="reference external" href="http://eyegrade.org/blog/rss.xml"&gt;http://eyegrade.org/blog/rss.xml&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Requests for the old addresses will automatically be redirected to the
-new location. However, the old server may be down for some periods of
-August. In fact, the frequent downtimes of the old hosting are one of
-the main reasons for the change. During those downtime periods
-redirections won't work. However, the new addresses will work properly
-even in that case.&lt;/p&gt;
-&lt;p&gt;The new website is hosted at the &lt;a class="reference external" href="http://pages.github.com/"&gt;GitHub Pages&lt;/a&gt; service. My experience so far with this
-service has been very satisfactory. The availability of the website
-with the new hosting will definitely be much better.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</guid><pubDate>Wed, 31 Jul 2013 16:55:00 GMT</pubDate></item></channel></rss>
+commenting on this post or sending me an email.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item></channel></rss>
