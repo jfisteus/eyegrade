@@ -1,1 +1,7 @@
+- Main developer:
+
 Jesus Arias Fisteus
+
+- Manuscript digits classifier:
+
+Rodrigo Arguello

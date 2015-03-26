@@ -387,7 +387,7 @@ class DialogAbout(QDialog):
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2015 Jesús Arias Fisteus <br>
+             (c) 2010-2015 Jesús Arias Fisteus and contributors<br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 
@@ -427,9 +427,12 @@ class DialogAbout(QDialog):
         return label
 
     def _create_developers_tab(self):
-        text = u"""<center><p><b>{0}:</b></p>
+        text = u"""<p><b>{0}:</b></p>
                    <ul><li>Jesús Arias Fisteus</li></ul>
-                   </center>""".format(_('Lead developers'))
+                   <p><b>{1}:</b></p>
+                   <ul><li>Rodrigo Argüello</li></ul>
+                   """.format(_('Lead developers'),
+                                       _('Manuscript digits recognition'))
         label = QLabel(text)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse
