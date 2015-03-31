@@ -8,6 +8,6 @@ setup(name='eyegrade',
       author='Jesus Arias Fisteus',
       author_email='jfisteus@gmail.com',
       url='http://www.eyegrade.org/',
-      packages=['eyegrade', 'eyegrade.qtgui'],
+      packages=['eyegrade', 'eyegrade.qtgui', 'eyegrade.ocr'],
       package_data={'eyegrade': ['data/*']},
     )
