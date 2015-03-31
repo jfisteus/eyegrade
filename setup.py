@@ -10,4 +10,5 @@ setup(name='eyegrade',
       url='http://www.eyegrade.org/',
       packages=['eyegrade', 'eyegrade.qtgui', 'eyegrade.ocr'],
       package_data={'eyegrade': ['data/*']},
+      scripts=['bin/eyegrade', 'bin/eyegrade-create'],
     )
