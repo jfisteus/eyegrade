@@ -66,6 +66,15 @@
 ;Languages
  
   !insertmacro MUI_LANGUAGE "English"
+  !insertmacro MUI_LANGUAGE "Spanish"
+  !insertmacro MUI_LANGUAGE "Galician"
+
+  LangString MsgEyegradeRunning ${LANG_ENGLISH} \
+             "Eyegrade is running. Please, close it and try again" 
+  LangString MsgEyegradeRunning ${LANG_SPANISH} \
+             "Eyegrade se está ejecutando. Por favor, ciérrelo y vuélvalo a intentar" 
+  LangString MsgEyegradeRunning ${LANG_GALICIAN} \
+             "Eyegrade estase a executar. Por favor, cérreo e volva intentalo" 
 
 ;--------------------------------
 ;Installer Sections
@@ -168,8 +177,7 @@ FunctionEnd
 Function .onInit
   FindWindow $0 "" "Eyegrade"
   StrCmp $0 0 notRunning
-    MessageBox MB_OK|MB_ICONEXCLAMATION \
-               "Eyegrade is running. Please, close it and try again" /SD IDOK
+    MessageBox MB_OK|MB_ICONEXCLAMATION "$(MsgEyegradeRunning)" /SD IDOK
     Abort
 notRunning:
 FunctionEnd
@@ -177,8 +185,7 @@ FunctionEnd
 Function un.onInit
   FindWindow $0 "" "Eyegrade"
   StrCmp $0 0 notRunning
-    MessageBox MB_OK|MB_ICONEXCLAMATION \
-               "Eyegrade is running. Please, close it and try again" /SD IDOK
+    MessageBox MB_OK|MB_ICONEXCLAMATION "$(MsgEyegradeRunning)" /SD IDOK
     Abort
 notRunning:
 FunctionEnd

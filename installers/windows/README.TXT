@@ -4,8 +4,8 @@ and a Windows installer (install NSIS version 2.X).
 
 Use a 32-bit version of python 2.7 for maximum portability of the produced files.
 
-Eyegrade must be at C:\Eyegrade. From there, run:
+Create the files with:
 
-cd C:\Eyegrade
-C:\python27_32\Scripts\pyi-build.exe installers\windows\eyegrade.spec
-"C:\Program Files (x86)\NSIS\makensis.exe" installers\windows\eyegrade.nsi
+python build.py
+
+The output files are created in the dist directory of your eyegrade source directory.
