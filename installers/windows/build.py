@@ -5,10 +5,12 @@ import os.path
 import sys
 import subprocess
 
-eyegrade_dir = os.path.join(os.path.dirname(os.path.dirname( \
-                                            os.path.dirname(os.path.realpath(__file__)))))
+eyegrade_dir = os.path.join(os.path.dirname( \
+                                os.path.dirname(os.path.dirname( \
+                                    os.path.realpath(__file__)))))
 python_dir = os.path.join(os.path.dirname(sys.executable))
-pyi_spec_file = os.path.join(eyegrade_dir, 'installers', 'windows', 'eyegrade.spec')
+pyi_spec_file = os.path.join(eyegrade_dir, 'installers', 'windows',
+                             'eyegrade.spec')
 nsis_file = os.path.join(eyegrade_dir, 'installers', 'windows', 'eyegrade.nsi')
 
 def is_exe(fpath):
@@ -29,18 +31,20 @@ def get_pyi_path():
         path = os.path.join(python_dir, 'Scripts', 'pyi-build.exe')
         if not is_exe(path):
             path = None
-    return path            
+    return path
 
 def get_nsis_path():
     path = which('makensis.exe')
     if not path:
         # Try in the current Python's installation
-        path = os.path.join('C:\\', 'Program Files (x86)', 'NSIS', 'makensis.exe')
+        path = os.path.join('C:\\', 'Program Files (x86)', 'NSIS',
+                            'makensis.exe')
         if not is_exe(path):
-            path = os.path.join('C:\\', 'Program Files', 'NSIS', 'makensis.exe')
+            path = os.path.join('C:\\', 'Program Files', 'NSIS',
+                                'makensis.exe')
             if not is_exe(path):
                 path = None
-    return path            
+    return path
 
 prev_cwd = os.getcwd()
 os.chdir(eyegrade_dir)
