@@ -24,6 +24,7 @@
 
 
 
+<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <style type="text/css">
     .image-block {
         display: inline-block;
@@ -99,7 +100,7 @@
 
 <!-- End of Menubar -->
 
-<div class="container" id="content">
+<div class="container" id="content" role="main">
     <div class="body-content">
         <!--Body content-->
         <div class="row">
@@ -108,22 +109,17 @@
     
 <nav class="breadcrumbs">
 <ul class="breadcrumb">
-        <li><a href="#">galleries</a></li>
+                <li>galleries</li>
 </ul>
 </nav>
 
     <h1>galleries</h1>
     <ul>
-        <li><a href="screenshots-05"><i class="glyphicon
-        glyphicon-folder-open"></i> screenshots-05</a></li>
-        <li><a href="screenshots-04"><i class="glyphicon
-        glyphicon-folder-open"></i> index</a></li>
-        <li><a href="screenshots-for-index"><i class="glyphicon
-        glyphicon-folder-open"></i> index</a></li>
-        <li><a href="screenshots-new-gui-2"><i class="glyphicon
-        glyphicon-folder-open"></i> screenshots-new-gui-2</a></li>
-        <li><a href="screenshots-new-gui-1"><i class="glyphicon
-        glyphicon-folder-open"></i> index</a></li>
+        <li><a href="screenshots-05/"><i class="glyphicon glyphicon-folder-open"></i> screenshots-05</a></li>
+        <li><a href="screenshots-04/"><i class="glyphicon glyphicon-folder-open"></i> index</a></li>
+        <li><a href="screenshots-for-index/"><i class="glyphicon glyphicon-folder-open"></i> index</a></li>
+        <li><a href="screenshots-new-gui-2/"><i class="glyphicon glyphicon-folder-open"></i> screenshots-new-gui-2</a></li>
+        <li><a href="screenshots-new-gui-1/"><i class="glyphicon glyphicon-folder-open"></i> index</a></li>
     </ul>
 
 <div id="gallery_container"></div>
@@ -163,7 +159,7 @@
 <!-- End of social buttons -->
 
 
-    <script>jQuery("a.image-reference").colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script>
+    <script>$('a.image-reference:not(.islink)').colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script>
     <!-- fancy dates -->
     <script>
     moment.locale("");
