@@ -568,7 +568,8 @@ def format_question(question, model, with_solution=False):
         data.append('&\n')
         if question.text.figure is not None:
             data.extend(write_figure(question.text.figure,
-                                     question.text.annex_width))
+                                     question.text.annex_width,
+                                     True))
         elif question.text.code is not None:
             data.extend(write_code(question.text.code))
         data.append('\\\\\n\\end{tabular}\n')
@@ -587,17 +588,20 @@ def format_question_component(component):
                     data.extend(write_code(part[1]))
     if component.figure is not None and component.annex_pos == 'center':
         data.extend(write_figure(component.figure,
-                                 component.annex_width))
+                                 component.annex_width,
+                                 False))
     elif component.code is not None and component.annex_pos == 'center':
         data.extend(write_code(component.code))
     return data
 
-def write_figure(figure, width):
+def write_figure(figure, width, center):
     data = []
-    data.append('\\begin{center}\n')
+    if center:
+        data.append('\\begin{center}\n')
     data.append('\\includegraphics[width=%f\\textwidth]{%s}\n'%\
                     (width * 0.9, figure))
-    data.append('\\end{center}\n')
+    if center:
+        data.append('\\end{center}\n')
     return data
 
 def write_code(code):
