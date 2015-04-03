@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+import eyegrade.create_exam
+
+eyegrade.create_exam.main()

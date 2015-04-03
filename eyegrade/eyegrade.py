@@ -819,13 +819,13 @@ def main():
         filename = sys.argv[1]
     else:
         filename = None
-    interface = gui.Interface(app, False, False, [])
-    manager = ProgramManager(interface, session_file=filename)
-    manager.run()
-
-if __name__ == '__main__':
     try:
-        main()
+        interface = gui.Interface(app, False, False, [])
+        manager = ProgramManager(interface, session_file=filename)
+        manager.run()
     except utils.EyegradeException as ex:
         print >>sys.stderr, ex
         sys.exit(1)
+
+if __name__ == '__main__':
+    main()
