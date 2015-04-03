@@ -28,6 +28,7 @@ import random
 import re
 import io
 import fractions
+import contextlib
 
 program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
@@ -1617,3 +1618,12 @@ def capture_name(filename_pattern, exam_id, student):
 
 def encode_string(text):
     return text.encode(config['default-charset'])
+
+@contextlib.contextmanager
+def change_dir(directory):
+    prev_directory = os.getcwd()
+    if directory:
+        os.chdir(directory)
+    yield
+    if directory:
+        os.chdir(prev_directory)

@@ -15,6 +15,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from __future__ import print_function
 
 from optparse import OptionParser
 import sys
@@ -95,6 +96,10 @@ def read_cmd_options():
                       dest='survey_mode',
                       action='store_true', default=False,
                       help=('this is a survey instead of an exam'))
+    parser.add_option('--no-pdf',
+                      dest='no_pdf',
+                      action='store_true', default=False,
+                      help=('produce the .tex files instead of PDF'))
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('Required parameters expected')
@@ -141,8 +146,9 @@ def create_exam():
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if not exam.homogeneous_num_choices():
-            print >>sys.stderr, ('Warning: not all the questions have '
-                                 'the same number of choices.')
+            print(('Warning: not all the questions have '
+                   'the same number of choices.'),
+                  file=sys.stderr)
         if num_choices is None:
             raise Exception('All the questions in the exam must have the '
                             'same number of choices')
@@ -213,26 +219,42 @@ def create_exam():
                                 score_weights,
                                 options.left_to_right_numbering,
                                 options.survey_mode)
+    if not options.no_pdf and options.output_file_prefix is not None:
+        if exammaker.check_latex():
+            produce_pdf = True
+        else:
+            produce_pdf = False
+            print('Warning: pdflatex not found in your system PATH',
+                  file=sys.stderr)
+    else:
+        produce_pdf = False
     if exam is not None:
         maker.set_exam_questions(exam)
     for model in options.models:
-        maker.create_exam(model, not options.dont_shuffle_again)
+        produced_filename = maker.create_exam(model,
+                                              not options.dont_shuffle_again,
+                                              produce_pdf=produce_pdf)
+        print('Created file:', produced_filename, file=sys.stderr)
     if options.output_file_prefix is not None:
         maker.output_file = options.output_file_prefix + '-%s-solutions.tex'
         for model in options.models:
-            maker.create_exam(model, False, with_solution=True)
+            produced_filename = maker.create_exam(model,
+                                                  False,
+                                                  with_solution=True,
+                                                  produce_pdf=produce_pdf)
+            print('Created file:', produced_filename, file=sys.stderr)
     if config_filename is not None:
         maker.save_exam_config()
 
     # Dump some final warnings
     for key in maker.empty_variables:
-        print >>sys.stderr, 'Warning: empty \'%s\' variable'%key
+        print('Warning: empty \'%s\' variable'%key, file=sys.stderr)
 
 def main():
     try:
         create_exam()
     except utils.EyegradeException as ex:
-        print >>sys.stderr, ex
+        print(ex, file=sys.stderr)
 
 if __name__ == '__main__':
     main()

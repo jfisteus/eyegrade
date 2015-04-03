@@ -19,6 +19,8 @@
 import re
 import copy
 import sys
+import subprocess
+import os
 
 from . import utils
 
@@ -57,6 +59,9 @@ utils.EyegradeException.register_error('too_few_choices',
 utils.EyegradeException.register_error('too_many_tables',
     'There cannot be less than two questions per table.',
     'There are too many tables for such a few questions')
+utils.EyegradeException.register_error('latex_not_found',
+    'Install LaTeX and make sure it is in your system\'s PATH variable.',
+    'The command pdflatex was not found.')
 
 
 class ExamMaker(object):
@@ -115,7 +120,8 @@ class ExamMaker(object):
             raise Exception('Incorrect number of questions')
         self.exam_questions = exam
 
-    def create_exam(self, model, shuffle, with_solution=False):
+    def create_exam(self, model, shuffle, with_solution=False,
+                    produce_pdf=False):
         """Creates a new exam.
 
            'shuffle' must be a boolean. If True, the exam is shuffled
@@ -164,8 +170,16 @@ class ExamMaker(object):
         exam_text = ''.join(replaced)
         if self.output_file == sys.stdout:
             utils.write_to_stdout(exam_text)
+            produced_filename = None
         else:
-            utils.write_file(self.output_file%model, exam_text)
+            produced_filename = self.output_file%model
+            utils.write_file(produced_filename, exam_text)
+            if produce_pdf:
+                success, output, produced_filename = \
+                    compile_latex(produced_filename, remove_tex=True)
+                if not success:
+                    raise utils.EyegradeException(output)
+        return produced_filename
 
     def save_exam_config(self):
         if self.exam_config is not None:
@@ -274,6 +288,47 @@ class ExamMaker(object):
             return replacements['id-box']
         else:
             raise Exception('Unknown replacement key: ' + key)
+
+def check_latex():
+    with open(os.devnull, 'w') as devnull:
+        try:
+            subprocess.check_call(['pdflatex', '-version'],
+                                  stdout=devnull, stderr=devnull)
+        except:
+            success = False
+        else:
+            success = True
+    return success
+
+def compile_latex(latex_file, remove_tex=False):
+    directory, name = os.path.split(latex_file)
+    base_name = os.path.splitext(name)[0]
+    with utils.change_dir(directory):
+        try:
+            output = subprocess.check_output(['pdflatex',
+                                              '-interaction=nonstopmode',
+                                              name],
+                                             stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            output = e.output
+            success = False
+            produced_filename = None
+        except OSError:
+            success = False
+            raise utils.EyegradeException('', key='latex_not_found')
+        else:
+            success = True
+            produced_filename = os.path.join(directory, base_name + '.pdf')
+        finally:
+            to_remove = [base_name + '.aux']
+            if success:
+                to_remove.append(base_name + '.log')
+                if remove_tex:
+                    to_remove.append(name)
+            for filename in to_remove:
+                if os.path.isfile(filename):
+                    os.remove(filename)
+    return success, output, produced_filename
 
 def latex_declarations(with_solution):
     """Returns the list of declarations to be set in the preamble

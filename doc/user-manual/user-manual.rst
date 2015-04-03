@@ -1010,10 +1010,8 @@ which are described in the next sections:
    instructions to students, etc.
    This template is reusable for other exams in the future.
 
-#. Automatically generate the LaTeX source files
-   from the XML file and the template.
-
-#. Generate the PDF files from the LaTeX source files.
+#. Automatically generate the PDF files
+   from the XML file and the LaTeX template.
 
 The example files used in the following explanations
 are provided with Eyegrade
@@ -1209,16 +1207,18 @@ Note that a template is highly reusable for different exams and
 subjects.
 
 
-Creating the LaTeX source files
+Creating the PDF files
 ................................
 
 Once the exam file and the template have been created, the script
-`create_exam.py` parses them and generates the exam in LaTeX format::
+`create_exam.py` parses them and generates the exam in PDF format,
+provided that LaTeX is installed and available in your system's PATH
+(see `Installing the LaTeX system`_)::
 
   python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
 
 The previous command will create models 0, A and B of the exam with
-names `exam-0.tex`, `exam-A.tex` and `exam-B.tex`. The exam model 0 is a
+names `exam-0.pdf`, `exam-A.pdf` and `exam-B.pdf`. The exam model 0 is a
 special exam in which questions are not reordered.
 The correct answer is always the first choice in the model 0.
 The model 0 is convenient while editing the questions,
@@ -1226,6 +1226,25 @@ but you must remember not to use it in the exam itself.
 
 In addition, Eyegrade will automatically create the ``exam.eye`` file
 needed to grade the exams, or update it if it already exists.
+
+If Eyegrade encounters an error in the process,
+you'll see the reason of the error in one of the following two ways:
+
+- If the error is in the XML syntax of the file with the questions,
+  you'll get the error message and line of the XML file
+  in which it was encountered.
+
+- If the error is in your LaTeX template
+  or in the LaTeX markup of your questions,
+  you'll get the output of the LaTeX command,
+  which will tell the line in which it happened
+  relative to the temporary LaTeX file Eyegrade has created
+  (e.g. `exam-0.tex`).
+  Eyegrade will leave this file,
+  as well as the full transcript of the error (e.g. `exam-0.log`)
+  in the same directory
+  in which the output would be produced in order to help you locate
+  the reason of the error.
 
 The script `create_exam.py` has other features, like creating just the
 front page of the exam (no questions needed). They can be explored with
@@ -1239,25 +1258,6 @@ default size, using the `-S` option and passing a scale factor
 The following command enlarges the default size in a 50% (factor 1.5)::
 
   python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
-
-
-Creating the PDF files
-.......................
-
-Once the `.tex` files have been created,
-you have to use LaTeX to produce the PDF files.
-For each file, run the following command::
-
-  pdflatex exam-A.tex
-
-If you have several exam models,
-running that command for each one may be tedious.
-On Linux systems you can produce all of them
-with just a couple of commands::
-
-  find -name "exam-*.tex" -exec pdflatex \{\} \;
-
-That's it! Now you can print the PDF files of your exams.
 
 
 Installing the LaTeX system
