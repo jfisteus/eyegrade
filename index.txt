@@ -35,6 +35,11 @@ News
 | `Read more news at the blog <blog/index.html>`_
 
 
+**[Apr 3, 2015]**
+Advancing the features of the upcoming eyegrade 0.6.
+See the blog post:
+`part 1 <blog/posts/what-will-eyegrade-06-include-part-1.html>`__.
+
 **[Mar 23, 2015]**
 Eyegrade 0.5 has been released!
 See the `blog post <blog/posts/eyegrade-05-released.html>`__.

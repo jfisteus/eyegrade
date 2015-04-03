@@ -100,6 +100,68 @@
 <div class="postindex">
     <article class="h-entry post-text">
     <header>
+        <h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-06-include-part-1.html" class="u-url">What will eyegrade 0.6 include? (part 1)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/what-will-eyegrade-06-include-part-1.html" rel="bookmark"><time class="published dt-published" datetime="2015-04-03T20:42:00+00:00" title="2015-04-03 20:42">2015-04-03 20:42</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/what-will-eyegrade-06-include-part-1.html#disqus_thread" data-disqus-identifier="cache/posts/what-will-eyegrade-06-include-part-1.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>Even though version 0.5 was released just a couple of weeks ago,
+the next release, 0.6, is approaching.
+As I did with the previous release,
+I'll blog about the new features it will include
+as they are more or less ready.</p>
+<p>The first feature I'd like to talk about
+is a new subsystem for recognizing handwritten digits,
+which replaces the one that I wrote in the early days of Eyegrade.
+<a class="reference external" href="https://github.com/rarguelloF">Rodrigo Argüello</a>,
+a former student of mine
+at <a class="reference external" href="http://www.uc3m.es/">Universidad Carlos III de Madrid</a>,
+volunteered to improve the previous system with a
+<a class="reference external" href="http://en.wikipedia.org/wiki/Machine_learning">machine learning</a>
+based solution.
+More specifically,
+he used a <a class="reference external" href="http://en.wikipedia.org/wiki/Support_vector_machine">support vector machine (SVM)</a>.
+The machine is trained by showing it lots of samples of each digit,
+and telling it which digit each sample represents.
+Once trained,
+you can show an image of a digit to it,
+and it will answer with the digit it considers
+the best match for the image.</p>
+<p>Rodrigo tried with several strategies
+before finally integrating one into Eyegrade.
+Our first tests in real scenarios show that,
+under conditions in which the former system failed
+approximately once for every 6 student identifications,
+the new system fails approximately once for every 20.
+I believe it is a big step forward.
+Many thanks to Rodrigo for his great contribution,
+and to Roberto for sending us tons of samples
+for training and testing the new system.</p>
+<p>Removing the old digit recognition system
+provides a second benefit:
+the <em>tre</em> library is no longer needed.
+The fact that it wasn't a pure Python library,
+and that it doesn't seem to be widely used from Python,
+was a headache for deploying the Windows version,
+and complicated the installation procedure in Linux a little bit.
+If everything goes as planned,
+you can expect a greatly simplified installation procedure,
+especially for Windows users.
+More on this topic on my next post.</p>
+</div>
+    </div>
+    </article>
+    <article class="h-entry post-text">
+    <header>
         <h1 class="p-name entry-title"><a href="posts/eyegrade-05-released.html" class="u-url">Eyegrade 0.5 released!</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
@@ -539,55 +601,6 @@ like the following one that allows you to configure the export options:</p>
 <p>This new feature is easier to use and more flexible than the
 <cite>mix_grades</cite> script that was available in the previous versions. The
 script is now obsolete and will probably be removed in the future.</p>
-</div>
-    </div>
-    </article>
-    <article class="h-entry post-text">
-    <header>
-        <h1 class="p-name entry-title"><a href="posts/eyegrade-03-released.html" class="u-url">Eyegrade 0.3 released!</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="posts/eyegrade-03-released.html" rel="bookmark"><time class="published dt-published" datetime="2014-05-08T00:37:00+00:00" title="2014-05-08 00:37">2014-05-08 00:37</time></a></p>
-                <p class="commentline">
-        
-    <a href="posts/eyegrade-03-released.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-03-released.html">Comments</a>
-
-
-        </p>
-</div>
-    </header>
-    <div class="e-content entry-content">
-    <div>
-<p>I've just released eyegrade 0.3. The main changes in this version are:</p>
-<ul class="simple">
-<li>Previously, exams could only be reviewed immediately after capturing
-them. Now you can review the exams, change answers or change the
-student id any time you open the session.</li>
-<li>A consequence of the previous change is that now grading does not
-start automatically when the session is opened. Once you open a
-session, you can view or edit the exams you have already graded, or
-click on the <em>Start grading</em> action in the menu / toolbar in order
-to start grading more exams.</li>
-<li>The graphical user interface is now prepared for translations. This
-release features an interface in English, Spanish, Galician and
-Catalan. Volunteers for other languages are welcome.</li>
-<li>There are changes to the layout of the graphical user
-interface. There is a vertical area at the left were the thumbnails
-of the exams graded for this session are displayed. In addition,
-there is a new status bar at the bottom.</li>
-<li>Other fixes.</li>
-</ul>
-<p>Be aware that the sessions created with eyegrade 0.3 are not
-compatible with previous versions. Conversely, sessions created with
-previous versions cannot be opened with eyegrade 0.3. The reason is
-that now session are stored internally as a SQLite database and store
-more information about the exams than the previous versions.</p>
-<p>If you have installed eyegrade through <em>git</em>, you can easily update
-the program from versions in the series 0.2.x by executing the command
-<em>git pull</em> from inside the directory in which eyegrade is installed.</p>
-<p>If you find bugs or problems with this new release, please open an
-issue at <a class="reference external" href="https://github.com/jfisteus/eyegrade/">the GitHub project page</a>, or just let me know by
-commenting on this post or sending me an email.</p>
 </div>
     </div>
     </article>

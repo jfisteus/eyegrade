@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (new-features)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/new-features.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 03 Apr 2015 19:09:13 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (new-features)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/new-features.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 03 Apr 2015 20:42:50 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
+the next release, 0.6, is approaching.
+As I did with the previous release,
+I'll blog about the new features it will include
+as they are more or less ready.&lt;/p&gt;
+&lt;p&gt;The first feature I'd like to talk about
+is a new subsystem for recognizing handwritten digits,
+which replaces the one that I wrote in the early days of Eyegrade.
+&lt;a class="reference external" href="https://github.com/rarguelloF"&gt;Rodrigo Argüello&lt;/a&gt;,
+a former student of mine
+at &lt;a class="reference external" href="http://www.uc3m.es/"&gt;Universidad Carlos III de Madrid&lt;/a&gt;,
+volunteered to improve the previous system with a
+&lt;a class="reference external" href="http://en.wikipedia.org/wiki/Machine_learning"&gt;machine learning&lt;/a&gt;
+based solution.
+More specifically,
+he used a &lt;a class="reference external" href="http://en.wikipedia.org/wiki/Support_vector_machine"&gt;support vector machine (SVM)&lt;/a&gt;.
+The machine is trained by showing it lots of samples of each digit,
+and telling it which digit each sample represents.
+Once trained,
+you can show an image of a digit to it,
+and it will answer with the digit it considers
+the best match for the image.&lt;/p&gt;
+&lt;p&gt;Rodrigo tried with several strategies
+before finally integrating one into Eyegrade.
+Our first tests in real scenarios show that,
+under conditions in which the former system failed
+approximately once for every 6 student identifications,
+the new system fails approximately once for every 20.
+I believe it is a big step forward.
+Many thanks to Rodrigo for his great contribution,
+and to Roberto for sending us tons of samples
+for training and testing the new system.&lt;/p&gt;
+&lt;p&gt;Removing the old digit recognition system
+provides a second benefit:
+the &lt;em&gt;tre&lt;/em&gt; library is no longer needed.
+The fact that it wasn't a pure Python library,
+and that it doesn't seem to be widely used from Python,
+was a headache for deploying the Windows version,
+and complicated the installation procedure in Linux a little bit.
+If everything goes as planned,
+you can expect a greatly simplified installation procedure,
+especially for Windows users.
+More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
 because I plan to add a couple of features more.
 Today I'll talk about one of them.
 Roberto González, a long time user and contributor of Eyegrade,

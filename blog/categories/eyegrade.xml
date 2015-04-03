@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 03 Apr 2015 19:09:13 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.5 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've finally released Eyegrade 0.5.
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 03 Apr 2015 20:42:50 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
+the next release, 0.6, is approaching.
+As I did with the previous release,
+I'll blog about the new features it will include
+as they are more or less ready.&lt;/p&gt;
+&lt;p&gt;The first feature I'd like to talk about
+is a new subsystem for recognizing handwritten digits,
+which replaces the one that I wrote in the early days of Eyegrade.
+&lt;a class="reference external" href="https://github.com/rarguelloF"&gt;Rodrigo Argüello&lt;/a&gt;,
+a former student of mine
+at &lt;a class="reference external" href="http://www.uc3m.es/"&gt;Universidad Carlos III de Madrid&lt;/a&gt;,
+volunteered to improve the previous system with a
+&lt;a class="reference external" href="http://en.wikipedia.org/wiki/Machine_learning"&gt;machine learning&lt;/a&gt;
+based solution.
+More specifically,
+he used a &lt;a class="reference external" href="http://en.wikipedia.org/wiki/Support_vector_machine"&gt;support vector machine (SVM)&lt;/a&gt;.
+The machine is trained by showing it lots of samples of each digit,
+and telling it which digit each sample represents.
+Once trained,
+you can show an image of a digit to it,
+and it will answer with the digit it considers
+the best match for the image.&lt;/p&gt;
+&lt;p&gt;Rodrigo tried with several strategies
+before finally integrating one into Eyegrade.
+Our first tests in real scenarios show that,
+under conditions in which the former system failed
+approximately once for every 6 student identifications,
+the new system fails approximately once for every 20.
+I believe it is a big step forward.
+Many thanks to Rodrigo for his great contribution,
+and to Roberto for sending us tons of samples
+for training and testing the new system.&lt;/p&gt;
+&lt;p&gt;Removing the old digit recognition system
+provides a second benefit:
+the &lt;em&gt;tre&lt;/em&gt; library is no longer needed.
+The fact that it wasn't a pure Python library,
+and that it doesn't seem to be widely used from Python,
+was a headache for deploying the Windows version,
+and complicated the installation procedure in Linux a little bit.
+If everything goes as planned,
+you can expect a greatly simplified installation procedure,
+especially for Windows users.
+More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>Eyegrade 0.5 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've finally released Eyegrade 0.5.
 As I've advanced in the previous four posts,
 its new features are:&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -263,33 +305,4 @@ like the following one that allows you to configure the export options:&lt;/p&gt
 &lt;/div&gt;
 &lt;p&gt;This new feature is easier to use and more flexible than the
 &lt;cite&gt;mix_grades&lt;/cite&gt; script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item><item><title>Eyegrade 0.3 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released eyegrade 0.3. The main changes in this version are:&lt;/p&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;Previously, exams could only be reviewed immediately after capturing
-them. Now you can review the exams, change answers or change the
-student id any time you open the session.&lt;/li&gt;
-&lt;li&gt;A consequence of the previous change is that now grading does not
-start automatically when the session is opened. Once you open a
-session, you can view or edit the exams you have already graded, or
-click on the &lt;em&gt;Start grading&lt;/em&gt; action in the menu / toolbar in order
-to start grading more exams.&lt;/li&gt;
-&lt;li&gt;The graphical user interface is now prepared for translations. This
-release features an interface in English, Spanish, Galician and
-Catalan. Volunteers for other languages are welcome.&lt;/li&gt;
-&lt;li&gt;There are changes to the layout of the graphical user
-interface. There is a vertical area at the left were the thumbnails
-of the exams graded for this session are displayed. In addition,
-there is a new status bar at the bottom.&lt;/li&gt;
-&lt;li&gt;Other fixes.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Be aware that the sessions created with eyegrade 0.3 are not
-compatible with previous versions. Conversely, sessions created with
-previous versions cannot be opened with eyegrade 0.3. The reason is
-that now session are stored internally as a SQLite database and store
-more information about the exams than the previous versions.&lt;/p&gt;
-&lt;p&gt;If you have installed eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
-the program from versions in the series 0.2.x by executing the command
-&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which eyegrade is installed.&lt;/p&gt;
-&lt;p&gt;If you find bugs or problems with this new release, please open an
-issue at &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/"&gt;the GitHub project page&lt;/a&gt;, or just let me know by
-commenting on this post or sending me an email.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</guid><pubDate>Thu, 08 May 2014 00:37:00 GMT</pubDate></item></channel></rss>
+script is now obsolete and will probably be removed in the future.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item></channel></rss>
