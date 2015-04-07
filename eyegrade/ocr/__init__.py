@@ -18,6 +18,8 @@
 
 # OCR for hand-written digits
 #
+import os.path
+
 import cv2
 import numpy as np
 
@@ -35,7 +37,7 @@ param_cell_margin = 2
 
 # Load the classifier
 classifier = cv2.SVM()
-classifier.load(utils.resource_path('svm/ocr_svm.dat.gz'))
+classifier.load(utils.resource_path(os.path.join('svm', 'ocr_svm.dat.gz')))
 
 
 # Main module function (classify an image with a hand-written digit)
