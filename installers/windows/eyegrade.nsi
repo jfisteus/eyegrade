@@ -55,7 +55,7 @@
   !define MUI_FINISHPAGE_NOAUTOCLOSE
   !define MUI_FINISHPAGE_RUN
   !define MUI_FINISHPAGE_RUN_NOTCHECKED
-  !define MUI_FINISHPAGE_RUN_TEXT "Run Eyegrade now"
+  !define MUI_FINISHPAGE_RUN_TEXT "$(MsgRunEyegrade)"
   !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchApplication"
   !insertmacro MUI_PAGE_FINISH
   
@@ -75,6 +75,12 @@
              "Eyegrade se está ejecutando. Por favor, ciérrelo y vuélvalo a intentar" 
   LangString MsgEyegradeRunning ${LANG_GALICIAN} \
              "Eyegrade estase a executar. Por favor, cérreo e volva intentalo" 
+  LangString MsgRunEyegrade ${LANG_ENGLISH} \
+             "Run Eyegrade when finished"
+  LangString MsgRunEyegrade ${LANG_SPANISH} \
+             "Ejecutar Eyegrade al finalizar"
+  LangString MsgRunEyegrade ${LANG_GALICIAN} \
+             "Executar Eyegrade ó rematar"
 
 ;--------------------------------
 ;Installer Sections
@@ -94,9 +100,16 @@ Section "Installing Eyegrade Files" InstEyegradeFiles
 
   SetOutPath "$INSTDIR"
   
-  File "${EYEGRADE_DIR}\dist\eyegrade.exe"
-  File "${EYEGRADE_DIR}\eyegrade\data\eyegrade.ico"
+  !define SOURCE_DIR "${EYEGRADE_DIR}\dist\eyegrade"
   
+  !include "${EYEGRADE_DIR}\build\install_files.nsh"
+  
+  File "${EYEGRADE_DIR}\eyegrade\data\eyegrade.ico"
+  File "${EYEGRADE_DIR}\AUTHORS.TXT"
+  File "${EYEGRADE_DIR}\COPYING.TXT"
+  File "/oname=README.TXT" "${EYEGRADE_DIR}\README"
+  File "/oname=CHANGELOG.TXT" "${EYEGRADE_DIR}\Changelog"
+
   ;Store installation folder
   WriteRegStr HKCU "Software\Eyegrade" "" $INSTDIR
   WriteRegStr HKCU "Software\Eyegrade" "Version" "${VERSION}"
@@ -153,11 +166,14 @@ SectionEnd
 
 Section "Uninstall"
   
-  Delete "$INSTDIR\Eyegrade.exe"
   Delete "$INSTDIR\eyegrade.ico"
-  Delete "$INSTDIR\Uninstall.exe"
+  Delete "$INSTDIR\AUTHORS.TXT"
+  Delete "$INSTDIR\COPYING.TXT"
+  Delete "$INSTDIR\README.TXT"
+  Delete "$INSTDIR\CHANGELOG.TXT"
+  Delete "$INSTDIR\uninstall.exe"
 
-  RMDir "$INSTDIR"
+  !include "${EYEGRADE_DIR}\build\uninstall_files.nsh"
   
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
     
