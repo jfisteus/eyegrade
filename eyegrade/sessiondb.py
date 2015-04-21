@@ -186,9 +186,12 @@ class SessionDB(object):
                         _Adapter.enc_model(decisions.model),
                         score.correct, score.incorrect, score.blank,
                         score.score))
-        self._store_answers(exam_id, decisions.answers, commit=False)
-        self._store_answer_cells(exam_id, capture.answer_cells, commit=False)
-        self._store_id_cells(exam_id, capture.id_cells, commit=False)
+        if decisions.answers is not None:
+            self._store_answers(exam_id, decisions.answers, commit=False)
+            self._store_answer_cells(exam_id, capture.answer_cells,
+                                     commit=False)
+        if capture.id_cells:
+            self._store_id_cells(exam_id, capture.id_cells, commit=False)
         self.conn.commit()
         if store_captures:
             self.save_raw_capture(exam_id, capture, decisions.student)
