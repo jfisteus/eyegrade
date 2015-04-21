@@ -496,8 +496,11 @@ class SessionDB(object):
         return capture.load_image(self.get_raw_capture_path(exam_id))
 
     def get_raw_capture_path(self, exam_id):
-        return os.path.join(self.session_dir, 'internal',
+        path = os.path.join(self.session_dir, 'internal',
                             'raw-{0}.png'.format(exam_id))
+        if not os.path.isfile(path):
+            path = utils.resource_path('not_found.png')
+        return path
 
     def remove_drawn_capture(self, exam_id, student):
         name = utils.capture_name(self.exam_config.capture_pattern,

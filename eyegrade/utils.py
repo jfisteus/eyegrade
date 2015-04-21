@@ -908,7 +908,10 @@ class Exam(object):
     def image_drawn_path(self):
         image_name = capture_name(self.sessiondb.exam_config.capture_pattern,
                                   self.exam_id, self.decisions.student)
-        return os.path.join(self.sessiondb.session_dir, 'captures', image_name)
+        path = os.path.join(self.sessiondb.session_dir, 'captures', image_name)
+        if not os.path.isfile(path):
+            path = resource_path('not_found.png')
+        return path
 
     def _id_rank(self, student, scores):
         rank = 0.0
