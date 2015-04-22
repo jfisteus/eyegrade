@@ -100,6 +100,40 @@
 <div class="postindex">
     <article class="h-entry post-text">
     <header>
+        <h1 class="p-name entry-title"><a href="posts/bugfix-release-051.html" class="u-url">Bugfix release 0.5.1</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/bugfix-release-051.html" rel="bookmark"><time class="published dt-published" datetime="2015-04-22T22:51:00+00:00" title="2015-04-22 22:51">2015-04-22 22:51</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/bugfix-release-051.html#disqus_thread" data-disqus-identifier="cache/posts/bugfix-release-051.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>I've released Eyegrade 0.5.1.
+This version does not include any new feature,
+but addresses a bug
+that caused an empty spurious exam
+to be stores in the session database
+through the <em>capture exam</em> feature,
+when used before the answer table of the current exam
+were detected at least once.
+Eyegrade would refuse to open this session anymore.
+This release prevents the spurious exam to be stored in that case.
+Additionally,
+it allows Eyegrade to open the session
+even when such an exam made its way into the session database.</p>
+<p>As always, you can update with <tt class="docutils literal">git pull</tt>
+if you installed Eyegrade through <em>git</em>.</p>
+</div>
+    </div>
+    </article>
+    <article class="h-entry post-text">
+    <header>
         <h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-06-include-part-1.html" class="u-url">What will eyegrade 0.6 include? (part 1)</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
@@ -570,37 +604,6 @@ the official way in the section
 <a class="reference external" href="../doc/user-manual/#editing-exams">Editing exams</a>.
 Suggestions on how to improve that section further
 are most welcome.</p>
-</div>
-    </div>
-    </article>
-    <article class="h-entry post-text">
-    <header>
-        <h1 class="p-name entry-title"><a href="posts/eyegrade-04-released.html" class="u-url">Eyegrade 0.4 released!</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="posts/eyegrade-04-released.html" rel="bookmark"><time class="published dt-published" datetime="2014-06-26T18:25:00+00:00" title="2014-06-26 18:25">2014-06-26 18:25</time></a></p>
-                <p class="commentline">
-        
-    <a href="posts/eyegrade-04-released.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-04-released.html">Comments</a>
-
-
-        </p>
-</div>
-    </header>
-    <div class="e-content entry-content">
-    <div>
-<p>I've released eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
-minor changes and a bug fix). There is only one main change in this
-release with respect to the 0.3 series, the ability to export grade
-listings from the user interface.</p>
-<p>When you select in the menu <em>Exams / Export grade listing</em> you get a dialog
-like the following one that allows you to configure the export options:</p>
-<div class="figure">
-<img alt="The new export dialog." class="thumbnail" src="../galleries/screenshots-04/export-dialog.png">
-</div>
-<p>This new feature is easier to use and more flexible than the
-<cite>mix_grades</cite> script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.</p>
 </div>
     </div>
     </article>

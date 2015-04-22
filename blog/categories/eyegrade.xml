@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 03 Apr 2015 20:42:50 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 22 Apr 2015 22:52:13 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
+This version does not include any new feature,
+but addresses a bug
+that caused an empty spurious exam
+to be stores in the session database
+through the &lt;em&gt;capture exam&lt;/em&gt; feature,
+when used before the answer table of the current exam
+were detected at least once.
+Eyegrade would refuse to open this session anymore.
+This release prevents the spurious exam to be stored in that case.
+Additionally,
+it allows Eyegrade to open the session
+even when such an exam made its way into the session database.&lt;/p&gt;
+&lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</guid><pubDate>Wed, 22 Apr 2015 22:51:00 GMT</pubDate></item><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
 the next release, 0.6, is approaching.
 As I did with the previous release,
 I'll blog about the new features it will include
@@ -294,15 +308,4 @@ the user manual describes now more in depth how to edit exams
 the official way in the section
 &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#editing-exams"&gt;Editing exams&lt;/a&gt;.
 Suggestions on how to improve that section further
-are most welcome.&lt;/p&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</guid><pubDate>Sun, 09 Nov 2014 23:28:00 GMT</pubDate></item><item><title>Eyegrade 0.4 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
-minor changes and a bug fix). There is only one main change in this
-release with respect to the 0.3 series, the ability to export grade
-listings from the user interface.&lt;/p&gt;
-&lt;p&gt;When you select in the menu &lt;em&gt;Exams / Export grade listing&lt;/em&gt; you get a dialog
-like the following one that allows you to configure the export options:&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="The new export dialog." class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-04/export-dialog.png"&gt;
-&lt;/div&gt;
-&lt;p&gt;This new feature is easier to use and more flexible than the
-&lt;cite&gt;mix_grades&lt;/cite&gt; script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item></channel></rss>
+are most welcome.&lt;/p&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</guid><pubDate>Sun, 09 Nov 2014 23:28:00 GMT</pubDate></item></channel></rss>
