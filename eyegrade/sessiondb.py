@@ -186,9 +186,12 @@ class SessionDB(object):
                         _Adapter.enc_model(decisions.model),
                         score.correct, score.incorrect, score.blank,
                         score.score))
-        self._store_answers(exam_id, decisions.answers, commit=False)
-        self._store_answer_cells(exam_id, capture.answer_cells, commit=False)
-        self._store_id_cells(exam_id, capture.id_cells, commit=False)
+        if decisions.answers is not None:
+            self._store_answers(exam_id, decisions.answers, commit=False)
+            self._store_answer_cells(exam_id, capture.answer_cells,
+                                     commit=False)
+        if capture.id_cells:
+            self._store_id_cells(exam_id, capture.id_cells, commit=False)
         self.conn.commit()
         if store_captures:
             self.save_raw_capture(exam_id, capture, decisions.student)
@@ -493,8 +496,11 @@ class SessionDB(object):
         return capture.load_image(self.get_raw_capture_path(exam_id))
 
     def get_raw_capture_path(self, exam_id):
-        return os.path.join(self.session_dir, 'internal',
+        path = os.path.join(self.session_dir, 'internal',
                             'raw-{0}.png'.format(exam_id))
+        if not os.path.isfile(path):
+            path = utils.resource_path('not_found.png')
+        return path
 
     def remove_drawn_capture(self, exam_id, student):
         name = utils.capture_name(self.exam_config.capture_pattern,
@@ -785,7 +791,11 @@ class ExamFromDB(utils.Exam):
                                          sessiondb.default_students_rank,
                                          _Adapter.dec_model(db_dict['model']))
         solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
-        question_scores = sessiondb.exam_config.scores[self.decisions.model]
+        if self.decisions.model:
+            question_scores = \
+                sessiondb.exam_config.scores[self.decisions.model]
+        else:
+            question_scores = None
         self.score = utils.Score(answers, solutions, question_scores)
 
 

@@ -1,3 +1,9 @@
+2015-04-17  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.5.1.
+
+	* Fix a crash when an exam model is -1 in the session DB.
+
 2015-03-18  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.5.

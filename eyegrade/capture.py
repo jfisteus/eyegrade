@@ -163,10 +163,11 @@ class ExamCapture(object):
 
     def draw_answers(self, score):
         assert self.image_drawn is not None
-        if score.solutions:
-            self._draw_answers_solutions(score)
-        else:
-            self._draw_answers_no_solutions(score)
+        if score.answers:
+            if score.solutions:
+                self._draw_answers_solutions(score)
+            else:
+                self._draw_answers_no_solutions(score)
 
     def _draw_status_bar(self):
         x0 = self.image_drawn.width - 60
