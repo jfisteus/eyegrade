@@ -23,19 +23,19 @@ import gettext
 import fractions
 
 from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
-                         QStatusBar, QLabel, QHBoxLayout, QCheckBox,
+                         QStatusBar, QLabel, QHBoxLayout, QCheckBox, QSpinBox, 
                          QWidget, QLineEdit, QPushButton, QIcon, QMessageBox,
                          QFileDialog, QRegExpValidator,
                          QListWidget, QAbstractItemView,
-                         QVBoxLayout, QImage, QPainter, QPixmap)
-from PyQt4.QtCore import (Qt, QRegExp, )
+                         QVBoxLayout, QImage, QPainter, QPixmap,
+                         QRadioButton, QButtonGroup, )
+from PyQt4.QtCore import (Qt, QRegExp, pyqtProperty, ) 
 
 from .. import utils
 from . import Colors
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
-
 
 class LineContainer(QWidget):
     """Container that disposes other widgets horizontally."""
@@ -48,7 +48,6 @@ class LineContainer(QWidget):
 
     def add(self, widget):
         self.layout.addWidget(widget)
-
 
 class CompletingComboBox(QComboBox):
     """An editable combo box that filters and autocompletes."""
@@ -69,7 +68,6 @@ class CompletingComboBox(QComboBox):
     def _index_changed(self, index):
         self.lineEdit().selectAll()
 
-
 class StudentComboBox(CompletingComboBox):
     def __init__(self, parent=None, editable=True):
         super(StudentComboBox, self).__init__(parent=parent, editable=editable)
@@ -80,7 +78,6 @@ class StudentComboBox(CompletingComboBox):
 
     def add_student(self, student):
         self.addItem(student.get_id_and_name())
-
 
 class StatusBar(QStatusBar):
     """Status bar for the main window.
@@ -117,7 +114,6 @@ class StatusBar(QStatusBar):
         label.setOpenExternalLinks(True)
         self.addPermanentWidget(label)
 
-
 class LabelledCheckBox(QWidget):
     """A checkbox with a label."""
     def __init__(self, label_text, parent, checked=False):
@@ -140,7 +136,6 @@ class LabelledCheckBox(QWidget):
     def is_checked(self):
         """Returns True if the checkbox is checked, False otherwise."""
         return self.checkbox.isChecked()
-
 
 class OpenFileWidget(QWidget):
     """Dialog with a text field and a button to open a file selector."""
@@ -228,7 +223,6 @@ class OpenFileWidget(QWidget):
             if valid:
                 self.filename_widget.setText(filename)
 
-
 class InputScore(QLineEdit):
     """Allows the user to enter a score."""
     def __init__(self, parent=None, minimum_width=100, is_positive=True):
@@ -284,7 +278,6 @@ class InputScore(QLineEdit):
         except AttributeError:
             # Just do nothing if the version of Qt/PyQt is old...
             pass
-
 
 class MultipleFilesWidget(QWidget):
     """Widget that allows the selection of multiple files."""
@@ -368,7 +361,6 @@ class MultipleFilesWidget(QWidget):
         else:
             self.button_remove.setEnabled(False)
 
-
 class CamView(QWidget):
     def __init__(self, size, parent, draw_logo=False, border=False):
         super(CamView, self).__init__(parent)
@@ -431,7 +423,6 @@ class CamView(QWidget):
         if self.mouse_listener:
             self.mouse_listener((event.x(), event.y()))
 
-
 class InputCustomPattern(QLineEdit):
     """Allows the user to enter a string with a specific pattern validation (regex)"""
     def __init__(self, parent=None, fixed_size=40, regex=r'.+', placeholder=None):
@@ -443,3 +434,57 @@ class InputCustomPattern(QLineEdit):
         self.setFixedWidth(fixed_size)
         validator = QRegExpValidator(QRegExp(regex), self)
         self.setValidator(validator)
+
+class InputInteger(QSpinBox):
+    """Allows the user to enter an integer field"""
+    def __init__(self, parent=None, initial_value=1, min_value=1, max_value=100):
+        super(InputInteger, self).__init__(parent=parent)
+        self.setRange(min_value, max_value)
+        self.setValue(initial_value)
+
+class InputRadioGroup(QWidget):
+    """Create an horizontal radio group"""
+    def __init__(self, parent=None, option_list=None, default_select=0):
+        super(InputRadioGroup, self).__init__(parent=parent)
+
+        layout = QHBoxLayout(self)
+        self.group = QButtonGroup()
+
+        for idx, op in enumerate(option_list):
+            self.op = QRadioButton(_(op))
+            if idx == default_select:
+                self.op.setChecked(True)
+            layout.addWidget(self.op)
+            self.group.addButton(self.op)
+
+        self.setLayout(layout)
+
+    @pyqtProperty(str)
+    def currentItemData(self):
+        return str(abs(int(self.group.checkedId())) - 1)
+
+class ItemList(object):
+    """Custom item for permutation list"""
+    def __init__(self, optionName, optionNumber):
+        super(ItemList, self).__init__()
+        self.name=optionName
+        self.numb=optionNumber
+        self.perm={}
+
+    def get_question_number(self):
+        return str(self.numb)
+
+    def get_permutation(self):
+        return self.perm
+
+    def set_permutation(self, permutation):
+        self.perm = permutation
+        return True 
+        
+class InputComboBox(QComboBox):
+    """A Combobox with a specific ID"""
+    def __init__(self, parent=None, c_type=None, form=0, alternative=0):
+        super(InputComboBox, self).__init__(parent=parent)
+        self.c_type = c_type
+        self.form = form
+        self.alternative = alternative
