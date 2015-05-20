@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2013 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,14 +16,11 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-# Import the cv module. If new style bindings not found, use the old ones:
+# Import the cv module. It might be cv2.cv in newer versions.
 try:
     import cv
-    cv_new_style = True
 except ImportError:
-    import cvwrapper
-    cv = cvwrapper.CVWrapperObject()
-    cv_new_style = False
+    import cv2.cv as cv
 
 import geometry
 import utils
@@ -164,12 +161,13 @@ class ExamCapture(object):
         assert self.image_drawn is not None
         cv.Circle(self.image_drawn, point, 4, _color_blue, 1)
 
-    def draw_answers(self, answers, solutions):
+    def draw_answers(self, score):
         assert self.image_drawn is not None
-        if solutions is not None:
-            self._draw_answers_solutions(answers, solutions)
-        else:
-            self._draw_answers_no_solutions(answers)
+        if score.answers:
+            if score.solutions:
+                self._draw_answers_solutions(score)
+            else:
+                self._draw_answers_no_solutions(score)
 
     def _draw_status_bar(self):
         x0 = self.image_drawn.width - 60
@@ -182,20 +180,23 @@ class ExamCapture(object):
         cv.Rectangle(self.image_drawn, p0, p2, _color_blue)
         cv.Rectangle(self.image_drawn, p0, p1, _color_blue, cv.CV_FILLED)
 
-    def _draw_answers_solutions(self, answers, solutions):
-        for answer, solution, cells in zip(answers, solutions,
-                                           self.answer_cells):
-            if answer > 0:
-                if answer == solution:
-                    self._draw_cell_circle(cells[answer - 1], _color_good)
-                else:
-                    self._draw_cell_circle(cells[answer - 1], _color_bad)
-                    self._draw_cell_center(cells[solution - 1], _color_dot_bad)
-            else:
+    def _draw_answers_solutions(self, score):
+        for answer, solution, status, cells in zip(score.answers,
+                                                   score.solutions,
+                                                   score.answer_status,
+                                                   self.answer_cells):
+            if status == utils.QuestionScores.CORRECT:
+                self._draw_cell_circle(cells[answer - 1], _color_good)
+            elif status == utils.QuestionScores.INCORRECT:
+                self._draw_cell_circle(cells[answer - 1], _color_bad)
+                self._draw_cell_center(cells[solution - 1], _color_dot_bad)
+            elif status == utils.QuestionScores.BLANK:
                 self._draw_cell_center(cells[solution - 1], _color_dot_blank)
+            elif status == utils.QuestionScores.VOID:
+                self._draw_void_question(cells)
 
-    def _draw_answers_no_solutions(self, answers):
-        for answer, cells in zip(answers, self.answer_cells):
+    def _draw_answers_no_solutions(self, score):
+        for answer, cells in zip(score.answers, self.answer_cells):
             if answer > 0:
                 self._draw_cell_circle(cells[answer - 1], _color_blue)
 
@@ -205,6 +206,10 @@ class ExamCapture(object):
 
     def _draw_cell_center(self, cell, color):
         cv.Circle(self.image_drawn, cell.center, 4, color, cv.CV_FILLED)
+
+    def _draw_void_question(self, cells):
+        cv.Line(self.image_drawn, cells[0].center, cells[-1].center,
+                _color_bad, 3)
 
 
 def load_image(filename):

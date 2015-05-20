@@ -6,8 +6,8 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.3 and later versions. For the
-0.2.x series see `this other user manual <../user-manual-0.2/>`_.
+This user manual refers to Eyegrade 0.5 and later versions. For the
+0.3 and 0.4 series see `this other user manual <../user-manual-0.3/>`_.
 
 Installing Eyegrade
 -------------------
@@ -36,16 +36,30 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.2.x and 0.3.x to Eyegrade 0.4
-.......................................................
+Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5
+................................................................
 
-In order to upgrade from eyegrade 0.2.x or 0.3.x to eyegrade 0.4,
+In order to upgrade from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5,
 follow the instructions at `Updating Eyegrade`_.
 
-The main changes are described in the blog posts `Eyegrade 0.3
-released <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
-and `Eyegrade 0.4 released
-<http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work with sessions created
+by the previous versions of Eyegrade,
+those previous versions don't work
+with sessions created by Eyegrade 0.5.
+
+The main changes of the most recent versions are described in the following
+blog posts:
+
+- `Eyegrade 0.5 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-05-released.html>`_
+
+- `Eyegrade 0.4 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+
+- `Eyegrade 0.3 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
+
 
 Installation on GNU/Linux
 .........................
@@ -237,10 +251,10 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade.zip
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_. Extract
-it in your file system, in a directory with no white-spaces in its
-path.
+1.- Download the ZIP file `eyegrade-0.5.1.zip
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.5.1.zip>`_.
+Extract it in your file system,
+in a directory with no white-spaces in its path.
 
 Once you have Eyegrade installed (either with or without Git), test
 it. For example, if you have installed both Python and Eyegrade at
@@ -282,7 +296,7 @@ prompt window, enter the Eyegrade installation directory and type::
 This should work on any platform (Linux, Windows, etc.)
 
 If you didn't use Git to install Eyegrade, `download the new version
-<https://www.dropbox.com/s/yn7zpekcxc1exsu/eyegrade.zip>`_,
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.5.1.zip>`_,
 uncompress it and replace your ``eyegrade`` directory by the one you
 have uncompressed.
 
@@ -345,12 +359,10 @@ needs for creating the session:
     this exam. If you printed the sample exam distributed with
     Eyegrade, use the ``exam.eye`` file from the same directory.
 
-- Student id files: select zero, one or more files that contain the
+- Student list files: select zero, one or more files that contain the
   list of students in the class. The files should be plain text and
-  contain a line per student. Each line must have a first field with
-  the student id and, optionally, a second field with the student
-  name. It may have more fields, which Eyegrade will ignore. Fields
-  must be separated by one tabulator character.
+  contain a line per student. See `Student list files`_ for more
+  information on the format of these files.
 
 - Scores for correct and incorrect answers: this step is optional. If
   you provide the scores awarded to correct answers (and optionally
@@ -362,6 +374,68 @@ shows the image from the webcam and starts scanning for the
 exam. Point the camera to the exam until the image is locked. At this
 point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.
+
+
+Student list files
+...................
+
+The accuracy in the detection of the student identity
+improves dramatically when you supply
+the list of student ids of the class.
+The student list can be provided as one or more plain text files
+with one student per line.
+Each line may have several tab-separated columns.
+Eyegrade accepts lines with the following formats:
+
+- Student id (1 column):
+  just one column with the id number of the student::
+
+    100000333
+    100777777
+    100999997
+
+- Student id and full name (2 columns):
+  the first column contains the student id number
+  and the second one their full name.
+  You are free to chose the last name - comma - first name
+  order or the first name - last name order::
+
+    100000333	Baggins, Frodo
+    100777777	Bunny, Bugs
+    100999997	Bux, Bastian
+
+- Student id, full name and e-mail (3 columns):
+  the first column contains the student id number,
+  the second one their full name
+  and the third one their e-mail address::
+
+    100000333	Baggins, Frodo	frodo@shire.com
+    100777777	Bunny, Bugs	bugs@cartoon.com
+    100999997	Bux, Bastian	bux@fantastica.com
+
+- Student id, first name and last name (3 columns):
+  the first column contains the student id number,
+  the second one their first (given) name
+  and the third one their last (family) name::
+
+    100000333	Frodo	Baggins
+    100777777	Bugs	Bunny
+    100999997	Bastian	Bux
+
+- Student id, first name, last name and e-mail (4 columns):
+  the first column contains the student id number,
+  the second one their first (given) name,
+  the third one their last (family) name
+  and the fourth one their e-mail address::
+
+    100000333	Frodo	Baggins	frodo@shire.com
+    100777777	Bugs	Bunny	bugs@cartoon.com
+    100999997	Bastian	Bux	bux@fantastica.com
+
+The student id number must be composed just by digits.
+The student name may contain non-ASCII characters.
+In that case the file must be UTF-8 encoded.
+
 
 
 The session directory
@@ -384,6 +458,155 @@ option of the *Session* menu. In the file selection dialog that
 appears, select the ``session.eyedb`` file inside the directory of the
 session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.
+
+
+
+Scores
+.......
+
+Eyegrade can compute the scores of the exams.
+When you create a new session, you can select
+in the last page of the wizard one
+of the following three options:
+
+- No scores: Eyegrade shows the number of correct and incorrect questions,
+  but does not compute scores.
+
+- Same score for all the questions: all the questions
+  are awarded the same score.
+  You must specify the score for each correct question.
+  Optionally, if you want incorrect or blank questions
+  to have a penalty in the score,
+  you can also specify a (negative) score for incorrect
+  questions and for blank questions.
+
+- Base score plus per-question weight:
+  in this mode, not all the questions have the same score.
+  You must define a *base score*
+  (a reference score for correct, incorrect and blank questions)
+  and, for each question, a relative *weight*.
+  The final score for a question is computed as the multiplication
+  of its weight and the base score.
+  This mode can also be used for voiding questions:
+  when you assign a weight of 0 to a question,
+  it does not contribute to the score of the exam.
+
+
+Same score for all the questions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you select this option,
+all the questions count the same in the score of the exam.
+Eyegrade counts the number of correct, incorrect and blank answers,
+and multiplies each one by the score assigned
+to each of those types of answers.
+
+For example, suppose an exam with 10 questions,
+in which correct answers add 1 point to the score
+and incorrect answers subtract 1/3 points (one third of a point).
+A student having 7 correct and 3 incorrect answers
+will get 6 points (7 * 1 - 3 * 1/3).
+
+You specify those scores in the last step of the session creation wizard:
+
+.. image:: images/same-score-dialog.png
+   :alt: Dialog for specifying the same score for all the questions
+
+Giving a positive score for correct answers is mandatory in this mode.
+The score for incorrect and blank answers is optional,
+and defaults to 0 when you don't enter it.
+
+Eyegrade can automatically compute the appropriate scores for you
+if you specify the total score that a perfect exam would achieve.
+In order to do that, press the *Compute default scores* button,
+and the following dialog appears:
+
+.. image:: images/compute-default-scores-dialog.png
+   :alt: Dialog for computing the default scores
+
+The dialog computes the score for correct answers
+as the total score for a perfect exam divided by the number of questions.
+If you select the *Penalize incorrect answers* option,
+a score for incorrect answers is also computed
+as the score for correct answers divided by
+the number of choices of each question minus one.
+This way, the expected score for an exam with random answers
+(all the questions have the same probability of being marked by the student)
+is zero.
+
+
+Base score plus per-question weight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you select this option for computing scores,
+not all the questions are awarded the same score.
+Important questions may get bigger scores than less important ones.
+In order to do that, you define a base score
+(e.g. 2 points for correct answers and -2/3 for incorrect ones)
+and a relative *weight* for each question.
+The *weight* of a question is a factor that multiplies the base score
+in order to get the actual score of that question.
+For example, for a question that you want to score double than the base score
+(4 points for correct answers and -4/3 for incorrect ones)
+you would set a weight of 2.
+For a question you want to have exactly the base score,
+you would set a weight of 1.
+You can even decrease the score of a question with respect to he base score.
+A weight of 1/2 would mean
+1 point for correct answers and -1/3 for incorrect ones
+in our example.
+
+You need to edit the scores in the table at the center of the dialog:
+
+.. figure:: images/weights-table.png
+   :class: thumbnail
+   :alt: View of the table for entering question weights
+
+You can enter in each cell integer numbers (e.g. "2"),
+fractions (e.g. "1/2")
+or decimal numbers with fractional digits (e.g. "2.5").
+If you have several exam models
+(alternative orderings of the questions),
+eyegrade will check that you enter the same weights
+in all the models, possibly in a different order for each model:
+
+.. figure:: images/error-different-weights.png
+   :class: thumbnail
+   :alt: Error message when the weights in some models are different
+
+In addition, if your session configuration file
+contains the permutations done to each model
+(if you create the documents of your exams with Eyegrade,
+it will),
+Eyegrade automatically updates the value in all the models
+every time you change the weight of a question in one of them.
+However, if the file does not contain the permutations,
+you'll need to enter the weights for all the models yourself.
+
+The *Compute default scores* button works also as expected
+in this mode.
+It takes into account the question weights you entered
+in order to compute the base scores.
+You should edit the question weights
+*before* computing the default base scores.
+
+Assigning weight 0 to a question voids it:
+
+.. figure:: images/void-question-set-weight.png
+   :class: thumbnail
+   :alt: Set weight zero to void a question
+
+The example above voids question 5 in model A,
+which is also question 1 in model B, question 2 in model C
+and question 3 in model D.
+Void questions will be clearly displayed
+in the capture of the exam,
+and won't be considered either for the score
+or the count of correct and incorrect questions:
+
+.. figure:: images/void-question-capture.png
+   :class: thumbnail
+   :alt: Set weight zero to void a question
 
 
 Application modes
@@ -594,15 +817,20 @@ selecting the student id is shown:
 .. image:: images/change-student-id.png
    :alt: Dialog for changing the student id
 
-The dialog shows the students from the student list sorted by their
+The dialog shows a drop-down menu with the students from the student
+list sorted by their
 probability (according to the OCR module) of being the student whose
-id is in the exam. You just choose one in the drop-down menu. In
-addition, you can filter students by writing part of their id number
+id is in the exam. You just choose any student in the list.
+In addition, you can filter students by writing part of their id number
 or their name.
 
-If the student is not in your list, you can also enter in the dialog
-her id number and name. If you do that, follow the same format:
-student id, white space, student name.
+If the student is not in your list, you can also push the
+*New student* button to create a new student.
+It opens a dialog in which you can enter the data.
+The only mandatory field is this dialog is the student id number:
+
+.. image:: images/new-student-dialog.png
+   :alt: Dialog for creating a new student
 
 
 The manual detection mode
@@ -750,7 +978,8 @@ In this dialog you have to select:
   exams.
 
 - Which fields to include in the listing: student id number, student
-  name, grading sequence number, exam model letter, number of correct
+  full name, student last name, student first name,
+  grading sequence number, exam model letter, number of correct
   and incorrect answers, score and full list of answers. Only the
   fields you check are exported (as columns of the exported file). The
   order of these fields in the exported file is the same you see in

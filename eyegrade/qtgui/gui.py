@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2014 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -420,11 +420,20 @@ class CenterView(QWidget):
         if score is not None:
             if not survey_mode:
                 parts.append(CenterView.img_correct)
-                parts.append(str(score.correct) + '  ')
+                if score.correct is not None:
+                    parts.append(str(score.correct) + '  ')
+                else:
+                    parts.append('---  ')
                 parts.append(CenterView.img_incorrect)
-                parts.append(str(score.incorrect) + '  ')
+                if score.incorrect is not None:
+                    parts.append(str(score.incorrect) + '  ')
+                else:
+                    parts.append('---  ')
                 parts.append(CenterView.img_unanswered)
-                parts.append(str(score.blank) + '  ')
+                if score.blank is not None:
+                    parts.append(str(score.blank) + '  ')
+                else:
+                    parts.append('---  ')
                 if score.score is not None and score.max_score is not None:
                     parts.append(_('Score: {0:.2f} / {1:.2f}')\
                                  .format(score.score, score.max_score))
@@ -684,6 +693,10 @@ class Interface(object):
         timer.setInterval(time_delta)
         timer.start()
 
+    def run_later(self, callback, delay=0):
+        """Registers a callback for immediate enqueueing in the event loop."""
+        self.register_timer(delay, callback)
+
     def display_capture(self, ipl_image):
         """Displays a captured image in the window.
 
@@ -725,9 +738,7 @@ class Interface(object):
     def dialog_student_id(self, student_ids):
         """Displays a dialog to change the student id.
 
-        A string with the option selected by the user (possibly
-        student id and name) is returned.
-
+        Returns a student object with the option selected by the user.
         The return value is None if the user cancels the dialog.
 
         """

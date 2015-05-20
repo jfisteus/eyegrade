@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2014 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division
+from __future__ import division, unicode_literals
 
 import gettext
 import fractions
@@ -28,8 +28,11 @@ from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
                          QFileDialog, QRegExpValidator,
                          QListWidget, QAbstractItemView,
                          QVBoxLayout, QImage, QPainter, QPixmap,
-                         QRadioButton, QButtonGroup, )
-from PyQt4.QtCore import (Qt, QRegExp, pyqtProperty, ) 
+                         QRadioButton, QButtonGroup,
+                         QTableView, QStyle, )
+from PyQt4.QtCore import (Qt, QRegExp, QAbstractTableModel,
+                          QAbstractListModel,
+                          QModelIndex, QVariant, pyqtProperty, )
 
 from .. import utils
 from . import Colors
@@ -71,13 +74,29 @@ class CompletingComboBox(QComboBox):
 class StudentComboBox(CompletingComboBox):
     def __init__(self, parent=None, editable=True):
         super(StudentComboBox, self).__init__(parent=parent, editable=editable)
+        self.lineEdit().selectAll()
+        self.lineEdit().setFocus()
+        self.students = []
 
     def add_students(self, students):
         for student in students:
             self.add_student(student)
 
-    def add_student(self, student):
-        self.addItem(student.get_id_and_name())
+    def add_student(self, student, set_current=False):
+        self.addItem(student.id_and_name)
+        self.students.append(student)
+        if set_current:
+            self.setCurrentIndex(len(self.students) - 1)
+
+    def current_student(self):
+        if self.currentIndex() < len(self.students):
+            student = self.students[self.currentIndex()]
+            if self.currentText() != student.id_and_name:
+                # The user has edited the text of this item
+                student = None
+        else:
+            student = None
+        return student
 
 class StatusBar(QStatusBar):
     """Status bar for the main window.
@@ -488,3 +507,289 @@ class InputComboBox(QComboBox):
         self.c_type = c_type
         self.form = form
         self.alternative = alternative
+
+class ScoreWeightsTableModel(QAbstractTableModel):
+    """ Table for editing score weight values.
+
+    """
+    def __init__(self, exam_config, parent=None):
+        super(ScoreWeightsTableModel, self).__init__(parent=parent)
+        self.data_reset(exam_config)
+        self.dataChanged.connect(self._update_weights_sum)
+        self.changes = False
+
+    def data_reset(self, exam_config=None):
+        if exam_config is None:
+            exam_config = self.exam_config
+        else:
+            self.exam_config = exam_config
+        self.models = sorted(exam_config.models)
+        self.has_permutations = False
+        if not self.models:
+            self.models = ['A']
+        elif all(exam_config.get_permutations(m) for m in self.models):
+            self.has_permutations = True
+            self.models.insert(0, '0')
+            self.permutations = exam_config.permutations
+        if not self.has_permutations:
+            self.weights = [exam_config.get_question_weights(m) \
+                            for m in self.models]
+            for i in range(len(self.weights)):
+                if not self.weights[i]:
+                    self.weights[i] = [1] * exam_config.num_questions
+        else:
+            weights_0 = [1] * exam_config.num_questions
+            weights_m = exam_config.get_question_weights(self.models[1])
+            if weights_m:
+                for i, value in enumerate(weights_m):
+                    weights_0[self._to_model_0(1, i)] = value
+            else:
+                weights_0 = [1] * exam_config.num_questions
+            self.weights = [weights_0]
+        self.sum_weights = [sum(w) for w in self.weights]
+        self.changes = False
+        self.reset()
+
+    def clear(self):
+        for i in range(len(self.weights)):
+            self.weights[i] = [None] * self.exam_config.num_questions
+        self.sum_weights = [None] * len(self.weights)
+        self.changes = False
+        self.reset()
+
+    def validate(self):
+        """Checks that the weights are valid.
+
+        When there are no permutations, it checks that all the models
+        have the same weight elements, regardless their order.
+
+        """
+        if self.has_permutations:
+            # The weights are necessarily valid
+            valid = True
+        else:
+            # All the weights must have the same elements
+            reference = sorted(self.weights[0])
+            for w in self.weights[1:]:
+                if reference != sorted(w):
+                    valid = False
+                    break
+            else:
+                valid = True
+        return valid
+
+    def consolidate(self):
+        """Consolidate the weights into the exam_config object.
+
+        Returns True if the values are correct and consolidated,
+        and False if not.
+
+        """
+        if not self.validate():
+            return False
+        self.exam_config.reset_question_weights()
+        if self.has_permutations:
+            for i, model in enumerate(self.models[1:]):
+                w = []
+                model_idx = i + 1
+                for q in range(self.exam_config.num_questions):
+                    w.append(self.weights[0][self._to_model_0(model_idx, q)])
+                self.exam_config.set_question_weights(model, w)
+        else:
+            # All the weights must have the same elements
+            for model, w in zip(self.models, self.weights):
+                self.exam_config.set_question_weights(model, w)
+        return True
+
+    def rowCount(self, parent=QModelIndex()):
+        return self.exam_config.num_questions + 1
+
+    def columnCount(self, parent=QModelIndex()):
+        return len(self.models)
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return '{0} {1}'.format(_('Model'), self.models[section])
+            else:
+                if section < self.exam_config.num_questions:
+                    return '{0} {1}'.format(_('Question'), section + 1)
+                else:
+                    return (_('Total'))
+        else:
+            return QVariant(QVariant.Invalid)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            r = index.row()
+            c = index.column()
+            if r < self.exam_config.num_questions:
+                if not self.has_permutations or c == 0:
+                    value = self.weights[c][r]
+                else:
+                    value = self.weights[0][self._to_model_0(c, r)]
+                return utils.format_number(value, short=True)
+            else:
+                if not self.has_permutations:
+                    value = self.sum_weights[c]
+                else:
+                    value = self.sum_weights[0]
+                return utils.format_number(value, short=True, no_fraction=True)
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+        else:
+            return QVariant(QVariant.Invalid)
+
+    def flags(self, index):
+        if index.row() < self.exam_config.num_questions:
+            return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsEditable)
+        else:
+            return Qt.ItemFlags(Qt.ItemIsEnabled)
+
+    def setData (self, index, value_qvar, role=Qt.EditRole):
+        success = False
+        r = index.row()
+        c = index.column()
+        try:
+            value = utils.parse_number(unicode(value_qvar.toString()))
+        except ValueError:
+            return False
+        if r < self.exam_config.num_questions:
+            if not self.has_permutations or c == 0:
+                old_value = self.weights[c][r]
+                self.weights[c][r] = value
+                r_0 = r
+            else:
+                r_0 = self._to_model_0(c, r)
+                old_value = self.weights[0][r_0]
+                self.weights[0][r_0] = value
+            if (old_value != value):
+                self.changes = True
+                # Emit the signal for all the affected cells
+                if not self.has_permutations:
+                    self.dataChanged.emit(index, index)
+                else:
+                    changed_idx = self.index(r_0, 0)
+                    self.dataChanged.emit(changed_idx, changed_idx)
+                    for model_idx in range(1, len(self.models)):
+                        for i in range(self.exam_config.num_questions):
+                            if self._to_model_0(model_idx, i) == r_0:
+                                changed_idx = self.index(i, model_idx)
+                                self.dataChanged.emit(changed_idx, changed_idx)
+            success = True
+        return success
+
+    def _update_weights_sum(self, index_1, index_2):
+        """Handler for the dataChanged signal."""
+        if index_1.row() < self.exam_config.num_questions:
+            col_1 = index_1.column()
+            col_2 = index_2.column()
+            if self.has_permutations:
+                # Only changes to column 0 are relevant
+                col_end = 0
+            else:
+                col_end = col_2
+            for i in range(col_1, col_end + 1):
+                self.sum_weights[i] = sum(self.weights[i])
+            if col_1 <= col_end:
+                if self.has_permutations:
+                    # The change affects all the sums
+                    col_2 = len(self.models) - 1
+                changed_1 = self.index(self.exam_config.num_questions, col_1)
+                changed_2 = self.index(self.exam_config.num_questions, col_2)
+                self.dataChanged.emit(changed_1, changed_2)
+
+    def _to_model_0(self, model_idx, question):
+        question_0, opt = self.permutations[self.models[model_idx]][question]
+        return question_0 - 1
+
+
+class CustomTableView(QTableView):
+    """QTableView that can compute its own size."""
+    def __init__(self, parent=None, maximum_width=500, maximum_height=300):
+        super(CustomTableView, self).__init__(parent=parent)
+        self.maximum_height = maximum_height
+        self.maximum_width=maximum_width
+
+    def adjust_size(self):
+        self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+        self._set_dimension_hints()
+
+    def _set_dimension_hints(self):
+        # Maximum width:
+        vwidth = self.verticalHeader().width()
+        hwidth = self.horizontalHeader().length()
+        swidth = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
+        fwidth = self.frameWidth() * 2
+        current_width = vwidth + hwidth + swidth + fwidth + 1
+        # Minimum and maximum height:
+        vheight = 0
+        for i in range(self.model().rowCount()):
+            vheight += self.rowHeight(i)
+        hheight = self.horizontalHeader().height()
+        sheight = swidth
+        fheight = fwidth
+        current_height = vheight + hheight + sheight + fheight
+        # Check whether the scrollbars are visible:
+        if current_height < self.maximum_height:
+            # vertical scrollbar not visible
+            current_width -= swidth
+        if current_width < self.maximum_width:
+            current_height -= swidth
+        # Set the table dimensions
+        if self.maximum_width < current_width:
+            self.setMinimumWidth(self.maximum_width)
+            self.setMaximumWidth(self.maximum_width)
+        else:
+            self.setMinimumWidth(current_width)
+            self.setMaximumWidth(current_width)
+        if self.maximum_height < current_height:
+            self.setMinimumHeight(self.maximum_height)
+            self.setMaximumHeight(self.maximum_height)
+        else:
+            self.setMinimumHeight(current_height)
+            self.setMaximumHeight(current_height)
+
+
+class CustomComboBox(QComboBox):
+    """QComboBox that allows enabling / disabling items."""
+    def __init__(self, parent=None):
+        super(CustomComboBox, self).__init__(parent=parent)
+        self.setModel(_CustomComboBoxModel(parent=self))
+
+    def set_items(self, items):
+        self.model().set_items(items)
+
+    def set_item_enabled(self, index, enabled):
+        self.model().set_item_enabled(index, enabled)
+
+
+class _CustomComboBoxModel(QAbstractListModel):
+    def __init__(self, parent=None):
+        super(_CustomComboBoxModel, self).__init__(parent=parent)
+        self.items = []
+        self.enabled = []
+
+    def set_items(self, items):
+        self.items = items
+        self.enabled = [True] * len(items)
+        self.reset()
+
+    def set_item_enabled(self, index, enabled):
+        self.enabled[index] = enabled
+        idx = self.createIndex(index, 0)
+        self.dataChanged.emit(idx, idx)
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self.items)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            return self.items[index.row()]
+
+    def flags(self, index):
+        if self.enabled[index.row()]:
+            return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+        else:
+            return Qt.ItemFlags()

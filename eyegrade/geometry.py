@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -291,4 +291,4 @@ def distance_closest_axis(angle, axes_angles):
         else:
             axes_expanded.append(a + math.pi)
     angle_normalized = angle % math.pi
-    return min([abs(angle_normalized - a) for a in axes_expanded])
+    return min([abs(angle_normalized - aa) for aa in axes_expanded])

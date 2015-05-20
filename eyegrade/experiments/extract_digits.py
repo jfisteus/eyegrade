@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2014 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@ from __future__ import print_function, division
 import sys
 import random
 
-import cv
+# Import the cv module. It might be cv2.cv in newer versions.
+try:
+    import cv
+except ImportError:
+    import cv2.cv as cv
 
 from .. import sessiondb
 from .. import imageproc

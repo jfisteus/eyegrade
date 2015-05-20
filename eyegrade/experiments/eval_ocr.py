@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2011 Jesus Arias Fisteus
+# Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,8 @@
 
 import sys
 
-import eyegrade.imageproc as imageproc
-import eyegrade.ocr as ocr
-import eyegrade.utils as utils
+from .. import imageproc
+from .. import ocr
 
 class Digit(object):
     def __init__(self, image_path, position, correct_digit,
@@ -111,7 +110,7 @@ def main():
             eval_digit(digit)
             evaluated_digits.append(digit)
             print digit
-    num_correct = sum([digit.get_success() for digit in evaluated_digits])
+    num_correct = sum([d.get_success() for d in evaluated_digits])
     print 'Decisions: %d; correct: %d; incorrect: %d; success_rate: %.4f'%\
         (len(evaluated_digits), num_correct,
          len(evaluated_digits) - num_correct,
