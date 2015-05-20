@@ -25,8 +25,8 @@ import os.path
 from PyQt4.QtGui import (QPushButton, QMessageBox, QVBoxLayout, QLabel,
                          QWizard, QWizardPage, QFormLayout, QCheckBox,
                          QTabWidget, QWidget, QHBoxLayout,
-                         QTabBar, QScrollArea, QComboBox, QGroupBox,
-                         QRadioButton, QButtonGroup, QSpinBox,
+                         QScrollArea, QGroupBox,
+                         QRadioButton, QButtonGroup,
                          QGridLayout, QListWidget, QListWidgetItem, QColor)
 from PyQt4.QtCore import Qt
 
@@ -37,6 +37,7 @@ from . import FileNameFilters
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.ugettext
+
 
 class NewSessionPageInitial(QWizardPage):
     """First page of WizardNewSession.
@@ -91,7 +92,7 @@ class NewSessionPageInitial(QWizardPage):
         if ok_dir and ok_config:
             if not self.new_config_file.isChecked():
                 self.wizard().exam_config = \
-                               utils.ExamConfig(filename=self.config_file.text())
+                            utils.ExamConfig(filename=self.config_file.text())
 
         return ok_dir and ok_config
 
@@ -149,6 +150,7 @@ class NewSessionPageInitial(QWizardPage):
         else:
             return WizardNewSession.PageIdFiles
 
+
 class NewSessionPageExamParams(QWizardPage):
     """ Wizard's page that ask for the params of the test """
     def __init__(self):
@@ -157,111 +159,102 @@ class NewSessionPageExamParams(QWizardPage):
         self.setSubTitle(_('Enter all requested fields in the correct format'))
         layout = QFormLayout(self)
         self.setLayout(layout)
-
         self.paramNEIDs = widgets.InputInteger(initial_value=8)
         self.registerField("paramNEIDs",self.paramNEIDs)
-        
         self.paramNAlts = widgets.InputInteger(initial_value=5)
         self.registerField("paramNAlts",self.paramNAlts)
-        
-        self.paramNCols = widgets.InputCustomPattern(fixed_size=250, regex=r'\d+(\,\d+)+', placeholder='num,num,...')
+        self.paramNCols = widgets.InputCustomPattern(fixed_size=250,
+                                                     regex=r'\d+(\,\d+)+',
+                                                     placeholder='num,num,...')
         self.registerField("paramNCols",self.paramNCols)
-        
         self.paramNPerm = widgets.InputInteger(min_value=1, initial_value=2)
         self.registerField("paramNPerm",self.paramNPerm)
-
-        self.paramTPerm = widgets.InputRadioGroup(option_list=[_('Permutation'),_('Individual')], default_select=1)
+        self.paramTPerm = widgets.InputRadioGroup( \
+                            option_list=[_('Permutation'),_('Individual')],
+                            default_select=1)
         self.registerField("paramTPerm",self.paramTPerm,"currentItemData")
-
-        layout.addRow(_('Number of digits in the ID of the student'), self.paramNEIDs)
-        layout.addRow(_('Number of alternatives in each question'), self.paramNAlts)
+        layout.addRow(_('Number of digits in the ID of the student'),
+                      self.paramNEIDs)
+        layout.addRow(_('Number of alternatives in each question'),
+                      self.paramNAlts)
         layout.addRow(_('Questions distribution by columns'), self.paramNCols)
-        layout.addRow(_('Number of differents forms of the test'), self.paramNPerm)
+        layout.addRow(_('Number of differents forms of the test'),
+                      self.paramNPerm)
         layout.addRow(_('Type of permutation'), self.paramTPerm)
 
     def validatePage(self):
-
         if not self.paramNEIDs.text():
-            QMessageBox.critical(self, _('Error in form'), _('The field "Number of digits in the ID of the student" is empty'))
-            return False       
-
-        if not self.paramNAlts.text():
-            QMessageBox.critical(self, _('Error in form'), _('The field "Number of alternatives in each question" is empty'))
-            return False 
-
-        if not self.paramNCols.text():
-            QMessageBox.critical(self, _('Error in form'), _('The field "Questions distribution by columns" is empty'))
-            return False    
-
-        if not self.paramNPerm.text():
-            QMessageBox.critical(self, _('Error in form'), _('The field "Number of differents forms of the test" is empty'))
+            QMessageBox.critical(self, _('Error in form'),
+                _('The field "Number of digits in the ID of the student"'
+                  ' is empty'))
             return False
-
+        if not self.paramNAlts.text():
+            QMessageBox.critical(self, _('Error in form'),
+                _('The field "Number of alternatives in each question"'
+                  ' is empty'))
+            return False
+        if not self.paramNCols.text():
+            QMessageBox.critical(self, _('Error in form'),
+                _('The field "Questions distribution by columns" is empty'))
+            return False
+        if not self.paramNPerm.text():
+            QMessageBox.critical(self, _('Error in form'),
+                _('The field "Number of differents forms of the test"'
+                  ' is empty'))
+            return False
         if self.paramTPerm.group.checkedId() == -1:
-            QMessageBox.critical(self, _('Error in form'), _('On field "Type of permutation" must be selected an option'))
-            return False 
-
+            QMessageBox.critical(self, _('Error in form'),
+                _('On field "Type of permutation" must be selected an option'))
+            return False
         return True
 
     def nextId(self):
         return WizardNewSession.PageExamAnswers
 
+
 class NewSessionPageExamAnswers(QWizardPage):
 
     def __init__(self):
-        super(NewSessionPageExamAnswers, self).__init__() 
+        super(NewSessionPageExamAnswers, self).__init__()
         self.setTitle(_('Answers selection'))
         self.setSubTitle(_('Select the correct answers for each alternative'))
-
         layout = QFormLayout()
         self.setLayout(layout)
-
         self.tabs = QTabWidget()
         layout.addRow(self.tabs)
 
     def initializePage(self):
-        self.paramNAlts     = self.field("paramNAlts")
-        self.paramNCols     = self.field("paramNCols")
-        self.paramNPerm     = self.field("paramNPerm")
-        self.paramTPerm     = self.field("paramTPerm")
-
+        self.paramNAlts = self.field("paramNAlts")
+        self.paramNCols = self.field("paramNCols")
+        self.paramNPerm = self.field("paramNPerm")
+        self.paramTPerm = self.field("paramTPerm")
         self.tabs.clear()
-
-        self.total_answers  = 0
-        self.radioGroups    = {}
-
-        #filas = 1 if int(self.paramTPerm.toString()) == 1 else int(self.paramNPerm.toString())
+        self.total_answers = 0
+        self.radioGroups = {}
         filas = int(self.paramNPerm.toString())
         for x in range(filas):
-
-            mygroupbox          = QScrollArea()
+            mygroupbox = QScrollArea()
             mygroupbox.setWidget(QWidget())
             mygroupbox.setWidgetResizable(True)
-            myform              = QHBoxLayout(mygroupbox.widget())
-
-            cols            = self.paramNCols.toString().split(',')
-            ansID           = 0
-            radioGroupList  = {}
-            
+            myform = QHBoxLayout(mygroupbox.widget())
+            cols = self.paramNCols.toString().split(',')
+            ansID = 0
+            radioGroupList = {}
             for col in cols:
-                mygroupboxCol   = QGroupBox()
-                myformCol       = QFormLayout()
+                mygroupboxCol = QGroupBox()
+                myformCol = QFormLayout()
                 mygroupboxCol.setLayout(myformCol)
-
                 for y in range(int(col)):
-                    ansID += 1     
+                    ansID += 1
                     radioGroupList[ansID] = QButtonGroup()
                     layoutRow = QHBoxLayout()
-
                     for j in range(int(self.paramNAlts.toString())):
                         myradio = QRadioButton(chr(97+j).upper())
                         layoutRow.addWidget(myradio)
                         radioGroupList[ansID].addButton(myradio)
-
                     self.total_answers  += 1
                     myformCol.addRow(str(ansID), layoutRow)
                 myform.addWidget(mygroupboxCol)
-
             self.radioGroups[chr(97+x).upper()] = radioGroupList
             self.tabs.addTab(mygroupbox, _('Form ') + chr(97+x).upper())
 
@@ -271,22 +264,16 @@ class NewSessionPageExamAnswers(QWizardPage):
             answer = dict()
             for ak, av in v.iteritems():
                 answer[ak] = abs(int(av.checkedId())) - 1
-            
             if formated:
                 answer = answer.values()
-            
             response[k] = answer
         return response
 
     def _check_count_answers(self):
-
-        local_radioGroups   = self._get_values(formated=True)
-        local_total_answers = sum(len(filter(lambda a: a != 0, v)) for v in local_radioGroups.itervalues())
-
-        if self.total_answers == local_total_answers:
-            return True
-        else:
-            return False
+        local_radioGroups = self._get_values(formated=True)
+        local_total_answers = sum(len(filter(lambda a: a != 0, v)) \
+                                  for v in local_radioGroups.itervalues())
+        return (self.total_answers == local_total_answers)
 
     def validatePage(self):
         valid = True
@@ -296,24 +283,19 @@ class NewSessionPageExamAnswers(QWizardPage):
             msg = _('Select all answers for the exam.')
         else:
             try:
-
                 self.wizard().exam_config = utils.ExamConfig()
-
-                # dimentions generation
-                dimensions = [] 
+                # dimentions generation:
+                dimensions = []
                 for c in self.paramNCols.toString().split(','):
                     dimensions.append("%s,%s" % (self.paramNAlts.toString(),c))
-
                 self.wizard().exam_config.set_dimensions(';'.join(dimensions))
-
-                # solutions generation
+                # solutions generation:
                 current_solutions = self._get_values(formated=True)
                 for k, v in current_solutions.iteritems():
                     self.wizard().exam_config.set_solutions(k, v)
-
-                # students ids generation
-                self.wizard().exam_config.id_num_digits = int(self.field("paramNEIDs").toString())
-
+                # students ids generation:
+                self.wizard().exam_config.id_num_digits = \
+                    int(self.field("paramNEIDs").toString())
             except IOError:
                 valid = False
                 msg = _('The exam configuration file cannot be read.')
@@ -324,122 +306,127 @@ class NewSessionPageExamAnswers(QWizardPage):
                     msg += ':<br><br>' + str(e)
                 else:
                     msg += '.'
-        
         if not valid:
             QMessageBox.critical(self, _('Error'), msg)
-
         return valid
 
     def nextId(self):
-
-        if int(self.paramTPerm.toString()) == 2 or int(self.paramNPerm.toString()) == 1:
+        if (int(self.paramTPerm.toString()) == 2
+            or int(self.paramNPerm.toString()) == 1):
             return WizardNewSession.PageIdFiles
-
         if int(self.paramTPerm.toString()) == 1:
             return WizardNewSession.PagePermutations
-
         else:
             return WizardNewSession.PageExamAnswers
 
-class NewSessionPagePermutations(QWizardPage):
 
+class NewSessionPagePermutations(QWizardPage):
     def __init__(self):
         super(NewSessionPagePermutations, self).__init__()
         self.setTitle(_('Configuration of permutations'))
         self.setSubTitle(_('Select the correct answers in each permutation'))
-
-        layout                  = QGridLayout()
-        self.question_list      = QListWidget()
-        self.permutation_grid   = QGridLayout()
-        self.alternatives_rows  = {}
-
+        layout = QGridLayout()
+        self.question_list = QListWidget()
+        self.permutation_grid = QGridLayout()
+        self.alternatives_rows = {}
         layout.addWidget(QLabel(_('Questions of form A')), 0, 0, 1, 1)
         layout.addWidget(self.question_list, 1, 0, 1, 1)
-
         layout.addWidget(QLabel(_('Form equivalence')), 0, 1, 1, 5)
         self.permutation_grid.setVerticalSpacing(20)
         layout.addLayout(self.permutation_grid, 1, 1, 1, 5)
-
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(1, 5)
-
         self.setLayout(layout)
 
     def initializePage(self):
-
-        paramNAlts     = int(self.field("paramNAlts").toString())
-        paramNPerm     = int(self.field("paramNPerm").toString())
-
+        paramNAlts = int(self.field("paramNAlts").toString())
+        paramNPerm = int(self.field("paramNPerm").toString())
         self.question_list.clear()
-
         # Creation of the list section
-        paramNCols_array    = self.field("paramNCols").toString().split(',')
-        total_questions     = 1 + ( int(paramNCols_array[0]) if len(paramNCols_array) == 1 \
-                                    else reduce(lambda x, y: int(x)+int(y), paramNCols_array) )
-
+        paramNCols_array = self.field("paramNCols").toString().split(',')
+        total_questions = 1 + (int(paramNCols_array[0]) \
+                               if len(paramNCols_array) == 1 \
+                               else reduce(lambda x, y: int(x) + int(y),
+                                           paramNCols_array))
         for i in range(1,total_questions):
-            questions_list = QListWidgetItem(_('Question ')+str(i))
-            questions_list.setData(Qt.UserRole, widgets.ItemList(optionName=_('Question ')+str(i), optionNumber=i)) # Custom item list
+            questions_list = QListWidgetItem(_('Question ') + str(i))
+            questions_list.setData(Qt.UserRole,
+                        widgets.ItemList(optionName=_('Question ') + str(i),
+                                         optionNumber=i)) # Custom item list
             self.question_list.addItem(questions_list)
         self.question_list.setCurrentRow(0)
         self.question_list.itemClicked.connect(self._on_item_changed)
-
         # Creation of the grid section
-        add_header = True # We add the header of the columns (Name of alternatives)
-        for j in range(0,paramNPerm):
-            self.permutation_grid.addWidget(QLabel(_('Form ') + chr(97+j).upper()), j, 1)
+        add_header = True # Header of the columns (Name of alternatives)
+        for j in range(0, paramNPerm):
+            self.permutation_grid.addWidget( \
+                                QLabel(_('Form ') + chr(97 + j).upper()), j, 1)
             self.alternatives_rows[j] = {}
-
             for k in range(0, paramNAlts):
                 if add_header:
-                    if k == 0: self.permutation_grid.addWidget(QLabel(''),0,1)
-                    self.permutation_grid.addWidget(QLabel(chr(97+k).upper()),0,k+2)
-                self.alternatives_rows[j][k] = widgets.InputComboBox(self, c_type='alternative', form=j, alternative=k)
-                self.alternatives_rows[j][k].addItems( [chr(97+x).upper() for x in range(0,paramNAlts)] )
+                    if k == 0:
+                        self.permutation_grid.addWidget(QLabel(''), 0, 1)
+                    self.permutation_grid.addWidget( \
+                                        QLabel(chr(97 + k).upper()), 0, k + 2)
+                self.alternatives_rows[j][k] = \
+                    widgets.InputComboBox(self, c_type='alternative',
+                                          form=j, alternative=k)
+                self.alternatives_rows[j][k].addItems( \
+                            [chr(97+x).upper() for x in range(0,paramNAlts)])
                 self.alternatives_rows[j][k].setCurrentIndex(0)
-                self.permutation_grid.addWidget(self.alternatives_rows[j][k], j, k+2)
+                self.permutation_grid.addWidget(self.alternatives_rows[j][k],
+                                                j, k + 2)
             add_header = False
-
-            self.alternatives_rows[j][k+1] = widgets.InputComboBox(self, c_type='question', form=j, \
-                            alternative=self.question_list.currentItem().data(Qt.UserRole).toPyObject().get_question_number())
-            self.alternatives_rows[j][k+1].addItems([str(x) for x in range(1,total_questions)])
-            self.alternatives_rows[j][k+1].setCurrentIndex(0)
-            self.permutation_grid.addWidget(QLabel(_('Question Number')), j, k+3)
-            self.permutation_grid.addWidget(self.alternatives_rows[j][k+1], j, k+4)
-
+            self.alternatives_rows[j][k + 1] = \
+                widgets.InputComboBox(self, c_type='question', form=j,
+                                      alternative=self.question_list.\
+                                          currentItem().\
+                                          data(Qt.UserRole).toPyObject().\
+                                               get_question_number())
+            self.alternatives_rows[j][k + 1].addItems( \
+                                [str(x) for x in range(1,total_questions)])
+            self.alternatives_rows[j][k + 1].setCurrentIndex(0)
+            self.permutation_grid.addWidget(QLabel(_('Question Number')),
+                                            j, k + 3)
+            self.permutation_grid.addWidget(self.alternatives_rows[j][k + 1],
+                                            j, k + 4)
         button_save = QPushButton(_('Save values'))
-        self.permutation_grid.addWidget(button_save, j+1, 1, 1, k+4)
+        self.permutation_grid.addWidget(button_save, j + 1, 1, 1, k + 4)
         button_save.clicked.connect(self._save_values)
 
     def _on_item_changed(self, arg=None):
         permutation = arg.data(Qt.UserRole).toPyObject().get_permutation()
-
-        for k,v in self.alternatives_rows.iteritems():
+        for k, v in self.alternatives_rows.iteritems():
             for sk, sv in v.iteritems():
                 if not permutation:
                     sv.setCurrentIndex(0)
                 else:
-                    sv.setCurrentIndex([x for x in permutation if x['altr']==sv.alternative and x['form']==sv.form and x['c_type']==sv.c_type][0]['perm'] - 1)
-                
+                    sv.setCurrentIndex( \
+                        [x for x in permutation \
+                         if (x['altr'] == sv.alternative
+                             and x['form'] == sv.form
+                             and x['c_type'] == sv.c_type)][0]['perm'] - 1)
         return True
 
     def _save_values(self):
-        localItem       = self.question_list.currentItem()
+        localItem = self.question_list.currentItem()
         formatted_grid  = self._get_formatted_permutation_grid()
-
         if self._validate_grid(formatted_grid):
-            localItem.setBackgroundColor( QColor( 0, 255, 68 ) )
-            localItem.data(Qt.UserRole).toPyObject().set_permutation(formatted_grid)
+            localItem.setBackgroundColor(QColor(0, 255, 68))
+            localItem.data(Qt.UserRole).toPyObject()\
+                     .set_permutation(formatted_grid)
             self._reset_permutation_grid()
-            QMessageBox.information(self, _('Information status'), _('The values for the question have been successfully saved'))
+            QMessageBox.information(self, _('Information status'),
+                _('The values for the question have been successfully saved'))
             return True
         else:
-            QMessageBox.critical(self, _('Error in grid'), _('There is an inconsistence in the options'))
+            QMessageBox.critical(self, _('Error in grid'),
+                _('There is an inconsistence in the options'))
             return False
 
     def _get_formatted_permutation_grid(self):
         local_alternatives_rows = []
-        for k,v in self.alternatives_rows.iteritems():
+        for k, v in self.alternatives_rows.iteritems():
             for sk, sv in v.iteritems():
                 alternative = {
                     'c_type': sv.c_type,
@@ -461,16 +448,16 @@ class NewSessionPagePermutations(QWizardPage):
                     return False
                 else:
                     forms[row['form']].append(row['perm'])
-
             if row['c_type'] == 'question':
                 for i in xrange(self.question_list.count()):
-                    
                     if i == self.question_list.currentRow():
                         continue
-
-                    perm = self.question_list.item(i).data(Qt.UserRole).toPyObject().get_permutation()
+                    perm = self.question_list.item(i).data(Qt.UserRole)\
+                               .toPyObject().get_permutation()
                     for perm_row in perm:
-                        if perm_row['c_type'] == 'question' and perm_row['form'] == row['form'] and perm_row['perm'] == row['perm']:
+                        if (perm_row['c_type'] == 'question'
+                            and perm_row['form'] == row['form']
+                            and perm_row['perm'] == row['perm']):
                             return False
         return True
 
@@ -482,52 +469,45 @@ class NewSessionPagePermutations(QWizardPage):
     def _get_values(self):
         formated_permutation = {}
         formated_permutation_m = {}
-        alternatives_numbers = int(self.field("paramNAlts").toString())
-
         for i in xrange(self.question_list.count()):
-            permutations = self.question_list.item(i).data(Qt.UserRole).toPyObject().get_permutation()
-            
+            permutations = self.question_list.item(i).data(Qt.UserRole)\
+                               .toPyObject().get_permutation()
             a = {}
             for p in permutations:
                 if p['form'] not in formated_permutation:
                     formated_permutation[p['form']] = []
-
                 if p['form'] not in a:
                     a[p['form']] = []
-
                 if p['c_type'] == 'alternative':
                     a[p['form']].append(p['perm'])
-
                 if p['c_type'] == 'question':
-                    formated_permutation[p['form']].append("%s{%s}" % (p['perm'], ','.join(str(x) for x in a[p['form']])))
-
+                    formated_permutation[p['form']].append( \
+                        "%s{%s}" % (p['perm'], ','.join(str(x) \
+                                                       for x in a[p['form']])))
         for k,v in formated_permutation.iteritems():
             formated_permutation_m[chr(97+k).upper()] = '/'.join(v)
-
         return formated_permutation_m
 
     def validatePage(self):
-        valid   = True
-        msg     = ''
-
+        valid = True
+        msg = ''
         for i in xrange(self.question_list.count()):
-            if not self.question_list.item(i).data(Qt.UserRole).toPyObject().get_permutation():
+            if not self.question_list.item(i).data(Qt.UserRole)\
+                .toPyObject().get_permutation():
                 valid = False
                 msg = _('You must select all permutations for all questions')
                 break
-        
         if not valid:
             QMessageBox.critical(self, _('Error'), msg)
-
         else:
             current_permutations = self._get_values()
             for k, v in current_permutations.iteritems():
                 self.wizard().exam_config.set_permutations(k, v)
-
         return valid
 
     def nextId(self):
         return WizardNewSession.PageIdFiles
+
 
 class NewSessionPageScores(QWizardPage):
     """Page of WizardNewSession that asks for the scores for answers."""
@@ -783,6 +763,7 @@ class NewSessionPageScores(QWizardPage):
     def nextId(self):
         return -1
 
+
 class WizardNewSession(QWizard):
     """Wizard for the creation of a new session.
 
@@ -794,7 +775,8 @@ class WizardNewSession(QWizard):
 
     """
     NUM_PAGES = 6
-    (PageInitial, PageExamParams, PageExamAnswers, PagePermutations, PageIdFiles, PageScores) = range(NUM_PAGES)
+    (PageInitial, PageExamParams, PageExamAnswers,
+     PagePermutations, PageIdFiles, PageScores) = range(NUM_PAGES)
 
     def __init__(self, parent, config_filename=None):
         super(WizardNewSession, self).__init__(parent)
@@ -880,3 +862,4 @@ class WizardNewSession(QWizard):
             QMessageBox.critical(self, _('Error in student list'),
                                  file_name + '\n\n' + str(e))
         return valid, ''
+
