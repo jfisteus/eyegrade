@@ -23,7 +23,7 @@ import gettext
 import os.path
 
 from PyQt4.QtGui import (QPushButton, QMessageBox, QVBoxLayout, QLabel,
-                         QWizard, QWizardPage, QFormLayout, QCheckBox,
+                         QWizard, QWizardPage, QFormLayout,
                          QTabWidget, QWidget, QHBoxLayout,
                          QScrollArea, QGroupBox,
                          QRadioButton, QButtonGroup,
@@ -64,20 +64,19 @@ class NewSessionPageInitial(QWizardPage):
         self.registerField('directory*', self.directory.filename_widget)
         if config_filename is None:
             self.registerField('config_file', self.config_file.filename_widget)
-            #self.registerField('config_file*', self.config_file.filename_widget)
-        #else:
-            ## If '*' is used, the next button is not enabled.
-            #self.registerField('config_file', self.config_file.filename_widget)
-
-        self.new_config_file = QCheckBox(_('Check if you want to create a new configuration file'))
-        self.new_config_file.stateChanged.connect(self._validate_config_file)
-
+        self.combo = widgets.CustomComboBox(parent=self)
+        self.combo.set_items([
+            _('Create from an existing exam configuration file'),
+            _('Configure the exam manually'),
+        ])
+        self.combo.setCurrentIndex(0)
+        self.combo.currentIndexChanged.connect(self._update_combo)
+        self.config_file_label = QLabel(_('Exam configuration file'))
         layout = QFormLayout(self)
         self.setLayout(layout)
+        layout.addRow(self.combo)
         layout.addRow(_('Directory'), self.directory)
-        layout.addRow(self.new_config_file)
-        layout.addRow(_('Exam configuration file'), self.config_file)
-
+        layout.addRow(self.config_file_label, self.config_file)
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -85,16 +84,19 @@ class NewSessionPageInitial(QWizardPage):
             ok_dir = self.directory.check_value()
         else:
             ok_dir = True
-        if not self.config_file.is_validated():
-            ok_config = self.config_file.check_value()
-        else:
-            ok_config = True
-        if ok_dir and ok_config:
-            if not self.new_config_file.isChecked():
+        if self.combo.currentIndex() == 0:
+            if not self.config_file.is_validated():
+                ok_config = self.config_file.check_value()
+            else:
+                ok_config = True
+            if ok_dir and ok_config:
                 self.wizard().exam_config = \
                             utils.ExamConfig(filename=self.config_file.text())
-
-        return ok_dir and ok_config
+                return True
+            else:
+                return False
+        else:
+            return ok_dir
 
     def _check_directory(self, dir_name):
         valid = True
@@ -135,20 +137,21 @@ class NewSessionPageInitial(QWizardPage):
         self.wizard().exam_config_reset()
         return valid, msg
 
-    def _validate_config_file(self):
-        """Validates if the user needs to create a new exam config file"""
-        state = self.new_config_file.isChecked()
-        if state:
-            self.config_file.setEnabled(False)
-        else:
+    def _update_combo(self, new_index):
+        """Enable or disable the .eye file input"""
+        if new_index == 0:
             self.config_file.setEnabled(True)
-        return
+            self.config_file_label.setEnabled(True)
+        else:
+            self.config_file.setEnabled(False)
+            self.config_file_label.setEnabled(False)
+            self.config_file.set_text('')
 
     def nextId(self):
-        if self.new_config_file.isChecked():
-            return WizardNewSession.PageExamParams
-        else:
+        if self.combo.currentIndex() == 0:
             return WizardNewSession.PageIdFiles
+        else:
+            return WizardNewSession.PageExamParams
 
 
 class NewSessionPageExamParams(QWizardPage):
@@ -156,55 +159,56 @@ class NewSessionPageExamParams(QWizardPage):
     def __init__(self):
         super(NewSessionPageExamParams, self).__init__()
         self.setTitle(_('Configuration of exam params'))
-        self.setSubTitle(_('Enter all requested fields in the correct format'))
+        self.setSubTitle(_('Enter the configuration parameters of the exam'))
         layout = QFormLayout(self)
         self.setLayout(layout)
         self.paramNEIDs = widgets.InputInteger(initial_value=8)
-        self.registerField("paramNEIDs",self.paramNEIDs)
-        self.paramNAlts = widgets.InputInteger(initial_value=5)
-        self.registerField("paramNAlts",self.paramNAlts)
+        self.registerField("paramNEIDs", self.paramNEIDs)
+        self.paramNAlts = widgets.InputInteger(initial_value=3)
+        self.registerField("paramNAlts", self.paramNAlts)
         self.paramNCols = widgets.InputCustomPattern(fixed_size=250,
-                                                     regex=r'\d+(\,\d+)+',
-                                                     placeholder='num,num,...')
-        self.registerField("paramNCols",self.paramNCols)
+                                                  regex=r'[1-9]+(\,[1-9]+)+',
+                                                  placeholder=_('num,num,...'))
+        self.registerField("paramNCols", self.paramNCols)
         self.paramNPerm = widgets.InputInteger(min_value=1, initial_value=2)
-        self.registerField("paramNPerm",self.paramNPerm)
-        self.paramTPerm = widgets.InputRadioGroup( \
-                            option_list=[_('Permutation'),_('Individual')],
-                            default_select=1)
-        self.registerField("paramTPerm",self.paramTPerm,"currentItemData")
-        layout.addRow(_('Number of digits in the ID of the student'),
+        self.registerField("paramNPerm", self.paramNPerm)
+        self.paramTPerm = widgets.CustomComboBox(parent=self)
+        self.paramTPerm.set_items([
+            _('No (recommended)'),
+            _('Yes'),
+        ])
+        self.paramTPerm.setCurrentIndex(0)
+        self.registerField("paramTPerm", self.paramTPerm)
+        layout.addRow(_('Number of digits of the student ID'),
                       self.paramNEIDs)
-        layout.addRow(_('Number of alternatives in each question'),
+        layout.addRow(_('Number of choices per question'),
                       self.paramNAlts)
-        layout.addRow(_('Questions distribution by columns'), self.paramNCols)
-        layout.addRow(_('Number of differents forms of the test'),
+        layout.addRow(_('Number of questions per answer box'),
+                      self.paramNCols)
+        layout.addRow(_('Number of models'),
                       self.paramNPerm)
-        layout.addRow(_('Type of permutation'), self.paramTPerm)
+        layout.addRow(_('Enter question permutations'),
+                      self.paramTPerm)
 
     def validatePage(self):
         if not self.paramNEIDs.text():
             QMessageBox.critical(self, _('Error in form'),
-                _('The field "Number of digits in the ID of the student"'
-                  ' is empty'))
+                _('The number of digits of the student id is empty'))
             return False
         if not self.paramNAlts.text():
             QMessageBox.critical(self, _('Error in form'),
-                _('The field "Number of alternatives in each question"'
-                  ' is empty'))
+                _('The number of choices per question is empty'))
             return False
         if not self.paramNCols.text():
             QMessageBox.critical(self, _('Error in form'),
-                _('The field "Questions distribution by columns" is empty'))
+                _('The number of questions per answer box is empty.'
+                  ' Enter a comma-separated list of natural numbers.'))
             return False
+        if self.paramNCols.text().endsWith(','):
+            self.paramNCols.setText(self.paramNCols.text()[:-1])
         if not self.paramNPerm.text():
             QMessageBox.critical(self, _('Error in form'),
-                _('The field "Number of differents forms of the test"'
-                  ' is empty'))
-            return False
-        if self.paramTPerm.group.checkedId() == -1:
-            QMessageBox.critical(self, _('Error in form'),
-                _('On field "Type of permutation" must be selected an option'))
+                _('The number of exam models is empty'))
             return False
         return True
 
@@ -217,7 +221,7 @@ class NewSessionPageExamAnswers(QWizardPage):
     def __init__(self):
         super(NewSessionPageExamAnswers, self).__init__()
         self.setTitle(_('Answers selection'))
-        self.setSubTitle(_('Select the correct answers for each alternative'))
+        self.setSubTitle(_('Select the correct choice for each exam model'))
         layout = QFormLayout()
         self.setLayout(layout)
         self.tabs = QTabWidget()
@@ -256,7 +260,7 @@ class NewSessionPageExamAnswers(QWizardPage):
                     myformCol.addRow(str(ansID), layoutRow)
                 myform.addWidget(mygroupboxCol)
             self.radioGroups[chr(97+x).upper()] = radioGroupList
-            self.tabs.addTab(mygroupbox, _('Form ') + chr(97+x).upper())
+            self.tabs.addTab(mygroupbox, _('Model ') + chr(97+x).upper())
 
     def _get_values(self, formated=False):
         response = dict()
@@ -311,10 +315,10 @@ class NewSessionPageExamAnswers(QWizardPage):
         return valid
 
     def nextId(self):
-        if (int(self.paramTPerm.toString()) == 2
+        if (int(self.paramTPerm.toString()) == 0
             or int(self.paramNPerm.toString()) == 1):
             return WizardNewSession.PageIdFiles
-        if int(self.paramTPerm.toString()) == 1:
+        elif int(self.paramTPerm.toString()) == 1:
             return WizardNewSession.PagePermutations
         else:
             return WizardNewSession.PageExamAnswers
