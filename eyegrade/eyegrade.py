@@ -662,6 +662,21 @@ class ProgramManager(object):
             except IOError as e:
                 msg = _('Input/output error: {0}').format(e.strerror)
                 self.interface.show_error(msg)
+            else:
+                self.interface.show_information(_('The file has been saved.'),
+                                                title=_('File saved'))
+
+    def _action_export_exam_config(self):
+        """Callback for exporting the current exam configuration."""
+        filename = self.interface.dialog_export_exam_config()
+        try:
+            self.exam_data.save(filename)
+        except IOError as e:
+            msg = _('Input/output error: {0}').format(e.strerror)
+            self.interface.show_error(msg)
+        else:
+            self.interface.show_information(_('The file has been saved.'),
+                                            title=_('File saved'))
 
     def _mouse_pressed(self, point):
         """Callback called when the mouse is pressed inside a capture."""
@@ -784,6 +799,8 @@ class ProgramManager(object):
             ('actions', 'grading', 'manual_detect'): self._action_manual_detect,
             ('actions', 'grading', 'edit_id'): self._action_edit_id,
             ('actions', 'tools', 'camera'): self._action_camera_selection,
+            ('actions', 'tools', 'export_exam_config'): \
+                                            self._action_export_exam_config,
             ('actions', 'tools', 'lines'): self._action_debug_changed,
             ('actions', 'tools', 'processed'): self._action_debug_changed,
             ('actions', 'tools', 'show_status'): self._action_debug_changed,
