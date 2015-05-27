@@ -175,7 +175,7 @@ class NewSessionPageExamParams(QWizardPage):
         self.paramTPerm = widgets.CustomComboBox(parent=self)
         self.paramTPerm.set_items([
             _('No (recommended)'),
-            _('Yes'),
+            _('Yes (experimental)'),
         ])
         self.paramTPerm.setCurrentIndex(0)
         self.registerField("paramTPerm", self.paramTPerm)
@@ -328,14 +328,15 @@ class NewSessionPagePermutations(QWizardPage):
     def __init__(self):
         super(NewSessionPagePermutations, self).__init__()
         self.setTitle(_('Configuration of permutations'))
-        self.setSubTitle(_('Select the correct answers in each permutation'))
+        self.setSubTitle(_('Select the position of each question'
+                           ' and its choices in every model of the exam.'))
         layout = QGridLayout()
         self.question_list = QListWidget()
         self.permutation_grid = QGridLayout()
         self.alternatives_rows = {}
-        layout.addWidget(QLabel(_('Questions of form A')), 0, 0, 1, 1)
+        layout.addWidget(QLabel(_('Questions of model A')), 0, 0, 1, 1)
         layout.addWidget(self.question_list, 1, 0, 1, 1)
-        layout.addWidget(QLabel(_('Form equivalence')), 0, 1, 1, 5)
+        layout.addWidget(QLabel(_('Model equivalence')), 0, 1, 1, 5)
         self.permutation_grid.setVerticalSpacing(20)
         layout.addLayout(self.permutation_grid, 1, 1, 1, 5)
         layout.setColumnStretch(0, 1)
@@ -364,7 +365,7 @@ class NewSessionPagePermutations(QWizardPage):
         add_header = True # Header of the columns (Name of alternatives)
         for j in range(0, paramNPerm):
             self.permutation_grid.addWidget( \
-                                QLabel(_('Form ') + chr(97 + j).upper()), j, 1)
+                                QLabel(_('Model ') + chr(97 + j).upper()), j, 1)
             self.alternatives_rows[j] = {}
             for k in range(0, paramNAlts):
                 if add_header:
