@@ -427,9 +427,12 @@ class DialogAbout(QDialog):
         return label
 
     def _create_developers_tab(self):
-        text = u"""<center><p><b>{0}:</b></p>
+        text = u"""<p><b>{0}:</b></p>
                    <ul><li>Jesús Arias Fisteus</li></ul>
-                   </center>""".format(_('Lead developers'))
+                   <p><b>{1}:</b></p>
+                   <ul><li>Jonathan Araneda Labarca</li></ul>
+                   """.format(_('Lead developers'),
+                              _('Exam configuration dialogs'))
         label = QLabel(text)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse

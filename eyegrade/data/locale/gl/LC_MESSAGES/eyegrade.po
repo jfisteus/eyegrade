@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eyegrade\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-29 00:38+0200\n"
+"POT-Creation-Date: 2015-05-29 01:01+0200\n"
 "PO-Revision-Date: 2015-03-17 11:04+0100\n"
 "Last-Translator: Jesús Arias Fisteus\n"
 "Language-Team: \n"
@@ -91,24 +91,24 @@ msgstr ""
 msgid "The selected exam will be removed. Are you sure?"
 msgstr "Vaise borrar o exame seleccionado. ¿Está seguro?"
 
-#: eyegrade/eyegrade.py:663 eyegrade/eyegrade.py:675
+#: eyegrade/eyegrade.py:663 eyegrade/eyegrade.py:676
 #, python-brace-format
 msgid "Input/output error: {0}"
 msgstr "Erro de entrada/saída: {0}"
 
-#: eyegrade/eyegrade.py:666 eyegrade/eyegrade.py:678
+#: eyegrade/eyegrade.py:666 eyegrade/eyegrade.py:679
 msgid "The file has been saved."
 msgstr "O ficheiro foi gardado."
 
-#: eyegrade/eyegrade.py:667 eyegrade/eyegrade.py:679
+#: eyegrade/eyegrade.py:667 eyegrade/eyegrade.py:680
 msgid "File saved"
 msgstr "Ficheiro gardado"
 
-#: eyegrade/eyegrade.py:719
+#: eyegrade/eyegrade.py:720
 msgid "Manual detection failed"
 msgstr "A detección manual fallou"
 
-#: eyegrade/eyegrade.py:758
+#: eyegrade/eyegrade.py:759
 msgid "No camera found. Connect a camera and start the session again."
 msgstr "Non se atopou ningunha cámara. Conecte unha e abra de novo a sesión."
 
@@ -578,31 +578,35 @@ msgstr ""
 "             </center>\n"
 "             "
 
-#: eyegrade/qtgui/dialogs.py:432
+#: eyegrade/qtgui/dialogs.py:434
 msgid "Lead developers"
 msgstr "Desenvolvedores principais"
 
-#: eyegrade/qtgui/dialogs.py:445
+#: eyegrade/qtgui/dialogs.py:435
+msgid "Exam configuration dialogs"
+msgstr "Diálogos de configuración de exame"
+
+#: eyegrade/qtgui/dialogs.py:448
 msgid "Catalan"
 msgstr "Catalán"
 
-#: eyegrade/qtgui/dialogs.py:446
+#: eyegrade/qtgui/dialogs.py:449
 msgid "German"
 msgstr "Alemán"
 
-#: eyegrade/qtgui/dialogs.py:447
+#: eyegrade/qtgui/dialogs.py:450
 msgid "Galician"
 msgstr "Galego"
 
-#: eyegrade/qtgui/dialogs.py:448
+#: eyegrade/qtgui/dialogs.py:451
 msgid "French"
 msgstr "Francés"
 
-#: eyegrade/qtgui/dialogs.py:449
+#: eyegrade/qtgui/dialogs.py:452
 msgid "Portuguese"
 msgstr "Portugués"
 
-#: eyegrade/qtgui/dialogs.py:450
+#: eyegrade/qtgui/dialogs.py:453
 msgid "Spanish"
 msgstr "Español"
 
