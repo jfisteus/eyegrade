@@ -797,7 +797,7 @@ class Interface(object):
         """
         save_dialog = QFileDialog(parent=self.window,
                                   caption=_('Save exam configration as...'),
-                                  filter=_('Exam configuration file (*.eye)'))
+                                  filter=_('Exam configuration (*.eye)'))
         save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
         save_dialog.setDefaultSuffix('eye')
         save_dialog.setFileMode(QFileDialog.AnyFile)

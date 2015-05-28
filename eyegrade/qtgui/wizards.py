@@ -185,7 +185,7 @@ class NewSessionPageExamParams(QWizardPage):
                       self.paramNAlts)
         layout.addRow(_('Number of questions per answer box'),
                       self.paramNCols)
-        layout.addRow(_('Number of models'),
+        layout.addRow(_('Number of models of the exam'),
                       self.paramNPerm)
         layout.addRow(_('Enter question permutations'),
                       self.paramTPerm)
@@ -220,8 +220,8 @@ class NewSessionPageExamAnswers(QWizardPage):
 
     def __init__(self):
         super(NewSessionPageExamAnswers, self).__init__()
-        self.setTitle(_('Answers selection'))
-        self.setSubTitle(_('Select the correct choice for each exam model'))
+        self.setTitle(_('Selection of correct answers'))
+        self.setSubTitle(_('Select the correct answers for each exam model'))
         layout = QFormLayout()
         self.setLayout(layout)
         self.tabs = QTabWidget()
@@ -284,7 +284,8 @@ class NewSessionPageExamAnswers(QWizardPage):
         msg = ''
         if not self._check_count_answers():
             valid = False
-            msg = _('Select all answers for the exam.')
+            msg = _('You haven\'t entered the correct answer '
+                    'for some questions.')
         else:
             try:
                 self.wizard().exam_config = utils.ExamConfig()
