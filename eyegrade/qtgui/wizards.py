@@ -167,8 +167,8 @@ class NewSessionPageExamParams(QWizardPage):
         self.paramNAlts = widgets.InputInteger(initial_value=3)
         self.registerField("paramNAlts", self.paramNAlts)
         self.paramNCols = widgets.InputCustomPattern(fixed_size=250,
-                                                  regex=r'[1-9]+(\,[1-9]+)+',
-                                                  placeholder=_('num,num,...'))
+                                          regex=r'[1-9][0-9]?(\,[1-9][0-9]?)+',
+                                          placeholder=_('num,num,...'))
         self.registerField("paramNCols", self.paramNCols)
         self.paramNPerm = widgets.InputInteger(min_value=1, initial_value=2)
         self.registerField("paramNPerm", self.paramNPerm)
