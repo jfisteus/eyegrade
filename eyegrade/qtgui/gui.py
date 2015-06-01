@@ -122,6 +122,7 @@ class ActionsManager(object):
 
     _actions_tools_data = [
         ('camera', 'camera.svg', _('Select &camera'), []),
+        ('export_exam_config', None, _('E&xport exam configuration'), []),
         ]
 
     _actions_help_data = [
@@ -188,6 +189,7 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
         self.actions_exams['export'].setEnabled(False)
 
@@ -205,6 +207,7 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
         self.actions_exams['export'].setEnabled(True)
 
@@ -222,6 +225,7 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
+        self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
         self.actions_exams['export'].setEnabled(True)
 
@@ -239,6 +243,7 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
+        self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
         self.actions_exams['export'].setEnabled(True)
@@ -257,6 +262,7 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(True)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(False)
+        self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
         self.actions_exams['export'].setEnabled(False)
 
@@ -268,6 +274,7 @@ class ActionsManager(object):
         self.actions_session['close'].setEnabled(False)
         self.actions_session['exit'].setEnabled(True)
         self.actions_tools['camera'].setEnabled(True)
+        self.actions_tools['export_exam_config'].setEnabled(False)
         for key in self.actions_exams:
             self.actions_exams[key].setEnabled(False)
 
@@ -774,12 +781,41 @@ class Interface(object):
 
         `student_groups` is a list of utils.StudentGroup objects.
 
-        If accepted by the user, returns the tuple (filename, file type,
+        If accepted by the user, it returns the tuple (filename, file type,
         students, fields).  Returns None if cancelled.
 
         """
         dialog = DialogExportGrades(self.window, student_groups)
         return dialog.exec_()
+
+    def dialog_export_exam_config(self):
+        """Displays the dialog for exporting the current exam configuration.
+
+        If accepted by the user, it returns the filename.
+        Returns None if cancelled.
+
+        """
+        save_dialog = QFileDialog(parent=self.window,
+                                  caption=_('Save exam configration as...'),
+                                  filter=_('Exam configuration (*.eye)'))
+        save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
+        save_dialog.setDefaultSuffix('eye')
+        save_dialog.setFileMode(QFileDialog.AnyFile)
+        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        filename = None
+        if save_dialog.exec_():
+            filename_list = save_dialog.selectedFiles()
+            if len(filename_list) == 1:
+                filename = filename_list[0]
+        return filename
+
+    def show_information(self, message, title='Information'):
+        """Displays an dialog with an informative message.
+
+        The method blocks until the user closes the dialog.
+
+        """
+        QMessageBox.information(self.window, title, message)
 
     def show_error(self, message, title='Error'):
         """Displays an error dialog with the given message.

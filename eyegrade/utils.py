@@ -1269,9 +1269,8 @@ class ExamConfig(object):
                 data.append('weights-{0}: {1}'\
                             .format(model, self.format_weights(model)))
         data.append('')
-        file_ = open(filename, 'w')
-        file_.write('\n'.join(data))
-        file_.close()
+        with open(filename, 'w') as file_:
+            file_.write('\n'.join(data))
 
     def format_dimensions(self):
         return ';'.join(['%d,%d'%(cols, rows) \
