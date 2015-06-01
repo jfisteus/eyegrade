@@ -172,13 +172,13 @@ class NewSessionPageExamParams(QWizardPage):
         self.registerField("paramNCols", self.paramNCols)
         self.paramNPerm = widgets.InputInteger(min_value=1, initial_value=2)
         self.registerField("paramNPerm", self.paramNPerm)
-        self.paramTPerm = widgets.CustomComboBox(parent=self)
-        self.paramTPerm.set_items([
-            _('No (recommended)'),
-            _('Yes (experimental)'),
-        ])
-        self.paramTPerm.setCurrentIndex(0)
-        self.registerField("paramTPerm", self.paramTPerm)
+        ## self.paramTPerm = widgets.CustomComboBox(parent=self)
+        ## self.paramTPerm.set_items([
+        ##     _('No (recommended)'),
+        ##     _('Yes (experimental)'),
+        ## ])
+        ## self.paramTPerm.setCurrentIndex(0)
+        ## self.registerField("paramTPerm", self.paramTPerm)
         layout.addRow(_('Number of digits of the student ID'),
                       self.paramNEIDs)
         layout.addRow(_('Number of choices per question'),
@@ -187,8 +187,8 @@ class NewSessionPageExamParams(QWizardPage):
                       self.paramNCols)
         layout.addRow(_('Number of models of the exam'),
                       self.paramNPerm)
-        layout.addRow(_('Enter question permutations'),
-                      self.paramTPerm)
+        ## layout.addRow(_('Enter question permutations'),
+        ##               self.paramTPerm)
 
     def validatePage(self):
         if not self.paramNEIDs.text():
@@ -231,7 +231,7 @@ class NewSessionPageExamAnswers(QWizardPage):
         self.paramNAlts = self.field("paramNAlts")
         self.paramNCols = self.field("paramNCols")
         self.paramNPerm = self.field("paramNPerm")
-        self.paramTPerm = self.field("paramTPerm")
+        ## self.paramTPerm = self.field("paramTPerm")
         self.tabs.clear()
         self.total_answers = 0
         self.radioGroups = {}
@@ -316,13 +316,14 @@ class NewSessionPageExamAnswers(QWizardPage):
         return valid
 
     def nextId(self):
-        if (int(self.paramTPerm.toString()) == 0
-            or int(self.paramNPerm.toString()) == 1):
-            return WizardNewSession.PageIdFiles
-        elif int(self.paramTPerm.toString()) == 1:
-            return WizardNewSession.PagePermutations
-        else:
-            return WizardNewSession.PageExamAnswers
+        return WizardNewSession.PageIdFiles
+        ## if (int(self.paramTPerm.toString()) == 0
+        ##     or int(self.paramNPerm.toString()) == 1):
+        ##     return WizardNewSession.PageIdFiles
+        ## elif int(self.paramTPerm.toString()) == 1:
+        ##     return WizardNewSession.PagePermutations
+        ## else:
+        ##     return WizardNewSession.PageExamAnswers
 
 
 class NewSessionPagePermutations(QWizardPage):
