@@ -1,3 +1,11 @@
+2015-06-01  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.6.
+
+	* Wizard for entering the parameters of the exam configuration
+	file directly through the interface, when creating a new session
+	(developed by Jonathan Araneda).
+
 2015-04-17  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.5.1.

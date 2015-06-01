@@ -33,7 +33,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.5.1'
+version = '0.6'
 version_status = 'alpha'
 
 re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
