@@ -50,8 +50,8 @@ class NewSessionPageInitial(QWizardPage):
         super(NewSessionPageInitial, self).__init__()
         self.setTitle(_('Directory and exam configuration'))
         self.setSubTitle(_('Select or create an empty directory in which you '
-                           'want to store the session, '
-                           'and the exam configuration file.'))
+                           'want to store the session '
+                           'and configure the exam from a file or manually.'))
         self.directory = widgets.OpenFileWidget(self, select_directory=True,
                             title=_('Select or create an empty directory'),
                             check_file_function=self._check_directory)
@@ -66,7 +66,7 @@ class NewSessionPageInitial(QWizardPage):
             self.registerField('config_file', self.config_file.filename_widget)
         self.combo = widgets.CustomComboBox(parent=self)
         self.combo.set_items([
-            _('Create from an existing exam configuration file'),
+            _('Configure the exam from an existing configuration file'),
             _('Configure the exam manually'),
         ])
         self.combo.setCurrentIndex(0)
@@ -74,8 +74,8 @@ class NewSessionPageInitial(QWizardPage):
         self.config_file_label = QLabel(_('Exam configuration file'))
         layout = QFormLayout(self)
         self.setLayout(layout)
-        layout.addRow(self.combo)
         layout.addRow(_('Directory'), self.directory)
+        layout.addRow(self.combo)
         layout.addRow(self.config_file_label, self.config_file)
 
     def validatePage(self):
