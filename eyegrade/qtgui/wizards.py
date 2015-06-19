@@ -226,11 +226,23 @@ class NewSessionPageExamAnswers(QWizardPage):
         self.setLayout(layout)
         self.tabs = QTabWidget()
         layout.addRow(self.tabs)
+        self.paramNAlts = None
+        self.paramNCols = None
+        self.paramNPerm = None
 
     def initializePage(self):
-        self.paramNAlts = self.field("paramNAlts")
-        self.paramNCols = self.field("paramNCols")
-        self.paramNPerm = self.field("paramNPerm")
+        new_paramNAlts = self.field("paramNAlts")
+        new_paramNCols = self.field("paramNCols")
+        new_paramNPerm = self.field("paramNPerm")
+        if (new_paramNAlts != self.paramNAlts
+            or new_paramNCols != self.paramNCols
+            or new_paramNPerm != self.paramNPerm):
+            self.paramNAlts = new_paramNAlts
+            self.paramNCols = new_paramNCols
+            self.paramNPerm = new_paramNPerm
+            self._initialize()
+
+    def _initialize(self):
         ## self.paramTPerm = self.field("paramTPerm")
         self.tabs.clear()
         self.total_answers = 0
