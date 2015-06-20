@@ -23,15 +23,16 @@ import gettext
 import fractions
 
 from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
-                         QStatusBar, QLabel, QHBoxLayout, QCheckBox,
+                         QStatusBar, QLabel, QHBoxLayout, QCheckBox, QSpinBox,
                          QWidget, QLineEdit, QPushButton, QIcon, QMessageBox,
                          QFileDialog, QRegExpValidator,
                          QListWidget, QAbstractItemView,
                          QVBoxLayout, QImage, QPainter, QPixmap,
+                         QRadioButton, QButtonGroup,
                          QTableView, QStyle, )
 from PyQt4.QtCore import (Qt, QRegExp, QAbstractTableModel,
                           QAbstractListModel,
-                          QModelIndex, QVariant, )
+                          QModelIndex, QVariant, pyqtProperty, )
 
 from .. import utils
 from . import Colors
@@ -188,8 +189,19 @@ class OpenFileWidget(QWidget):
         self.filename_widget.setText(filename)
 
     def setEnabled(self, enabled):
+        """ Toggle enabled status of this widget.
+
+        If the widget is disabled, the validated status
+        is forced to True with the statement
+        self.last_validated_value = self.text()
+
+        """
         self.filename_widget.setEnabled(enabled)
         self.button.setEnabled(enabled)
+        if not enabled:
+            self.last_validated_value = self.text()
+        else:
+            self.last_validated_value = None
 
     def is_validated(self):
         """Returns True if the value equals the latest validated value.
@@ -439,6 +451,78 @@ class CamView(QWidget):
     def mousePressEvent(self, event):
         if self.mouse_listener:
             self.mouse_listener((event.x(), event.y()))
+
+
+class InputCustomPattern(QLineEdit):
+    """Allows the user to enter a string with a specific pattern validation.
+
+    The pattern is a regular expression.
+
+    """
+    def __init__(self, parent=None, fixed_size=40,
+                 regex=r'.+', placeholder=None):
+        super(InputCustomPattern, self).__init__(parent=parent)
+        if placeholder:
+            self.setPlaceholderText(placeholder)
+        self.setFixedWidth(fixed_size)
+        validator = QRegExpValidator(QRegExp(regex), self)
+        self.setValidator(validator)
+
+
+class InputInteger(QSpinBox):
+    """Allows the user to enter an integer field"""
+    def __init__(self, parent=None, initial_value=1,
+                 min_value=1, max_value=100):
+        super(InputInteger, self).__init__(parent=parent)
+        self.setRange(min_value, max_value)
+        self.setValue(initial_value)
+
+
+class InputRadioGroup(QWidget):
+    """Create an horizontal radio group"""
+    def __init__(self, parent=None, option_list=None, default_select=0):
+        super(InputRadioGroup, self).__init__(parent=parent)
+        layout = QHBoxLayout(self)
+        self.group = QButtonGroup()
+        for idx, op in enumerate(option_list):
+            self.op = QRadioButton(_(op))
+            if idx == default_select:
+                self.op.setChecked(True)
+            layout.addWidget(self.op)
+            self.group.addButton(self.op)
+        self.setLayout(layout)
+
+    @pyqtProperty(str)
+    def currentItemData(self):
+        return str(abs(int(self.group.checkedId())) - 1)
+
+
+class ItemList(object):
+    """Custom item for permutation list"""
+    def __init__(self, optionName, optionNumber):
+        super(ItemList, self).__init__()
+        self.name = optionName
+        self.numb = optionNumber
+        self.perm = {}
+
+    def get_question_number(self):
+        return str(self.numb)
+
+    def get_permutation(self):
+        return self.perm
+
+    def set_permutation(self, permutation):
+        self.perm = permutation
+        return True
+
+
+class InputComboBox(QComboBox):
+    """A Combobox with a specific ID"""
+    def __init__(self, parent=None, c_type=None, form=0, alternative=0):
+        super(InputComboBox, self).__init__(parent=parent)
+        self.c_type = c_type
+        self.form = form
+        self.alternative = alternative
 
 
 class ScoreWeightsTableModel(QAbstractTableModel):

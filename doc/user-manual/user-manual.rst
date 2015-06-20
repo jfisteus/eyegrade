@@ -6,8 +6,11 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.5 and later versions. For the
-0.3 and 0.4 series see `this other user manual <../user-manual-0.3/>`_.
+This user manual refers to Eyegrade 0.6 and later versions.
+For the
+0.5 series see `the user manual version 0.5 <../user-manual-0.5/>`_.
+For the
+0.3 and 0.4 series see `the user manual version 0.4 <../user-manual-0.4/>`_.
 
 Installing Eyegrade
 -------------------
@@ -36,20 +39,24 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5
-................................................................
+Upgrading from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x to Eyegrade 0.6
+......................................................................
 
-In order to upgrade from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5,
+In order to upgrade from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x
+to Eyegrade 0.6,
 follow the instructions at `Updating Eyegrade`_.
 
-Be aware that Eyegrade 0.5 uses an updated session database schema.
-Although Eyegrade 0.5 is able to work with sessions created
-by the previous versions of Eyegrade,
+Be aware that Eyegrade 0.5 and 0.6 use an updated session database schema.
+Although Eyegrade 0.5 and 0.6 are able to work with sessions created
+by Eyegrade 0.4 and previous versions,
 those previous versions don't work
-with sessions created by Eyegrade 0.5.
+with sessions created by Eyegrade 0.5 and 0.6.
 
 The main changes of the most recent versions are described in the following
 blog posts:
+
+- `Eyegrade 0.6 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-06-released.html>`_
 
 - `Eyegrade 0.5 released
   <http://www.eyegrade.org/blog/posts/eyegrade-05-released.html>`_
@@ -251,8 +258,8 @@ white-spaces in it), and type::
 
 If you prefer not to install Git:
 
-1.- Download the ZIP file `eyegrade-0.5.1.zip
-<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.5.1.zip>`_.
+1.- Download the ZIP file `eyegrade-0.6.zip
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.zip>`_.
 Extract it in your file system,
 in a directory with no white-spaces in its path.
 
@@ -296,7 +303,7 @@ prompt window, enter the Eyegrade installation directory and type::
 This should work on any platform (Linux, Windows, etc.)
 
 If you didn't use Git to install Eyegrade, `download the new version
-<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.5.1.zip>`_,
+<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.zip>`_,
 uncompress it and replace your ``eyegrade`` directory by the one you
 have uncompressed.
 
@@ -346,18 +353,39 @@ Eyegrade, you can check that Eyegrade can access your webcam. In the
    :alt: Select camera dialog
 
 The next step is creating a grading session. Select *New session* in
-the menu *Session*. A multi-step dialog will ask for some data Eyegrade
+the menu *Session*. A wizard will ask for some data Eyegrade
 needs for creating the session:
 
-- Directory and exam configuration: you need to enter here the
-  following information:
+.. image:: images/new-session-wizard.png
+   :alt: New session wizard
 
-  - Directory: select or create a directory for this session. The
-    directory must be empty.
+In the first step of the wizard,
+you must select or create the directory where Eyegrade will store
+the data (grades, captures of exams) for this grading session.
+If you select an existing directory, it must be empty.
+In addition,
+you'll choose between loading an existing exam configuration file
+or configuration the exam manually.
+The configuration of the exam consists of data
+such as the number of questions, the correct answers,
+the geometry of the answer tables, etc.
+If you use Eyegrade for editing the exam,
+as explained in `Editing exams`_,
+the exam configuration file will be automatically created
+along with the PDF files of your exams.
+If you are testing the sample exam distributed with Eyegrade,
+you should load here the ``exam.eye`` file from the same directory.
 
-  - Exam configuration file: select the ``.eye`` file associated to
-    this exam. If you printed the sample exam distributed with
-    Eyegrade, use the ``exam.eye`` file from the same directory.
+If you edit the exam with other software such as Microsoft Word
+(see `Creating the exams in a word processor`_),
+select the option *Configure the exam manually*
+and proceed as explained in `Manual configuration of the exam`_.
+
+After you have entered the exam configuration
+(either from a file or manually)
+the last two steps of the wizard
+will allow you to load student lists
+and entering the scores of the questions:
 
 - Student list files: select zero, one or more files that contain the
   list of students in the class. The files should be plain text and
@@ -367,13 +395,82 @@ needs for creating the session:
 - Scores for correct and incorrect answers: this step is optional. If
   you provide the scores awarded to correct answers (and optionally
   deducted from incorrect answers), Eyegrade will show the marks of
-  each exam.
+  each exam. See `Scores`_ for more information.
 
 After you finish with this dialog, Eyegrade opens the session. It
 shows the image from the webcam and starts scanning for the
 exam. Point the camera to the exam until the image is locked. At this
 point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.
+
+
+Manual configuration of the exam
+.................................
+
+If you choose to edit your exams with a word processor
+instead of using the LaTeX-based system that Eyegrade provides,
+you'll need to enter the exam configuration manually.
+You can enter it when you create a new session.
+In the first page of the session creation wizard,
+choose the option *Configure the exam manually*:
+
+.. image:: images/new-session-wizard-manual-1.png
+   :alt: New session wizard with manual exam configuration
+
+Then,
+create or select an empty directory for the session
+and proceed to the next page:
+
+.. image:: images/new-session-wizard-manual-2.png
+   :alt: New session wizard with manual exam configuration
+
+In this page,
+you must enter:
+
+- The number of digits of the student id number.
+  Set it to 0 if your exams do not ask for an student id.
+
+- The number of choices per question.
+  That is, the number of alternative answers
+  from which the student must select one.
+
+- The number of questions per answer box.
+  The answer sheet may contain more than one answer table,
+  such as the examples shown at `Creating the exams in a word processor`_.
+  Enter here the number of questions per answer table,
+  from left to right.
+  For example, you would enter "6,5" for the following answer table:
+
+  .. image:: images/example-table-2.png
+     :alt: Example answer tables.
+
+- The number of models of the exam.
+  If you have different permutations of your questions
+  in order to make it more difficult for students
+  to look at the answers of other students,
+  enter here how many variations of the exam you have.
+  Each variation is called a *model* in Eyegrade.
+  Models are labeled "A", "B", "C", etc.
+
+Then, proceed to the next page and enter the correct answer
+for every question in every model of the exam:
+
+.. image:: images/new-session-wizard-manual-3.png
+   :alt: Enter the correct answers for each exam.
+
+You must enter the correct answer for every question
+in every exam model.
+When you finish entering the data of this page,
+the wizard will proceed to ask about the student list
+and question scores as explained in the previous section.
+
+If you or your collegues need to create other sessions
+with the same configuration as one you've already entered,
+use the option *Tools / Export exam configuration*
+to export a file with the exam configuration
+of the current session.
+With this file you can create new sessions
+with exactly the same configuration.
 
 
 Student list files
@@ -1328,8 +1425,12 @@ The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
 as Microsoft Word. If you create your own exams with a word processor,
-you'll need also to edit the `.eye` file manually. See
-`Manually editing the .eye file`_.
+you'll need also to enter the exam configuration
+when you create a new grading session.
+See `Manual configuration of the exam`_
+if you want to enter the values through the user interface of Eyegrade
+or `Manually editing the .eye file`_
+if you prefer to use a text editor.
 
 The objective is emulating the tables that Eyegrade creates so that
 the program can read them. This is an example:

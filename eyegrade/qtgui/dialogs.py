@@ -430,9 +430,11 @@ class DialogAbout(QDialog):
         text = u"""<p><b>{0}:</b></p>
                    <ul><li>Jesús Arias Fisteus</li></ul>
                    <p><b>{1}:</b></p>
+                   <ul><li>Jonathan Araneda Labarca</li></ul>
                    <ul><li>Rodrigo Argüello</li></ul>
                    """.format(_('Lead developers'),
-                                       _('Manuscript digits recognition'))
+                              _('Exam configuration dialogs'),
+                              _('Manuscript digits recognition'))
         label = QLabel(text)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse

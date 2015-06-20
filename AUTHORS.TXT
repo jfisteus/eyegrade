@@ -5,3 +5,7 @@ Jesus Arias Fisteus
 - Manuscript digits classifier:
 
 Rodrigo Arguello
+
+- Exam configuration dialogs:
+
+Jonathan Araneda Labarca
