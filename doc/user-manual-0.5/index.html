@@ -170,7 +170,7 @@ code, tt {
 <p class="topic-title first">Contents</p>
 <ul class="auto-toc simple">
 <li><a class="reference internal" href="#installing-eyegrade" id="id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
-<li><a class="reference internal" href="#upgrading-from-eyegrade-0-2-x-0-3-x-0-4-x-and-0-5-x-to-eyegrade-0-6" id="id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x to Eyegrade 0.6</a></li>
+<li><a class="reference internal" href="#upgrading-from-eyegrade-0-2-x-0-3-x-and-0-4-x-to-eyegrade-0-5" id="id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5</a></li>
 <li><a class="reference internal" href="#installation-on-gnu-linux" id="id4">1.2&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
 <li><a class="reference internal" href="#installation-on-debian-and-ubuntu" id="id5">1.2.1&nbsp;&nbsp;&nbsp;Installation on Debian and Ubuntu</a></li>
 </ul>
@@ -188,55 +188,51 @@ code, tt {
 </li>
 <li><a class="reference internal" href="#grading-exams" id="id13">2&nbsp;&nbsp;&nbsp;Grading Exams</a><ul class="auto-toc">
 <li><a class="reference internal" href="#launching-eyegrade" id="id14">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></li>
-<li><a class="reference internal" href="#manual-configuration-of-the-exam" id="id15">2.2&nbsp;&nbsp;&nbsp;Manual configuration of the exam</a></li>
-<li><a class="reference internal" href="#student-list-files" id="id16">2.3&nbsp;&nbsp;&nbsp;Student list files</a></li>
-<li><a class="reference internal" href="#the-session-directory" id="id17">2.4&nbsp;&nbsp;&nbsp;The session directory</a></li>
-<li><a class="reference internal" href="#scores" id="id18">2.5&nbsp;&nbsp;&nbsp;Scores</a><ul class="auto-toc">
-<li><a class="reference internal" href="#same-score-for-all-the-questions" id="id19">2.5.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></li>
-<li><a class="reference internal" href="#base-score-plus-per-question-weight" id="id20">2.5.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></li>
+<li><a class="reference internal" href="#student-list-files" id="id15">2.2&nbsp;&nbsp;&nbsp;Student list files</a></li>
+<li><a class="reference internal" href="#the-session-directory" id="id16">2.3&nbsp;&nbsp;&nbsp;The session directory</a></li>
+<li><a class="reference internal" href="#scores" id="id17">2.4&nbsp;&nbsp;&nbsp;Scores</a><ul class="auto-toc">
+<li><a class="reference internal" href="#same-score-for-all-the-questions" id="id18">2.4.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></li>
+<li><a class="reference internal" href="#base-score-plus-per-question-weight" id="id19">2.4.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#application-modes" id="id21">2.6&nbsp;&nbsp;&nbsp;Application modes</a></li>
-<li><a class="reference internal" href="#the-grading-mode" id="id22">2.7&nbsp;&nbsp;&nbsp;The grading mode</a></li>
-<li><a class="reference internal" href="#the-review-mode" id="id23">2.8&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
-<li><a class="reference internal" href="#modifying-student-answers" id="id24">2.8.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
-<li><a class="reference internal" href="#modifying-the-student-id" id="id25">2.8.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
+<li><a class="reference internal" href="#application-modes" id="id20">2.5&nbsp;&nbsp;&nbsp;Application modes</a></li>
+<li><a class="reference internal" href="#the-grading-mode" id="id21">2.6&nbsp;&nbsp;&nbsp;The grading mode</a></li>
+<li><a class="reference internal" href="#the-review-mode" id="id22">2.7&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
+<li><a class="reference internal" href="#modifying-student-answers" id="id23">2.7.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
+<li><a class="reference internal" href="#modifying-the-student-id" id="id24">2.7.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#the-manual-detection-mode" id="id26">2.9&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
+<li><a class="reference internal" href="#the-manual-detection-mode" id="id25">2.8&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#processing-student-grades" id="id27">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
-<li><a class="reference internal" href="#the-answers-file" id="id28">3.1&nbsp;&nbsp;&nbsp;The answers file</a></li>
-<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id29">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></li>
+<li><a class="reference internal" href="#processing-student-grades" id="id26">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
+<li><a class="reference internal" href="#the-answers-file" id="id27">3.1&nbsp;&nbsp;&nbsp;The answers file</a></li>
+<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id28">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#editing-exams" id="id30">4&nbsp;&nbsp;&nbsp;Editing exams</a><ul class="auto-toc">
-<li><a class="reference internal" href="#editing-the-questions-of-the-exam" id="id31">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a><ul class="auto-toc">
-<li><a class="reference internal" href="#inserting-pictures" id="id32">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></li>
-<li><a class="reference internal" href="#inserting-blocks-of-code" id="id33">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></li>
+<li><a class="reference internal" href="#editing-exams" id="id29">4&nbsp;&nbsp;&nbsp;Editing exams</a><ul class="auto-toc">
+<li><a class="reference internal" href="#editing-the-questions-of-the-exam" id="id30">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a><ul class="auto-toc">
+<li><a class="reference internal" href="#inserting-pictures" id="id31">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></li>
+<li><a class="reference internal" href="#inserting-blocks-of-code" id="id32">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#editing-the-latex-template" id="id34">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></li>
-<li><a class="reference internal" href="#creating-the-latex-source-files" id="id35">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></li>
-<li><a class="reference internal" href="#creating-the-pdf-files" id="id36">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
-<li><a class="reference internal" href="#installing-the-latex-system" id="id37">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
+<li><a class="reference internal" href="#editing-the-latex-template" id="id33">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></li>
+<li><a class="reference internal" href="#creating-the-latex-source-files" id="id34">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></li>
+<li><a class="reference internal" href="#creating-the-pdf-files" id="id35">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
+<li><a class="reference internal" href="#installing-the-latex-system" id="id36">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#advanced-features" id="id38">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
-<li><a class="reference internal" href="#webcam-selection" id="id39">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
-<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id40">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
-<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id41">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
-<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id42">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
+<li><a class="reference internal" href="#advanced-features" id="id37">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#webcam-selection" id="id38">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id39">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id40">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id41">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p>This user manual refers to Eyegrade 0.6 and later versions.
-For the
-0.5 series see <a class="reference external" href="../user-manual-0.5/">the user manual version 0.5</a>.
-For the
-0.3 and 0.4 series see <a class="reference external" href="../user-manual-0.4/">the user manual version 0.4</a>.</p>
+<p>This user manual refers to Eyegrade 0.5 and later versions. For the
+0.3 and 0.4 series see <a class="reference external" href="../user-manual-0.3/">this other user manual</a>.</p>
 <div class="section" id="installing-eyegrade">
 <h1><a class="toc-backref" href="#id2">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h1>
 <p>Eyegrade depends on the following free-software projects:</p>
@@ -252,20 +248,18 @@ distributed with it are needed.</li>
 <li><a class="reference external" href="http://laurikari.net/tre/">Tre</a>: a library for regular expressions. Install version 0.8.0 or
 later.  Both the library and python bindings are needed.</li>
 </ul>
-<div class="section" id="upgrading-from-eyegrade-0-2-x-0-3-x-0-4-x-and-0-5-x-to-eyegrade-0-6">
-<h2><a class="toc-backref" href="#id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x to Eyegrade 0.6</a></h2>
-<p>In order to upgrade from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x
-to Eyegrade 0.6,
+<div class="section" id="upgrading-from-eyegrade-0-2-x-0-3-x-and-0-4-x-to-eyegrade-0-5">
+<h2><a class="toc-backref" href="#id3">1.1&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5</a></h2>
+<p>In order to upgrade from Eyegrade 0.2.x, 0.3.x and 0.4.x to Eyegrade 0.5,
 follow the instructions at <a class="reference internal" href="#updating-eyegrade">Updating Eyegrade</a>.</p>
-<p>Be aware that Eyegrade 0.5 and 0.6 use an updated session database schema.
-Although Eyegrade 0.5 and 0.6 are able to work with sessions created
-by Eyegrade 0.4 and previous versions,
+<p>Be aware that Eyegrade 0.5 uses an updated session database schema.
+Although Eyegrade 0.5 is able to work with sessions created
+by the previous versions of Eyegrade,
 those previous versions don't work
-with sessions created by Eyegrade 0.5 and 0.6.</p>
+with sessions created by Eyegrade 0.5.</p>
 <p>The main changes of the most recent versions are described in the following
 blog posts:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-06-released.html">Eyegrade 0.6 released</a></li>
 <li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released.html">Eyegrade 0.5 released</a></li>
 <li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-04-released.html">Eyegrade 0.4 released</a></li>
 <li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-03-released.html">Eyegrade 0.3 released</a></li>
@@ -416,7 +410,7 @@ white-spaces in it), and type:</p>
 git clone -b master git://github.com/jfisteus/eyegrade.git
 </pre>
 <p>If you prefer not to install Git:</p>
-<p>1.- Download the ZIP file <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.zip">eyegrade-0.6.zip</a>.
+<p>1.- Download the ZIP file <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.5.1.zip">eyegrade-0.5.1.zip</a>.
 Extract it in your file system,
 in a directory with no white-spaces in its path.</p>
 <p>Once you have Eyegrade installed (either with or without Git), test
@@ -452,7 +446,7 @@ prompt window, enter the Eyegrade installation directory and type:</p>
 git pull
 </pre>
 <p>This should work on any platform (Linux, Windows, etc.)</p>
-<p>If you didn't use Git to install Eyegrade, <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.zip">download the new version</a>,
+<p>If you didn't use Git to install Eyegrade, <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.5.1.zip">download the new version</a>,
 uncompress it and replace your <tt class="docutils literal">eyegrade</tt> directory by the one you
 have uncompressed.</p>
 </div>
@@ -492,35 +486,18 @@ Eyegrade, you can check that Eyegrade can access your webcam. In the
 <em>Tools</em> menu select the <em>Select camera</em> entry:</p>
 <img alt="Select camera dialog" src="images/camera-selection.png" />
 <p>The next step is creating a grading session. Select <em>New session</em> in
-the menu <em>Session</em>. A wizard will ask for some data Eyegrade
+the menu <em>Session</em>. A multi-step dialog will ask for some data Eyegrade
 needs for creating the session:</p>
-<img alt="New session wizard" src="images/new-session-wizard.png" />
-<p>In the first step of the wizard,
-you must select or create the directory where Eyegrade will store
-the data (grades, captures of exams) for this grading session.
-If you select an existing directory, it must be empty.
-In addition,
-you'll choose between loading an existing exam configuration file
-or configuration the exam manually.
-The configuration of the exam consists of data
-such as the number of questions, the correct answers,
-the geometry of the answer tables, etc.
-If you use Eyegrade for editing the exam,
-as explained in <a class="reference internal" href="#editing-exams">Editing exams</a>,
-the exam configuration file will be automatically created
-along with the PDF files of your exams.
-If you are testing the sample exam distributed with Eyegrade,
-you should load here the <tt class="docutils literal">exam.eye</tt> file from the same directory.</p>
-<p>If you edit the exam with other software such as Microsoft Word
-(see <a class="reference internal" href="#creating-the-exams-in-a-word-processor">Creating the exams in a word processor</a>),
-select the option <em>Configure the exam manually</em>
-and proceed as explained in <a class="reference internal" href="#manual-configuration-of-the-exam">Manual configuration of the exam</a>.</p>
-<p>After you have entered the exam configuration
-(either from a file or manually)
-the last two steps of the wizard
-will allow you to load student lists
-and entering the scores of the questions:</p>
 <ul class="simple">
+<li>Directory and exam configuration: you need to enter here the
+following information:<ul>
+<li>Directory: select or create a directory for this session. The
+directory must be empty.</li>
+<li>Exam configuration file: select the <tt class="docutils literal">.eye</tt> file associated to
+this exam. If you printed the sample exam distributed with
+Eyegrade, use the <tt class="docutils literal">exam.eye</tt> file from the same directory.</li>
+</ul>
+</li>
 <li>Student list files: select zero, one or more files that contain the
 list of students in the class. The files should be plain text and
 contain a line per student. See <a class="reference internal" href="#student-list-files">Student list files</a> for more
@@ -528,7 +505,7 @@ information on the format of these files.</li>
 <li>Scores for correct and incorrect answers: this step is optional. If
 you provide the scores awarded to correct answers (and optionally
 deducted from incorrect answers), Eyegrade will show the marks of
-each exam. See <a class="reference internal" href="#scores">Scores</a> for more information.</li>
+each exam.</li>
 </ul>
 <p>After you finish with this dialog, Eyegrade opens the session. It
 shows the image from the webcam and starts scanning for the
@@ -536,64 +513,8 @@ exam. Point the camera to the exam until the image is locked. At this
 point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.</p>
 </div>
-<div class="section" id="manual-configuration-of-the-exam">
-<h2><a class="toc-backref" href="#id15">2.2&nbsp;&nbsp;&nbsp;Manual configuration of the exam</a></h2>
-<p>If you choose to edit your exams with a word processor
-instead of using the LaTeX-based system that Eyegrade provides,
-you'll need to enter the exam configuration manually.
-You can enter it when you create a new session.
-In the first page of the session creation wizard,
-choose the option <em>Configure the exam manually</em>:</p>
-<img alt="New session wizard with manual exam configuration" src="images/new-session-wizard-manual-1.png" />
-<p>Then,
-create or select an empty directory for the session
-and proceed to the next page:</p>
-<img alt="New session wizard with manual exam configuration" src="images/new-session-wizard-manual-2.png" />
-<p>In this page,
-you must enter:</p>
-<ul>
-<li><p class="first">The number of digits of the student id number.
-Set it to 0 if your exams do not ask for an student id.</p>
-</li>
-<li><p class="first">The number of choices per question.
-That is, the number of alternative answers
-from which the student must select one.</p>
-</li>
-<li><p class="first">The number of questions per answer box.
-The answer sheet may contain more than one answer table,
-such as the examples shown at <a class="reference internal" href="#creating-the-exams-in-a-word-processor">Creating the exams in a word processor</a>.
-Enter here the number of questions per answer table,
-from left to right.
-For example, you would enter &quot;6,5&quot; for the following answer table:</p>
-<img alt="Example answer tables." src="images/example-table-2.png" />
-</li>
-<li><p class="first">The number of models of the exam.
-If you have different permutations of your questions
-in order to make it more difficult for students
-to look at the answers of other students,
-enter here how many variations of the exam you have.
-Each variation is called a <em>model</em> in Eyegrade.
-Models are labeled &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, etc.</p>
-</li>
-</ul>
-<p>Then, proceed to the next page and enter the correct answer
-for every question in every model of the exam:</p>
-<img alt="Enter the correct answers for each exam." src="images/new-session-wizard-manual-3.png" />
-<p>You must enter the correct answer for every question
-in every exam model.
-When you finish entering the data of this page,
-the wizard will proceed to ask about the student list
-and question scores as explained in the previous section.</p>
-<p>If you or your collegues need to create other sessions
-with the same configuration as one you've already entered,
-use the option <em>Tools / Export exam configuration</em>
-to export a file with the exam configuration
-of the current session.
-With this file you can create new sessions
-with exactly the same configuration.</p>
-</div>
 <div class="section" id="student-list-files">
-<h2><a class="toc-backref" href="#id16">2.3&nbsp;&nbsp;&nbsp;Student list files</a></h2>
+<h2><a class="toc-backref" href="#id15">2.2&nbsp;&nbsp;&nbsp;Student list files</a></h2>
 <p>The accuracy in the detection of the student identity
 improves dramatically when you supply
 the list of student ids of the class.
@@ -658,7 +579,7 @@ The student name may contain non-ASCII characters.
 In that case the file must be UTF-8 encoded.</p>
 </div>
 <div class="section" id="the-session-directory">
-<h2><a class="toc-backref" href="#id17">2.4&nbsp;&nbsp;&nbsp;The session directory</a></h2>
+<h2><a class="toc-backref" href="#id16">2.3&nbsp;&nbsp;&nbsp;The session directory</a></h2>
 <p>A grading session in Eyegrade represents the grading of a specific
 exam for a group of students. For example, you would grade the exams
 for the final exam of all your students in the subject <em>Computer
@@ -676,7 +597,7 @@ session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.</p>
 </div>
 <div class="section" id="scores">
-<h2><a class="toc-backref" href="#id18">2.5&nbsp;&nbsp;&nbsp;Scores</a></h2>
+<h2><a class="toc-backref" href="#id17">2.4&nbsp;&nbsp;&nbsp;Scores</a></h2>
 <p>Eyegrade can compute the scores of the exams.
 When you create a new session, you can select
 in the last page of the wizard one
@@ -703,7 +624,7 @@ when you assign a weight of 0 to a question,
 it does not contribute to the score of the exam.</li>
 </ul>
 <div class="section" id="same-score-for-all-the-questions">
-<h3><a class="toc-backref" href="#id19">2.5.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></h3>
+<h3><a class="toc-backref" href="#id18">2.4.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></h3>
 <p>When you select this option,
 all the questions count the same in the score of the exam.
 Eyegrade counts the number of correct, incorrect and blank answers,
@@ -735,7 +656,7 @@ This way, the expected score for an exam with random answers
 is zero.</p>
 </div>
 <div class="section" id="base-score-plus-per-question-weight">
-<h3><a class="toc-backref" href="#id20">2.5.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></h3>
+<h3><a class="toc-backref" href="#id19">2.4.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></h3>
 <p>When you select this option for computing scores,
 not all the questions are awarded the same score.
 Important questions may get bigger scores than less important ones.
@@ -798,7 +719,7 @@ or the count of correct and incorrect questions:</p>
 </div>
 </div>
 <div class="section" id="application-modes">
-<h2><a class="toc-backref" href="#id21">2.6&nbsp;&nbsp;&nbsp;Application modes</a></h2>
+<h2><a class="toc-backref" href="#id20">2.5&nbsp;&nbsp;&nbsp;Application modes</a></h2>
 <p>At a given instant, the application is in one of these modes:</p>
 <ul class="simple">
 <li><em>No session mode</em>: no session is open. You can open an existing
@@ -835,7 +756,7 @@ back to the <em>no session mode</em> with the <em>Close session</em> command in 
 <em>Session</em> menu.</p>
 </div>
 <div class="section" id="the-grading-mode">
-<h2><a class="toc-backref" href="#id22">2.7&nbsp;&nbsp;&nbsp;The grading mode</a></h2>
+<h2><a class="toc-backref" href="#id21">2.6&nbsp;&nbsp;&nbsp;The grading mode</a></h2>
 <p>In the <em>grading mode</em>, you have to get the camera to point to the answer table
 of the exam, including, if present, the id box above it and the small squares
 at the bottom.</p>
@@ -869,7 +790,7 @@ detection mode</a>.</li>
 </ul>
 </div>
 <div class="section" id="the-review-mode">
-<h2><a class="toc-backref" href="#id23">2.8&nbsp;&nbsp;&nbsp;The review mode</a></h2>
+<h2><a class="toc-backref" href="#id22">2.7&nbsp;&nbsp;&nbsp;The review mode</a></h2>
 <p>In the <em>review mode</em> you can review and, if necessary, fix the
 information detected by Eyegrade in the current exam. You can do it on
 both the answers given by the student to each question and the
@@ -937,7 +858,7 @@ command is allowed only when the system failed to recognize the
 geometry of the answer tables. See <a class="reference internal" href="#the-manual-detection-mode">The manual detection mode</a>.</li>
 </ul>
 <div class="section" id="modifying-student-answers">
-<h3><a class="toc-backref" href="#id24">2.8.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
+<h3><a class="toc-backref" href="#id23">2.7.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
 <p>The optical recognition system of Eyegrade may fail sometimes, due to
 its own limitations, or students filling their exams in messy ways.
 Sometimes, Eyegrade shows a cell in the answer table as marked when it
@@ -955,7 +876,7 @@ to clear it. In both cases, Eyegrade will compute the scores again and
 immediately update the information on the screen.</p>
 </div>
 <div class="section" id="modifying-the-student-id">
-<h3><a class="toc-backref" href="#id25">2.8.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
+<h3><a class="toc-backref" href="#id24">2.7.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
 <p>Normally, you should provide Eyegrade with the list of class, because
 detection of student ids performs much better in that case. When
 scanning the id in an exam, Eyegrade sorts ids of the students in
@@ -980,7 +901,7 @@ The only mandatory field is this dialog is the student id number:</p>
 </div>
 </div>
 <div class="section" id="the-manual-detection-mode">
-<h2><a class="toc-backref" href="#id26">2.9&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
+<h2><a class="toc-backref" href="#id25">2.8&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
 <p>In some rare occasions, Eyegrade may not be able to detect the answer
 tables. In those cases, you can enter the <em>manual detection mode</em> from
 the <em>grading mode</em> (and also from the <em>review mode</em> if you entered that
@@ -1013,7 +934,7 @@ the bottom.</p>
 </div>
 </div>
 <div class="section" id="processing-student-grades">
-<h1><a class="toc-backref" href="#id27">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
+<h1><a class="toc-backref" href="#id26">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
 <p>The output produced by Eyegrade consists of:</p>
 <ul class="simple">
 <li>A file with the scores, named <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt>: it contains
@@ -1034,7 +955,7 @@ captures are stored in the session directory, inside its
 captured, and updated every time you edit the exam.</li>
 </ul>
 <div class="section" id="the-answers-file">
-<h2><a class="toc-backref" href="#id28">3.1&nbsp;&nbsp;&nbsp;The answers file</a></h2>
+<h2><a class="toc-backref" href="#id27">3.1&nbsp;&nbsp;&nbsp;The answers file</a></h2>
 <p>The file <tt class="docutils literal"><span class="pre">eyegrade-answers.csv</span></tt> produced by Eyegrade contains the
 scores in CSV format (with tabulator instead of comma as a separator),
 so that it can be easily imported from other programs such as
@@ -1063,7 +984,7 @@ listing of scores</a> to know how to produce a listing of scores in the
 order that best fits your needs.</p>
 </div>
 <div class="section" id="exporting-a-listing-of-scores">
-<h2><a class="toc-backref" href="#id29">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
+<h2><a class="toc-backref" href="#id28">3.2&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
 <p>You will probably want to export your listing of scores in order to
 import it into the grade-book, spreadsheet, etc. you use. Since
 version 0.4 this can be done from the user interface (menu <em>Exams /
@@ -1107,7 +1028,7 @@ you type a name without extension.</p>
 </div>
 </div>
 <div class="section" id="editing-exams">
-<h1><a class="toc-backref" href="#id30">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
+<h1><a class="toc-backref" href="#id29">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
 <p>Although you can use any software of your preference to typeset the
 exams, Eyegrade provides a module for doing that
 in combination with the LaTeX document preparation system.</p>
@@ -1131,7 +1052,7 @@ inside its <cite>doc/sample-files</cite> directory
 If you don't have it in your system,
 follow the instructions in <a class="reference internal" href="#installing-the-latex-system">Installing the LaTeX system</a>.</p>
 <div class="section" id="editing-the-questions-of-the-exam">
-<h2><a class="toc-backref" href="#id31">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a></h2>
+<h2><a class="toc-backref" href="#id30">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a></h2>
 <p>You need to typeset your questions in an XML document.
 You may use your favorite text editor for that.</p>
 <p>At the beginning of the file
@@ -1388,7 +1309,7 @@ or typewriter font:</p>
 &lt;/question&gt;
 </pre>
 <div class="section" id="inserting-pictures">
-<h3><a class="toc-backref" href="#id32">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></h3>
+<h3><a class="toc-backref" href="#id31">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></h3>
 <p>For inserting a picture in the statement of the question,
 you use the <cite>&lt;figure&gt;</cite> tag.
 Its file name must be provided within
@@ -1433,7 +1354,7 @@ and the <cite>eye:position</cite> attribute must not be used:</p>
 </pre>
 </div>
 <div class="section" id="inserting-blocks-of-code">
-<h3><a class="toc-backref" href="#id33">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></h3>
+<h3><a class="toc-backref" href="#id32">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></h3>
 <p>For inserting a block of code in the statement of the question,
 you use the <cite>&lt;code&gt;</cite> tag.
 The code itself is given within the <cite>&lt;code&gt;</cite> and <cite>&lt;/code&gt;</cite> tags.
@@ -1475,7 +1396,7 @@ and neither attribute can be used:</p>
 </div>
 </div>
 <div class="section" id="editing-the-latex-template">
-<h2><a class="toc-backref" href="#id34">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></h2>
+<h2><a class="toc-backref" href="#id33">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></h2>
 <p>In addition to the questions of the exam,
 you'll need a LaTeX template.
 It allows you to design the front page of the exam
@@ -1601,7 +1522,7 @@ their answers.</li>
 subjects.</p>
 </div>
 <div class="section" id="creating-the-latex-source-files">
-<h2><a class="toc-backref" href="#id35">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></h2>
+<h2><a class="toc-backref" href="#id34">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></h2>
 <p>Once the exam file and the template have been created, the script
 <cite>create_exam.py</cite> parses them and generates the exam in LaTeX format:</p>
 <pre class="literal-block">
@@ -1630,7 +1551,7 @@ python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -
 </pre>
 </div>
 <div class="section" id="creating-the-pdf-files">
-<h2><a class="toc-backref" href="#id36">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
+<h2><a class="toc-backref" href="#id35">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
 <p>Once the <cite>.tex</cite> files have been created,
 you have to use LaTeX to produce the PDF files.
 For each file, run the following command:</p>
@@ -1647,7 +1568,7 @@ find -name &quot;exam-*.tex&quot; -exec pdflatex \{\} \;
 <p>That's it! Now you can print the PDF files of your exams.</p>
 </div>
 <div class="section" id="installing-the-latex-system">
-<h2><a class="toc-backref" href="#id37">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
+<h2><a class="toc-backref" href="#id36">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
 <p>LaTeX is included in the repositories of the major Linux distributions.
 In Debian and Ubuntu you can simply
 install the package <cite>texlive-latex-recommended</cite>:</p>
@@ -1669,9 +1590,9 @@ which is also offered by the installer.</li>
 </div>
 </div>
 <div class="section" id="advanced-features">
-<h1><a class="toc-backref" href="#id38">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
+<h1><a class="toc-backref" href="#id37">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
 <div class="section" id="webcam-selection">
-<h2><a class="toc-backref" href="#id39">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
+<h2><a class="toc-backref" href="#id38">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
 <p>If your computer has more than one camera (e.g. the internal camera of
 the laptop and an external camera you use to grade the exams),
 Eyegrade will select one of them by default. If the selected camera is
@@ -1701,17 +1622,13 @@ camera-dev: 1
 your account is at <tt class="docutils literal"><span class="pre">C:\Documents</span> and <span class="pre">Settings\&lt;your_user_name&gt;</span></tt>.</p>
 </div>
 <div class="section" id="creating-the-exams-in-a-word-processor">
-<h2><a class="toc-backref" href="#id40">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<h2><a class="toc-backref" href="#id39">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
 <p>The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
 as Microsoft Word. If you create your own exams with a word processor,
-you'll need also to enter the exam configuration
-when you create a new grading session.
-See <a class="reference internal" href="#manual-configuration-of-the-exam">Manual configuration of the exam</a>
-if you want to enter the values through the user interface of Eyegrade
-or <a class="reference internal" href="#manually-editing-the-eye-file">Manually editing the .eye file</a>
-if you prefer to use a text editor.</p>
+you'll need also to edit the <cite>.eye</cite> file manually. See
+<a class="reference internal" href="#manually-editing-the-eye-file">Manually editing the .eye file</a>.</p>
 <p>The objective is emulating the tables that Eyegrade creates so that
 the program can read them. This is an example:</p>
 <img alt="Example answer tables." src="images/example-table.png" />
@@ -1835,7 +1752,7 @@ they should be placed from left to right:</p>
 </table>
 </div>
 <div class="section" id="manually-editing-the-eye-file">
-<h2><a class="toc-backref" href="#id41">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<h2><a class="toc-backref" href="#id40">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
 <p>The files that store the configuration of an exam and the correct
 answer for each question are stored with a <cite>.eye</cite> extension. An example
 is shown below:</p>
@@ -1895,7 +1812,7 @@ probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.</p>
 </div>
 <div class="section" id="automatic-detection-of-exam-removal">
-<h2><a class="toc-backref" href="#id42">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
+<h2><a class="toc-backref" href="#id41">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
 <p>If the camera in your setup is fixed, that is, you place an exam below
 the camera, review it, remove it and place the next exam, you may want
 Eyegrade to detect that you have removed the exam instead of having to

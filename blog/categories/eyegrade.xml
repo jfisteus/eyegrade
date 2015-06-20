@@ -1,5 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 22 Apr 2015 22:52:13 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sat, 20 Jun 2015 09:14:02 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.6 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.6.
+This release includes just one main feature
+that the users that don't build their exams with LaTeX
+will find useful:
+there is no need anymore to edit an exam configuration file
+(the &lt;cite&gt;.eye&lt;/cite&gt; file)
+manually.
+Now you can choose,
+when you create a new grading session,
+to configure the session from a configuration file
+or manually through the user interface:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Choosing how to configure the exam" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-1.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;This feature has been developed
+by &lt;a class="reference external" href="https://github.com/jaraneda"&gt;Jonathan Araneda&lt;/a&gt;
+from Chile.
+In addition,
+Roberto González set the requirements for this feature,
+provided quite useful suggestions,
+tested the new code
+and sponsored Jonathan's work.
+Thanks to both of them for their useful contribution!&lt;/p&gt;
+&lt;p&gt;If you choose the to configure the exam from a file,
+all works like in the previous versions:
+you just load the configuration file and proceed as always.
+However,
+if you choose to configure the exam manually,
+you'll be able to enter the following data:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;The number of digits of the student id numbers.&lt;/li&gt;
+&lt;li&gt;The number of choices per question.&lt;/li&gt;
+&lt;li&gt;The geometry of the answer tables
+(how many tables and how many questions per table).&lt;/li&gt;
+&lt;li&gt;The number of models of the exam
+(number of different exams you produced
+by permuting the questions and their answers).&lt;/li&gt;
+&lt;li&gt;The key of the exam
+(the correct choice for every question in every model).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Entering configuration parameters" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-2.png"&gt;
+&lt;/div&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Editing the key of the exam" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-3.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;These dialogs are documented in the
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#manual-configuration-of-the-exam"&gt;user manual&lt;/a&gt;.
+In addition,
+the configuration you entered can be exported
+as a configuration file so that
+you or your colleges can create new sessions with the same configuration
+(see the &lt;em&gt;Tools&lt;/em&gt; menu).&lt;/p&gt;
+&lt;p&gt;But wait,
+what happened to the new OCR system
+that &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html"&gt;I announced for the 0.6 release&lt;/a&gt;?
+Unfortunately, I have to leave it for later.
+Although it is ready,
+it depends on some other changes regarding the installation procedure
+that are not yet finished.
+I prefer to keep them for the next release
+in order to avoid delaying the session configuration feature.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</guid><pubDate>Sat, 20 Jun 2015 09:13:00 GMT</pubDate></item><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
 This version does not include any new feature,
 but addresses a bug
 that caused an empty spurious exam
@@ -284,28 +345,4 @@ were not affected.
 This is the only change with respect to version 0.4.2.&lt;/p&gt;
 &lt;p&gt;If you have installed Eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
 the program by executing the command
-&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</guid><pubDate>Tue, 25 Nov 2014 18:43:43 GMT</pubDate></item><item><title>Improved documentation about how to edit an exam with LaTeX</title><link>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The &lt;em&gt;official&lt;/em&gt; way of editting your exams for Eyegrade
-consists of creating an XML file with the questions,
-running on it the &lt;cite&gt;create_exam&lt;/cite&gt; script provided by Eyegrade
-and compiling the resulting files with LaTeX
-in order to get the final PDF documents.&lt;/p&gt;
-&lt;p&gt;Although exams can also be edited
-with a word processor such as OpenOffice or Microsoft Word
-(see &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#creating-the-exams-in-a-word-processor"&gt;Creating the exams in a word processor&lt;/a&gt;),
-following the official way has some advantages:&lt;/p&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;Eyegrade shuffles the questions
-and produces several models with different question orderings.&lt;/li&gt;
-&lt;li&gt;Eyegrade creates the exam configuration file (the &lt;cite&gt;.eye&lt;/cite&gt; file)
-automatically.&lt;/li&gt;
-&lt;li&gt;LaTeX-style equations may be used inside the questions.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;However, editing an XML file and dealing with LaTeX
-may scare some users
-that are more used to graphical word processors.
-In order to make the procedure more approachable,
-the user manual describes now more in depth how to edit exams
-the official way in the section
-&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#editing-exams"&gt;Editing exams&lt;/a&gt;.
-Suggestions on how to improve that section further
-are most welcome.&lt;/p&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><guid>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</guid><pubDate>Sun, 09 Nov 2014 23:28:00 GMT</pubDate></item></channel></rss>
+&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</guid><pubDate>Tue, 25 Nov 2014 18:43:43 GMT</pubDate></item></channel></rss>

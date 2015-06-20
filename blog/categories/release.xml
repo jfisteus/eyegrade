@@ -1,5 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 22 Apr 2015 22:52:13 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sat, 20 Jun 2015 09:14:02 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.6 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.6.
+This release includes just one main feature
+that the users that don't build their exams with LaTeX
+will find useful:
+there is no need anymore to edit an exam configuration file
+(the &lt;cite&gt;.eye&lt;/cite&gt; file)
+manually.
+Now you can choose,
+when you create a new grading session,
+to configure the session from a configuration file
+or manually through the user interface:&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Choosing how to configure the exam" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-1.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;This feature has been developed
+by &lt;a class="reference external" href="https://github.com/jaraneda"&gt;Jonathan Araneda&lt;/a&gt;
+from Chile.
+In addition,
+Roberto González set the requirements for this feature,
+provided quite useful suggestions,
+tested the new code
+and sponsored Jonathan's work.
+Thanks to both of them for their useful contribution!&lt;/p&gt;
+&lt;p&gt;If you choose the to configure the exam from a file,
+all works like in the previous versions:
+you just load the configuration file and proceed as always.
+However,
+if you choose to configure the exam manually,
+you'll be able to enter the following data:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;The number of digits of the student id numbers.&lt;/li&gt;
+&lt;li&gt;The number of choices per question.&lt;/li&gt;
+&lt;li&gt;The geometry of the answer tables
+(how many tables and how many questions per table).&lt;/li&gt;
+&lt;li&gt;The number of models of the exam
+(number of different exams you produced
+by permuting the questions and their answers).&lt;/li&gt;
+&lt;li&gt;The key of the exam
+(the correct choice for every question in every model).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Entering configuration parameters" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-2.png"&gt;
+&lt;/div&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Editing the key of the exam" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-3.png"&gt;
+&lt;/div&gt;
+&lt;p&gt;These dialogs are documented in the
+&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#manual-configuration-of-the-exam"&gt;user manual&lt;/a&gt;.
+In addition,
+the configuration you entered can be exported
+as a configuration file so that
+you or your colleges can create new sessions with the same configuration
+(see the &lt;em&gt;Tools&lt;/em&gt; menu).&lt;/p&gt;
+&lt;p&gt;But wait,
+what happened to the new OCR system
+that &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html"&gt;I announced for the 0.6 release&lt;/a&gt;?
+Unfortunately, I have to leave it for later.
+Although it is ready,
+it depends on some other changes regarding the installation procedure
+that are not yet finished.
+I prefer to keep them for the next release
+in order to avoid delaying the session configuration feature.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</guid><pubDate>Sat, 20 Jun 2015 09:13:00 GMT</pubDate></item><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
 This version does not include any new feature,
 but addresses a bug
 that caused an empty spurious exam

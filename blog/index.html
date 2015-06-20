@@ -100,6 +100,87 @@
 <div class="postindex">
     <article class="h-entry post-text">
     <header>
+        <h1 class="p-name entry-title"><a href="posts/eyegrade-06-released.html" class="u-url">Eyegrade 0.6 released!</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/eyegrade-06-released.html" rel="bookmark"><time class="published dt-published" datetime="2015-06-20T09:13:00+00:00" title="2015-06-20 09:13">2015-06-20 09:13</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/eyegrade-06-released.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-06-released.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>I've just released Eyegrade 0.6.
+This release includes just one main feature
+that the users that don't build their exams with LaTeX
+will find useful:
+there is no need anymore to edit an exam configuration file
+(the <cite>.eye</cite> file)
+manually.
+Now you can choose,
+when you create a new grading session,
+to configure the session from a configuration file
+or manually through the user interface:</p>
+<div class="figure">
+<img alt="Choosing how to configure the exam" class="thumbnail" src="../galleries/screenshots-06/new-session-wizard-manual-1.png">
+</div>
+<p>This feature has been developed
+by <a class="reference external" href="https://github.com/jaraneda">Jonathan Araneda</a>
+from Chile.
+In addition,
+Roberto González set the requirements for this feature,
+provided quite useful suggestions,
+tested the new code
+and sponsored Jonathan's work.
+Thanks to both of them for their useful contribution!</p>
+<p>If you choose the to configure the exam from a file,
+all works like in the previous versions:
+you just load the configuration file and proceed as always.
+However,
+if you choose to configure the exam manually,
+you'll be able to enter the following data:</p>
+<ul class="simple">
+<li>The number of digits of the student id numbers.</li>
+<li>The number of choices per question.</li>
+<li>The geometry of the answer tables
+(how many tables and how many questions per table).</li>
+<li>The number of models of the exam
+(number of different exams you produced
+by permuting the questions and their answers).</li>
+<li>The key of the exam
+(the correct choice for every question in every model).</li>
+</ul>
+<div class="figure">
+<img alt="Entering configuration parameters" class="thumbnail" src="../galleries/screenshots-06/new-session-wizard-manual-2.png">
+</div>
+<div class="figure">
+<img alt="Editing the key of the exam" class="thumbnail" src="../galleries/screenshots-06/new-session-wizard-manual-3.png">
+</div>
+<p>These dialogs are documented in the
+<a class="reference external" href="../doc/user-manual/index.html#manual-configuration-of-the-exam">user manual</a>.
+In addition,
+the configuration you entered can be exported
+as a configuration file so that
+you or your colleges can create new sessions with the same configuration
+(see the <em>Tools</em> menu).</p>
+<p>But wait,
+what happened to the new OCR system
+that <a class="reference external" href="posts/what-will-eyegrade-06-include-part-1.html">I announced for the 0.6 release</a>?
+Unfortunately, I have to leave it for later.
+Although it is ready,
+it depends on some other changes regarding the installation procedure
+that are not yet finished.
+I prefer to keep them for the next release
+in order to avoid delaying the session configuration feature.</p>
+</div>
+    </div>
+    </article>
+    <article class="h-entry post-text">
+    <header>
         <h1 class="p-name entry-title"><a href="posts/bugfix-release-051.html" class="u-url">Bugfix release 0.5.1</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
@@ -560,50 +641,6 @@ This is the only change with respect to version 0.4.2.</p>
 <p>If you have installed Eyegrade through <em>git</em>, you can easily update
 the program by executing the command
 <em>git pull</em> from inside the directory in which Eyegrade is installed.</p>
-</div>
-    </div>
-    </article>
-    <article class="h-entry post-text">
-    <header>
-        <h1 class="p-name entry-title"><a href="posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html" class="u-url">Improved documentation about how to edit an exam with LaTeX</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html" rel="bookmark"><time class="published dt-published" datetime="2014-11-10T00:28:00+01:00" title="2014-11-10 00:28">2014-11-10 00:28</time></a></p>
-                <p class="commentline">
-        
-    <a href="posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html#disqus_thread" data-disqus-identifier="cache/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html">Comments</a>
-
-
-        </p>
-</div>
-    </header>
-    <div class="e-content entry-content">
-    <div>
-<p>The <em>official</em> way of editting your exams for Eyegrade
-consists of creating an XML file with the questions,
-running on it the <cite>create_exam</cite> script provided by Eyegrade
-and compiling the resulting files with LaTeX
-in order to get the final PDF documents.</p>
-<p>Although exams can also be edited
-with a word processor such as OpenOffice or Microsoft Word
-(see <a class="reference external" href="../doc/user-manual/#creating-the-exams-in-a-word-processor">Creating the exams in a word processor</a>),
-following the official way has some advantages:</p>
-<ul class="simple">
-<li>Eyegrade shuffles the questions
-and produces several models with different question orderings.</li>
-<li>Eyegrade creates the exam configuration file (the <cite>.eye</cite> file)
-automatically.</li>
-<li>LaTeX-style equations may be used inside the questions.</li>
-</ul>
-<p>However, editing an XML file and dealing with LaTeX
-may scare some users
-that are more used to graphical word processors.
-In order to make the procedure more approachable,
-the user manual describes now more in depth how to edit exams
-the official way in the section
-<a class="reference external" href="../doc/user-manual/#editing-exams">Editing exams</a>.
-Suggestions on how to improve that section further
-are most welcome.</p>
 </div>
     </div>
     </article>
