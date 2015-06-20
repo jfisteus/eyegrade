@@ -6,8 +6,11 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.5 and later versions. For the
-0.3 and 0.4 series see `this other user manual <../user-manual-0.3/>`_.
+This user manual refers to Eyegrade 0.6 and later versions.
+For the
+0.5 series see `the user manual version 0.5 <../user-manual-0.5/>`_.
+For the
+0.3 and 0.4 series see `the user manual version 0.4 <../user-manual-0.4/>`_.
 
 Installing Eyegrade
 -------------------
