@@ -33,7 +33,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.5.1'
+version = '0.6'
 version_status = 'alpha'
 
 re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
@@ -1269,9 +1269,8 @@ class ExamConfig(object):
                 data.append('weights-{0}: {1}'\
                             .format(model, self.format_weights(model)))
         data.append('')
-        file_ = open(filename, 'w')
-        file_.write('\n'.join(data))
-        file_.close()
+        with open(filename, 'w') as file_:
+            file_.write('\n'.join(data))
 
     def format_dimensions(self):
         return ';'.join(['%d,%d'%(cols, rows) \
