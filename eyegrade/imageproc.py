@@ -146,6 +146,7 @@ class ExamDetector(object):
         except Exception:
             self.success = False
             self.status['cells'] = False
+            self.status['infobits'] = False
             self.context.notify_failure()
             if self.options['error-logging']:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
