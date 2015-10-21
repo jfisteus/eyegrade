@@ -146,6 +146,7 @@ class ExamDetector(object):
         except Exception:
             self.success = False
             self.status['cells'] = False
+            self.status['infobits'] = False
             self.context.notify_failure()
             if self.options['error-logging']:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -951,12 +952,10 @@ def decide_infobit(image, mask, masked, center_up, dy):
 
 def decide_answer(cell_decisions):
     marked = [i for i in range(0, len(cell_decisions)) if cell_decisions[i]]
-    if len(marked) == 0:
-        return 0
-    elif len(marked) == 1:
+    if len(marked) == 1:
         return marked[0] + 1
     else:
-        return -1
+        return 0
 
 def id_boxes_geometry(image, num_cells, lines, dimensions):
     success = False
