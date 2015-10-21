@@ -14,7 +14,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2015/index.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
@@ -22,7 +22,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/bugfix.html</loc>
-  <lastmod>2015-04-23</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/documentation.html</loc>
@@ -30,7 +30,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/index.html</loc>
@@ -46,7 +46,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/release.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/requests.html</loc>
@@ -58,15 +58,19 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-1.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</loc>
   <lastmod>2015-06-20</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/bugfix-release-061.html</loc>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</loc>
@@ -90,7 +94,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</loc>
@@ -154,7 +158,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual/index.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/documentation.html</loc>
@@ -194,6 +198,6 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/index.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2015-10-21</lastmod>
  </url>
 </urlset>
