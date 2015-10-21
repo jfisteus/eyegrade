@@ -76,7 +76,7 @@ msgid ""
 "The current capture has not been saved and will be lost. Are you sure you "
 "want to close this session?"
 msgstr ""
-"A captura actual non foi gardada e vaise perder. ¿Seguro que quere cerra-la "
+"A captura actual non foi gardada e vaise perder. Seguro que quere cerra-la "
 "sesión?"
 
 #: eyegrade/eyegrade.py:514
@@ -84,12 +84,12 @@ msgid ""
 "The current capture has not been saved and will be lost. Are you sure you "
 "want to exit the application?"
 msgstr ""
-"A captura actual non foi gardada e vaise perder. ¿Seguro que quiere saír do "
+"A captura actual non foi gardada e vaise perder. Seguro que quiere saír do "
 "programa?"
 
 #: eyegrade/eyegrade.py:571
 msgid "The selected exam will be removed. Are you sure?"
-msgstr "Vaise borrar o exame seleccionado. ¿Está seguro?"
+msgstr "Vaise borrar o exame seleccionado. Está seguro?"
 
 #: eyegrade/eyegrade.py:663 eyegrade/eyegrade.py:676
 #, python-brace-format
@@ -888,7 +888,7 @@ msgid ""
 "The changes you have done to the weights table will be lost. Are you sure "
 "you want to continue?"
 msgstr ""
-"Perderanse os cambios realizados na táboa de pesos. ¿Seguro que quere "
+"Perderanse os cambios realizados na táboa de pesos. Seguro que quere "
 "continuar?"
 
 #: eyegrade/qtgui/wizards.py:791
