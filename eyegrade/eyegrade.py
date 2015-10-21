@@ -316,9 +316,10 @@ class ProgramManager(object):
                 exam.draw_answers()
                 exam.draw_status()
                 self.interface.enable_manual_detect(False)
-            else:
+            elif detector.capture is not None:
                 detector.capture.draw_status()
-            self.interface.display_capture(detector.capture.image_drawn)
+            if detector.capture is not None:
+                self.interface.display_capture(detector.capture.image_drawn)
             self._schedule_next_capture(capture_period, self._next_search)
         elif not self.drop_next_capture:
             exam.draw_answers()
