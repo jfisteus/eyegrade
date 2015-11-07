@@ -57,10 +57,7 @@ def load_dataset(folder, labels_dict):
     training_data = np.ndarray(shape=(m, imp.SZ * imp.SZ), dtype='float32')
     training_labels = np.ndarray(shape=(m, 1), dtype='float32')
     for index, filename in enumerate(f):
-        if folder[-1] == '/':
-            img = cv2.imread(folder + filename, 0)
-        else:
-            img = cv2.imread(folder + '/' + filename, 0)
+        img = cv2.imread(os.path.join(folder, filename), 0)
         sample = imp.image_preprocessing(img)
         training_data[index] = sample
         training_labels[index] = float(labels_dict[filename])
