@@ -588,7 +588,7 @@ def encode_model(model, num_tables, num_answers):
         raise Exception('Model is currently limited to A - H')
     model_num = ord(model) - 65
     num_bits = num_tables * num_answers
-    if model_num >= 2 ** (num_bits - 1):
+    if model_num >= 2 ** num_bits:
         raise Exception('Model number too big given the number of answers')
     seed = _int_to_bin(model_num, 3, True)
     seed[2] = not seed[2]
@@ -608,7 +608,7 @@ def decode_model(bit_list, accept_model_0=False):
     """
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7 == x8-x11 == ...
     valid = False
-    if len(bit_list) == 3:
+    if len(bit_list) == 2 or len(bit_list) == 3:
         valid = True
     elif len(bit_list) >= 4:
         if (bit_list[3] == bit_list[0] ^ bit_list[1] ^ (not bit_list[2])):
