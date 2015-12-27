@@ -21,12 +21,14 @@ from __future__ import division
 import math
 import copy
 import sys
+import numpy as np
 
 # Local imports
 from . import geometry as g
-from . import ocr
 from . import capture
 from . import sessiondb
+from .ocr import classifiers
+from .ocr import sample
 
 # Import the cv module. It might be cv2.cv in newer versions.
 try:
@@ -360,11 +362,11 @@ class ExamDetector(object):
             detected_id = None
         digits = []
         id_scores = []
+        cv2_image = np.asarray(self.image_proc[:, :])
         for cell in id_cells:
-            corners = (cell.plu, cell.pru, cell.pld, cell.prd)
-            digit, scores = (ocr.digit_ocr(self.image_proc, corners,
-                                           self.options['debug-ocr'],
-                                           self.image_to_show))
+            corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
+            samp = sample.DigitSampleFromCam(corners, cv2_image)
+            digit, scores = self.context.ocr.classify_digit(samp)
             digits.append(digit)
             id_scores.append(scores)
         detected_id = "".join([str(d) if d is not None else '0' \
@@ -423,6 +425,7 @@ class ExamDetectorContext(object):
         self.camera = None
         self.camera_id = camera_id
         self.threshold_locked = False
+        self.ocr = classifiers.DefaultDigitClassifier()
 
     def open_camera(self, camera_id=None):
         """Initializes the last camera device used, or `camera_id`.
