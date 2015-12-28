@@ -710,20 +710,20 @@ class Score(object):
             has_scores = False
         else:
             has_scores = True
+        for answer, solution, q in zip(self.answers, self.solutions,
+                                       question_scores):
+            if q is not None and q.weight == 0:
+                self.answer_status.append(QuestionScores.VOID)
+            elif answer == 0:
+                self.blank += 1
+                self.answer_status.append(QuestionScores.BLANK)
+            elif answer == solution:
+                self.correct += 1
+                self.answer_status.append(QuestionScores.CORRECT)
+            else:
+                self.incorrect += 1
+                self.answer_status.append(QuestionScores.INCORRECT)
         if has_scores:
-            for answer, solution, q in zip(self.answers, self.solutions,
-                                           question_scores):
-                if q is not None and q.weight == 0:
-                    self.answer_status.append(QuestionScores.VOID)
-                elif answer == 0:
-                    self.blank += 1
-                    self.answer_status.append(QuestionScores.BLANK)
-                elif answer == solution:
-                    self.correct += 1
-                    self.answer_status.append(QuestionScores.CORRECT)
-                else:
-                    self.incorrect += 1
-                    self.answer_status.append(QuestionScores.INCORRECT)
             self.score = float(sum([q.score(status) \
                                     for q, status in zip(question_scores,
                                                          self.answer_status)]))
