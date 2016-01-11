@@ -575,6 +575,7 @@ class Interface(object):
 
     def activate_search_mode(self):
         self.actions_manager.set_search_mode()
+        self.window.exams_view.block_keyboard(True)
         self.update_text('', '')
         self.update_status_bar(_('Grading - Scanning exam'))
 
@@ -594,6 +595,7 @@ class Interface(object):
 
     def activate_session_mode(self):
         self.actions_manager.set_session_mode()
+        self.window.exams_view.block_keyboard(False)
         self.display_wait_image()
         self.update_text('', '')
         self.update_status_bar(_('Session open'))
