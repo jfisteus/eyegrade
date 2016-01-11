@@ -33,7 +33,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.6.1'
+version = '0.6.2'
 version_status = 'alpha'
 
 re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
@@ -710,20 +710,20 @@ class Score(object):
             has_scores = False
         else:
             has_scores = True
+        for answer, solution, q in zip(self.answers, self.solutions,
+                                       question_scores):
+            if q is not None and q.weight == 0:
+                self.answer_status.append(QuestionScores.VOID)
+            elif answer == 0:
+                self.blank += 1
+                self.answer_status.append(QuestionScores.BLANK)
+            elif answer == solution:
+                self.correct += 1
+                self.answer_status.append(QuestionScores.CORRECT)
+            else:
+                self.incorrect += 1
+                self.answer_status.append(QuestionScores.INCORRECT)
         if has_scores:
-            for answer, solution, q in zip(self.answers, self.solutions,
-                                           question_scores):
-                if q is not None and q.weight == 0:
-                    self.answer_status.append(QuestionScores.VOID)
-                elif answer == 0:
-                    self.blank += 1
-                    self.answer_status.append(QuestionScores.BLANK)
-                elif answer == solution:
-                    self.correct += 1
-                    self.answer_status.append(QuestionScores.CORRECT)
-                else:
-                    self.incorrect += 1
-                    self.answer_status.append(QuestionScores.INCORRECT)
             self.score = float(sum([q.score(status) \
                                     for q, status in zip(question_scores,
                                                          self.answer_status)]))

@@ -56,9 +56,9 @@ class LineContainer(QWidget):
 
 class CompletingComboBox(QComboBox):
     """An editable combo box that filters and autocompletes."""
-    def __init__(self, parent=None, editable=True):
+    def __init__(self, parent=None):
         super(CompletingComboBox, self).__init__(parent)
-        self.setEditable(editable)
+        self.setEditable(True)
         self.filter = QSortFilterProxyModel(self)
         self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.filter.setSourceModel(self.model())
@@ -75,8 +75,8 @@ class CompletingComboBox(QComboBox):
 
 
 class StudentComboBox(CompletingComboBox):
-    def __init__(self, parent=None, editable=True):
-        super(StudentComboBox, self).__init__(parent=parent, editable=editable)
+    def __init__(self, parent=None):
+        super(StudentComboBox, self).__init__(parent=parent)
         self.lineEdit().selectAll()
         self.lineEdit().setFocus()
         self.students = []
@@ -92,13 +92,24 @@ class StudentComboBox(CompletingComboBox):
             self.setCurrentIndex(len(self.students) - 1)
 
     def current_student(self):
-        if self.currentIndex() < len(self.students):
-            student = self.students[self.currentIndex()]
-            if self.currentText() != student.id_and_name:
-                # The user has edited the text of this item
-                student = None
-        else:
-            student = None
+        student = None
+        index = self.currentIndex()
+        if index >= 0:
+            if index < len(self.students):
+                if self.currentText() == self.students[index].id_and_name:
+                    # The user hasn't edited the text of this item
+                    student = self.students[index]
+            elif self.currentText():
+                # Perhaps a new entry is selected but the text is the
+                # same as in an existing entry
+                try:
+                    index = [s.id_and_name for s in self.students]\
+                            .index(self.currentText())
+                except ValueError:
+                    # Not in the student list
+                    pass
+                else:
+                    self.setCurrentIndex(index)
         return student
 
 

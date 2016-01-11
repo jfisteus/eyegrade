@@ -22,7 +22,7 @@ from PyQt4.QtGui import (QIcon, QListWidget, QListView, QListWidgetItem,
                          QWidget, QVBoxLayout,
                          QItemSelection, QImage, QPainter, )
 
-from PyQt4.QtCore import (QSize, pyqtSignal, pyqtSlot, )
+from PyQt4.QtCore import (QObject, QSize, QEvent, pyqtSignal, pyqtSlot, )
 
 from .. import utils
 
@@ -65,6 +65,8 @@ class ThumbnailsView(QListWidget):
         self.setResizeMode(QListView.Adjust)
         self.exams = []
         self.selectionModel().selectionChanged.connect(self.on_selection)
+        self.keyboard_filter = KeyboardEventsFilter()
+        self.installEventFilter(self.keyboard_filter)
 
     def add_exams(self, exams):
         for exam in exams:
@@ -110,6 +112,9 @@ class ThumbnailsView(QListWidget):
         if items:
             self.setItemSelected(items[0], False)
 
+    def block_keyboard(self, block):
+        self.keyboard_filter.setBlocking(block)
+
     @pyqtSlot(QItemSelection, QItemSelection)
     def on_selection(self, selected, deselected):
         indexes = selected.indexes()
@@ -117,6 +122,22 @@ class ThumbnailsView(QListWidget):
             selected = indexes[0].row()
             if selected < len(self.exams):
                 self.selection_changed.emit(self.exams[selected])
+
+
+class KeyboardEventsFilter(QObject):
+    def __init__(self):
+        self.blocking = True
+        super(KeyboardEventsFilter, self).__init__()
+
+    def setBlocking(self, blocking):
+        self.blocking = blocking
+
+    def eventFilter(self, widget, event):
+        if self.blocking and event.type() == QEvent.KeyPress:
+            return True
+        else:
+            return super(KeyboardEventsFilter, self)\
+                                     .eventFilter(widget, event)
 
 
 class CaptureView(QWidget):

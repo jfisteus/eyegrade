@@ -54,7 +54,7 @@ class DialogStudentId(QDialog):
         self.setWindowTitle(_('Change the student id'))
         layout = QFormLayout()
         self.setLayout(layout)
-        self.combo = widgets.StudentComboBox(parent=self, editable=True)
+        self.combo = widgets.StudentComboBox(parent=self)
         self.combo.add_students(students)
         self.combo.editTextChanged.connect(self._check_value)
         self.combo.currentIndexChanged.connect(self._check_value)
@@ -89,6 +89,7 @@ class DialogStudentId(QDialog):
         if student is not None:
             self.combo.add_student(student, set_current=True)
             self.buttons.button(QDialogButtonBox.Ok).setFocus()
+            self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
 
     def _check_value(self, param):
         if self.combo.current_student() is not None:

@@ -791,7 +791,8 @@ class ExamFromDB(utils.Exam):
                                          sessiondb.default_students_rank,
                                          _Adapter.dec_model(db_dict['model']))
         solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
-        if self.decisions.model:
+        if (self.decisions.model
+            and self.decisions.model in sessiondb.exam_config.scores):
             question_scores = \
                 sessiondb.exam_config.scores[self.decisions.model]
         else:

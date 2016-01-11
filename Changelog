@@ -1,3 +1,11 @@
+2016-01-12  Jesus Arias Fisteus  <jfisteus@gmail.com>
+
+	* Release 0.6.2.
+
+	* Fix a severe bug when grading without scores
+
+	* Fix issues #104 and #108
+
 2015-10-21  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.6.1.
