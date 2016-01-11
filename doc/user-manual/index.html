@@ -218,16 +218,15 @@ code, tt {
 </ul>
 </li>
 <li><a class="reference internal" href="#editing-the-latex-template" id="id34">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></li>
-<li><a class="reference internal" href="#creating-the-latex-source-files" id="id35">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></li>
-<li><a class="reference internal" href="#creating-the-pdf-files" id="id36">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
-<li><a class="reference internal" href="#installing-the-latex-system" id="id37">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
+<li><a class="reference internal" href="#creating-the-pdf-files" id="id35">4.3&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
+<li><a class="reference internal" href="#installing-the-latex-system" id="id36">4.4&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#advanced-features" id="id38">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
-<li><a class="reference internal" href="#webcam-selection" id="id39">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
-<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id40">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
-<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id41">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
-<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id42">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
+<li><a class="reference internal" href="#advanced-features" id="id37">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#webcam-selection" id="id38">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></li>
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id39">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id40">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id41">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
 </ul>
 </li>
 </ul>
@@ -416,7 +415,7 @@ white-spaces in it), and type:</p>
 git clone -b master git://github.com/jfisteus/eyegrade.git
 </pre>
 <p>If you prefer not to install Git:</p>
-<p>1.- Download the ZIP file <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.1.zip">eyegrade-0.6.1.zip</a>.
+<p>1.- Download the ZIP file <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.2.zip">eyegrade-0.6.2.zip</a>.
 Extract it in your file system,
 in a directory with no white-spaces in its path.</p>
 <p>Once you have Eyegrade installed (either with or without Git), test
@@ -452,7 +451,7 @@ prompt window, enter the Eyegrade installation directory and type:</p>
 git pull
 </pre>
 <p>This should work on any platform (Linux, Windows, etc.)</p>
-<p>If you didn't use Git to install Eyegrade, <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.1.zip">download the new version</a>,
+<p>If you didn't use Git to install Eyegrade, <a class="reference external" href="https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.2.zip">download the new version</a>,
 uncompress it and replace your <tt class="docutils literal">eyegrade</tt> directory by the one you
 have uncompressed.</p>
 </div>
@@ -1119,9 +1118,8 @@ which are described in the next sections:</p>
 with your institution's look and feel,
 instructions to students, etc.
 This template is reusable for other exams in the future.</li>
-<li>Automatically generate the LaTeX source files
-from the XML file and the template.</li>
-<li>Generate the PDF files from the LaTeX source files.</li>
+<li>Automatically generate the PDF files
+from the XML file and the LaTeX template.</li>
 </ol>
 <p>The example files used in the following explanations
 are provided with Eyegrade
@@ -1600,21 +1598,41 @@ their answers.</li>
 <p>Note that a template is highly reusable for different exams and
 subjects.</p>
 </div>
-<div class="section" id="creating-the-latex-source-files">
-<h2><a class="toc-backref" href="#id35">4.3&nbsp;&nbsp;&nbsp;Creating the LaTeX source files</a></h2>
+<div class="section" id="creating-the-pdf-files">
+<h2><a class="toc-backref" href="#id35">4.3&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
 <p>Once the exam file and the template have been created, the script
-<cite>create_exam.py</cite> parses them and generates the exam in LaTeX format:</p>
+<cite>create_exam.py</cite> parses them and generates the exam in PDF format,
+provided that LaTeX is installed and available in your system's PATH
+(see <a class="reference internal" href="#installing-the-latex-system">Installing the LaTeX system</a>):</p>
 <pre class="literal-block">
 python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
 </pre>
 <p>The previous command will create models 0, A and B of the exam with
-names <cite>exam-0.tex</cite>, <cite>exam-A.tex</cite> and <cite>exam-B.tex</cite>. The exam model 0 is a
+names <cite>exam-0.pdf</cite>, <cite>exam-A.pdf</cite> and <cite>exam-B.pdf</cite>. The exam model 0 is a
 special exam in which questions are not reordered.
 The correct answer is always the first choice in the model 0.
 The model 0 is convenient while editing the questions,
 but you must remember not to use it in the exam itself.</p>
 <p>In addition, Eyegrade will automatically create the <tt class="docutils literal">exam.eye</tt> file
 needed to grade the exams, or update it if it already exists.</p>
+<p>If Eyegrade encounters an error in the process,
+you'll see the reason of the error in one of the following two ways:</p>
+<ul class="simple">
+<li>If the error is in the XML syntax of the file with the questions,
+you'll get the error message and line of the XML file
+in which it was encountered.</li>
+<li>If the error is in your LaTeX template
+or in the LaTeX markup of your questions,
+you'll get the output of the LaTeX command,
+which will tell the line in which it happened
+relative to the temporary LaTeX file Eyegrade has created
+(e.g. <cite>exam-0.tex</cite>).
+Eyegrade will leave this file,
+as well as the full transcript of the error (e.g. <cite>exam-0.log</cite>)
+in the same directory
+in which the output would be produced in order to help you locate
+the reason of the error.</li>
+</ul>
 <p>The script <cite>create_exam.py</cite> has other features, like creating just the
 front page of the exam (no questions needed). They can be explored with
 the command-line help of the program:</p>
@@ -1629,25 +1647,8 @@ The following command enlarges the default size in a 50% (factor 1.5):</p>
 python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
 </pre>
 </div>
-<div class="section" id="creating-the-pdf-files">
-<h2><a class="toc-backref" href="#id36">4.4&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
-<p>Once the <cite>.tex</cite> files have been created,
-you have to use LaTeX to produce the PDF files.
-For each file, run the following command:</p>
-<pre class="literal-block">
-pdflatex exam-A.tex
-</pre>
-<p>If you have several exam models,
-running that command for each one may be tedious.
-On Linux systems you can produce all of them
-with just a couple of commands:</p>
-<pre class="literal-block">
-find -name &quot;exam-*.tex&quot; -exec pdflatex \{\} \;
-</pre>
-<p>That's it! Now you can print the PDF files of your exams.</p>
-</div>
 <div class="section" id="installing-the-latex-system">
-<h2><a class="toc-backref" href="#id37">4.5&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
+<h2><a class="toc-backref" href="#id36">4.4&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
 <p>LaTeX is included in the repositories of the major Linux distributions.
 In Debian and Ubuntu you can simply
 install the package <cite>texlive-latex-recommended</cite>:</p>
@@ -1669,9 +1670,9 @@ which is also offered by the installer.</li>
 </div>
 </div>
 <div class="section" id="advanced-features">
-<h1><a class="toc-backref" href="#id38">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
+<h1><a class="toc-backref" href="#id37">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
 <div class="section" id="webcam-selection">
-<h2><a class="toc-backref" href="#id39">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
+<h2><a class="toc-backref" href="#id38">5.1&nbsp;&nbsp;&nbsp;Webcam selection</a></h2>
 <p>If your computer has more than one camera (e.g. the internal camera of
 the laptop and an external camera you use to grade the exams),
 Eyegrade will select one of them by default. If the selected camera is
@@ -1701,7 +1702,7 @@ camera-dev: 1
 your account is at <tt class="docutils literal"><span class="pre">C:\Documents</span> and <span class="pre">Settings\&lt;your_user_name&gt;</span></tt>.</p>
 </div>
 <div class="section" id="creating-the-exams-in-a-word-processor">
-<h2><a class="toc-backref" href="#id40">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<h2><a class="toc-backref" href="#id39">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
 <p>The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
@@ -1835,7 +1836,7 @@ they should be placed from left to right:</p>
 </table>
 </div>
 <div class="section" id="manually-editing-the-eye-file">
-<h2><a class="toc-backref" href="#id41">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<h2><a class="toc-backref" href="#id40">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
 <p>The files that store the configuration of an exam and the correct
 answer for each question are stored with a <cite>.eye</cite> extension. An example
 is shown below:</p>
@@ -1895,7 +1896,7 @@ probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.</p>
 </div>
 <div class="section" id="automatic-detection-of-exam-removal">
-<h2><a class="toc-backref" href="#id42">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
+<h2><a class="toc-backref" href="#id41">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
 <p>If the camera in your setup is fixed, that is, you place an exam below
 the camera, review it, remove it and place the next exam, you may want
 Eyegrade to detect that you have removed the exam instead of having to

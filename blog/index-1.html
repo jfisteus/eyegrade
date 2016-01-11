@@ -100,6 +100,43 @@
 <div class="postindex">
     <article class="h-entry post-text">
     <header>
+        <h1 class="p-name entry-title"><a href="posts/eyegrade-044-released.html" class="u-url">Eyegrade 0.4.4 released</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/eyegrade-044-released.html" rel="bookmark"><time class="published dt-published" datetime="2014-11-28T17:46:54+00:00" title="2014-11-28 17:46">2014-11-28 17:46</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/eyegrade-044-released.html#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-044-released.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>I've just released Eyegrade 0.4.4.
+This version fixes a bug introduced by
+<a class="reference external" href="posts/eyegrade-043-released.html">the bugfix of version 0.4.3</a>.
+Version 0.4.3 solved the problem for
+the older versions of Python,
+but inadvertently introduced exactly the same problem
+for the newer versions,
+which were previously unaffected.
+I've reverted the erroneous fix
+and solved the problem
+<a class="reference external" href="https://github.com/jfisteus/eyegrade/commit/e03da3762e748913db89e6470b3fe85b02f367df">in a better way</a>.
+This new version should be able to export grades
+in any 2.6 and 2.7 version of Python,
+both Windows and Linux.</p>
+<p>This is the only change with respect to version 0.4.3.</p>
+<p>As always, if you have installed Eyegrade through <em>git</em>,
+you can easily update the program by executing the command
+<em>git pull</em> from inside the directory in which Eyegrade is installed.</p>
+</div>
+    </div>
+    </article>
+    <article class="h-entry post-text">
+    <header>
         <h1 class="p-name entry-title"><a href="posts/eyegrade-043-released.html" class="u-url">Eyegrade 0.4.3 released</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
@@ -485,7 +522,7 @@ file and student list are selected at the <em>new session</em> dialog.</li>
         <!--End of body content-->
 
         <footer>
-            Contents © 2015         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2016         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
     </div>

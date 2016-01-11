@@ -18,8 +18,8 @@ Latest version
 ---------------
 
 The latest available version is
-**Eyegrade 0.6.1**,
-which was released on October 21, 2015.
+**Eyegrade 0.6.2**,
+which was released on January 11, 2016.
 
 
 .. class:: alert alert-info sidebar
@@ -34,6 +34,10 @@ News
 |rssicon| `Subscribe <blog/rss.xml>`_
 | `Read more news at the blog <blog/index.html>`_
 
+
+**[Jan 11, 2016]**
+Eyegrade 0.6.2 has been released!
+See the `blog post <blog/posts/bugfix-release-062.html>`__.
 
 **[Oct 21, 2015]**
 Eyegrade 0.6.1 has been released!
@@ -84,10 +88,6 @@ See the `blog post <blog/posts/eyegrade-043-released.html>`__.
 **[Nov 10, 2014]**
 Improved documentation about how to typeset exams.
 See the `blog post <blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html>`__.
-
-**[Jun 26, 2014]**
-Eyegrade 0.4 has been released!
-See the `blog post <blog/posts/eyegrade-04-released.html>`__.
 
 
 

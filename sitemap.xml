@@ -6,139 +6,147 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://www.eyegrade.org/blog/2013/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2014/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2015/index.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/2016/index.html</loc>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/bugfix.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/documentation.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/new-features.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/pyqt.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/release.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/requests.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/screenshots.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-1.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</loc>
-  <lastmod>2015-06-20</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-061.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-12</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/bugfix-release-062.html</loc>
+  <lastmod>2016-01-12</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-03-released.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-044-released.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</loc>
-  <lastmod>2015-04-23</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.1/index.html</loc>
@@ -158,46 +166,46 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual/index.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/documentation.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/download.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/index.html</loc>
-  <lastmod>2015-06-19</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-04/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-05/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-06/index.html</loc>
-  <lastmod>2015-06-19</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-for-index/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-1/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-2/index.html</loc>
-  <lastmod>2015-04-03</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/index.html</loc>
-  <lastmod>2015-10-21</lastmod>
+  <lastmod>2016-01-11</lastmod>
  </url>
 </urlset>
