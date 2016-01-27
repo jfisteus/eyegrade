@@ -19,6 +19,7 @@ from __future__ import print_function, division
 
 import sys
 import random
+import logging
 
 import numpy as np
 import cv2
@@ -27,7 +28,8 @@ from .. import sessiondb
 from .. import imageproc
 from ..ocr import sample
 
-VALID_LABELS = ('0', 'X')
+VALID_LABELS = (0, 1)
+
 
 class LabeledCross(object):
 
@@ -68,12 +70,12 @@ def process_session(labeled_crosses, session_path):
         all_cells = session._read_answer_cells(exam['exam_id'])
         answers = session.read_answers(exam['exam_id'])
         for cells, answer in zip(all_cells, answers):
-            crosses = [LabeledCross('0', image_file,
+            crosses = [LabeledCross(0, image_file,
                                     np.array([cell.plu, cell.pru,
                                               cell.pld, cell.prd])) \
                        for cell in cells]
             if answer > 0:
-                crosses[answer - 1].label = 'X'
+                crosses[answer - 1].label = 1
             for cross in crosses:
                 cropped_cross = cross.crop()
                 if cropped_cross is not None:
@@ -93,8 +95,10 @@ def _initialize_crosses_dict():
     return labeled_crosses
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     labeled_crosses = _initialize_crosses_dict()
     for session_path in sys.argv[1:]:
+        logging.info('Processing session {}'.format(session_path))
         process_session(labeled_crosses, session_path)
     dump_cross_list(labeled_crosses)
 

@@ -19,6 +19,7 @@ from __future__ import print_function, division
 
 import sys
 import random
+import logging
 
 import numpy as np
 import cv2
@@ -91,6 +92,7 @@ def _initialize_digits_dict():
     return labeled_digits
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     labeled_digits = _initialize_digits_dict()
     for session_path in sys.argv[1:]:
         process_session(labeled_digits, session_path)
