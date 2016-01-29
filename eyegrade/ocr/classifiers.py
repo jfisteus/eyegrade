@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/>.
 #
 import json
+import os.path
 
 import cv2
 import numpy as np
@@ -25,10 +26,10 @@ from .. import utils
 
 
 DEFAULT_DIG_CLASS_FILE = 'digit_classifier.dat.gz'
-DEFAULT_DIG_CONF_MAT_FILE = 'digit_confusion_matrix.txt'
+DEFAULT_DIG_META_FILE = 'digit_classifier_metadata.txt'
 DEFAULT_CROSS_CLASS_FILE = 'cross_classifier.dat.gz'
 DEFAULT_CROSS_META_FILE = 'cross_classifier_metadata.json'
-
+DEFAULT_DIR = 'svm'
 
 class SVMClassifier(object):
     def __init__(self, num_classes, features_extractor, load_from_file=None):
@@ -36,7 +37,7 @@ class SVMClassifier(object):
         self.features_extractor = features_extractor
         self.svm = cv2.SVM()
         if load_from_file:
-            self.svm.load(utils.resource_path(load_from_file))
+            self.svm.load(SVMClassifier.resource(load_from_file))
 
     @property
     def features_len(self):
@@ -70,6 +71,10 @@ class SVMClassifier(object):
     def save(self, filename):
         self.svm.save(filename)
 
+    @staticmethod
+    def resource(filename):
+        return utils.resource_path(os.path.join(DEFAULT_DIR, filename))
+
 
 class SVMDigitClassifier(SVMClassifier):
     def __init__(self, features_extractor, load_from_file=None,
@@ -87,8 +92,9 @@ class SVMDigitClassifier(SVMClassifier):
     @staticmethod
     def _load_confusion_matrix(filename):
         if filename:
-            with open(utils.resource_path(filename)) as f:
-                matrix = np.array(json.load(f), dtype=float)
+            with open(SVMClassifier.resource(filename)) as f:
+                metadata = json.load(f)
+                matrix = np.array(metadata['confusion_matrix'], dtype=float)
         else:
             matrix = np.diag(np.ones(10, dtype=float))
         return matrix
@@ -97,7 +103,7 @@ class SVMDigitClassifier(SVMClassifier):
 class DefaultDigitClassifier(SVMDigitClassifier):
     def __init__(self,
                  load_from_file=DEFAULT_DIG_CLASS_FILE,
-                 confusion_matrix_from_file=DEFAULT_DIG_CONF_MAT_FILE):
+                 confusion_matrix_from_file=DEFAULT_DIG_META_FILE):
         super(DefaultDigitClassifier, self).__init__( \
                         preprocessing.FeatureExtractor(),
                         load_from_file=load_from_file,

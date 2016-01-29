@@ -25,10 +25,6 @@ from . import classifiers
 from . import evaluation
 
 
-def save_confusion_matrix(filename, matrix):
-    with open(filename, mode='w') as f:
-        json.dump(matrix.tolist(), f)
-
 def save_metadata(filename, metadata):
     with open(filename, mode='w') as f:
         json.dump(metadata, f, indent=4, sort_keys=True)
@@ -44,17 +40,27 @@ def train_with_all(classifier, sample_set):
     classifier.train(sample_set.samples())
 
 def create_digit_classifier(sample_set, rounds):
-    classifier = classifiers.DefaultDigitClassifier()
+    classifier = classifiers.DefaultDigitClassifier( \
+                                        load_from_file=None,
+                                        confusion_matrix_from_file=None)
     e = k_fold_cross_evaluation(classifier, sample_set, rounds)
-    save_confusion_matrix(classifiers.DEFAULT_DIG_CONF_MAT_FILE,
-                          e.confusion_matrix_r)
+    metadata = {
+        'performance': {
+            'success_rate': e.success_rate,
+            'balanced_success_rate': e.success_rate_balanced,
+            'evaluation_rounds': rounds,
+            'num_samples': len(sample_set),
+        },
+        'confusion_matrix': e.confusion_matrix_r.tolist(),
+    }
     print('Success rate: {} (balanced: {})'.format(e.success_rate,
                                                    e.success_rate_balanced))
+    save_metadata(classifiers.DEFAULT_DIG_META_FILE, metadata)
     train_with_all(classifier, sample_set)
     classifier.save(classifiers.DEFAULT_DIG_CLASS_FILE)
 
 def create_crosses_classifier(sample_set, rounds):
-    classifier = classifiers.DefaultCrossesClassifier()
+    classifier = classifiers.DefaultCrossesClassifier(load_from_file=None)
     e = k_fold_cross_evaluation(classifier, sample_set, rounds)
     print('Success rate: {} (balanced: {})'.format(e.success_rate,
                                                    e.success_rate_balanced))
