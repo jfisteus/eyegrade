@@ -110,17 +110,13 @@ def main():
     import math
     all_samples = sample.SampleSet()
     all_samples.load_from_loader( \
-                sample.SampleLoader('ocr-data/digits/training/digits.txt'))
-    all_samples.load_from_loader( \
-                sample.SampleLoader('ocr-data/digits-test-p1/digits.txt'))
-    all_samples.load_from_loader( \
-                sample.SampleLoader('ocr-data/digits-test-p2/digits.txt'))
-    classifier = classifiers.SVMDigitClassifier( \
-                                    preprocessing.FeatureExtractor())
-    c_values = [math.pow(10, i) for i in np.linspace(-3, 3, 13)]
-    gamma_values = c_values
+                sample.SampleLoader('ocr-data/crosses/crosses.txt'))
+    classifier = classifiers.SVMCrossesClassifier( \
+                                    preprocessing.CrossesFeatureExtractor())
+    c_values = [math.pow(10, i) for i in np.linspace(0, 4, 9)]
+    gamma_values = [math.pow(10, i) for i in np.linspace(-3, -1, 5)]
     r = decide_params(classifier, all_samples, c_values, gamma_values,
-                      threshold=0.88)
+                      threshold=0.99)
     print(r)
 
 if __name__ == '__main__':
