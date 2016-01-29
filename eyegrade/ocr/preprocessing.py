@@ -45,10 +45,8 @@ class FeatureExtractor(object):
         return self.dim * self.dim
 
     @staticmethod
-    def _reshape(sample):
+    def _project_to_rectangle(sample, width, height):
         p = sample.corners
-        width = int((cv2.norm(p[0,:], p[1,:]) + cv2.norm(p[2,:], p[3,:])) / 2)
-        height = int((cv2.norm(p[0,:], p[2,:]) + cv2.norm(p[1,:], p[3,:])) / 2)
         corners_dst = np.array([[0, 0],
                                 [width - 1, 0],
                                 [0, height - 1],
@@ -57,6 +55,28 @@ class FeatureExtractor(object):
         h = cv2.findHomography(np.array(p, dtype='float32'), corners_dst)
         image = cv2.warpPerspective(sample.image, h[0], (width, height))
         return cv2.threshold(image, 64, 255, cv2.THRESH_BINARY)[1]
+
+    @staticmethod
+    def _reshape(sample):
+        p = sample.corners
+        width = int((cv2.norm(p[0,:], p[1,:]) + cv2.norm(p[2,:], p[3,:])) / 2)
+        height = int((cv2.norm(p[0,:], p[2,:]) + cv2.norm(p[1,:], p[3,:])) / 2)
+        return FeatureExtractor._project_to_rectangle(sample, width, height)
+
+
+class CrossesFeatureExtractor(FeatureExtractor):
+    """Feature extractor for crosses.
+
+    """
+    def __init__(self, dim=28):
+        super(CrossesFeatureExtractor, self).__init__(dim=dim)
+
+    def extract(self, sample):
+        image = self._project_to_rectangle(sample, self.dim, self.dim)
+#        image = cv2.resize(image, (self.dim, self.dim))
+        image_matrix = np.array(image, np.float32) / 255.0
+        feature_vector = image_matrix.reshape(self.features_len, )
+        return feature_vector
 
 
 class OpenCVExampleExtractor(object):

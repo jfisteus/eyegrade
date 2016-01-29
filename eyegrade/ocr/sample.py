@@ -68,6 +68,18 @@ class DigitSampleFromCam(Sample):
         super(DigitSampleFromCam, self).__init__(corners, image=image)
 
 
+class CrossSampleFromCam(Sample):
+    def __init__(self, corners, image):
+        corners = self._adjust_cell_corners(image, corners)
+        super(CrossSampleFromCam, self).__init__(corners, image=image)
+
+    @staticmethod
+    def _adjust_cell_corners(image, corners):
+        plu, prd = g.closer_points_rel(corners[0, :], corners[3, :], 0.8)
+        pru, pld = g.closer_points_rel(corners[1, :], corners[2, :], 0.8)
+        return np.array((plu, pru, pld, prd))
+
+
 class SampleSet(object):
     def __init__(self):
         self.samples_dict = collections.defaultdict(list)
@@ -194,7 +206,7 @@ class SampleLoader(object):
         if len(parts) != 10:
             raise ValueError("Syntax error in samples file")
         image_path = os.path.join(self.dirname, parts[0])
-        correct_digit = int(parts[1])
+        label = int(parts[1])
         corners = np.zeros((4, 2), dtype=np.uint16)
         corners[0,0] = int(parts[2]) # left top
         corners[0,1] = int(parts[3])
@@ -204,9 +216,7 @@ class SampleLoader(object):
         corners[2,1] = int(parts[7])
         corners[3,0] = int(parts[8]) # right bottom
         corners[3,1] = int(parts[9])
-        return Sample(corners,
-                      image_filename=image_path,
-                      label=correct_digit)
+        return Sample(corners, image_filename=image_path, label=label)
 
 
 def adjust_cell_corners(image, corners):

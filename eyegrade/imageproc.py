@@ -47,28 +47,9 @@ param_hough_thresholds = [280, 260, 240, 225, 210, 195, 180, 160, 140, 120]
 param_failures_threshold = 10
 param_check_corners_tolerance_mul = 6
 
-# Thickness of the cross mask, as a fraction of the width of the cell
-param_cross_mask_thickness = 0.2
-
-# Number of pixels to go inside de cell for the mask cross
-param_cross_mask_margin = 0.6
-param_cross_mask_margin_2 = 0.75
-param_cell_mask_margin = 0.9
-
-# Percentage of points of the mask cross that must be active to decide a cross
-param_cross_mask_threshold = 0.08
-
-# Percentage of points outside the mask cross that must be active to
-# decide a cleared answer
-param_clear_out_threshold = 0.35
-
-# Percentage of points inside the mask cross that must be active to
-# decide a cleared answer
-param_clear_in_threshold = 0.2
-
+# Parameters for the infobits masks
 param_bit_mask_threshold = 0.25
 param_bit_mask_radius_multiplier = 0.333
-param_cell_mask_threshold = 0.6
 
 # Parameters for id boxes detection
 param_id_boxes_min_energy_threshold = 0.5
@@ -141,6 +122,7 @@ class ExamDetector(object):
             self.image_to_show = self.image_raw
         self.decisions = None
         self.capture = None
+        self.cv2_image = None
 
     def detect_safe(self):
         try:
@@ -183,8 +165,9 @@ class ExamDetector(object):
             if len(corner_matrixes) > 0:
                 self.status['cells'] = True
             if len(corner_matrixes) > 0:
+                self.cv2_image = np.asarray(self.image_proc[:, :])
                 answer_cells = self._answer_cells_geometry(corner_matrixes)
-                answers = decide_cells(self.image_proc, answer_cells)
+                answers = self._decide_cells(answer_cells)
                 if self.options['infobits']:
                     bits = read_infobits(self.image_proc, corner_matrixes)
                     if bits is not None:
@@ -245,8 +228,9 @@ class ExamDetector(object):
         corner_matrixes = process_box_corners(manual_points, self.dimensions)
         if corner_matrixes != []:
             self.status['cells'] = True
+            self.cv2_image = np.asarray(self.image_proc[:, :])
             answer_cells = self._answer_cells_geometry(corner_matrixes)
-            answers = decide_cells(self.image_proc, answer_cells)
+            answers = self._decide_cells(answer_cells)
             if self.options['infobits']:
                 bits = read_infobits(self.image_proc, corner_matrixes)
                 if bits is not None:
@@ -321,6 +305,18 @@ class ExamDetector(object):
             cells = self._set_left_to_right(cells)
         return cells
 
+    def _decide_cells(self, answer_cells):
+        decisions = []
+        for row in answer_cells:
+            row_decisions = []
+            for cell in row:
+                corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
+                samp = sample.CrossSampleFromCam(corners, self.cv2_image)
+                decision = self.context.crosses_classifier.is_cross(samp)
+                row_decisions.append(decision)
+            decisions.append(decide_answer(row_decisions))
+        return decisions
+
     def _set_left_to_right(self, cells):
         """Sets left to right order in cell geometry."""
         cells_transposed = []
@@ -362,10 +358,9 @@ class ExamDetector(object):
             detected_id = None
         digits = []
         id_scores = []
-        cv2_image = np.asarray(self.image_proc[:, :])
         for cell in id_cells:
             corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
-            samp = sample.DigitSampleFromCam(corners, cv2_image)
+            samp = sample.DigitSampleFromCam(corners, self.cv2_image)
             digit, scores = self.context.ocr.classify_digit(samp)
             digits.append(digit)
             id_scores.append(scores)
@@ -426,6 +421,7 @@ class ExamDetectorContext(object):
         self.camera_id = camera_id
         self.threshold_locked = False
         self.ocr = classifiers.DefaultDigitClassifier()
+        self.crosses_classifier = classifiers.DefaultCrossesClassifier()
 
     def open_camera(self, camera_id=None):
         """Initializes the last camera device used, or `camera_id`.
@@ -660,10 +656,6 @@ def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
     else:
         print "draw_point: bad point (%d, %d)"%(x, y)
 
-def draw_cross_mask(image, plu, pru, pld, prd, color, thickness):
-    cv.Line(image, plu, prd, color, int(thickness))
-    cv.Line(image, pld, pru, color, int(thickness))
-
 def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
     cv.PutText(image, text, position, font, color)
 
@@ -866,54 +858,6 @@ def check_corners(corner_matrixes, width, height):
 
     # Success if control reaches here
     return True
-
-def decide_cells(image, answer_cells):
-    dim = (image.width, image.height)
-    mask = cv.CreateImage(dim, 8, 1)
-    masked = cv.CreateImage(dim, 8, 1)
-    decisions = []
-    for row in answer_cells:
-        row_decisions = []
-        for cell in row:
-            decision = decide_cell(image, mask, masked,
-                                   cell.plu, cell.pru, cell.pld, cell.prd)
-            row_decisions.append(decision)
-        decisions.append(decide_answer(row_decisions))
-    return decisions
-
-def decide_cell(image, mask, masked, plu, pru, pld, prd):
-    thickness = g.distance(plu, pru) * param_cross_mask_thickness
-    cv.SetZero(mask)
-    iplu, iprd = g.closer_points_rel(plu, prd, param_cross_mask_margin,
-                                   thickness / 2)
-    ipru, ipld = g.closer_points_rel(pru, pld, param_cross_mask_margin,
-                                   thickness / 2)
-    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness)
-    iplu, iprd = g.closer_points_rel(plu, prd, param_cross_mask_margin_2,
-                                   thickness / 4)
-    ipru, ipld = g.closer_points_rel(pru, pld, param_cross_mask_margin_2,
-                                   thickness / 4)
-    draw_cross_mask(mask, iplu, ipru, ipld, iprd, (1), thickness / 2)
-    mask_pixels = cv.CountNonZero(mask)
-    cv.Mul(image, mask, masked)
-    masked_pixels = cv.CountNonZero(masked)
-    cell_marked = masked_pixels > param_cross_mask_threshold * mask_pixels
-    # If the whole cell is marked, don't count the result:
-    if cell_marked:
-        iplu, iprd = g.closer_points_rel(plu, prd, param_cell_mask_margin)
-        ipru, ipld = g.closer_points_rel(pru, pld, param_cell_mask_margin)
-        pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
-        cell_marked = (masked_pixels < param_clear_in_threshold * mask_pixels or
-                       (pix_set - masked_pixels) < (pix_total - mask_pixels) * \
-                           param_clear_out_threshold)
-    # Debug
-#    iplu, iprd = closer_points_rel(plu, prd, param_cell_mask_margin)
-#    ipru, ipld = closer_points_rel(pru, pld, param_cell_mask_margin)
-#    pix_total, pix_set = count_pixels_in_cell(image, iplu, ipru, ipld, iprd)
-#    print 'total: %d, set: %d, mask: %d, masked: %d'%(pix_total, pix_set,
-#                                                      mask_pixels,
-#                                                      masked_pixels)
-    return cell_marked
 
 def read_infobits(image, corner_matrixes):
     dim = (image.width, image.height)
@@ -1129,66 +1073,6 @@ def save_image(filename, image):
 
 # Utility functions
 #
-def count_pixels_in_cell(image, plu, pru, pld, prd):
-    """
-        Count the number of pixels in a given quadrilateral.
-        Returns a tuple with the total number of pixels and the
-        number of non-zero pixels.
-    """
-    # Walk the quadrilateral in horizontal lines.
-    total = 0
-    marked = 0
-    points = sorted([plu, pru, pld, prd], key = lambda p: p[1])
-    same_side = (points[0][0] < points[1][0] and points[2][0] < points[3][0] or
-                 points[0][0] > points[1][0] and points[2][0] > points[3][0])
-    if points[0][1] < points[1][1]:
-        slope1 = g.slope_inv(points[0], points[1])
-        if same_side:
-            slope2 = g.slope_inv(points[0], points[2])
-        else:
-            slope2 = g.slope_inv(points[0], points[3])
-        t, m = count_pixels_horiz(image, points[0], slope1, points[0], slope2,
-                                  points[0][1], points[1][1])
-        total += t
-        marked += m
-    if points[1][1] < points[2][1]:
-        if same_side:
-            slope1 = g.slope_inv(points[0], points[2])
-            slope2 = g.slope_inv(points[1], points[3])
-        else:
-            slope1 = g.slope_inv(points[0], points[3])
-            slope2 = g.slope_inv(points[1], points[2])
-        t, m = count_pixels_horiz(image, points[0], slope1, points[1], slope2,
-                                  points[1][1], points[2][1])
-        total += t
-        marked += m
-    if points[2][1] < points[3][1]:
-        slope1 = g.slope_inv(points[2], points[3])
-        if same_side:
-            slope2 = g.slope_inv(points[1], points[3])
-            point2 = points[1]
-        else:
-            slope2 = g.slope_inv(points[2], points[3])
-            point2 = points[2]
-        t, m = count_pixels_horiz(image, points[2], slope1, point2, slope2,
-                                  points[2][1], points[3][1])
-        total += t
-        marked += m
-    return total, marked
-
-def count_pixels_horiz(image, p0, slope0, p1, slope1, yini, yend):
-    pix_total = 0
-    pix_marked = 0
-    for y in range(yini, yend):
-        x1 = int(round(p0[0] + slope0 * (y - p0[1])))
-        x2 = int(round(p1[0] + slope1 * (y - p1[1])))
-        inc = 1 if x1 < x2 else -1
-        for x in range(x1, x2 + inc, inc):
-            pix_total += 1
-            if image[y, x] > 0:
-                pix_marked += 1
-    return (pix_total, pix_marked)
-
 def line_bounds_adaptive(image, line_up, line_down, iwidth, rho_var):
     points_left_up, points_right_up = \
         line_bounds_one_line(image, line_up, iwidth, rho_var)
@@ -1264,19 +1148,6 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
-
-def count_pixels_in_horizontal_line(image, line):
-    p0 = g.line_point(line, x=0)
-    if p0[1] < 0:
-        p0 = g.line_point(line, y=0)
-    p1 = g.line_point(line, x=image.width - 1)
-    if p1[1] < 0:
-        p1 = g.line_point(line, y=0)
-    active_points = 0
-    for x, y in g.walk_line(p0, p1):
-        if image[y, x] > 0:
-            active_points += 1
-    return active_points
 
 ## def cvimage_to_pygame(image):
 ##     if cv_new_style:
