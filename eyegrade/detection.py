@@ -21,14 +21,15 @@ from __future__ import division
 import math
 import copy
 import sys
-import numpy as np
 
 import cv2
+import numpy as np
 
 # Local imports
 from . import geometry as g
 from . import capture
 from . import sessiondb
+from . import images
 from .ocr import classifiers
 from .ocr import sample
 
@@ -91,11 +92,13 @@ class ExamDetector(object):
             self.image_raw = self.context.capture()
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-raw-file'] is not None:
-            self.image_raw = load_image(self.options['capture-raw-file'])
+            self.image_raw = \
+                        images.load_image(self.options['capture-raw-file'])
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-proc-file'] is not None:
-            self.image_raw = load_image(self.options['capture-proc-file'])
-            self.image_proc = rgb_to_gray(self.image_raw)
+            self.image_raw = \
+                        images.load_image(self.options['capture-proc-file'])
+            self.image_proc = images.rgb_to_gray(self.image_raw)
         elif self.options['capture-proc-ipl'] is not None:
             self.image_raw = self.options['capture-proc-ipl']
             self.image_proc = self.options['capture-proc-ipl']
@@ -109,7 +112,7 @@ class ExamDetector(object):
                        'id-box-hlines': False,
                        'id-box': False}
         if self.options['show-image-proc']:
-            self.image_to_show = gray_to_rgb(self.image_proc)
+            self.image_to_show = images.gray_to_rgb(self.image_proc)
         elif self.options['show-lines']:
             self.image_to_show = self.image_raw.copy()
         else:
@@ -150,12 +153,12 @@ class ExamDetector(object):
         else:
             self.status['boxes'] = True
             axes = filter_axes(axes, self.dimensions,
-                               g.width(self.image_raw),
-                               g.height(self.image_raw),
+                               images.width(self.image_raw),
+                               images.height(self.image_raw),
                                self.options['read-id'])
             corner_matrixes = cell_corners(axes[1][1], axes[0][1],
-                                           g.width(self.image_raw),
-                                           g.height(self.image_raw),
+                                           images.width(self.image_raw),
+                                           images.height(self.image_raw),
                                            self.dimensions)
             if len(corner_matrixes) > 0:
                 self.status['cells'] = True
@@ -193,17 +196,17 @@ class ExamDetector(object):
         if self.options['show-lines']:
             if self.status['cells']:
                 for line in axes[0][1]:
-                    draw_line(self.image_to_show, line, (255, 0, 0))
+                    images.draw_line(self.image_to_show, line, (255, 0, 0))
                 for line in axes[1][1]:
-                    draw_line(self.image_to_show, line, (255, 0, 255))
+                    images.draw_line(self.image_to_show, line, (255, 0, 255))
                 self._draw_cell_corners(corner_matrixes)
             if id_hlines:
                 for line in id_hlines:
-                    draw_line(self.image_to_show, line, (255, 255, 0))
+                    images.draw_line(self.image_to_show, line, (255, 255, 0))
             if id_cells:
                 for cell in id_cells:
                     for corner in cell.corners():
-                        draw_point(self.image_to_show, corner)
+                        images.draw_point(self.image_to_show, corner)
         if self.options['show-status']:
             self._draw_status_flags()
         self.decisions = capture.ExamDecisions(success, answers, detected_id,
@@ -373,22 +376,23 @@ class ExamDetector(object):
         color_bad = (0, 0, 255)
         y = 75
         width = 24
-        x = g.width(self.image_to_show) - 5 - len(flags) * width
+        x = images.width(self.image_to_show) - 5 - len(flags) * width
         for letter, value in flags:
             color = color_good if value else color_bad
-            draw_text(self.image_to_show, letter, color, (x, y))
+            images.draw_text(self.image_to_show, letter, color, (x, y))
             x += width
 
     def _draw_hough_threshold(self):
-        pos = (g.width(self.image_to_show) - 77, 110)
-        draw_text(self.image_to_show, str(self.context.get_hough_threshold()),
-                  position=pos)
+        pos = (images.width(self.image_to_show) - 77, 110)
+        images.draw_text(self.image_to_show,
+                         str(self.context.get_hough_threshold()),
+                         position=pos)
 
     def _draw_cell_corners(self, corner_matrixes):
         for corners in corner_matrixes:
             for h in corners:
                 for c in h:
-                    draw_point(self.image_to_show, c)
+                    images.draw_point(self.image_to_show, c)
 
 
 class ExamDetectorContext(object):
@@ -598,50 +602,13 @@ class FalseExamDetectorContext(ExamDetectorContext):
 
 
 def pre_process(image):
-    gray = rgb_to_gray(image)
+    gray = images.rgb_to_gray(image)
     thr = cv2.adaptiveThreshold(gray, 255,
                                 cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                 cv2.THRESH_BINARY_INV,
                                 param_adaptive_threshold_block_size,
                                 param_adaptive_threshold_offset)
     return thr
-
-def gray_to_rgb(image):
-    return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-
-def rgb_to_gray(image):
-    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-def load_image_grayscale(filename):
-    return cv2.imread(filename, flags=cv2.IMREAD_GRAYSCALE)
-
-def load_image(filename):
-    return cv2.imread(filename)
-
-def draw_line(image, line, color=(0, 0, 255, 0)):
-    theta = line[1]
-    points = set()
-    if math.sin(theta) != 0.0:
-        points.add(g.line_point(line, x=0))
-        points.add(g.line_point(line, x=g.width(image) - 1))
-    if math.cos(theta) != 0.0:
-        points.add(g.line_point(line, y=0))
-        points.add(g.line_point(line, y=g.height(image) - 1))
-    p_draw = [p for p in points if p[0] >= 0 and p[1] >= 0
-              and p[0] < g.width(image) and p[1] < g.height(image)]
-    if len(p_draw) == 2:
-        cv2.line(image, p_draw[0], p_draw[1], color, thickness=1)
-
-def draw_point(image, point, color=(255, 0, 0, 0), radius=2):
-    x, y = point
-    if x >= 0 and x < g.width(image) and y >= 0 and y < g.height(image):
-        cv2.circle(image, point, radius, color, thickness=-1)
-    else:
-        print "draw_point: bad point (%d, %d)"%(x, y)
-
-def draw_text(image, text, color=(255, 0, 0), position=(10, 30)):
-    cv2.putText(image, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1.0, color,
-                thickness=3)
 
 def detect_lines(image, hough_threshold):
     lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
@@ -838,7 +805,7 @@ def check_corners(corner_matrixes, width, height):
     return True
 
 def read_infobits(image, corner_matrixes):
-    mask = _new_image(g.width(image), g.height(image), 1)
+    mask = images.new_image(images.width(image), images.height(image), 1)
     bits = []
     for corners in corner_matrixes:
         for i in range(1, len(corners[0])):
@@ -861,12 +828,12 @@ def decide_infobit(image, mask, center_up, dy):
                            * param_bit_mask_radius_multiplier))
     if radius == 0:
         radius = 1
-    _zero_image(mask)
+    images.zero_image(mask)
     cv2.circle(mask, center_up, radius, (1), thickness=-1)
     mask_pixels = cv2.countNonZero(mask)
     masked = cv2.multiply(image, mask)
     masked_pixels_up = cv2.countNonZero(masked)
-    _zero_image(mask)
+    images.zero_image(mask)
     cv2.circle(mask, center_down, radius, (1), thickness=-1)
     masked = cv2.multiply(image, mask)
     masked_pixels_down = cv2.countNonZero(masked)
@@ -898,12 +865,12 @@ def id_boxes_geometry(image, num_cells, lines, dimensions):
         return None, None
     # Now, adjust corners
     pairs_left, pairs_right = line_bounds_adaptive(image, hlines[0], hlines[1],
-                                                   g.width(image), 5)
+                                                   images.width(image), 5)
     all_bounds = [(l[0], r[0], l[1], r[1]) \
                       for l in pairs_left for r in pairs_right]
     for bounds in all_bounds[:5]:
         corners = id_boxes_check_points(image, bounds, hlines,
-                                        g.width(image), num_cells)
+                                        images.width(image), num_cells)
         if corners is not None:
             success = True
             break
@@ -1094,11 +1061,10 @@ def line_bounds(image, line, iwidth):
     p1 = g.line_point(line, x=iwidth - 1)
     if p1[1] < 0:
         p1 = g.line_point(line, y=0)
-
-    if (not g.point_is_valid(p0, (g.width(image), g.height(image)))
-        or not g.point_is_valid(p1, (g.width(image), g.height(image)))):
+    image_dimensions = (images.width(image), images.height(image))
+    if (not g.point_is_valid(p0, image_dimensions)
+        or not g.point_is_valid(p1, image_dimensions)):
         return None, None
-
     # get bounds
     ini_found = False
     ini = None
@@ -1205,18 +1171,6 @@ def fix_box_if_needed(box_corners):
         print 'Warning: testing box [lu,ru,ld,rd]', box_corners
         print ' -> points at the rigth fixed'
     return (plu, pru, pld, prd)
-
-def _new_image(width, height, num_channels):
-    if num_channels == 1:
-        image = np.zeros((height, width), np.uint8)
-    elif num_channels == 3:
-        image = np.zeros((height, width, 3), np.uint8)
-    else:
-        raise ValueError('Wrong number of channels in _new_image()')
-    return image
-
-def _zero_image(image):
-    image[:, :] = 0
 
 
 ## Debug the upper case with these points: (70, 102), (297, 270),

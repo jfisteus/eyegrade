@@ -771,7 +771,7 @@ class Interface(object):
     def dialog_camera_selection(self, capture_context):
         """Displays a camera selection dialog.
 
-        `capture_context` is the imageproc.ExamCaptureContext object
+        `capture_context` is the detection.ExamCaptureContext object
         to be used.
 
         """

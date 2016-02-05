@@ -18,8 +18,9 @@
 
 import cv2
 
-import geometry
-import utils
+from . import geometry
+from . import utils
+from . import images
 
 _color_blue = (255, 0, 0)
 _color_good = (0, 210, 0)
@@ -166,7 +167,7 @@ class ExamCapture(object):
                 self._draw_answers_no_solutions(score)
 
     def _draw_status_bar(self):
-        x0 = geometry.width(self.image_drawn) - 60
+        x0 = images.width(self.image_drawn) - 60
         y0 = 10
         width = 50
         height = 20
@@ -206,8 +207,3 @@ class ExamCapture(object):
     def _draw_void_question(self, cells):
         cv2.line(self.image_drawn, cells[0].center, cells[-1].center,
                  _color_bad, thickness=3)
-
-
-def load_image(filename):
-    """Loads an OpenCV image from file."""
-    return cv2.imread(filename)

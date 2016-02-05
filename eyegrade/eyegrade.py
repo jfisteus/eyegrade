@@ -34,7 +34,7 @@ import webbrowser
 import gettext
 
 # Local imports
-from . import imageproc
+from . import detection
 from . import utils
 from .qtgui import gui
 from . import sessiondb
@@ -71,7 +71,7 @@ def cell_clicked(image, point):
     clicked_col = None
     for i, row in enumerate(image.centers):
         for j, center in enumerate(row):
-            dst = imageproc.distance(point, center)
+            dst = detection.distance(point, center)
             if min_dst is None or dst < min_dst:
                 min_dst = dst
                 clicked_row = i
@@ -115,7 +115,7 @@ class ManualDetectionManager(object):
     def __init__(self, exam, dimensions, detector_options):
         self.exam = exam
         self.points = []
-        self.detector = imageproc.ExamDetector(dimensions, None,
+        self.detector = detection.ExamDetector(dimensions, None,
                                               detector_options,
                                               image_raw=exam.capture.image_raw)
 
@@ -201,8 +201,8 @@ class ProgramManager(object):
         self.mode = ProgramMode()
         self.config = utils.config
         self.sessiondb = None
-        self.imageproc_context = self._get_imageproc_context()
-        self.imageproc_options = None
+        self.detection_context = self._get_detection_context()
+        self.detection_options = None
         self.drop_next_capture = False
         self.dump_buffer = False
         self._register_listeners()
@@ -215,13 +215,13 @@ class ProgramManager(object):
         """Starts the program manager."""
         self.interface.run()
 
-    def _get_imageproc_context(self):
+    def _get_detection_context(self):
         false_detector_session = os.getenv('EYEGRADE_CAMERA_SESSION')
         if not false_detector_session:
-            return imageproc.ExamDetectorContext( \
+            return detection.ExamDetectorContext( \
                                         camera_id=self.config['camera-dev'])
         else:
-            return imageproc.FalseExamDetectorContext(false_detector_session)
+            return detection.FalseExamDetectorContext(false_detector_session)
 
     def _try_session_file(self, session_file):
         if os.path.isdir(session_file):
@@ -248,7 +248,7 @@ class ProgramManager(object):
         self.latest_detector = None
         self.manual_detect_manager = None
         self.interface.register_timer(50, self._next_search)
-        self.imageproc_context.dump_buffer(1.0)
+        self.detection_context.dump_buffer(1.0)
         self.next_capture = time.time() + 0.05
 
     def _start_review_mode(self):
@@ -285,17 +285,17 @@ class ProgramManager(object):
         self.interface.display_capture(self.exam.get_image_drawn())
         self.manual_detect_manager = \
             ManualDetectionManager(self.exam, self.exam_data.dimensions,
-                                   self.imageproc_options)
+                                   self.detection_options)
 
     def _next_search(self):
         if not self.mode.in_search():
             return
         if self.dump_buffer:
             self.dump_buffer = False
-            self.imageproc_context.dump_buffer(after_removal_delay)
-        detector = imageproc.ExamDetector(self.exam_data.dimensions,
-                                          self.imageproc_context,
-                                          self.imageproc_options)
+            self.detection_context.dump_buffer(after_removal_delay)
+        detector = detection.ExamDetector(self.exam_data.dimensions,
+                                          self.detection_context,
+                                          self.detection_options)
         self.current_detector = detector
         task = ImageDetectTask(detector)
         self.interface.run_worker(task, self._after_image_detection)
@@ -308,8 +308,8 @@ class ProgramManager(object):
             return
         self.latest_detector = detector
         if (detector.status['boxes']
-            and self.imageproc_context.threshold_locked):
-            self.imageproc_context.unlock_threshold()
+            and self.detection_context.threshold_locked):
+            self.detection_context.unlock_threshold()
         exam = self._process_capture(detector)
         if exam is None or not detector.success:
             if exam is not None:
@@ -344,10 +344,10 @@ class ProgramManager(object):
         if (not self.mode.in_review_from_grading()
             or not self.interface.is_action_checked(('tools', 'auto_change'))):
             return
-        self.imageproc_context.dump_buffer(1.0)
-        detector = imageproc.ExamDetector(self.exam_data.dimensions,
-                                          self.imageproc_context,
-                                          self.imageproc_options)
+        self.detection_context.dump_buffer(1.0)
+        detector = detection.ExamDetector(self.exam_data.dimensions,
+                                          self.detection_context,
+                                          self.detection_options)
         self.current_detector = detector
         task = ImageChangeTask(detector, self.exam.capture)
         self.interface.run_worker(task, self._after_change_detection)
@@ -380,7 +380,7 @@ class ProgramManager(object):
         if not exam_removed:
             self._schedule_next_capture(period, self._next_change_detection)
         else:
-            self.imageproc_context.lock_threshold()
+            self.detection_context.lock_threshold()
             self.drop_next_capture = True
             self._action_continue()
 
@@ -394,7 +394,7 @@ class ProgramManager(object):
         current_time = time.time()
         self.next_capture += period
         if current_time > self.next_capture:
-            self.imageproc_context.dump_buffer((current_time
+            self.detection_context.dump_buffer((current_time
                                                 - self.next_capture))
             wait = 0.010
             self.next_capture = time.time() + 0.010
@@ -505,7 +505,7 @@ class ProgramManager(object):
         self.mode.enter_no_session()
         self.sessiondb = None
         self.exam_data = None
-        self.imageproc_options = None
+        self.detection_options = None
         self.interface.activate_no_session_mode()
 
     def _exit_application(self):
@@ -618,7 +618,7 @@ class ProgramManager(object):
 
     def _action_camera_selection(self):
         """Callback for opening the camera selection dialog."""
-        self.interface.dialog_camera_selection(self.imageproc_context)
+        self.interface.dialog_camera_selection(self.detection_context)
 
     def _action_help(self):
         """Callback for the help action."""
@@ -634,12 +634,12 @@ class ProgramManager(object):
 
     def _action_debug_changed(self):
         """Callback for the checkable actions in the debug options menu."""
-        if self.imageproc_options is not None:
-            self.imageproc_options['show-lines'] = \
+        if self.detection_options is not None:
+            self.detection_options['show-lines'] = \
                    self.interface.is_action_checked(('tools', 'lines'))
-            self.imageproc_options['show-image-proc'] = \
+            self.detection_options['show-image-proc'] = \
                    self.interface.is_action_checked(('tools', 'processed'))
-            self.imageproc_options['show-status'] = \
+            self.detection_options['show-status'] = \
                    self.interface.is_action_checked(('tools', 'show_status'))
 
     def _action_auto_change_changed(self):
@@ -747,16 +747,16 @@ class ProgramManager(object):
 
     def _start_grading(self):
         exam_data = self.exam_data
-        self.imageproc_options = imageproc.ExamDetector.get_default_options()
+        self.detection_options = detection.ExamDetector.get_default_options()
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
-            self.imageproc_options['read-id'] = True
-            self.imageproc_options['id-num-digits'] = exam_data.id_num_digits
-        self.imageproc_options['left-to-right-numbering'] = \
+            self.detection_options['read-id'] = True
+            self.detection_options['id-num-digits'] = exam_data.id_num_digits
+        self.detection_options['left-to-right-numbering'] = \
                                             exam_data.left_to_right_numbering
-        # Set the debug options in imageproc_options:
+        # Set the debug options in detection_options:
         self._action_debug_changed()
-        self.imageproc_context.open_camera()
-        if self.imageproc_context.camera is None:
+        self.detection_context.open_camera()
+        if self.detection_context.camera is None:
             self.interface.show_error(_('No camera found. Connect a camera and '
                                         'start the session again.'))
             return
@@ -766,7 +766,7 @@ class ProgramManager(object):
 
     def _stop_grading(self):
         if self.mode.in_grading():
-            self.imageproc_context.close_camera()
+            self.detection_context.close_camera()
         self._activate_session_mode()
 
     def _store_capture_and_add(self):

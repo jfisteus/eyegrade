@@ -25,7 +25,8 @@ import numpy as np
 import cv2
 
 from .. import sessiondb
-from .. import imageproc
+from .. import detection
+from .. import images
 from ..ocr import sample
 
 VALID_LABELS = (0, 1)
@@ -50,8 +51,8 @@ class LabeledCross(object):
         return '\t'.join(data)
 
     def crop(self):
-        original = imageproc.load_image(self.image_file)
-        pre_processed = np.asarray(imageproc.pre_process(original)[:, :])
+        original = images.load_image(self.image_file)
+        pre_processed = np.asarray(detection.pre_process(original)[:, :])
         samp = sample.CrossSampleFromCam(self.corners, pre_processed)
         cropped = samp.crop()
         cropped_file_path = 'cross-{0}-{1}.png'.format(self.label,
