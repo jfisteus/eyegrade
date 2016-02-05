@@ -429,20 +429,20 @@ class CamView(QWidget):
         else:
             painter.drawImage(event.rect(), self.image)
 
-    def display_capture(self, ipl_image):
+    def display_capture(self, cv_image):
         """Displays a captured image in the window.
 
-        The image is in the OpenCV IPL format.
+        The image is in the numpy format used by opencv.
 
         """
         # It is important to use the variable data to prevent issue #58.
-        data = ipl_image.tostring()
-        self.image = QImage(data, ipl_image.width, ipl_image.height,
+        data = cv_image.data
+        height, width, nbytes = cv_image.shape
+        self.image = QImage(data, width, height, nbytes * width,
                             QImage.Format_RGB888).rgbSwapped()
         if self.logo is not None:
             painter = QPainter(self.image)
-            painter.drawPixmap(ipl_image.width - 40, ipl_image.height - 40,
-                               36, 36, self.logo)
+            painter.drawPixmap(width - 40, height - 40, 36, 36, self.logo)
         self.update()
 
     def display_wait_image(self):

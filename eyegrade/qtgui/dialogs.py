@@ -275,7 +275,7 @@ class DialogCameraSelection(QDialog):
     def __init__(self, capture_context, parent):
         """Initializes the dialog.
 
-        `capture_context` is the imageproc.ExamCaptureContext object
+        `capture_context` is the detection.ExamCaptureContext object
         to be used.
 
         """
