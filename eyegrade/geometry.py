@@ -292,3 +292,13 @@ def distance_closest_axis(angle, axes_angles):
             axes_expanded.append(a + math.pi)
     angle_normalized = angle % math.pi
     return min([abs(angle_normalized - aa) for aa in axes_expanded])
+
+# Functions on numpy images
+#
+def width(image):
+    """Returns the width of the numpy image in pixels."""
+    return image.shape[1]
+
+def height(image):
+    """Returns the height of the numpy image in pixels."""
+    return image.shape[0]

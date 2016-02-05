@@ -23,18 +23,14 @@ import copy
 import sys
 import numpy as np
 
+import cv2
+
 # Local imports
 from . import geometry as g
 from . import capture
 from . import sessiondb
 from .ocr import classifiers
 from .ocr import sample
-
-# Import the cv module. It might be cv2.cv in newer versions.
-try:
-    import cv
-except ImportError:
-    import cv2.cv as cv
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
@@ -61,8 +57,6 @@ param_id_boxes_discard_distance = 20
 # Other parameters
 param_error_log = 'eyegrade-errors.log'
 param_error_image_pattern = 'error-%s.png'
-
-font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0, 3)
 
 
 class ExamDetector(object):
@@ -94,7 +88,7 @@ class ExamDetector(object):
             self.image_raw = image_raw
             self.image_proc = pre_process(self.image_raw)
         elif not self.options['capture-from-file']:
-            self.image_raw = self.context.capture(clone=True)
+            self.image_raw = self.context.capture()
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-raw-file'] is not None:
             self.image_raw = load_image(self.options['capture-raw-file'])
@@ -115,14 +109,13 @@ class ExamDetector(object):
                        'id-box-hlines': False,
                        'id-box': False}
         if self.options['show-image-proc']:
-            self.image_to_show = gray_ipl_to_rgb(self.image_proc)
+            self.image_to_show = gray_to_rgb(self.image_proc)
         elif self.options['show-lines']:
-            self.image_to_show = cv.CloneImage(self.image_raw)
+            self.image_to_show = self.image_raw.copy()
         else:
             self.image_to_show = self.image_raw
         self.decisions = None
         self.capture = None
-        self.cv2_image = None
 
     def detect_safe(self):
         try:
@@ -156,16 +149,17 @@ class ExamDetector(object):
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
-            axes = filter_axes(axes, self.dimensions, self.image_raw.width,
-                               self.image_raw.height, self.options['read-id'])
+            axes = filter_axes(axes, self.dimensions,
+                               g.width(self.image_raw),
+                               g.height(self.image_raw),
+                               self.options['read-id'])
             corner_matrixes = cell_corners(axes[1][1], axes[0][1],
-                                           self.image_raw.width,
-                                           self.image_raw.height,
+                                           g.width(self.image_raw),
+                                           g.height(self.image_raw),
                                            self.dimensions)
             if len(corner_matrixes) > 0:
                 self.status['cells'] = True
             if len(corner_matrixes) > 0:
-                self.cv2_image = np.asarray(self.image_proc[:, :])
                 answer_cells = self._answer_cells_geometry(corner_matrixes)
                 answers = self._decide_cells(answer_cells)
                 if self.options['infobits']:
@@ -228,7 +222,6 @@ class ExamDetector(object):
         corner_matrixes = process_box_corners(manual_points, self.dimensions)
         if corner_matrixes != []:
             self.status['cells'] = True
-            self.cv2_image = np.asarray(self.image_proc[:, :])
             answer_cells = self._answer_cells_geometry(corner_matrixes)
             answers = self._decide_cells(answer_cells)
             if self.options['infobits']:
@@ -283,8 +276,8 @@ class ExamDetector(object):
                                       file=file_)
             file_.close()
             im_file = param_error_image_pattern%re.sub(r'[-\ \.:]', '_', date)
-            cv.SaveImage(os.path.join(self.options['logging-dir'], im_file),
-                         self.image_raw)
+            save_image(os.path.join(self.options['logging-dir'], im_file),
+                       self.image_raw)
         else:
             traceback.print_exception(exc_type, exc_value, exc_traceback)
 
@@ -311,7 +304,7 @@ class ExamDetector(object):
             row_decisions = []
             for cell in row:
                 corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
-                samp = sample.CrossSampleFromCam(corners, self.cv2_image)
+                samp = sample.CrossSampleFromCam(corners, self.image_proc)
                 decision = self.context.crosses_classifier.is_cross(samp)
                 row_decisions.append(decision)
             decisions.append(decide_answer(row_decisions))
@@ -360,7 +353,7 @@ class ExamDetector(object):
         id_scores = []
         for cell in id_cells:
             corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
-            samp = sample.DigitSampleFromCam(corners, self.cv2_image)
+            samp = sample.DigitSampleFromCam(corners, self.image_proc)
             digit, scores = self.context.ocr.classify_digit(samp)
             digits.append(digit)
             id_scores.append(scores)
@@ -380,14 +373,14 @@ class ExamDetector(object):
         color_bad = (0, 0, 255)
         y = 75
         width = 24
-        x = self.image_to_show.width - 5 - len(flags) * width
+        x = g.width(self.image_to_show) - 5 - len(flags) * width
         for letter, value in flags:
             color = color_good if value else color_bad
             draw_text(self.image_to_show, letter, color, (x, y))
             x += width
 
     def _draw_hough_threshold(self):
-        pos = (self.image_to_show.width - 77, 110)
+        pos = (g.width(self.image_to_show) - 77, 110)
         draw_text(self.image_to_show, str(self.context.get_hough_threshold()),
                   position=pos)
 
@@ -503,7 +496,8 @@ class ExamDetectorContext(object):
         The same camera will be opened again when open_camera() is called.
 
         """
-        del self.camera
+        if self.camera is not None:
+            self.camera.release()
         self.camera = None
 
     def capture(self, clone=False, resize=None):
@@ -524,16 +518,25 @@ class ExamDetectorContext(object):
             # The image will be cloned when resizing
             clone = False
         if self.camera is not None:
-            image = capture_image(self.camera, clone=clone)
+            image = self.capture_image(clone=clone)
             if resize is not None:
-                image = resize_image(image, resize)
+                image = cv2.resize(image, resize, interpolation=cv2.INTER_AREA)
         return image
 
     def dump_buffer(self, delay_suffered):
         if self.camera is not None and delay_suffered > 0.1:
             frames_to_drop = min(8, int(1 + (delay_suffered - 0.1) / 0.04))
             for i in range(0, frames_to_drop):
-                capture_image(self.camera, False)
+                self.capture_image(False)
+
+    def capture_image(self, clone=False):
+        success, image = self.camera.read()
+        if not success:
+            image = None
+        elif clone:
+            return image.copy()
+        else:
+            return image
 
     def _try_next_camera(self, cur_camera_id):
         camera = None
@@ -546,12 +549,12 @@ class ExamDetectorContext(object):
         return (camera, camera_id)
 
     def _try_camera(self, camera_id):
-        cam = cv.CaptureFromCAM(camera_id)
-        image = cv.QueryFrame(cam)
-        if image is not None:
-            return cam
-        else:
-            return None
+        cam = cv2.VideoCapture(camera_id)
+        if cam is not None:
+            image = cam.read()
+            if image is None:
+                cam = None
+        return cam
 
 
 class FalseExamDetectorContext(ExamDetectorContext):
@@ -594,84 +597,59 @@ class FalseExamDetectorContext(ExamDetectorContext):
             self.next_exam_idx = 0
 
 
-def init_camera(input_dev = -1):
-    return cv.CaptureFromCAM(input_dev)
-
-def capture_image(camera, clone = False):
-    image = cv.QueryFrame(camera)
-    if clone:
-        return cv.CloneImage(image)
-    else:
-        return image
-
-def resize_image(image, size):
-    new_image = cv.CreateImage(size, image.depth, image.nChannels)
-    cv.Resize(image, new_image, interpolation=cv.CV_INTER_AREA)
-    return new_image
-
 def pre_process(image):
     gray = rgb_to_gray(image)
-    thr = cv.CreateImage((image.width, image.height), image.depth, 1)
-    cv.AdaptiveThreshold(gray, thr, 255,
-                         cv.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                         cv.CV_THRESH_BINARY_INV,
-                         param_adaptive_threshold_block_size,
-                         param_adaptive_threshold_offset)
+    thr = cv2.adaptiveThreshold(gray, 255,
+                                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                cv2.THRESH_BINARY_INV,
+                                param_adaptive_threshold_block_size,
+                                param_adaptive_threshold_offset)
     return thr
 
-def gray_ipl_to_rgb(image):
-    rgb = cv.CreateImage((image.width, image.height), image.depth, 3)
-    cv.CvtColor(image, rgb, cv.CV_GRAY2RGB)
-    return rgb
+def gray_to_rgb(image):
+    return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
 def rgb_to_gray(image):
-    gray = cv.CreateImage((image.width, image.height), image.depth, 1)
-    cv.CvtColor(image, gray, cv.CV_RGB2GRAY)
-    return gray
+    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
 def load_image_grayscale(filename):
-    return rgb_to_gray(cv.LoadImage(filename))
+    return cv2.imread(filename, flags=cv2.IMREAD_GRAYSCALE)
 
 def load_image(filename):
-    return cv.LoadImage(filename)
+    return cv2.imread(filename)
 
-def draw_line(image, line, color = (0, 0, 255, 0)):
+def draw_line(image, line, color=(0, 0, 255, 0)):
     theta = line[1]
     points = set()
     if math.sin(theta) != 0.0:
         points.add(g.line_point(line, x=0))
-        points.add(g.line_point(line, x=image.width - 1))
+        points.add(g.line_point(line, x=g.width(image) - 1))
     if math.cos(theta) != 0.0:
         points.add(g.line_point(line, y=0))
-        points.add(g.line_point(line, y=image.height - 1))
+        points.add(g.line_point(line, y=g.height(image) - 1))
     p_draw = [p for p in points if p[0] >= 0 and p[1] >= 0
-              and p[0] < image.width and p[1] < image.height]
+              and p[0] < g.width(image) and p[1] < g.height(image)]
     if len(p_draw) == 2:
-        cv.Line(image, p_draw[0], p_draw[1], color, 1)
+        cv2.line(image, p_draw[0], p_draw[1], color, thickness=1)
 
-def draw_point(image, point, color = (255, 0, 0, 0), radius = 2):
+def draw_point(image, point, color=(255, 0, 0, 0), radius=2):
     x, y = point
-    if x >= 0 and x < image.width and y >= 0 and y < image.height:
-        cv.Circle(image, point, radius, color, cv.CV_FILLED)
+    if x >= 0 and x < g.width(image) and y >= 0 and y < g.height(image):
+        cv2.circle(image, point, radius, color, thickness=-1)
     else:
         print "draw_point: bad point (%d, %d)"%(x, y)
 
-def draw_text(image, text, color = (255, 0, 0), position = (10, 30)):
-    cv.PutText(image, text, position, font, color)
+def draw_text(image, text, color=(255, 0, 0), position=(10, 30)):
+    cv2.putText(image, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1.0, color,
+                thickness=3)
 
 def detect_lines(image, hough_threshold):
-    st = cv.CreateMemStorage()
-    lines = cv.HoughLines2(image, st, cv.CV_HOUGH_STANDARD,
-                           1, 0.01, hough_threshold)
-
-    # Trick to use both new and old style bindings
-    len_lines = len(lines)
-    if len_lines > 500:
+    lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
+    if lines is None or len(lines[0]) > 500:
         return []
-
-    s_lines = sorted([(float(l[0]), float(l[1])) for l in lines],
-                     key = lambda x: x[1])
-    return s_lines
+    lines = lines[0]
+    return sorted([(float(l[0]), float(l[1])) for l in lines],
+                  key = lambda x: x[1])
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -860,38 +838,38 @@ def check_corners(corner_matrixes, width, height):
     return True
 
 def read_infobits(image, corner_matrixes):
-    dim = (image.width, image.height)
-    mask = cv.CreateImage(dim, 8, 1)
-    masked = cv.CreateImage(dim, 8, 1)
+    mask = _new_image(g.width(image), g.height(image), 1)
     bits = []
     for corners in corner_matrixes:
         for i in range(1, len(corners[0])):
             dx = g.diff_points(corners[-1][i - 1], corners[-1][i])
             dy = g.diff_points(corners[-1][i], corners[-2][i])
-            center = g.round_point((corners[-1][i][0] + dx[0] / 2 + dy[0] / 2.6,
-                                   corners[-1][i][1] + dx[1] / 2 + dy[1] / 2.6))
-            bits.append(decide_infobit(image, mask, masked, center, dy))
+            center = g.round_point((corners[-1][i][0]
+                                    + dx[0] / 2 + dy[0] / 2.6,
+                                    corners[-1][i][1]
+                                    + dx[1] / 2 + dy[1] / 2.6))
+            bits.append(decide_infobit(image, mask, center, dy))
     # Check validity
     if min([b[0] ^ b[1] for b in bits]) == True:
         return [b[0] for b in bits]
     else:
         return None
 
-def decide_infobit(image, mask, masked, center_up, dy):
+def decide_infobit(image, mask, center_up, dy):
     center_down = g.add_points(center_up, dy)
     radius = int(round(math.sqrt(dy[0] * dy[0] + dy[1] * dy[1]) \
                            * param_bit_mask_radius_multiplier))
     if radius == 0:
         radius = 1
-    cv.SetZero(mask)
-    cv.Circle(mask, center_up, radius, (1), cv.CV_FILLED)
-    mask_pixels = cv.CountNonZero(mask)
-    cv.Mul(image, mask, masked)
-    masked_pixels_up = cv.CountNonZero(masked)
-    cv.SetZero(mask)
-    cv.Circle(mask, center_down, radius, (1), cv.CV_FILLED)
-    cv.Mul(image, mask, masked)
-    masked_pixels_down = cv.CountNonZero(masked)
+    _zero_image(mask)
+    cv2.circle(mask, center_up, radius, (1), thickness=-1)
+    mask_pixels = cv2.countNonZero(mask)
+    masked = cv2.multiply(image, mask)
+    masked_pixels_up = cv2.countNonZero(masked)
+    _zero_image(mask)
+    cv2.circle(mask, center_down, radius, (1), thickness=-1)
+    masked = cv2.multiply(image, mask)
+    masked_pixels_down = cv2.countNonZero(masked)
     if mask_pixels < 1:
         return (False, False)
     return (float(masked_pixels_up) / mask_pixels >= param_bit_mask_threshold,
@@ -920,12 +898,12 @@ def id_boxes_geometry(image, num_cells, lines, dimensions):
         return None, None
     # Now, adjust corners
     pairs_left, pairs_right = line_bounds_adaptive(image, hlines[0], hlines[1],
-                                                   image.width, 5)
+                                                   g.width(image), 5)
     all_bounds = [(l[0], r[0], l[1], r[1]) \
                       for l in pairs_left for r in pairs_right]
     for bounds in all_bounds[:5]:
         corners = id_boxes_check_points(image, bounds, hlines,
-                                        image.width, num_cells)
+                                        g.width(image), num_cells)
         if corners is not None:
             success = True
             break
@@ -1068,8 +1046,7 @@ def id_boxes_match_level(image, p0, p1):
     return float(active) / len(points)
 
 def save_image(filename, image):
-    """Saves a IPL image. Wrapper for cv.SaveImage."""
-    cv.SaveImage(filename, image)
+    cv2.imwrite(filename, image)
 
 # Utility functions
 #
@@ -1118,8 +1095,8 @@ def line_bounds(image, line, iwidth):
     if p1[1] < 0:
         p1 = g.line_point(line, y=0)
 
-    if (not g.point_is_valid(p0, (image.width, image.height))
-        or not g.point_is_valid(p1, (image.width, image.height))):
+    if (not g.point_is_valid(p0, (g.width(image), g.height(image)))
+        or not g.point_is_valid(p1, (g.width(image), g.height(image)))):
         return None, None
 
     # get bounds
@@ -1148,16 +1125,6 @@ def line_bounds(image, line, iwidth):
         ini = None
         end = None
     return ini, end
-
-## def cvimage_to_pygame(image):
-##     if cv_new_style:
-##         image_rgb = cv.CreateMat(image.height, image.width, cv.CV_8UC3)
-##         cv.CvtColor(image, image_rgb, cv.CV_BGR2RGB)
-##         return pygame.image.frombuffer(image_rgb.tostring(),
-##                                        cv.GetSize(image_rgb), 'RGB')
-##     else:
-##         im = cv.ipl_to_pil(image)
-##         return pygame.image.frombuffer(im.tostring(), im.size, im.mode)
 
 def process_box_corners(points, dimensions):
     num_boxes = len(dimensions)
@@ -1238,6 +1205,19 @@ def fix_box_if_needed(box_corners):
         print 'Warning: testing box [lu,ru,ld,rd]', box_corners
         print ' -> points at the rigth fixed'
     return (plu, pru, pld, prd)
+
+def _new_image(width, height, num_channels):
+    if num_channels == 1:
+        image = np.zeros((height, width), np.uint8)
+    elif num_channels == 3:
+        image = np.zeros((height, width, 3), np.uint8)
+    else:
+        raise ValueError('Wrong number of channels in _new_image()')
+    return image
+
+def _zero_image(image):
+    image[:, :] = 0
+
 
 ## Debug the upper case with these points: (70, 102), (297, 270),
 ##                          (62, 276), (260, 101),

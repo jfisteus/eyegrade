@@ -16,11 +16,7 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-# Import the cv module. It might be cv2.cv in newer versions.
-try:
-    import cv
-except ImportError:
-    import cv2.cv as cv
+import cv2
 
 import geometry
 import utils
@@ -144,14 +140,14 @@ class ExamCapture(object):
 
         """
         if self.image_raw is not None:
-            self.image_drawn = cv.CloneImage(self.image_raw)
+            self.image_drawn = self.image_raw.copy()
 
     def save_image_drawn(self, filename):
         assert self.image_drawn is not None
-        cv.SaveImage(filename, self.image_drawn)
+        cv2.imwrite(filename, self.image_drawn)
 
     def save_image_raw(self, filename):
-        cv.SaveImage(filename, self.image_raw)
+        cv2.imwrite(filename, self.image_raw)
 
     def draw_status(self):
         assert self.image_drawn is not None
@@ -159,7 +155,7 @@ class ExamCapture(object):
 
     def draw_corner(self, point):
         assert self.image_drawn is not None
-        cv.Circle(self.image_drawn, point, 4, _color_blue, 1)
+        cv2.circle(self.image_drawn, point, 4, _color_blue, thickness=1)
 
     def draw_answers(self, score):
         assert self.image_drawn is not None
@@ -170,15 +166,15 @@ class ExamCapture(object):
                 self._draw_answers_no_solutions(score)
 
     def _draw_status_bar(self):
-        x0 = self.image_drawn.width - 60
+        x0 = geometry.width(self.image_drawn) - 60
         y0 = 10
         width = 50
         height = 20
         p0 = (x0, y0)
         p1 = geometry.round_point((x0 + self.progress * width, y0 + height))
         p2 = (x0 + width, y0 + height)
-        cv.Rectangle(self.image_drawn, p0, p2, _color_blue)
-        cv.Rectangle(self.image_drawn, p0, p1, _color_blue, cv.CV_FILLED)
+        cv2.rectangle(self.image_drawn, p0, p2, _color_blue)
+        cv2.rectangle(self.image_drawn, p0, p1, _color_blue, thickness=-1)
 
     def _draw_answers_solutions(self, score):
         for answer, solution, status, cells in zip(score.answers,
@@ -202,16 +198,16 @@ class ExamCapture(object):
 
     def _draw_cell_circle(self, cell, color):
         radius = int(round(cell.diagonal / 3.5))
-        cv.Circle(self.image_drawn, cell.center, radius, color, 2)
+        cv2.circle(self.image_drawn, cell.center, radius, color, thickness=2)
 
     def _draw_cell_center(self, cell, color):
-        cv.Circle(self.image_drawn, cell.center, 4, color, cv.CV_FILLED)
+        cv2.circle(self.image_drawn, cell.center, 4, color, thickness=-1)
 
     def _draw_void_question(self, cells):
-        cv.Line(self.image_drawn, cells[0].center, cells[-1].center,
-                _color_bad, 3)
+        cv2.line(self.image_drawn, cells[0].center, cells[-1].center,
+                 _color_bad, thickness=3)
 
 
 def load_image(filename):
     """Loads an OpenCV image from file."""
-    return cv.LoadImage(filename)
+    return cv2.imread(filename)
