@@ -432,6 +432,7 @@ class DialogAbout(QDialog):
                    <ul><li>Jesús Arias Fisteus</li></ul>
                    <p><b>{1}:</b></p>
                    <ul><li>Jonathan Araneda Labarca</li></ul>
+                   <p><b>{2}:</b></p>
                    <ul><li>Rodrigo Argüello</li></ul>
                    """.format(_('Lead developers'),
                               _('Exam configuration dialogs'),
