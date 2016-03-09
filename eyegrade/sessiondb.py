@@ -22,6 +22,7 @@ import csv
 
 from . import utils
 from . import capture
+from . import images
 
 
 class SessionDB(object):
@@ -493,7 +494,7 @@ class SessionDB(object):
         capture.save_image_raw(raw_name)
 
     def load_raw_capture(self, exam_id):
-        return capture.load_image(self.get_raw_capture_path(exam_id))
+        return images.load_image(self.get_raw_capture_path(exam_id))
 
     def get_raw_capture_path(self, exam_id):
         path = os.path.join(self.session_dir, 'internal',
