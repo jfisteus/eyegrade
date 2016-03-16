@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-a = Analysis(['bin\\eyegrade'],
+a = Analysis(['..\\..\\bin\\eyegrade'],
              pathex=['.'],
              hiddenimports=[],
              hookspath=None,

@@ -33,10 +33,10 @@ def which(program):
     return None
 
 def get_pyi_path():
-    path = which('pyi-build.exe')
+    path = which('pyinstaller.exe')
     if not path:
         # Try in the current Python's installation
-        path = os.path.join(python_dir, 'Scripts', 'pyi-build.exe')
+        path = os.path.join(python_dir, 'Scripts', 'pyinstaller.exe')
         if not is_exe(path):
             path = None
     return path
@@ -88,13 +88,13 @@ os.chdir(eyegrade_dir)
 
 pyi_path = get_pyi_path()
 if not pyi_path:
-    print('Error: PyInstaller executable pyi_build.exe not found.')
+    print('Error: PyInstaller executable pyinstaller.exe not found.')
     sys.exit(1)
 result = subprocess.call([pyi_path, pyi_spec_file])
 if result != 0:
     print('Error: PyInstaller build failed.')
     sys.exit(1)
-    
+
 build_install_file_list()
 build_uninstall_file_list()
 

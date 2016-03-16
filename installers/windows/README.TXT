@@ -5,8 +5,8 @@ and NSIS version 2.X.
 
 Use a 32-bit version of python 2.7 for maximum portability of the produced files.
 
-Create the files with:
+Create the files from the main eyegrade directory with:
 
-python build.py
+python installers\windows\build.py
 
-The output installer is created in the dist directory of your eyegrade source directory.
+The output installer is created in the dist directory your main eyegrade directory.
