@@ -90,7 +90,7 @@ Please note that the user interface has been greatly improved since then:
 
 .. raw:: html
 
-         <iframe width="420" height="315"
+         <iframe width="360" height="270"
                  src="https://www.youtube.com/embed/ajK9JAhsDH0"
                  frameborder="0" allowfullscreen></iframe>
 
