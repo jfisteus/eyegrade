@@ -123,7 +123,7 @@ class DialogExportGrades(QDialog):
         if save_dialog.exec_():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
-                filename = filename_list[0]
+                filename = unicode(filename_list[0])
         return filename
 
 
