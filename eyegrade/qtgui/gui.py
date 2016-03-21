@@ -37,7 +37,7 @@ from . import examsview
 from . import widgets
 from . import wizards
 from . import dialogs
-from .export import DialogExportGrades
+from . import export
 from . import FileNameFilters
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
@@ -787,7 +787,7 @@ class Interface(object):
         students, fields).  Returns None if cancelled.
 
         """
-        dialog = DialogExportGrades(self.window, student_groups)
+        dialog = export.DialogExportGrades(self.window, student_groups)
         return dialog.exec_()
 
     def dialog_export_exam_config(self):
@@ -808,7 +808,7 @@ class Interface(object):
         if save_dialog.exec_():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
-                filename = filename_list[0]
+                filename = unicode(filename_list[0])
         return filename
 
     def show_information(self, message, title='Information'):
