@@ -99,7 +99,7 @@ class StudentComboBox(CompletingComboBox):
                 if self.currentText() == self.students[index].id_and_name:
                     # The user hasn't edited the text of this item
                     student = self.students[index]
-            elif self.currentText():
+            if student is None and  self.currentText():
                 # Perhaps a new entry is selected but the text is the
                 # same as in an existing entry
                 try:
