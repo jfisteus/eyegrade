@@ -56,42 +56,6 @@ The bug fix release 0.5.1 is available.
 See the `blog post:
 <blog/posts/bugfix-release-051.html>`__.
 
-**[Apr 3, 2015]**
-Advancing the features of the upcoming eyegrade 0.6.
-See the blog post:
-`part 1 <blog/posts/what-will-eyegrade-06-include-part-1.html>`__.
-
-**[Mar 23, 2015]**
-Eyegrade 0.5 has been released!
-See the `blog post <blog/posts/eyegrade-05-released.html>`__.
-
-**[Feb 26, 2015]**
-Advancing the features of the upcoming eyegrade 0.5,
-`part 4 <blog/posts/what-will-eyegrade-05-include-part-4.html>`__.
-
-**[Jan 4, 2015]**
-Advancing the features of the upcoming eyegrade 0.5,
-`part 3 <blog/posts/what-will-eyegrade-05-include-part-3.html>`__.
-
-**[Dec 29, 2014]**
-Advancing the features of the upcoming eyegrade 0.5.
-See the blog posts:
-`part 1 <blog/posts/what-will-eyegrade-05-include-part-1.html>`__
-and `part 2 <blog/posts/what-will-eyegrade-05-include-part-2.html>`__.
-
-**[Nov 28, 2014]**
-Eyegrade 0.4.4 has been released!
-This version fixes a bug caused by the bug fix of release 0.4.3.
-See the `blog post <blog/posts/eyegrade-044-released.html>`__.
-
-**[Nov 25, 2014]**
-Eyegrade 0.4.3 has been released!
-This version fixes a bug that affected Windows users.
-See the `blog post <blog/posts/eyegrade-043-released.html>`__.
-
-**[Nov 10, 2014]**
-Improved documentation about how to typeset exams.
-See the `blog post <blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex.html>`__.
 
 
 
@@ -126,10 +90,9 @@ Please note that the user interface has been greatly improved since then:
 
 .. raw:: html
 
-	<iframe class="youtube" width="500" height="375"
-                src="http://www.youtube.com/embed/ajK9JAhsDH0"
-                frameborder="0"
-                style="display: block; margin: 0 auto;"></iframe>
+         <iframe width="420" height="315"
+                 src="https://www.youtube.com/embed/ajK9JAhsDH0"
+                 frameborder="0" allowfullscreen></iframe>
 
 And here is a more current screenshot:
 
