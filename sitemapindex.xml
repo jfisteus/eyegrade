@@ -6,7 +6,7 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/bugfix.xml</loc>
-  <lastmod>2016-01-12</lastmod>
+  <lastmod>2016-03-21</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/documentation.xml</loc>
@@ -14,7 +14,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.xml</loc>
-  <lastmod>2016-01-12</lastmod>
+  <lastmod>2016-03-21</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/new-features.xml</loc>
@@ -26,7 +26,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/release.xml</loc>
-  <lastmod>2016-01-12</lastmod>
+  <lastmod>2016-03-21</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/requests.xml</loc>
@@ -38,7 +38,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/rss.xml</loc>
-  <lastmod>2016-01-12</lastmod>
+  <lastmod>2016-03-21</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/rss.xml</loc>
@@ -70,6 +70,6 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/sitemap.xml</loc>
-  <lastmod>2016-01-12</lastmod>
+  <lastmod>2016-03-21</lastmod>
  </sitemap>
 </sitemapindex>
