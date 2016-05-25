@@ -112,10 +112,11 @@ class ImageChangeTask(object):
 
 
 class ManualDetectionManager(object):
-    def __init__(self, exam, dimensions, detector_options):
+    def __init__(self, exam, dimensions, detection_context, detector_options):
         self.exam = exam
         self.points = []
-        self.detector = detection.ExamDetector(dimensions, None,
+        self.detector = detection.ExamDetector(dimensions,
+                                              detection_context,
                                               detector_options,
                                               image_raw=exam.capture.image_raw)
 
@@ -285,6 +286,7 @@ class ProgramManager(object):
         self.interface.display_capture(self.exam.get_image_drawn())
         self.manual_detect_manager = \
             ManualDetectionManager(self.exam, self.exam_data.dimensions,
+                                   self.detection_context,
                                    self.detection_options)
 
     def _next_search(self):
