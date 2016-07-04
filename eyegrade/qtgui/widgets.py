@@ -110,6 +110,7 @@ class StudentComboBox(CompletingComboBox):
                     pass
                 else:
                     self.setCurrentIndex(index)
+                    student = self.students[index]
         return student
 
 
