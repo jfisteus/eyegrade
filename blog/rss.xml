@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 21 Mar 2016 12:43:29 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bugfix release 0.6.3</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-063.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.3 today.
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 05 Jul 2016 08:42:41 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bugfix release 0.6.4</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-064.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The fix in Eyegrade 0.6.3
+for issue &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108"&gt;#108&lt;/a&gt;
+(the accept button remains sometimes disabled
+in the &lt;em&gt;edit student id&lt;/em&gt; dialog)
+didn't actually fix the problem in some situations.
+I've released Eyegrade 0.6.4 with a fix
+that I hope finally solves the problem.&lt;/p&gt;
+&lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-064.html</guid><pubDate>Tue, 05 Jul 2016 08:35:57 GMT</pubDate></item><item><title>Bugfix release 0.6.3</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-063.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.3 today.
 This release fixes issues
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108"&gt;#108&lt;/a&gt;
 (again, I hope that it's for good this time)
@@ -278,34 +286,4 @@ taking into account the weights you set:&lt;/p&gt;
 &lt;div class="figure"&gt;
 &lt;img alt="Dialog for computing the base score from the desired maximum score" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/compute-scores.png"&gt;
 &lt;/div&gt;
-&lt;p&gt;Keep tuned for more updates.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</guid><pubDate>Sun, 04 Jan 2015 21:03:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 2)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;This post describes another feature that will be available
-in eyegrade 0.5 (see &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;the first installment of this series of posts&lt;/a&gt;).&lt;/p&gt;
-&lt;p&gt;I've largely reworked the code that handles the student lists.
-In eyegrade 0.5 you'll see two visible changes regarding this.
-Firstly, you'll be able to specify the first and last name of
-students in two separate fields.
-Secondly, there is a new dialog for entering,
-while grading an exam,
-new students.&lt;/p&gt;
-&lt;p&gt;Separating first and last name will be optional.
-Eyegrade will infer, from the student lists it imports,
-whether you are providing separate first and last name fields,
-or the whole name together in just one field.
-When exporting grades, you'll have control
-over which name fields get exported and will be able
-to sort the listing by last name if you wish so.&lt;/p&gt;
-&lt;p&gt;Regarding the second change,
-there will be a new button
-in the dialog for editing the student id
-that lets you open a dialog for entering the data
-for a student that is not in your student lists:&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="Screenshot of the new version of the student id edit dialog" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/change-id-preview.png"&gt;
-&lt;/div&gt;
-&lt;p&gt;The dialog asks for the numerical id, first name, last name and email.
-Only the numerical id is mandatory.
-This is the current look of the dialog,
-although it might change before the release:&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="Screenshot of the new dialog for adding a new student" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/new-student-preview.png"&gt;
-&lt;/div&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</guid><pubDate>Mon, 29 Dec 2014 16:54:15 GMT</pubDate></item></channel></rss>
+&lt;p&gt;Keep tuned for more updates.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</guid><pubDate>Sun, 04 Jan 2015 21:03:00 GMT</pubDate></item></channel></rss>

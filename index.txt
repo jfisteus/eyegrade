@@ -18,8 +18,8 @@ Latest version
 ---------------
 
 The latest available version is
-**Eyegrade 0.6.3**,
-which was released on March 21, 2016.
+**Eyegrade 0.6.4**,
+which was released on July 5, 2016.
 
 
 .. class:: alert alert-info sidebar
@@ -34,6 +34,10 @@ News
 |rssicon| `Subscribe <blog/rss.xml>`_
 | `Read more news at the blog <blog/index.html>`_
 
+
+**[Jul 5, 2016]**
+Eyegrade 0.6.4 has been released!
+See the `blog post <blog/posts/bugfix-release-064.html>`__.
 
 **[Mar 21, 2016]**
 Eyegrade 0.6.3 has been released!

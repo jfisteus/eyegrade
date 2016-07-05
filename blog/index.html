@@ -100,6 +100,34 @@
 <div class="postindex">
     <article class="h-entry post-text">
     <header>
+        <h1 class="p-name entry-title"><a href="posts/bugfix-release-064.html" class="u-url">Bugfix release 0.6.4</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
+            <p class="dateline"><a href="posts/bugfix-release-064.html" rel="bookmark"><time class="published dt-published" datetime="2016-07-05T08:35:57+00:00" title="2016-07-05 08:35">2016-07-05 08:35</time></a></p>
+                <p class="commentline">
+        
+    <a href="posts/bugfix-release-064.html#disqus_thread" data-disqus-identifier="cache/posts/bugfix-release-064.html">Comments</a>
+
+
+        </p>
+</div>
+    </header>
+    <div class="e-content entry-content">
+    <div>
+<p>The fix in Eyegrade 0.6.3
+for issue <a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108">#108</a>
+(the accept button remains sometimes disabled
+in the <em>edit student id</em> dialog)
+didn't actually fix the problem in some situations.
+I've released Eyegrade 0.6.4 with a fix
+that I hope finally solves the problem.</p>
+<p>As always, you can update with <tt class="docutils literal">git pull</tt>
+if you installed Eyegrade through <em>git</em>.</p>
+</div>
+    </div>
+    </article>
+    <article class="h-entry post-text">
+    <header>
         <h1 class="p-name entry-title"><a href="posts/bugfix-release-063.html" class="u-url">Bugfix release 0.6.3</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
@@ -554,56 +582,6 @@ taking into account the weights you set:</p>
 <img alt="Dialog for computing the base score from the desired maximum score" class="thumbnail" src="../galleries/screenshots-05/compute-scores.png">
 </div>
 <p>Keep tuned for more updates.</p>
-</div>
-    </div>
-    </article>
-    <article class="h-entry post-text">
-    <header>
-        <h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-05-include-part-2.html" class="u-url">What will eyegrade 0.5 include? (part 2)</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Jesús Arias Fisteus</span></p>
-            <p class="dateline"><a href="posts/what-will-eyegrade-05-include-part-2.html" rel="bookmark"><time class="published dt-published" datetime="2014-12-29T16:54:15+00:00" title="2014-12-29 16:54">2014-12-29 16:54</time></a></p>
-                <p class="commentline">
-        
-    <a href="posts/what-will-eyegrade-05-include-part-2.html#disqus_thread" data-disqus-identifier="cache/posts/what-will-eyegrade-05-include-part-2.html">Comments</a>
-
-
-        </p>
-</div>
-    </header>
-    <div class="e-content entry-content">
-    <div>
-<p>This post describes another feature that will be available
-in eyegrade 0.5 (see <a class="reference external" href="posts/what-will-eyegrade-05-include-part-1.html">the first installment of this series of posts</a>).</p>
-<p>I've largely reworked the code that handles the student lists.
-In eyegrade 0.5 you'll see two visible changes regarding this.
-Firstly, you'll be able to specify the first and last name of
-students in two separate fields.
-Secondly, there is a new dialog for entering,
-while grading an exam,
-new students.</p>
-<p>Separating first and last name will be optional.
-Eyegrade will infer, from the student lists it imports,
-whether you are providing separate first and last name fields,
-or the whole name together in just one field.
-When exporting grades, you'll have control
-over which name fields get exported and will be able
-to sort the listing by last name if you wish so.</p>
-<p>Regarding the second change,
-there will be a new button
-in the dialog for editing the student id
-that lets you open a dialog for entering the data
-for a student that is not in your student lists:</p>
-<div class="figure">
-<img alt="Screenshot of the new version of the student id edit dialog" class="thumbnail" src="../galleries/screenshots-05/change-id-preview.png">
-</div>
-<p>The dialog asks for the numerical id, first name, last name and email.
-Only the numerical id is mandatory.
-This is the current look of the dialog,
-although it might change before the release:</p>
-<div class="figure">
-<img alt="Screenshot of the new dialog for adding a new student" class="thumbnail" src="../galleries/screenshots-05/new-student-preview.png">
-</div>
 </div>
     </div>
     </article>
