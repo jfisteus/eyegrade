@@ -96,6 +96,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
     labeled_digits = _initialize_digits_dict()
     for session_path in sys.argv[1:]:
+        logging.info('Processing session {}'.format(session_path))
         process_session(labeled_digits, session_path)
     dump_digit_list(labeled_digits)
 
