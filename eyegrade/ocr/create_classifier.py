@@ -31,7 +31,7 @@ def save_metadata(filename, metadata):
 
 def k_fold_cross_evaluation(classifier, sample_set, rounds):
     classifier.reset()
-    partitions = sample_set.partition(100)
+    partitions = sample_set.partition(rounds)
     e = evaluation.KFoldCrossEvaluation(classifier, partitions)
     return e
 
