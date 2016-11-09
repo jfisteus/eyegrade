@@ -15,10 +15,13 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from __future__ import division
 
 import cv2
 import numpy as np
 import numpy.linalg as linalg
+
+from .. import images
 
 
 class FeatureExtractor(object):
@@ -32,36 +35,33 @@ class FeatureExtractor(object):
         self.dim = dim
 
     def extract(self, sample):
-        image = self._reshape(sample)
-        image = deskew(image, self.dim)
-        image = clear_boundbox(image)
-        image = cv2.resize(image, (self.dim, self.dim))
+        image = self.preprocess(sample)
         image_matrix = np.array(image, np.float32) / 255.0
         feature_vector = image_matrix.reshape(self.features_len, )
         return feature_vector
+
+    def preprocess(self, sample):
+        image = images.invert(images.rgb_to_gray(sample.image))
+        image = images.clear_background(image)
+        image = clear_boundbox(image, self.dim)
+        image = resize(image, self.dim)
+        return image
 
     @property
     def features_len(self):
         return self.dim * self.dim
 
-    @staticmethod
-    def _project_to_rectangle(sample, width, height):
-        p = sample.corners
-        corners_dst = np.array([[0, 0],
-                                [width - 1, 0],
-                                [0, height - 1],
-                                [width - 1, height - 1]],
-                                dtype='float32')
-        h = cv2.findHomography(np.array(p, dtype='float32'), corners_dst)
-        image = cv2.warpPerspective(sample.image, h[0], (width, height))
-        return cv2.threshold(image, 64, 255, cv2.THRESH_BINARY)[1]
 
-    @staticmethod
-    def _reshape(sample):
-        p = sample.corners
-        width = int((cv2.norm(p[0,:], p[1,:]) + cv2.norm(p[2,:], p[3,:])) / 2)
-        height = int((cv2.norm(p[0,:], p[2,:]) + cv2.norm(p[1,:], p[3,:])) / 2)
-        return FeatureExtractor._project_to_rectangle(sample, width, height)
+## class NewFeatureExtractor(FeatureExtractor):
+##     def __init__(self, **kwargs):
+##         super(NewFeatureExtractor, self).__init__(**kwargs)
+
+##     def preprocess(self, sample):
+##         image = self._reshape(sample)
+##         image = images.erode_dilate(image)
+##         image = deskew(image, self.dim)
+##         image = cv2.resize(image, (self.dim, self.dim))
+##         return image
 
 
 class CrossesFeatureExtractor(FeatureExtractor):
@@ -71,12 +71,17 @@ class CrossesFeatureExtractor(FeatureExtractor):
     def __init__(self, dim=28):
         super(CrossesFeatureExtractor, self).__init__(dim=dim)
 
-    def extract(self, sample):
-        image = self._project_to_rectangle(sample, self.dim, self.dim)
-#        image = cv2.resize(image, (self.dim, self.dim))
-        image_matrix = np.array(image, np.float32) / 255.0
-        feature_vector = image_matrix.reshape(self.features_len, )
-        return feature_vector
+    def preprocess(self, sample):
+        image = images.pre_process(sample.image)
+        image = clear_boundbox(image, self.dim)
+        image = resize(image, self.dim)
+        return image
+
+    ## def preprocess(self, sample):
+    ##     image = images.pre_process(sample.image)
+    ##     image = clear_boundbox(image, self.dim)
+    ##     image = resize(image, self.dim)
+    ##     return image
 
 
 class OpenCVExampleExtractor(object):
@@ -135,34 +140,59 @@ def deskew(image, dim):
     image = cv2.warpAffine(image, M, (dim, dim), flags=affine_flags)
     return image
 
-def clear_boundbox(image):
+def clear_boundbox(image, final_dim):
     """Clear the blank surrounding area of an image.
 
     It improves classifier performance.
     The image must be a cv2 image.
 
     """
-    top = 0
-    bot = image.shape[0]
-    right = image.shape[1]
-    left = 0
-    it = 0
-    for index, row in enumerate(image):
-        if (not np.all(row==0)) and it == 0:
-            if not np.all(image[index + 1] == 0):
-                top = index
-                it = 1
-        elif np.all(row == 0) and it == 1:
-            bot = index
+    height, width = image.shape
+    # delimit the image borders
+    cleaned = images.erode_dilate(image)
+    for i in range(height):
+        if np.count_nonzero(cleaned[i, :] >= 128):
+            top = i
             break
-    it = 0
-    for index, col in enumerate(image.T):
-        if (not np.all(col == 0)) and it == 0:
-            if index + 2 >= right or not np.all(image.T[index + 2] == 0):
-                left = index
-                it = 1
-        elif np.all(col == 0) and it == 1:
-            right = index
+    else:
+        top = 0
+    for i in range(height - 1, top, -1):
+        if np.count_nonzero(cleaned[i, :] >= 128):
+            bottom = i
             break
-    cleared_image = image[top:bot, left:right]
-    return cleared_image
+    else:
+        bottom = height - 1
+    for i in range(width):
+        if np.count_nonzero(cleaned[:, i] >= 128):
+            left = i
+            break
+    else:
+        left = 0
+    for i in range(width - 1, left, -1):
+        if np.count_nonzero(cleaned[:, i] >= 128):
+            right = i
+            break
+    else:
+        right = width - 1
+    # Prevent the image from been later deformed
+    new_width = right - left
+    new_height = bottom - top
+    dim = int(max(1.5 * new_width, 1.5 * new_height, 0.75 * final_dim))
+    if dim > height and dim > width:
+        dim = max(height, width)
+    cleared_image = np.zeros((dim, dim), dtype=np.uint8)
+    px_0 = (dim - new_width) // 2
+    px_1 = px_0 + right - left
+    py_0 = (dim - new_height) // 2
+    py_1 = py_0 + bottom - top
+    cleared_image[py_0:py_1, px_0:px_1] = image[top:bottom, left:right]
+    image = cleared_image
+    return image
+
+def resize(image, dim):
+    height, width = image.shape
+    image = cv2.resize(image, (dim, dim))
+    if ((height / dim < 0.75 or width / dim < 0.75)
+        and np.count_nonzero(image) > 0.4 * dim * dim):
+        image = images.erode(image)
+    return image

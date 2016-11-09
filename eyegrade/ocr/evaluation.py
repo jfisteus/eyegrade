@@ -23,9 +23,10 @@ from . import sample
 
 
 class Evaluation(object):
-    def __init__(self, classifier, samples):
+    def __init__(self, classifier, samples, num_classes):
         self.classifier = classifier
         self.samples = samples
+        self.num_classes = num_classes
         self._evaluate()
 
     @property
@@ -38,10 +39,9 @@ class Evaluation(object):
         return np.mean(self.confusion_matrix_r.diagonal())
 
     def _evaluate(self):
-        num_classes = self.classifier.num_classes
         self.results = np.zeros(len(self.samples), dtype=bool)
-        self.confusion_matrix = np.zeros(shape=(num_classes, num_classes),
-                                         dtype='int')
+        self.confusion_matrix = \
+            np.zeros(shape=(self.num_classes, self.num_classes), dtype='int')
         for i, samp in enumerate(self.samples):
             detected = self.classifier.classify(samp)
             self.confusion_matrix[samp.label, detected] += 1

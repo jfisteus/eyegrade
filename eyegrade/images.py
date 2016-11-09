@@ -26,6 +26,11 @@ import numpy as np
 from . import geometry as g
 
 
+# Adaptive threshold algorithm
+param_adaptive_threshold_block_size = 45
+param_adaptive_threshold_offset = 0
+
+
 # Main image processing functions on numpy images
 #
 def width(image):
@@ -53,6 +58,67 @@ def gray_to_rgb(image):
 
 def rgb_to_gray(image):
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+def histogram_grayscale(image):
+    return cv2.calcHist([image], [0], None, [256], [0,256]).reshape(256)
+
+def invert(image):
+    return 255 - image
+
+def clear_background(image):
+    size = image.shape[0] * image.shape[1]
+    hist = histogram_grayscale(image)
+    diff = np.diff(hist)
+    pos_max = np.argmax(hist)
+    pos_growth = np.argmax(diff[pos_max + 4:] > 0) + pos_max + 4
+    pos_ini = np.argmin(hist[pos_growth:pos_growth + 4]) + pos_growth
+    while hist[pos_ini] > 0.2 * hist[pos_max]:
+        pos_ini += 1
+    cumsum = np.cumsum(hist)
+    while cumsum[pos_ini] < 0.75 * size:
+        pos_ini += 1
+    lim = cumsum[pos_ini - 1] + (cumsum[-1] - cumsum[pos_ini - 1]) / 2
+    pos_end = np.argmax(cumsum[pos_ini:] > lim) + pos_ini
+    if pos_ini > 170:
+        # For cleared cross cells
+        pos_ini = 170
+        pos_end = 200
+    lut = np.zeros(256, dtype=np.uint8)
+    lut[pos_end:] = 255
+    lut[pos_ini:pos_end] = np.linspace(0, 255, num=pos_end - pos_ini,
+                                       endpoint=False)
+    ## print repr(hist)
+    ## print repr(diff)
+    ## print repr(cumsum)
+    ## print 'max', pos_max, pos_growth
+    ## print pos_ini, pos_end
+    ## print lut
+    return cv2.LUT(image, lut)
+
+def project_to_rectangle(image, corners, width, height):
+    corners_dst = np.array([[0, 0],
+                            [width - 1, 0],
+                            [0, height - 1],
+                            [width - 1, height - 1]],
+                            dtype='float32')
+    h = cv2.findHomography(np.array(corners, dtype='float32'), corners_dst)
+    return cv2.warpPerspective(image, h[0], (width, height)), corners_dst
+
+def crop(image, corners):
+    p = corners
+    width = int((cv2.norm(p[0,:], p[1,:]) + cv2.norm(p[2,:], p[3,:])) / 2)
+    height = int((cv2.norm(p[0,:], p[2,:]) + cv2.norm(p[1,:], p[3,:])) / 2)
+    return project_to_rectangle(image, corners, width, height)
+
+# Pre-processing and thresholding
+def pre_process(image):
+    gray = rgb_to_gray(image)
+    thr = cv2.adaptiveThreshold(gray, 255,
+                                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                cv2.THRESH_BINARY_INV,
+                                param_adaptive_threshold_block_size,
+                                param_adaptive_threshold_offset)
+    return thr
 
 
 # Image reading and writing
@@ -90,3 +156,16 @@ def draw_point(image, point, color=(255, 0, 0, 0), radius=2):
 def draw_text(image, text, color=(255, 0, 0), position=(10, 30)):
     cv2.putText(image, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1.0, color,
                 thickness=3)
+
+# Dilating and eroding
+def erode(image):
+    return cv2.erode(image, cv2.getStructuringElement(cv2.MORPH_CROSS,(2,2)))
+
+def dilate(image):
+    return cv2.dilate(image, cv2.getStructuringElement(cv2.MORPH_CROSS,(2,2)))
+
+def erode_dilate(image):
+    return dilate(erode(image))
+
+def dilate_erode(image):
+    return erode(dilate(image))

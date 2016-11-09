@@ -22,14 +22,24 @@ import cv2
 import numpy as np
 
 from . import preprocessing
+from . import deepclassifier
 from .. import utils
 
 
-DEFAULT_DIG_CLASS_FILE = 'digit_classifier.dat.gz'
-DEFAULT_DIG_META_FILE = 'digit_classifier_metadata.txt'
+DEFAULT_DIG_CLASS_FILE = 'digit_classifier.json.gz'
+DEFAULT_DIG_META_FILE = 'digit_classifier_meta.txt'
 DEFAULT_CROSS_CLASS_FILE = 'cross_classifier.dat.gz'
 DEFAULT_CROSS_META_FILE = 'cross_classifier_metadata.json'
-DEFAULT_DIR = 'svm'
+DEFAULT_DIR = 'classifiers'
+
+
+def create_digit_classifier():
+    classifier_file = _resource(DEFAULT_DIG_CLASS_FILE)
+    meta_file = _resource(DEFAULT_DIG_META_FILE)
+    classifier = deepclassifier.Classifier(load_from_file=classifier_file,
+                                           mini_batch_size=1)
+    return DigitClassifierWrapper(classifier, meta_file)
+
 
 class SVMClassifier(object):
     def __init__(self, num_classes, features_extractor, load_from_file=None):
@@ -37,7 +47,7 @@ class SVMClassifier(object):
         self.features_extractor = features_extractor
         self.svm = cv2.SVM()
         if load_from_file:
-            self.svm.load(SVMClassifier.resource(load_from_file))
+            self.svm.load(_resource(load_from_file))
 
     @property
     def features_len(self):
@@ -71,18 +81,12 @@ class SVMClassifier(object):
     def save(self, filename):
         self.svm.save(filename)
 
-    @staticmethod
-    def resource(filename):
-        return utils.resource_path(os.path.join(DEFAULT_DIR, filename))
 
-
-class SVMDigitClassifier(SVMClassifier):
-    def __init__(self, features_extractor, load_from_file=None,
-                 confusion_matrix_from_file=None):
-        super(SVMDigitClassifier, self).__init__(10, features_extractor,
-                                                 load_from_file=load_from_file)
+class DigitClassifierWrapper(object):
+    def __init__(self, classifier, confusion_matrix_file):
+        self.classifier = classifier
         self.confusion_matrix = \
-            self._load_confusion_matrix(confusion_matrix_from_file)
+            self._load_confusion_matrix(confusion_matrix_file)
 
     def classify_digit(self, sample):
         digit = self.classify(sample)
@@ -92,27 +96,12 @@ class SVMDigitClassifier(SVMClassifier):
     @staticmethod
     def _load_confusion_matrix(filename):
         if filename:
-            with open(SVMClassifier.resource(filename)) as f:
+            with open(_resource(filename)) as f:
                 metadata = json.load(f)
                 matrix = np.array(metadata['confusion_matrix'], dtype=float)
         else:
             matrix = np.diag(np.ones(10, dtype=float))
         return matrix
-
-
-class DefaultDigitClassifier(SVMDigitClassifier):
-    def __init__(self,
-                 load_from_file=DEFAULT_DIG_CLASS_FILE,
-                 confusion_matrix_from_file=DEFAULT_DIG_META_FILE):
-        super(DefaultDigitClassifier, self).__init__( \
-                        preprocessing.FeatureExtractor(),
-                        load_from_file=load_from_file,
-                        confusion_matrix_from_file=confusion_matrix_from_file)
-
-    def train(self, samples, params=None):
-        super(DefaultDigitClassifier, self).train( \
-                                              samples,
-                                              dict(C=3.16227766, gamma=0.01))
 
 
 class SVMCrossesClassifier(SVMClassifier):
@@ -134,3 +123,6 @@ class DefaultCrossesClassifier(SVMCrossesClassifier):
         super(DefaultCrossesClassifier, self).train( \
                                               samples,
                                               dict(C=100, gamma=0.01))
+
+def _resource(filename):
+    return utils.resource_path(os.path.join(DEFAULT_DIR, filename))

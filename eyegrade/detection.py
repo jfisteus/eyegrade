@@ -33,10 +33,6 @@ from . import images
 from .ocr import classifiers
 from .ocr import sample
 
-# Adaptive threshold algorithm
-param_adaptive_threshold_block_size = 45
-param_adaptive_threshold_offset = 0
-
 # Other detection parameters
 param_collapse_lines_maxgap = 7
 param_directions_threshold = 0.4
@@ -87,14 +83,14 @@ class ExamDetector(object):
         self.context = context
         if image_raw is not None:
             self.image_raw = image_raw
-            self.image_proc = pre_process(self.image_raw)
+            self.image_proc = images.pre_process(self.image_raw)
         elif not self.options['capture-from-file']:
             self.image_raw = self.context.capture()
-            self.image_proc = pre_process(self.image_raw)
+            self.image_proc = images.pre_process(self.image_raw)
         elif self.options['capture-raw-file'] is not None:
             self.image_raw = \
                         images.load_image(self.options['capture-raw-file'])
-            self.image_proc = pre_process(self.image_raw)
+            self.image_proc = images.pre_process(self.image_raw)
         elif self.options['capture-proc-file'] is not None:
             self.image_raw = \
                         images.load_image(self.options['capture-proc-file'])
@@ -356,7 +352,8 @@ class ExamDetector(object):
         id_scores = []
         for cell in id_cells:
             corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
-            samp = sample.DigitSampleFromCam(corners, self.image_proc)
+            samp = sample.DigitSampleFromCam(corners, self.image_raw,
+                                             self.image_proc)
             digit, scores = self.context.ocr.classify_digit(samp)
             digits.append(digit)
             id_scores.append(scores)
@@ -417,7 +414,7 @@ class ExamDetectorContext(object):
         self.camera = None
         self.camera_id = camera_id
         self.threshold_locked = False
-        self.ocr = classifiers.DefaultDigitClassifier()
+        self.ocr = classifiers.create_digit_classifier()
         self.crosses_classifier = classifiers.DefaultCrossesClassifier()
 
     def open_camera(self, camera_id=None):
@@ -600,15 +597,6 @@ class FalseExamDetectorContext(ExamDetectorContext):
         if self.next_exam_idx == len(self.exams):
             self.next_exam_idx = 0
 
-
-def pre_process(image):
-    gray = images.rgb_to_gray(image)
-    thr = cv2.adaptiveThreshold(gray, 255,
-                                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                cv2.THRESH_BINARY_INV,
-                                param_adaptive_threshold_block_size,
-                                param_adaptive_threshold_offset)
-    return thr
 
 def detect_lines(image, hough_threshold):
     lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
