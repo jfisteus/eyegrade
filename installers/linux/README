@@ -1,0 +1,30 @@
+In order to create a single-file Linux executable file:
+
+1.- Install pyinstaller with pip (note that version 3.2 didn't work
+for me because of a bug. I had to install version 3.1 instead).
+
+2.- Check that six and packaging are also installed. The should have
+been installed with pyinstaller automatically, but I've seen the
+problem that they dind't get installed. Install them with pip if
+necessary.
+
+3.- From the main directory of the eyegrade source distribution, run:
+
+pyinstaller installers/linux/eyegrade.spec
+pyinstaller installers/linux/eyegrade-create.spec
+
+The executable files eyegrade and eyegrade-create will appear inside
+the "build" directory.
+
+Note that according to:
+
+https://pythonhosted.org/PyInstaller/usage.html#making-linux-apps-forward-compatible
+
+your executable files won't work in environments in which the
+installed version of libc is older than the version you have in the
+environment in which you run pyinstaller to create the executable
+file.
+
+In addition, if you build the executable file on a 64-bit OS, it will
+run only on 64-bit OSs. If you build it on a 32-bin OS, it will run
+only on 32-bit OSs.

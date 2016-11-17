@@ -48,6 +48,11 @@ results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
 
 _default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
 
+# The data_dir variable will be intially none.  The functions in this
+# module that depend on the data directory will initialize it if
+# needed.
+data_dir = None
+
 def _read_config():
     """Reads the general config file and returns the resulting config object.
 
@@ -244,26 +249,37 @@ class ComparableMixin(object):
 
 def guess_data_dir():
     path = os.path.split(os.path.realpath(__file__))[0]
-    if path.endswith('.zip'):
-        path = os.path.split(path)[0]
-    paths_to_try = [os.path.join(path, 'data'),
-                    os.path.join(path, '..', 'data'),
-                    os.path.join(path, '..', '..', 'data'),
-                    os.path.join(path, '..', '..', '..', 'data')]
+    # An alternative path to try for pyinstaller's packages:
+    path_alt = os.path.split(path)[0]
+    paths_to_try = [
+        os.path.join(path, 'data'),
+        os.path.join(path, '..', 'data'),
+        os.path.join(path, '..', '..', 'data'),
+        os.path.join(path, '..', '..', '..', 'data'),
+        os.path.join(path_alt, 'data'),
+    ]
     for p in paths_to_try:
         if os.path.isdir(p):
             return os.path.abspath(p)
     raise Exception('Data path not found!')
 
-data_dir = guess_data_dir()
+def init_data_dir():
+    global data_dir
+    data_dir = guess_data_dir()
 
 def locale_dir():
+    if data_dir is None:
+        init_data_dir()
     return os.path.join(data_dir, 'locale')
 
 def qt_translations_dir():
+    if data_dir is None:
+        init_data_dir()
     return os.path.join(data_dir, 'qt-translations')
 
 def resource_path(file_name):
+    if data_dir is None:
+        init_data_dir()
     return os.path.join(data_dir, file_name)
 
 def read_results(filename, permutations = {}, allow_question_mark=False):
