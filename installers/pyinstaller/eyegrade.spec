@@ -1,4 +1,6 @@
 # -*- mode: python -*-
+import sys
+
 a = Analysis(['../../bin/eyegrade'],
              pathex=['.'],
              hiddenimports=['six', 'packaging', 'packaging.version',
@@ -6,7 +8,8 @@ a = Analysis(['../../bin/eyegrade'],
              hookspath=None,
              runtime_hooks=None)
 a.datas += Tree('eyegrade/data', prefix='data')
-#a.datas = list({tuple(map(str.upper, t)) for t in a.datas})
+if sys.platform.startswith("win32"):
+    a.datas = list({tuple(map(str.upper, t)) for t in a.datas})
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
@@ -20,10 +23,3 @@ exe = EXE(pyz,
           upx=True,
           console=False,
           icon='eyegrade/data/eyegrade.ico')
-## coll = COLLECT(exe,
-##                a.binaries,
-##                a.zipfiles,
-##                a.datas,
-##                strip=None,
-##                upx=True,
-##                name='eyegrade')

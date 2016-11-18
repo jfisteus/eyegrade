@@ -12,7 +12,7 @@ if sys.version_info[0] != 2 or sys.version_info[1] not in [7]:
     sys.exit(1)
 
 setuptools.setup(name='eyegrade',
-      version='0.7.dev1',
+      version='0.7.dev2',
       description='Grade MCQ exams with a webcam',
       author='Jesus Arias Fisteus',
       author_email='jfisteus@gmail.com',

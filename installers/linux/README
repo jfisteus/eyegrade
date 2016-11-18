@@ -10,8 +10,8 @@ necessary.
 
 3.- From the main directory of the eyegrade source distribution, run:
 
-pyinstaller installers/linux/eyegrade.spec
-pyinstaller installers/linux/eyegrade-create.spec
+pyinstaller installers/pyinstaller/eyegrade.spec
+pyinstaller installers/pyinstaller/eyegrade-create.spec
 
 The executable files eyegrade and eyegrade-create will appear inside
 the "build" directory.

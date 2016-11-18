@@ -17,10 +17,3 @@ exe = EXE(pyz,
           strip=None,
           upx=True,
           console=True)
-## coll = COLLECT(exe,
-##                a.binaries,
-##                a.zipfiles,
-##                a.datas,
-##                strip=None,
-##                upx=True,
-##                name='eyegrade')
