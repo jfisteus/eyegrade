@@ -127,7 +127,7 @@ def read_cmd_options():
 
 def _arg_to_unicode(arg_value):
     if arg_value is not None:
-        return unicode(arg_value, sys.stdin.encoding)
+        return utils.path_to_unicode(arg_value)
     else:
         return None
 

@@ -837,7 +837,7 @@ def main():
                                   utils.qt_translations_dir())
     app.installTranslator(translator)
     if len(sys.argv) >= 2:
-        filename = unicode(sys.argv[1], sys.stdin.encoding)
+        filename = utils.path_to_unicode(sys.argv[1])
     else:
         filename = None
     try:
