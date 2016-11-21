@@ -53,6 +53,25 @@ _default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
 # needed.
 data_dir = None
 
+def path_to_unicode(path):
+    """Convert filesystem paths from str to unicode."""
+    encoding = sys.getfilesystemencoding()
+    if encoding is None:
+        # Some Unix systems might return None. Assume ASCII in that case:
+        encoding = 'ascii'
+    return unicode(path, encoding)
+
+def unicode_path_to_str(path):
+    """Convert filesystem paths from unicode to str."""
+    encoding = sys.getfilesystemencoding()
+    if encoding is None:
+        # Some Unix systems might return None. Assume ASCII in that case:
+        encoding = 'ascii'
+    return path.encode(encoding)
+
+def user_home():
+    return path_to_unicode(os.path.expanduser(b'~/'))
+
 def _read_config():
     """Reads the general config file and returns the resulting config object.
 
@@ -66,8 +85,9 @@ def _read_config():
               'default-charset': 'utf8', # special value: 'system-default'
               }
     parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser(u'~/.eyegrade.cfg'),
-                 os.path.expanduser(u'~/.camgrade.cfg')])
+    home = user_home()
+    parser.read([os.path.join(home, u'.eyegrade.cfg'),
+                 os.path.join(home, u'.camgrade.cfg')])
     if 'default' in parser.sections():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
@@ -84,22 +104,6 @@ def _read_config():
 
 # The global configuration object:
 config = _read_config()
-
-def path_to_unicode(path):
-    """Convert filesystem paths from str to unicode."""
-    encoding = sys.getfilesystemencoding()
-    if encoding is None:
-        # Some Unix systems might return None. Assume ASCII in that case:
-        encoding = 'ascii'
-    return unicode(path, encoding)
-
-def unicode_path_to_str(path):
-    """Convert filesystem paths from unicode to str."""
-    encoding = sys.getfilesystemencoding()
-    if encoding is None:
-        # Some Unix systems might return None. Assume ASCII in that case:
-        encoding = 'ascii'
-    return path.encode(encoding)
 
 
 class EyegradeException(Exception):
