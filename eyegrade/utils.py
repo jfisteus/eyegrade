@@ -66,8 +66,8 @@ def _read_config():
               'default-charset': 'utf8', # special value: 'system-default'
               }
     parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
-                 os.path.expanduser('~/.camgrade.cfg')])
+    parser.read([os.path.expanduser(u'~/.eyegrade.cfg'),
+                 os.path.expanduser(u'~/.camgrade.cfg')])
     if 'default' in parser.sections():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
@@ -84,6 +84,22 @@ def _read_config():
 
 # The global configuration object:
 config = _read_config()
+
+def path_to_unicode(path):
+    """Convert filesystem paths from str to unicode."""
+    encoding = sys.getfilesystemencoding()
+    if encoding is None:
+        # Some Unix systems might return None. Assume ASCII in that case:
+        encoding = 'ascii'
+    return unicode(path, encoding)
+
+def unicode_path_to_str(path):
+    """Convert filesystem paths from unicode to str."""
+    encoding = sys.getfilesystemencoding()
+    if encoding is None:
+        # Some Unix systems might return None. Assume ASCII in that case:
+        encoding = 'ascii'
+    return path.encode(encoding)
 
 
 class EyegradeException(Exception):
@@ -248,7 +264,8 @@ class ComparableMixin(object):
 
 
 def guess_data_dir():
-    path = os.path.split(os.path.realpath(__file__))[0]
+    u_file = path_to_unicode(__file__)
+    path = os.path.split(os.path.realpath(u_file))[0]
     # An alternative path to try for pyinstaller's packages:
     path_alt = os.path.split(path)[0]
     paths_to_try = [

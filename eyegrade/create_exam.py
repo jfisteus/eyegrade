@@ -118,7 +118,18 @@ def read_cmd_options():
     if options.table_scale < 0.1:
         parser.error('The scale factor must be positive and greater or equal'
                      ' to 0.1')
+    options.output_file_prefix = _arg_to_unicode(options.output_file_prefix)
+    options.exam_filename = _arg_to_unicode(options.exam_filename)
+    options.subject = _arg_to_unicode(options.subject)
+    options.degree = _arg_to_unicode(options.degree)
+    options.title = _arg_to_unicode(options.title)
     return options, args
+
+def _arg_to_unicode(arg_value):
+    if arg_value is not None:
+        return unicode(arg_value, sys.stdin.encoding)
+    else:
+        return None
 
 def create_exam():
     options, args = read_cmd_options()

@@ -24,6 +24,7 @@ import cv2
 import numpy as np
 
 from . import geometry as g
+from . import utils
 
 
 # Main image processing functions on numpy images
@@ -61,7 +62,8 @@ def load_image_grayscale(filename):
     return cv2.imread(filename, flags=cv2.IMREAD_GRAYSCALE)
 
 def load_image(filename):
-    return cv2.imread(filename)
+    str_filename = utils.unicode_path_to_str(filename)
+    return cv2.imread(str_filename)
 
 
 # Drawing functions

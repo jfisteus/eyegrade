@@ -766,7 +766,7 @@ class Interface(object):
                                                FileNameFilters.session_db,
                                                None,
                                                QFileDialog.DontUseNativeDialog)
-        return str(filename) if filename else None
+        return unicode(filename) if filename else None
 
     def dialog_camera_selection(self, capture_context):
         """Displays a camera selection dialog.
