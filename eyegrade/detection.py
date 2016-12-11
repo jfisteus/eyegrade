@@ -523,6 +523,8 @@ class ExamDetectorContext(object):
             clone = False
         if self.camera is not None:
             image = self.capture_image(clone=clone)
+            if image is None:
+                image = np.zeros((480, 640, 3), dtype=np.uint8)
             if resize is not None:
                 image = cv2.resize(image, resize, interpolation=cv2.INTER_AREA)
         return image
@@ -552,11 +554,12 @@ class ExamDetectorContext(object):
                 break
         return (camera, camera_id)
 
-    def _try_camera(self, camera_id):
+    @staticmethod
+    def _try_camera(camera_id):
         cam = cv2.VideoCapture(camera_id)
         if cam is not None:
-            image = cam.read()
-            if image is None:
+            success, image = cam.read()
+            if success is None or image is None:
                 cam = None
         return cam
 
