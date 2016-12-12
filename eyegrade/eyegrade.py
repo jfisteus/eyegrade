@@ -15,7 +15,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division
+from __future__ import division, print_function
 
 # The gettext module needs in Windows an environment variable
 # to be defined before importing the gettext module itself
@@ -845,7 +845,7 @@ def main():
         manager = ProgramManager(interface, session_file=filename)
         manager.run()
     except utils.EyegradeException as ex:
-        print >>sys.stderr, ex
+        print(unicode(ex).encode(sys.stdout.encoding))
         sys.exit(1)
 
 if __name__ == '__main__':
