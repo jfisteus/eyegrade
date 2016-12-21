@@ -841,7 +841,10 @@ def main():
     else:
         filename = None
     try:
-        interface = gui.Interface(app, False, False, [])
+        interface = gui.Interface(app, False, False, [],
+                                  preferred_styles=('Oxygen',
+                                                    'Cleanlooks',
+                                                    'Plastique',))
         manager = ProgramManager(interface, session_file=filename)
         manager.run()
     except utils.EyegradeException as ex:

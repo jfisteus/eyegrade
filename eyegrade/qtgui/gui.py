@@ -27,7 +27,7 @@ from PyQt4.QtGui import (QWidget, QMainWindow,
                          QLabel, QIcon, QAction, QMenu, QDialog,
                          QFileDialog, QHBoxLayout,
                          QMessageBox, QPixmap,
-                         QKeySequence, )
+                         QKeySequence, QStyleFactory, )
 
 from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool,
                           QObject, pyqtSignal,)
@@ -550,7 +550,8 @@ class MainWindow(QMainWindow):
 
 
 class Interface(object):
-    def __init__(self, app, id_enabled, id_list_enabled, argv):
+    def __init__(self, app, id_enabled, id_list_enabled, argv,
+                 preferred_styles=None):
         self.app = app
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
@@ -565,6 +566,7 @@ class Interface(object):
                                self.window.close)
         self.register_listener(('actions', 'help', 'about'),
                                self.show_about_dialog)
+        self._configure_qt_style(preferred_styles)
 
     def run(self):
         return self.app.exec_()
@@ -862,3 +864,11 @@ class Interface(object):
     def show_about_dialog(self):
         dialog = dialogs.DialogAbout(self.window)
         dialog.exec_()
+
+    def _configure_qt_style(self, preferred_styles):
+        if preferred_styles is not None:
+            for style_key in preferred_styles:
+                style = QStyleFactory.create(style_key)
+                if style is not None:
+                    self.app.setStyle(style)
+                    break
