@@ -8,6 +8,7 @@ a = Analysis(['../../bin/eyegrade'],
              hookspath=None,
              runtime_hooks=None)
 a.datas += Tree('eyegrade/data', prefix='data')
+a.datas += [('data/default.cfg', 'installers/pyinstaller/default.cfg', 'DATA')]
 if sys.platform.startswith("win32"):
     a.datas = list({tuple(map(str.upper, t)) for t in a.datas})
 pyz = PYZ(a.pure)

@@ -87,7 +87,8 @@ def _read_config():
     parser = ConfigParser.SafeConfigParser()
     home = user_home()
     parser.read([os.path.join(home, u'.eyegrade.cfg'),
-                 os.path.join(home, u'.camgrade.cfg')])
+                 os.path.join(home, u'.camgrade.cfg'),
+                 resource_path('default.cfg'),])
     if 'default' in parser.sections():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
@@ -100,11 +101,12 @@ def _read_config():
     config['camera-dev'] = int(config['camera-dev'])
     if config['default-charset'] == 'system-default':
         config['default-charset'] = locale.getpreferredencoding()
+    if 'gui-styles' in config:
+        config['gui-styles'] = tuple(v.strip()
+                                     for v in config['gui-styles'].split(','))
+    else:
+        config['gui-styles'] = None
     return config
-
-# The global configuration object:
-config = _read_config()
-
 
 class EyegradeException(Exception):
     """An Eyegrade-specific exception.
@@ -302,6 +304,9 @@ def resource_path(file_name):
     if data_dir is None:
         init_data_dir()
     return os.path.join(data_dir, file_name)
+
+# The global configuration object:
+config = _read_config()
 
 def read_results(filename, permutations = {}, allow_question_mark=False):
     """Parses an eyegrade results file.
