@@ -73,18 +73,18 @@ def draw_line(image, line, color=(0, 0, 255, 0)):
     points = set()
     if math.sin(theta) != 0.0:
         points.add(g.line_point(line, x=0))
-        points.add(g.line_point(line, x=g.width(image) - 1))
+        points.add(g.line_point(line, x=width(image) - 1))
     if math.cos(theta) != 0.0:
         points.add(g.line_point(line, y=0))
-        points.add(g.line_point(line, y=g.height(image) - 1))
+        points.add(g.line_point(line, y=height(image) - 1))
     p_draw = [p for p in points if p[0] >= 0 and p[1] >= 0
-              and p[0] < g.width(image) and p[1] < g.height(image)]
+              and p[0] < width(image) and p[1] < height(image)]
     if len(p_draw) == 2:
         cv2.line(image, p_draw[0], p_draw[1], color, thickness=1)
 
 def draw_point(image, point, color=(255, 0, 0, 0), radius=2):
     x, y = point
-    if x >= 0 and x < g.width(image) and y >= 0 and y < g.height(image):
+    if x >= 0 and x < width(image) and y >= 0 and y < height(image):
         cv2.circle(image, point, radius, color, thickness=-1)
     else:
         print "draw_point: bad point (%d, %d)"%(x, y)
