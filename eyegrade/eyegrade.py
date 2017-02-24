@@ -750,6 +750,7 @@ class ProgramManager(object):
     def _start_grading(self):
         exam_data = self.exam_data
         self.detection_options = detection.ExamDetector.get_default_options()
+        self.detection_options['error-logging'] = self.config['error-logging']
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
             self.detection_options['read-id'] = True
             self.detection_options['id-num-digits'] = exam_data.id_num_digits
