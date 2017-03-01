@@ -162,7 +162,6 @@ class ExamDetector(object):
                                            self.dimensions)
             if len(corner_matrixes) > 0:
                 self.status['cells'] = True
-            if len(corner_matrixes) > 0:
                 answer_cells = self._answer_cells_geometry(corner_matrixes)
                 answers = self._decide_cells(answer_cells)
                 if self.options['infobits']:
