@@ -6,11 +6,10 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.6 and later versions.
+This user manual refers to Eyegrade 0.7 and later versions.
 For the
-0.5 series see `the user manual version 0.5 <../user-manual-0.5/>`_.
-For the
-0.3 and 0.4 series see `the user manual version 0.4 <../user-manual-0.4/>`_.
+0.6 series see `the user manual version 0.6 <../user-manual-0.6/>`_.
+
 
 Installing Eyegrade
 -------------------
@@ -39,21 +38,48 @@ Eyegrade depends on the following free-software projects:
 .. _Tre: http://laurikari.net/tre/
 
 
-Upgrading from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x to Eyegrade 0.6
+Upgrading from Eyegrade 0.6.x and previous versions to Eyegrade 0.7
 ......................................................................
 
-In order to upgrade from Eyegrade 0.2.x, 0.3.x, 0.4.x and 0.5.x
-to Eyegrade 0.6,
-follow the instructions at `Updating Eyegrade`_.
+The installation procedures for Eyegrade 0.7 are new.
+Instead of upgrading through Git like in previous versions,
+I recommend directly removing your installation
+and doing a fresh installation following the instructions
+in the next sections.
 
-Be aware that Eyegrade 0.5 and 0.6 use an updated session database schema.
-Although Eyegrade 0.5 and 0.6 are able to work with sessions created
-by Eyegrade 0.4 and previous versions,
-those previous versions don't work
-with sessions created by Eyegrade 0.5 and 0.6.
+On Windows, one possible procedure for uninstalling everything,
+assuming you've followed the installation instructions
+for Eyegrade 0.6.x or a previous version, is:
+
+- If you don't need them for other software,
+  run the uninstallers of PyQT4, OpenCV and Git.
+
+- Remove your Python 2.6 installation directory
+  (probably ``C:\Python26``)
+  from your system's
+  PATH environment variable, if it's there.
+
+- Remove your Python's installation directory
+  (probably ``C:\Python26``).
+
+- Remove the directory of Eyegrade
+  (probably ``C:\eyegrade``).
+
+On Linux, you can uninstall some packages
+that previous versions of Eyegrade depended on
+but are now bundled inside the binaries you'll download.
+If you know no other software in your installation needs them,
+you may remove
+``python-qt4``, ``python-opencv``, ``git``, ``python-dev``,
+``libtre5``, ``libtre-dev``.
+This step is optional,
+since Eyegrade will work normally even if you don't uninstall them.
 
 The main changes of the most recent versions are described in the following
 blog posts:
+
+- `Eyegrade 0.7 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-07-released.html>`_
 
 - `Eyegrade 0.6 released
   <http://www.eyegrade.org/blog/posts/eyegrade-06-released.html>`_
@@ -71,241 +97,61 @@ blog posts:
 Installation on GNU/Linux
 .........................
 
-If your Linux distribution is not very old, it should provide most of
-the needed software packages. Specific instructions for Debian
-GNU/Linux and Ubuntu are provided below.
+Eyegrade for Linux is distributed as a tarball file
+containing the executable files
+`eyegrade` (its main program)
+and `eyegrade-create`
+(the command line tool that creates the PDF files of the exam).
+Download and uncompress the tarball file **TODO: link**
+and save the binary files
+in the location you prefer inside your account
+or in a system-wide directory.
+You may want to add the directory to your `PATH`
+or place the binaries inside a directory that is already in your `PATH`.
+For example, if you want to place the binaries
+inside `/usr/local/bin`, which is usually in your `PATH`::
 
-
-Installation on Debian and Ubuntu
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Almost all the required software packages are already available in
-recent versions of `Debian GNU/Linux <http://www.debian.org/>`_ and
-`Ubuntu <http://www.ubuntu.com/>`_. The only exception are the Python
-bindings for Tre, which have to be installed manually.
-
-Using your favorite package manager (``apt-get``, ``aptitude``,
-``synaptic``, etc.), install the following packages:
-
-- ``python`` (check that the version is 2.7.)
-
-- ``python-dev``
-
-- ``python-qt4``
-
-- ``python-opencv``
-
-- ``python-numpy``
-
-- ``libtre5``
-
-- ``libtre-dev``
-
-- ``git``
-
-For example, with ``apt-get`` you would run from a command line terminal::
-
-  sudo apt-get install python python-dev python-qt4 python-opencv python-numpy libtre5 libtre-dev git
-
-Then, you have to install the Python bindings for Tre.  In order to do
-that, download, compile and install the Python bindings. You can do
-that from a command line terminal::
-
-  wget http://laurikari.net/tre/tre-0.8.0.tar.gz
-  tar xzvf tre-0.8.0.tar.gz
-  cd tre-0.8.0/python/
-  python setup.py build
-  sudo python setup.py install
-
-Now, you only need to download Eyegrade using the git source code
-revision system::
-
-  cd $DIR
-  git clone -b master git://github.com/jfisteus/eyegrade.git
-
-Note: replace $DIR above with the directory in which you
-want Eyegrade to be installed.
-
-Finally, add the ``$DIR/eyegrade`` directory to your ``PYTHONPATH`` and
-check that Eyegrade works::
-
-  export PYTHONPATH=$DIR/eyegrade
-  python -m eyegrade.eyegrade
-
-The export command works only in the current terminal. You can make it
-permanent by adding it to your $HOME/.bashrc file (if you use the BASH
-shell).
-
-That's all! Eyegrade should now be installed. For further testing, go to
-`Launching Eyegrade`_.
+  tar xavf eyegrade-0.7-linux-bin.tgz
+  sudo cp eyegrade-0.7-linux-bin/eyegrade /usr/local/bin
+  sudo cp eyegrade-0.7-linux-bin/eyegrade-create /usr/local/bin
 
 
 Installation on Microsoft Windows
 .................................
 
-You have to follow these steps, explained in the following sections,
-in order to install Eyegrade in Windows:
+Download the Windows installer **TODO: link** and run it.
+Once installed, Eyegrade will be installed within your user's account
+and accessible through your Start Menu.
 
-1.- Install Python 2.6 (including Tre).
+**Important:**
+The security systems of Windows will probably alert you
+that running the installer may be dangerous
+because of it coming from an untrusted source.
+The reason is that being Eyegrade free software
+I'm unwilling to pay for a trusted certificate
+with which to sign the installer.
+If you want to be sure the installer has not been tampered with by anybody,
+use the checksums from the downloads page.
 
-2.- Install PyQt.
-
-3.- Install OpenCV 2.1.
-
-4.- Install Eyegrade itself.
-
-
-Installing Python
-~~~~~~~~~~~~~~~~~
-
-The easiest way to install Python, PyQt and Tre in Windows is
-to download a ZIP file that contains all of them and extract it in
-your file system.
-
-1.- Download the ZIP file from:
-`Python26.zip <https://www.dropbox.com/s/y7t4ov23h0gq2zj/Python26.zip>`_.
-
-2.- Extract it somewhere in your file system (I recommend ``C:\``). A
-directory named ``Python26`` will appear. Be aware that the full path
-of the directory where you extract it *cannot contain* white-spaces.
-
-3.- Add the main directory (``Python26``) of your Python installation
-to your system PATH. For example, if you uncompressed Python at ``C:\``,
-add ``C:\Python26`` to the system PATH variable.
-
-You can test your installation by opening a new command line console
-and launching the interactive Python interpreter in it::
-
-    Python
-
-If it does not start, you have probably not added it correctly to your
-system PATH. Opening a new console is important because changes in the
-system PATH apply only to newly-opened consoles.
-
-Once in the Python interpreter, the following command should work::
-
-    import tre
-
-This command should not output any message. If it does, there is a
-problem with the installation. If *tre* complains about a missing DLL,
-the problem is probably that the installation directory of Python is
-not in the system PATH.
-
-If you already have a Python 2.6 installation and want to use it, you
-must, on that installation of Python, download and install Tre
-0.8.0. You will need Microsoft Visual Studio 2008 (the express version
-is free and works) for this last step.
-
-
-Installing PyQt4
-~~~~~~~~~~~~~~~~
-
-`Download PyQt
-<http://www.riverbankcomputing.co.uk/software/pyqt/download>`_. Select
-the Windows 32-bit installer for Python 2.6, event if you have a
-64-bit version of Windows.  Alternatively, there is a copy of the file
-you need at `PyQt-Py2.6-x86-gpl-4.9.6-1.exe
-<https://www.dropbox.com/s/15xnbrj82n9tial/PyQt-Py2.6-x86-gpl-4.9.6-1.exe>`_.
-
-Run the installer. From the optional software that the installer
-suggests, you only need to select the *Qt runtime*.
-
-
-Installing OpenCV
-~~~~~~~~~~~~~~~~~
-
-Download the EXE installer of OpenCV 2.1.0 for Windows platforms:
-`OpenCV-2.1.0-win32-vs2008.exe
-<http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.1/OpenCV-2.1.0-win32-vs2008.exe/download>`_. There
-is a copy of the same file at `OpenCV21.exe
-<https://www.dropbox.com/s/g1wxm3rcai2qojx/OpenCV21.exe>`_.
-
-Execute the installer. Again, it is better to choose an installation
-path which has no white-spaces in it. The installer will eventually
-ask to put OpenCV in your system PATH. Answer *yes for this user* or
-*yes for all the users*.
-
-In order to test the installation, open a *new* command prompt window
-(it must necessarily be a new window for the system path to be
-updated). Run the python interpreter as explained in the previous
-section and type in it::
-
-    import cv
-
-This command should not output any message. If it does, there is a
-problem with the installation.
-
-
-Installing Eyegrade
-~~~~~~~~~~~~~~~~~~~
-
-By now, the recommended way to install Eyegrade is through the `Git
-version control system <http://git-scm.com/>`_. This way it will be
-easier to update Eyegrade in the future, when new versions are
-released (see `Updating Eyegrade`_).
-
-In order to install Eyegrade through Git, follow these steps:
-
-1.- Download and install Git if you do not have it installed. The
-installer and installation instructions are available at
-<http://git-scm.com/>.
-
-2.- Open a command line prompt (for example, a Git shell), enter the
-directory you want Eyegrade to be installed (again, with no
-white-spaces in it), and type::
-
-    git clone -b master git://github.com/jfisteus/eyegrade.git
-
-If you prefer not to install Git:
-
-1.- Download the ZIP file `eyegrade-0.6.4.zip
-<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.4.zip>`_.
-Extract it in your file system,
-in a directory with no white-spaces in its path.
-
-Once you have Eyegrade installed (either with or without Git), test
-it. For example, if you have installed both Python and Eyegrade at
-``C:\``::
-
-    set PYTHONPATH=C:\eyegrade
-    C:\Python26\python -m eyegrade.eyegrade
-
-It should dump a help message.
-
-**Tip:** it may be convenient adding C:\Python26 to your system path
-permanently, and adding PYTHONPATH to the system-wide environment
-variables. There are plenty of resources in the Web that explain how
-to do this. For example,
-`<http://www.windows7hacker.com/index.php/2010/05/how-to-addedit-environment-variables-in-windows-7/>`_.
-
-Eyegrade should now be installed. Nevertheless, it might be a good
-idea to reboot now the computer, in order to guarantee that the
-installation of OpenCV and PyQt has completed. After that, go to
-`Launching Eyegrade`_.
+**Note:**
+If you try to uninstall Eyegrade manually
+or run the installer for a newer version,
+the installer may fail with a message
+saying that Eyegrade is running and should be closed first.
+This message will appear also if there is any file manager window
+positioned in a directory called *Eyegrade*.
+Close the file manager window in that case and proceed again.
 
 
 Installation on Mac OS X
 ........................
 
-Sorry, Eyegrade is not currently supported on that platform. Volunteers
-to support the platform are welcome.
-
-
-Updating Eyegrade
-.................
-
-From time to time, a new release of Eyegrade may appear. If you
-installed Eyegrade using Git, updating is simple. Open a command
-prompt window, enter the Eyegrade installation directory and type::
-
-    git pull
-
-This should work on any platform (Linux, Windows, etc.)
-
-If you didn't use Git to install Eyegrade, `download the new version
-<https://github.com/jfisteus/eyegrade/archive/eyegrade-0.6.4.zip>`_,
-uncompress it and replace your ``eyegrade`` directory by the one you
-have uncompressed.
+Unfortunately, I cannot provide support for Mac OS X.
+I'm confident that Eyegrade should work on that platform out of the box
+or with some minimal changes,
+but I don't own a computer
+in which to check and build an installer.
+Volunteers to support Eyegrade on Mac OS X are welcome.
 
 
 Grading Exams
