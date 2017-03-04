@@ -66,7 +66,7 @@ to work properly:
 """
 
 setuptools.setup(name='eyegrade',
-      version='0.7',
+      version='0.7rc1',
       description='Grade MCQ exams with a webcam',
       long_description=long_description,
       author='Jesus Arias Fisteus',
