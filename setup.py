@@ -51,9 +51,11 @@ to work properly:
   For example, in Debian (Stretch and previous versions) and Ubuntu
   (16.10 and previous versions) just install the packages
   `python-opencv` and `python-qt4`.
-  Note that `a bug in OpenCV 3 <https://github.com/opencv/opencv/issues/4969>`_
-  makes Eyegrade fail with
-  that version, and some distributions ship already OpenCV 3.
+  I've tested Eyegrade with the OpenCV 2.4 series.
+  Some Linux distributions ship OpenCV 3.
+  Note that API changes in that version prevent it from
+  working with this version of Eyegrade.
+  I'll try to adapt the code as soon as possible.
 
 - For Windows platforms you can download OpenCV and PyQt4 from their
   official websites.
