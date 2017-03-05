@@ -65,30 +65,6 @@ capture_change_period = 1.0
 capture_change_period_failure = 0.3
 after_removal_delay = 1.0
 
-def cell_clicked(image, point):
-    min_dst = None
-    clicked_row = None
-    clicked_col = None
-    for i, row in enumerate(image.centers):
-        for j, center in enumerate(row):
-            dst = detection.distance(point, center)
-            if min_dst is None or dst < min_dst:
-                min_dst = dst
-                clicked_row = i
-                clicked_col = j
-    if (min_dst is not None and
-        min_dst <= image.diagonals[clicked_row][clicked_col] / 2):
-        return (clicked_row, clicked_col + 1)
-    else:
-        return None
-
-def select_camera(options, config):
-    if options.camera_dev is None:
-        camera = config['camera-dev']
-    else:
-        camera = options.camera_dev
-    return camera
-
 
 class ImageDetectTask(object):
     """Used for running image detection in another thread."""
