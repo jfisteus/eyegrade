@@ -70,11 +70,11 @@
   !insertmacro MUI_LANGUAGE "Galician"
 
   LangString MsgEyegradeRunning ${LANG_ENGLISH} \
-             "Eyegrade is running. Please, close it and try again" 
+             "Eyegrade is running. Please, close it and try again. If you have any file explorer window in a directory called Eyegrade, close it too"
   LangString MsgEyegradeRunning ${LANG_SPANISH} \
-             "Eyegrade se está ejecutando. Por favor, ciérrelo y vuélvalo a intentar" 
+             "Eyegrade se está ejecutando. Por favor, ciérrelo y vuélvalo a intentar. Si tiene algún explorador de ficheros en una carpeta llamada Eyegrade, ciérrelo también" 
   LangString MsgEyegradeRunning ${LANG_GALICIAN} \
-             "Eyegrade estase a executar. Por favor, cérreo e volva intentalo" 
+             "Eyegrade estase a executar. Por favor, cérreo e volva intentalo. Se ten algun explorador de ficheiros aberto nunha carpeta chamada Eyegrade, cérrea tamén" 
   LangString MsgRunEyegrade ${LANG_ENGLISH} \
              "Run Eyegrade when finished"
   LangString MsgRunEyegrade ${LANG_SPANISH} \
