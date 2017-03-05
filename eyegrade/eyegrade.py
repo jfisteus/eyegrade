@@ -666,19 +666,21 @@ class ProgramManager(object):
             self._mouse_pressed_manual_detection(point)
 
     def _mouse_pressed_change_answer(self, point):
-        question, answer = self.exam.capture.get_cell_clicked(point)
-        if question is not None:
-            self.exam.toggle_answer(question, answer)
-            self.interface.display_capture(self.exam.get_image_drawn())
-            self.interface.update_status(self.exam.score,
+        if self.exam.capture.has_answer_cells():
+            question, answer = self.exam.capture.get_cell_clicked(point)
+            if question is not None:
+                self.exam.toggle_answer(question, answer)
+                self.interface.display_capture(self.exam.get_image_drawn())
+                self.interface.update_status(self.exam.score,
                                         self.exam.decisions.model,
                                         self.exam.exam_id,
                                         survey_mode=self.exam_data.survey_mode)
-            self.sessiondb.update_answer(self.exam.exam_id, question,
+                self.sessiondb.update_answer(self.exam.exam_id, question,
                                          self.exam.capture,
                                          self.exam.decisions, self.exam.score,
                                          store_captures=False)
-            self.interface.run_later(self._store_capture_and_update, delay=100)
+                self.interface.run_later(self._store_capture_and_update,
+                                         delay=100)
 
     def _mouse_pressed_manual_detection(self, point):
         manager = self.manual_detect_manager

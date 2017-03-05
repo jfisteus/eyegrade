@@ -106,10 +106,10 @@ class ExamCapture(object):
         self.reset_image()
 
     def has_answer_cells(self):
-        return len(self.answer_cells) > 0
+        return self.answer_cells is not None and len(self.answer_cells) > 0
 
     def has_id_cells(self):
-        return len(self.id_cells) > 0
+        return self.id_cells is not None and len(self.id_cells) > 0
 
     def get_cell_clicked(self, point):
         """Determines the cell to which the given point corresponds.
