@@ -16,10 +16,10 @@ except ImportError:
     dependencies['opencv'] = (False, 'import')
 
 try:
-    import PyQt4.QtCore
-    dependencies['pyqt4'] = (True, None)
+    import PyQt5.QtCore
+    dependencies['pyqt5'] = (True, None)
 except ImportError:
-    dependencies['pyqt4'] = (False, 'import')
+    dependencies['pyqt5'] = (False, 'import')
 
 if all(value[0] for value in dependencies.values()):
     import eyegrade.eyegrade
@@ -35,7 +35,7 @@ else:
             print('Cannot import cv2. You need to install OpenCV 2.4 '
                   'and its Python bindings.',
                   file=sys.stderr)
-    has_pyqt4, reason = dependencies['pyqt4']
-    if not has_pyqt4:
-        print('Cannot import PyQt4. You need to install it.',
+    has_pyqt5, reason = dependencies['pyqt5']
+    if not has_pyqt5:
+        print('Cannot import PyQt5. You need to install it.',
                   file=sys.stderr)

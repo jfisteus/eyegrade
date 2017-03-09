@@ -22,16 +22,33 @@ from __future__ import unicode_literals, division
 import gettext
 import locale
 
-from PyQt4.QtGui import (QMessageBox, QVBoxLayout,
-                         QFormLayout,
-                         QScrollArea, QDialogButtonBox,
-                         QCheckBox, QSpinBox,
-                         QPushButton, QTabWidget,
-                         QDialog, QLabel, QLineEdit,
-                         QRegExpValidator, QIcon,
-                         QComboBox, )
+from PyQt5.QtGui import (
+    QIcon,
+    QRegExpValidator,
+)
 
-from PyQt4.QtCore import (Qt, QTimer, pyqtSignal, QRegExp, )
+from PyQt5.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QSpinBox,
+    QTabWidget,
+    QVBoxLayout,
+)
+
+from PyQt5.QtCore import (
+    QRegExp,
+    QTimer,
+    Qt,
+    pyqtSignal,
+)
 
 from .. import utils
 from . import widgets

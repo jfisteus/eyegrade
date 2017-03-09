@@ -21,16 +21,36 @@ from __future__ import division
 
 import gettext
 
-#from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import (QWidget, QMainWindow,
-                         QSizePolicy, QVBoxLayout, QStackedLayout,
-                         QLabel, QIcon, QAction, QMenu, QDialog,
-                         QFileDialog, QHBoxLayout,
-                         QMessageBox, QPixmap,
-                         QKeySequence, QStyleFactory, )
+from PyQt5.QtGui import (
+    QIcon,
+    QKeySequence,
+    QPixmap,
+)
 
-from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool,
-                          QObject, pyqtSignal,)
+from PyQt5.QtWidgets import (
+    QAction,
+    QDialog,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QSizePolicy,
+    QStackedLayout,
+    QStyleFactory,
+    QVBoxLayout,
+    QWidget,
+)
+
+from PyQt5.QtCore import (
+    QObject,
+    QRunnable,
+    QThreadPool,
+    QTimer,
+    Qt,
+    pyqtSignal,
+)
 
 from .. import utils
 from . import examsview
@@ -762,13 +782,13 @@ class Interface(object):
         The filename of the session file is returned or None.
 
         """
-        filename = QFileDialog.getOpenFileName(self.window,
+        filename, __ = QFileDialog.getOpenFileName(self.window,
                                                _('Select the session file'),
                                                '',
                                                FileNameFilters.session_db,
                                                None,
                                                QFileDialog.DontUseNativeDialog)
-        return unicode(filename) if filename else None
+        return filename if filename else None
 
     def dialog_camera_selection(self, capture_context):
         """Displays a camera selection dialog.

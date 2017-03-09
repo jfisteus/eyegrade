@@ -18,11 +18,28 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-from PyQt4.QtGui import (QIcon, QListWidget, QListView, QListWidgetItem,
-                         QWidget, QVBoxLayout,
-                         QItemSelection, QImage, QPainter, )
+from PyQt5.QtGui import (
+    QIcon,
+    QImage,
+    QPainter,
+)
 
-from PyQt4.QtCore import (QObject, QSize, QEvent, pyqtSignal, pyqtSlot, )
+from PyQt5.QtWidgets import (
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+
+from PyQt5.QtCore import (
+    QEvent,
+    QItemSelection,
+    QObject,
+    QSize,
+    pyqtSignal,
+    pyqtSlot,
+)
 
 from .. import utils
 
@@ -104,13 +121,13 @@ class ThumbnailsView(QListWidget):
             pos = 1 + self.exams.index(current_exam)
             if pos < len(self.exams):
                 item = self.item(pos)
-                self.setItemSelected(item, True)
+                item.setSelected(True)
                 self.scrollToItem(item)
 
     def clear_selected_exam(self):
         items = self.selectedItems()
         if items:
-            self.setItemSelected(items[0], False)
+            items[0].setSelected(False)
 
     def block_keyboard(self, block):
         self.keyboard_filter.setBlocking(block)

@@ -17,22 +17,51 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 import gettext
 import fractions
 
-from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
-                         QStatusBar, QLabel, QHBoxLayout, QCheckBox, QSpinBox,
-                         QWidget, QLineEdit, QPushButton, QIcon, QMessageBox,
-                         QFileDialog, QRegExpValidator,
-                         QListWidget, QAbstractItemView,
-                         QVBoxLayout, QImage, QPainter, QPixmap,
-                         QRadioButton, QButtonGroup,
-                         QTableView, QStyle, )
-from PyQt4.QtCore import (Qt, QRegExp, QAbstractTableModel,
-                          QAbstractListModel,
-                          QModelIndex, QVariant, pyqtProperty, )
+from PyQt5.QtGui import (
+    QIcon,
+    QImage,
+    QPainter,
+    QPixmap,
+    QRegExpValidator,
+)
+
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QCompleter,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QSpinBox,
+    QStatusBar,
+    QStyle,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
+
+from PyQt5.QtCore import (
+    QAbstractListModel,
+    QAbstractTableModel,
+    QModelIndex,
+    QRegExp,
+    QSortFilterProxyModel,
+    QVariant,
+    Qt,
+    pyqtProperty,
+)
 
 from .. import utils
 from . import Colors
@@ -68,7 +97,6 @@ class CompletingComboBox(QComboBox):
         self.lineEdit().textEdited[unicode]\
             .connect(self.filter.setFilterFixedString)
         self.currentIndexChanged.connect(self._index_changed)
-        self.setAutoCompletion(True)
 
     def _index_changed(self, index):
         self.lineEdit().selectAll()
@@ -252,11 +280,10 @@ class OpenFileWidget(QWidget):
                                          | QFileDialog.DontResolveSymlinks
                                          | QFileDialog.DontUseNativeDialog))
         else:
-            filename = QFileDialog.getOpenFileName(self, self.title, '',
-                                              self.name_filter, None,
-                                              QFileDialog.DontUseNativeDialog)
+            filename, _ = QFileDialog.getOpenFileName(self, self.title, '',
+                                            self.name_filter, None,
+                                            QFileDialog.DontUseNativeDialog)
         if filename:
-            filename = unicode(filename)
             valid = self.check_value(filename=filename)
             if valid:
                 self.filename_widget.setText(filename)
@@ -371,14 +398,14 @@ class MultipleFilesWidget(QWidget):
         return files
 
     def _add_files(self):
-        file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
+        file_list_q, __ = QFileDialog.getOpenFileNames(self, self.title, '',
                                                self.file_name_filter, None,
                                                QFileDialog.DontUseNativeDialog)
         model = self.file_list.model()
         for file_name in file_list_q:
             valid = True
             if self._check_file is not None:
-                valid, msg = self._check_file(unicode(file_name))
+                valid, msg = self._check_file(file_name)
             if valid:
                 # Check if the file is already in the list:
                 match = model.match(model.index(0, 0), 0, file_name, 1,
@@ -548,6 +575,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
         self.changes = False
 
     def data_reset(self, exam_config=None):
+        self.beginResetModel()
         if exam_config is None:
             exam_config = self.exam_config
         else:
@@ -577,14 +605,15 @@ class ScoreWeightsTableModel(QAbstractTableModel):
             self.weights = [weights_0]
         self.sum_weights = [sum(w) for w in self.weights]
         self.changes = False
-        self.reset()
+        self.endResetModel()
 
     def clear(self):
+        self.beginResetModel()
         for i in range(len(self.weights)):
             self.weights[i] = [None] * self.exam_config.num_questions
         self.sum_weights = [None] * len(self.weights)
         self.changes = False
-        self.reset()
+        self.endResetModel()
 
     def validate(self):
         """Checks that the weights are valid.
@@ -803,7 +832,8 @@ class _CustomComboBoxModel(QAbstractListModel):
     def set_items(self, items):
         self.items = items
         self.enabled = [True] * len(items)
-        self.reset()
+        self.beginResetModel()
+        self.endResetModel()
 
     def set_item_enabled(self, index, enabled):
         self.enabled[index] = enabled
