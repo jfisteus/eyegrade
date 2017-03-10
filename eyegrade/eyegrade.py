@@ -805,8 +805,13 @@ def main():
     # the loading of the translations must be done here instead of the
     # gui module:
     #
-    from PyQt5.QtWidgets import QApplication
-    from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
+    # Try PyQt5 first, and then PyQt4 if it fails
+    try:
+        from PyQt5.QtWidgets import QApplication
+        from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
+    except ImportError:
+        from PyQt4.QtGui import QApplication
+        from PyQt4.QtCore import QTranslator, QLocale, QLibraryInfo
     app = QApplication(sys.argv)
     translator = QTranslator()
     success = translator.load(QLocale.system(), 'qt', '_',

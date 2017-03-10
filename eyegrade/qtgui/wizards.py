@@ -22,31 +22,59 @@ from __future__ import division
 import gettext
 import os.path
 
-from PyQt5.QtGui import (
-    QColor,
-)
+# Try PyQt5 first, and then PyQt4 if it fails
+try:
+    from PyQt5.QtGui import (
+        QColor,
+    )
 
-from PyQt5.QtWidgets import (
-    QButtonGroup,
-    QFormLayout,
-    QGridLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QListWidget,
-    QListWidgetItem,
-    QMessageBox,
-    QPushButton,
-    QRadioButton,
-    QScrollArea,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-    QWizard,
-    QWizardPage,
-)
+    from PyQt5.QtWidgets import (
+        QButtonGroup,
+        QFormLayout,
+        QGridLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QLabel,
+        QListWidget,
+        QListWidgetItem,
+        QMessageBox,
+        QPushButton,
+        QRadioButton,
+        QScrollArea,
+        QTabWidget,
+        QVBoxLayout,
+        QWidget,
+        QWizard,
+        QWizardPage,
+    )
 
-from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt
+except ImportError:
+    from PyQt4.QtGui import (
+        QColor,
+    )
+
+    from PyQt4.QtGui import (
+        QButtonGroup,
+        QFormLayout,
+        QGridLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QLabel,
+        QListWidget,
+        QListWidgetItem,
+        QMessageBox,
+        QPushButton,
+        QRadioButton,
+        QScrollArea,
+        QTabWidget,
+        QVBoxLayout,
+        QWidget,
+        QWizard,
+        QWizardPage,
+    )
+
+    from PyQt4.QtCore import Qt
 
 from .. import utils
 from . import widgets

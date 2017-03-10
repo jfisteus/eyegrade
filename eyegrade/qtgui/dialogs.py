@@ -22,33 +22,63 @@ from __future__ import unicode_literals, division
 import gettext
 import locale
 
-from PyQt5.QtGui import (
-    QIcon,
-    QRegExpValidator,
-)
+# Try PyQt5 first, and then PyQt4 if it fails
+try:
+    from PyQt5.QtGui import (
+        QIcon,
+        QRegExpValidator,
+    )
 
-from PyQt5.QtWidgets import (
-    QCheckBox,
-    QComboBox,
-    QDialog,
-    QDialogButtonBox,
-    QFormLayout,
-    QLabel,
-    QLineEdit,
-    QMessageBox,
-    QPushButton,
-    QScrollArea,
-    QSpinBox,
-    QTabWidget,
-    QVBoxLayout,
-)
+    from PyQt5.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDialog,
+        QDialogButtonBox,
+        QFormLayout,
+        QLabel,
+        QLineEdit,
+        QMessageBox,
+        QPushButton,
+        QScrollArea,
+        QSpinBox,
+        QTabWidget,
+        QVBoxLayout,
+    )
 
-from PyQt5.QtCore import (
-    QRegExp,
-    QTimer,
-    Qt,
-    pyqtSignal,
-)
+    from PyQt5.QtCore import (
+        QRegExp,
+        QTimer,
+        Qt,
+        pyqtSignal,
+    )
+except ImportError:
+    from PyQt4.QtGui import (
+        QIcon,
+        QRegExpValidator,
+    )
+
+    from PyQt4.QtGui import (
+        QCheckBox,
+        QComboBox,
+        QDialog,
+        QDialogButtonBox,
+        QFormLayout,
+        QLabel,
+        QLineEdit,
+        QMessageBox,
+        QPushButton,
+        QScrollArea,
+        QSpinBox,
+        QTabWidget,
+        QVBoxLayout,
+    )
+
+    from PyQt4.QtCore import (
+        QRegExp,
+        QTimer,
+        Qt,
+        pyqtSignal,
+    )
 
 from .. import utils
 from . import widgets
