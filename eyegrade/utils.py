@@ -79,16 +79,21 @@ def _read_config():
     utils.config variable.
 
     """
-    config = {'camera-dev': '0',
-              'save-filename-pattern': _default_capture_pattern,
-              'csv-dialect': 'tabs',
-              'default-charset': 'utf8', # special value: 'system-default'
-              }
+    config = {
+        'camera-dev': '0',
+        'save-filename-pattern': _default_capture_pattern,
+        'csv-dialect': 'tabs',
+        'default-charset': 'utf8', # special value: 'system-default'
+    }
     parser = ConfigParser.SafeConfigParser()
     home = user_home()
-    parser.read([os.path.join(home, u'.eyegrade.cfg'),
-                 os.path.join(home, u'.camgrade.cfg'),
-                 resource_path('default.cfg'),])
+    try:
+        parser.read([os.path.join(home, u'.eyegrade.cfg'),
+                     os.path.join(home, u'.camgrade.cfg'),
+                     resource_path('default.cfg'),])
+    except EyegradeException:
+        parser.read([os.path.join(home, u'.eyegrade.cfg'),
+                     os.path.join(home, u'.camgrade.cfg'),])
     if 'default' in parser.sections():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
@@ -284,7 +289,7 @@ def guess_data_dir():
     for p in paths_to_try:
         if os.path.isdir(p):
             return os.path.abspath(p)
-    raise Exception('Data path not found!')
+    raise EyegradeException('Data path not found!')
 
 def init_data_dir():
     global data_dir
@@ -306,7 +311,10 @@ def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 
 # The global configuration object:
-config = _read_config()
+try:
+    config = _read_config()
+except EyegradeException:
+    pass
 
 def read_results(filename, permutations = {}, allow_question_mark=False):
     """Parses an eyegrade results file.
