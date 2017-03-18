@@ -59,11 +59,12 @@ def rgb_to_gray(image):
 # Image reading and writing
 #
 def load_image_grayscale(filename):
-    return cv2.imread(filename, flags=cv2.IMREAD_GRAYSCALE)
+    return load_image(filename, flags=cv2.IMREAD_GRAYSCALE)
 
-def load_image(filename):
-    str_filename = utils.unicode_path_to_str(filename)
-    return cv2.imread(str_filename)
+def load_image(filename, **kwargs):
+    if isinstance(filename, unicode):
+        filename = utils.unicode_path_to_str(filename)
+    return cv2.imread(filename, **kwargs)
 
 
 # Drawing functions

@@ -278,8 +278,9 @@ class ExamDetector(object):
                                       file=file_)
             file_.close()
             im_file = param_error_image_pattern%re.sub(r'[-\ \.:]', '_', date)
-            save_image(os.path.join(self.options['logging-dir'], im_file),
-                       self.image_raw)
+            capture.save_image(os.path.join(self.options['logging-dir'],
+                                            im_file),
+                               self.image_raw)
         else:
             traceback.print_exception(exc_type, exc_value, exc_traceback)
 
@@ -1013,9 +1014,6 @@ def id_boxes_match_level(image, p0, p1):
     points = [(x, y) for (x, y) in g.walk_line(p0, p1)]
     active = len([(x, y) for (x, y) in points if image[y, x] > 0])
     return float(active) / len(points)
-
-def save_image(filename, image):
-    cv2.imwrite(filename, image)
 
 # Utility functions
 #
