@@ -311,10 +311,7 @@ def resource_path(file_name):
     return os.path.join(data_dir, file_name)
 
 # The global configuration object:
-try:
-    config = _read_config()
-except EyegradeException:
-    pass
+config = _read_config()
 
 def read_results(filename, permutations = {}, allow_question_mark=False):
     """Parses an eyegrade results file.
