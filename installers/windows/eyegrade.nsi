@@ -109,7 +109,11 @@ Section "Installing Eyegrade Files" InstEyegradeFiles
   File "${EYEGRADE_DIR}\COPYING.TXT"
   File "/oname=README.TXT" "${EYEGRADE_DIR}\README"
   File "/oname=CHANGELOG.TXT" "${EYEGRADE_DIR}\Changelog"
-
+  CreateDirectory "$INSTDIR\examples"
+  SetOutPath "$INSTDIR\examples"
+  File "${EYEGRADE_DIR}\doc\sample-files\exam-A.pdf"
+  File "${EYEGRADE_DIR}\doc\sample-files\exam.eye"
+  
   ;Store installation folder
   WriteRegStr HKCU "Software\Eyegrade" "" $INSTDIR
   WriteRegStr HKCU "Software\Eyegrade" "Version" "${VERSION}"
@@ -122,6 +126,7 @@ Section "Installing Eyegrade Files" InstEyegradeFiles
     ;Create shortcuts
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
     CreateShortcut "$SMPROGRAMS\$StartMenuFolder\Eyegrade.lnk" "$INSTDIR\eyegrade.exe"
+    CreateShortcut "$SMPROGRAMS\$StartMenuFolder\Examples.lnk" "$INSTDIR\examples"
     CreateShortcut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   
   !insertmacro MUI_STARTMENU_WRITE_END
@@ -172,13 +177,15 @@ Section "Uninstall"
   Delete "$INSTDIR\README.TXT"
   Delete "$INSTDIR\CHANGELOG.TXT"
   Delete "$INSTDIR\uninstall.exe"
-
+  RMDir /r "$INSTDIR\examples"
+  
   !include "${EYEGRADE_DIR}\build\uninstall_files.nsh"
   
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
     
   Delete "$SMPROGRAMS\$StartMenuFolder\Eyegrade.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\Examples.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
   
   DeleteRegKey HKCU "Software\Eyegrade\Version"
