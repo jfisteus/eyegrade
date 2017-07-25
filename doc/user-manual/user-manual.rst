@@ -1144,15 +1144,15 @@ provided that LaTeX is installed and available in your system's PATH
 
 You'll need the `eyegrade-create.exe` (just `eyegrade-create` on Linux)
 binary file.
-Note that, on Windows, this program is available in your start menu,
-but you cannot run it directly from there because it is a command-prompt
-program.
-Locate the binary file
-(it is probably within your user's home folder,
-in `C:\Users\username\AppData\Local\Eyegrade`)
-and copy it somewhere in your
-computer where you find it convenient,
-or add the installation file to your system path environment variable.
+Note that, on Windows, you can get this file from
+Eyegrade's installation folder,
+which you can open from Eyegrade's entry at the Start Menu.
+The only way to run `eyegrade-create` by now is from a command-prompt console.
+Therefore, it is better to
+copy the `eyegrade-create` program
+somewhere in your
+computer where you find it convenient
+(for example, the directory where you have prepared your exam's source files).
 
 Once you have located `eyegrade-create`, run the following command
 from a command-line console::
