@@ -83,7 +83,7 @@ setuptools.setup(name='eyegrade',
           'Environment :: X11 Applications :: Qt',
           'Intended Audience :: Education',
           'License :: OSI Approved :: '
-              'GNU Lesser General Public License v3 or later (LGPLv3+)',
+              'GNU General Public License v3 or later (GPLv3+)',
           'Natural Language :: Spanish',
           'Natural Language :: English',
           'Natural Language :: Galician',
