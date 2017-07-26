@@ -113,7 +113,7 @@ Eyegrade has been used in several courses
 at `Universidad Carlos III de Madrid <http://www.uc3m.es>`_
 since 2010,
 as well as in other institutions worldwide.
-Follow the `quick user guide <quick-user-guide.html>`_
+Follow the `quick start guide <quick-start-guide.html>`_
 if you want to give it a try.
 
 
