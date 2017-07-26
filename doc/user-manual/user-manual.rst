@@ -14,28 +14,68 @@ For the
 Installing Eyegrade
 -------------------
 
-Eyegrade depends on the following free-software projects:
 
-- Python_: the run-time environment and standard library for the
-  execution Python programs. Eyegrade is known to work with Python
-  2.6.
+Installation on GNU/Linux
+.........................
 
-- Opencv_: a widely used computer-vision library. Version 2.0 or later
-  is needed. Not only the OpenCV library, but also the python bindings
-  distributed with it are needed.
+Eyegrade for Linux is distributed as a tarball file
+containing the executable files
+`eyegrade` (its main program)
+and `eyegrade-create`
+(the command line tool that creates the PDF files of the exam).
+Download and uncompress the tarball file from the
+`downloads page <http://eyegrade.org/download.html>`_
+and save the binary files
+in the location you prefer inside your account
+or within a system-wide directory.
+You may want to add the directory to your `PATH`
+or place the binaries inside a directory that is already in your `PATH`.
+For example, if you want to place the binaries
+inside `/usr/local/bin`, which is usually in your `PATH`::
 
-- Qt_: a multi-platform library for developing graphical user interfaces.
+  tar xavf eyegrade-0.7-linux-bin.tgz
+  sudo cp eyegrade-0.7-linux-bin/eyegrade /usr/local/bin
+  sudo cp eyegrade-0.7-linux-bin/eyegrade-create /usr/local/bin
 
-- PyQt_: Python bindings to Qt.
 
-- Tre_: a library for regular expressions. Install version 0.8.0 or
-  later.  Both the library and python bindings are needed.
+Installation on Microsoft Windows
+.................................
 
-.. _Python: http://www.python.org/
-.. _Opencv: http://opencv.willowgarage.com/wiki/
-.. _Qt: http://qt.digia.com/
-.. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/
-.. _Tre: http://laurikari.net/tre/
+Download the Windows installer
+from the `downloads page <http://eyegrade.org/download.html>`_
+and run it.
+Once installed, Eyegrade will be installed within your user's account
+and accessible through your Start Menu.
+
+**Important:**
+The security systems of Windows will probably alert you
+that running the installer may be dangerous
+because of it coming from an untrusted source.
+The reason is that being Eyegrade free software
+I cannot pay for a trusted certificate
+with which to sign the installer.
+If you want to be sure the installer has not been tampered with by anybody,
+use the checksums from the downloads page.
+
+**Note:**
+If you try to uninstall Eyegrade manually
+or run the installer for a newer version,
+the installer may fail with a message
+saying that Eyegrade is running and should be closed first.
+This message will appear also if there is any file manager window
+positioned in a directory called *Eyegrade*.
+Close the file manager window in that case and proceed again.
+
+
+Installation on Mac OS X
+........................
+
+Unfortunately, I cannot provide support for Mac OS X.
+I'm confident that Eyegrade should work on that platform out of the box
+or with some minimal changes,
+but I don't own a computer
+in which to check and build an installer.
+Volunteers to support Eyegrade on Mac OS X are welcome.
 
 
 Upgrading from Eyegrade 0.6.x and previous versions to Eyegrade 0.7
@@ -94,68 +134,14 @@ blog posts:
   <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
 
 
-Installation on GNU/Linux
-.........................
-
-Eyegrade for Linux is distributed as a tarball file
-containing the executable files
-`eyegrade` (its main program)
-and `eyegrade-create`
-(the command line tool that creates the PDF files of the exam).
-Download and uncompress the tarball file **TODO: link**
-and save the binary files
-in the location you prefer inside your account
-or in a system-wide directory.
-You may want to add the directory to your `PATH`
-or place the binaries inside a directory that is already in your `PATH`.
-For example, if you want to place the binaries
-inside `/usr/local/bin`, which is usually in your `PATH`::
-
-  tar xavf eyegrade-0.7-linux-bin.tgz
-  sudo cp eyegrade-0.7-linux-bin/eyegrade /usr/local/bin
-  sudo cp eyegrade-0.7-linux-bin/eyegrade-create /usr/local/bin
-
-
-Installation on Microsoft Windows
-.................................
-
-Download the Windows installer **TODO: link** and run it.
-Once installed, Eyegrade will be installed within your user's account
-and accessible through your Start Menu.
-
-**Important:**
-The security systems of Windows will probably alert you
-that running the installer may be dangerous
-because of it coming from an untrusted source.
-The reason is that being Eyegrade free software
-I'm unwilling to pay for a trusted certificate
-with which to sign the installer.
-If you want to be sure the installer has not been tampered with by anybody,
-use the checksums from the downloads page.
-
-**Note:**
-If you try to uninstall Eyegrade manually
-or run the installer for a newer version,
-the installer may fail with a message
-saying that Eyegrade is running and should be closed first.
-This message will appear also if there is any file manager window
-positioned in a directory called *Eyegrade*.
-Close the file manager window in that case and proceed again.
-
-
-Installation on Mac OS X
-........................
-
-Unfortunately, I cannot provide support for Mac OS X.
-I'm confident that Eyegrade should work on that platform out of the box
-or with some minimal changes,
-but I don't own a computer
-in which to check and build an installer.
-Volunteers to support Eyegrade on Mac OS X are welcome.
-
 
 Grading Exams
 -------------
+
+If it is the first time you run Eyegrade,
+it is recommended to go first through the
+`Quick start guide <http://www.eyegrade.org/quick-start-guide>`_.
+From now on, it is assumed that you've already done that.
 
 The main purpose of Eyegrade is grading exams. In order to grade exams,
 you will need:
@@ -163,7 +149,7 @@ you will need:
 - The Eyegrade software installed in your computer.
 - The exam configuration file, which specifies the number of questions
   in the exam, solutions, etc. It is normally named with the
-  `.eye`extension, such as `exam.eye`.
+  `.eye` extension, such as `exam.eye`.
 - A compatible webcam, with resolution of at least 640x480. It is
   better if it is able to focus (manually or automatically) at short
   distances.
@@ -175,18 +161,16 @@ you will need:
 Launching Eyegrade
 ..................
 
-This section explains how to run Eyegrade. If it is the first time you
-use Eyegrade, you can try it with the sample file ``exam-A.pdf``
-located inside the directory ``doc/sample-files`` of your installation
+If it is the first time you use Eyegrade,
+you can try it with the sample file ``exam-A.pdf``
+located inside the directory ``examples`` of your installation
 of Eyegrade. Print it. You'll find also in that directory the file
 ``exam.eye`` that contains the metadata for this exam. You'll need to
 load this file later from Eyegrade.
 
-Eyegrade can be launched from command line::
-
-    python -m eyegrade.eyegrade
-
-This command opens the user interface of Eyegrade:
+On Windows, launch Eyegrade from the Start Menu.
+On Linux, run the `eyegrade` binary file you should have installed.
+Eyegrade's main window should appear:
 
 .. image:: images/main-window.png
    :alt: Eyegrade main window
@@ -1153,14 +1137,29 @@ subjects.
 Creating the PDF files
 ................................
 
-Once the exam file and the template have been created, the script
-`create_exam.py` parses them and generates the exam in PDF format,
+Once the exam file and the template have been created,
+the `eyegrade-create` program parses them and generates the exam in PDF format,
 provided that LaTeX is installed and available in your system's PATH
-(see `Installing the LaTeX system`_)::
+(see `Installing the LaTeX system`_).
 
-  python -m eyegrade.create_exam -e exam-questions.xml -m 0AB template.tex -o exam
+You'll need the `eyegrade-create.exe` (just `eyegrade-create` on Linux)
+binary file.
+Note that, on Windows, you can get this file from
+Eyegrade's installation folder,
+which you can open from Eyegrade's entry at the Start Menu.
+The only way to run `eyegrade-create` by now is from a command-prompt console.
+Therefore, it is better to
+copy the `eyegrade-create` program
+somewhere in your
+computer where you find it convenient
+(for example, the directory where you have prepared your exam's source files).
 
-The previous command will create models 0, A and B of the exam with
+Once you have located `eyegrade-create`, run the following command
+from a command-line console::
+
+  eyegrade-create -e exam-questions.xml -m 0AB template.tex -o exam
+
+It will create models 0, A and B of the exam with
 names `exam-0.pdf`, `exam-A.pdf` and `exam-B.pdf`. The exam model 0 is a
 special exam in which questions are not reordered.
 The correct answer is always the first choice in the model 0.
@@ -1193,14 +1192,14 @@ The script `create_exam.py` has other features, like creating just the
 front page of the exam (no questions needed). They can be explored with
 the command-line help of the program::
 
-  python -m eyegrade.create_exam -h
+  eyegrade-create -h
 
 The answer table can be enlarged or reduced with respect to its
 default size, using the `-S` option and passing a scale factor
 (between 0.1 and 1.0 to reduce it, or greater than 1.0 to enlarge it).
 The following command enlarges the default size in a 50% (factor 1.5)::
 
-  python -m eyegrade.create_exam -e exam-questions.xml -m A template.tex -o exam -S 1.5
+  eyegrade-create -e exam-questions.xml -m A template.tex -o exam -S 1.5
 
 
 Installing the LaTeX system
@@ -1230,39 +1229,6 @@ such as `ProText <https://www.tug.org/protext/>`_:
 
 Advanced features
 -----------------
-
-Webcam selection
-................
-
-If your computer has more than one camera (e.g. the internal camera of
-the laptop and an external camera you use to grade the exams),
-Eyegrade will select one of them by default. If the selected camera is
-not the camera you want to use to grade the exams, use the ``-c
-<camera-number>`` option when invoking Eyegrade. Cameras are numbered
-0, 1, 2, 3, etc. Invoke Eyegrade with a different camera number until
-the interface displays the one you want. For example, to select the
-camera numbered as 2::
-
-    python -m eyegrade.eyegrade exam.eye -c 2 -l student-list.csv
-
-When the number is -1, eyegrade will automatically test different
-camera numbers until it finds one that works. When you select a camera
-number that does not exist or does not work, Eyegrade will also look
-automatically for other camera that works.
-
-You can configure Eyegrade to always use a specific camera number by
-inserting the option ``camera-dev`` in the ``default`` section of
-the configuration file::
-
-    ## Sample configuration file. Save it as $HOME/.eyegrade.cfg
-    [default]
-
-    ## Default camera device to use (int); -1 for automatic selection.
-    camera-dev: 1
-
-Save it in your user account with name ``.eyegrade.cfg``. In Windows systems,
-your account is at ``C:\Documents and Settings\<your_user_name>``.
-
 
 Creating the exams in a word processor
 ........................................

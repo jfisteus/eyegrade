@@ -145,10 +145,10 @@ class ExamCapture(object):
 
     def save_image_drawn(self, filename):
         assert self.image_drawn is not None
-        cv2.imwrite(filename, self.image_drawn)
+        save_image(filename, self.image_drawn)
 
     def save_image_raw(self, filename):
-        cv2.imwrite(filename, self.image_raw)
+        save_image(filename, self.image_raw)
 
     def draw_status(self):
         assert self.image_drawn is not None
@@ -207,3 +207,9 @@ class ExamCapture(object):
     def _draw_void_question(self, cells):
         cv2.line(self.image_drawn, cells[0].center, cells[-1].center,
                  _color_bad, thickness=3)
+
+
+def save_image(filename, image):
+    if isinstance(filename, unicode):
+        filename = utils.unicode_path_to_str(filename)
+    cv2.imwrite(filename, image)

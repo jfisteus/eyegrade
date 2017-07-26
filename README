@@ -1,4 +1,4 @@
-Eyegrade uses a webcam to grade MCQ (multiple choice question)
+Eyegrade uses a webcam to grade multiple choice question (MCQ)
 exams. Needing just a cheap low-end webcam, it aims to be a low-cost
 and portable solution available to everyone, on the contrary to other
 solutions based on scanners.
@@ -7,14 +7,13 @@ For more information about Eyegrade you can visit:
 
 - Its website: http://www.eyegrade.org/
 - Its blog: http://www.eyegrade.org/blog/
-- The user manual: http://www.eyegrade.org/doc/user-manual/
+- Its documentation: http://www.eyegrade.org/documentation.html
 - Its source code at GitHub: https://github.com/jfisteus/eyegrade
+- The downloads page, for pre-built binary files:
+  http://www.eyegrade.org/download.html
 
-Eyegrade is still alpha. It is fully functional and has been used in
-several courses at Universidad Carlos III de Madrid since 2010.
-Its use is encouraged for tech-savvy people. However, it still
-needs great improvements in its user-friendliness in order to be
-usable for the general public.
+Eyegrade is fully functional and has been used in courses at
+Universidad Carlos III de Madrid and other institutions since 2010.
 
 The program is free software, licensed under the terms of the GNU
 General Public License (GPL) version 3 or any later version.
@@ -39,15 +38,11 @@ student by using its hand-written digit cognition module. The whole
 process is supervised by the user in order to detect and fix potential
 errors of the system.
 
-- Extracting statistics: you can view question-by-question statistics in
-order to analyze which topics are clear to the majority of your
-students, and which topics need further work.
-
 - Exporting grades: grades can be exported in CSV format, compatible
 with other programs such as spreadsheets.
 
-An article describing Eyegrade has been published by the Journal of
-Science Education and Technology:
+An article describing an earlier version of Eyegrade has been
+published by the Journal of Science Education and Technology:
 
 Jesus Arias Fisteus, Abelardo Pardo and Norberto Fernández García,
 "Grading Multiple Choice Exams with Low-Cost and Portable

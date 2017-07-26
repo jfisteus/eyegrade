@@ -1,3 +1,17 @@
+2017-07-24  Jesus Arias Fisteus  <jfisteus@gmail.com>
+	* Release 0.7.
+
+	* Add an SVM-based OCR module for student's identity and cell crosses
+
+	* Add support to create Windows installers with pyinstaller and NSIS,
+	and support for Linux portable executables with pyinstaller.
+
+	* Add support to publish the project in PyPI
+
+	* Transition to the cv2 bindings og OpenCV 2.4
+
+	* Several minor improvements and bug fixes
+
 2016-07-04  Jesus Arias Fisteus  <jfisteus@gmail.com>
 
 	* Release 0.6.4.
