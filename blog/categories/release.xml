@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 05 Jul 2016 08:42:41 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bugfix release 0.6.4</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-064.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The fix in Eyegrade 0.6.3
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 26 Jul 2017 10:13:38 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.7 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-07-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.7 has been released!
+This release includes two main changes from the point of view
+of the final user:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Improved algorithms for the detection of manuscript digits and cell crosses,
+based on &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Support_vector_machine"&gt;support vector machines&lt;/a&gt;.
+The system is much more precise now than in previous versions of Eyegrade.
+This feature is based on the valuable contribution
+of &lt;a class="reference external" href="https://github.com/rarguelloF"&gt;Jorge Arqüello&lt;/a&gt;,
+who developed its first version.&lt;/li&gt;
+&lt;li&gt;Distribution of binary packages built with
+&lt;a class="reference external" href="http://www.pyinstaller.org/"&gt;PyInstaller&lt;/a&gt;,
+and a Windows installer built with
+&lt;a class="reference external" href="http://nsis.sourceforge.net/Main_Page"&gt;NSIS&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Installation is much easier now than before.
+Check the new
+&lt;a class="reference external" href="http://www.eyegrade.org/quick-start-guide.html"&gt;quick start guide&lt;/a&gt;
+for instructions,
+also accessible from the
+&lt;a class="reference external" href="http://www.eyegrade.org/documentation.html"&gt;documentation page&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Access the binary files for this release
+at the &lt;a class="reference external" href="http://www.eyegrade.org/download.html"&gt;downloads page&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-07-released.html</guid><pubDate>Wed, 26 Jul 2017 09:56:43 GMT</pubDate></item><item><title>Bugfix release 0.6.4</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-064.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The fix in Eyegrade 0.6.3
 for issue &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108"&gt;#108&lt;/a&gt;
 (the accept button remains sometimes disabled
 in the &lt;em&gt;edit student id&lt;/em&gt; dialog)
@@ -161,15 +183,4 @@ were not affected.
 This is the only change with respect to version 0.4.2.&lt;/p&gt;
 &lt;p&gt;If you have installed Eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
 the program by executing the command
-&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</guid><pubDate>Tue, 25 Nov 2014 18:43:43 GMT</pubDate></item><item><title>Eyegrade 0.4 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released eyegrade 0.4 (actually, eyegrade 0.4.2 after a couple of
-minor changes and a bug fix). There is only one main change in this
-release with respect to the 0.3 series, the ability to export grade
-listings from the user interface.&lt;/p&gt;
-&lt;p&gt;When you select in the menu &lt;em&gt;Exams / Export grade listing&lt;/em&gt; you get a dialog
-like the following one that allows you to configure the export options:&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="The new export dialog." class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-04/export-dialog.png"&gt;
-&lt;/div&gt;
-&lt;p&gt;This new feature is easier to use and more flexible than the
-&lt;cite&gt;mix_grades&lt;/cite&gt; script that was available in the previous versions. The
-script is now obsolete and will probably be removed in the future.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-04-released.html</guid><pubDate>Thu, 26 Jun 2014 18:25:00 GMT</pubDate></item></channel></rss>
+&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-043-released.html</guid><pubDate>Tue, 25 Nov 2014 18:43:43 GMT</pubDate></item></channel></rss>

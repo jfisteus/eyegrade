@@ -14,7 +14,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade.xml</loc>
-  <lastmod>2016-07-05</lastmod>
+  <lastmod>2017-07-26</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/new-features.xml</loc>
@@ -26,7 +26,7 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/release.xml</loc>
-  <lastmod>2016-07-05</lastmod>
+  <lastmod>2017-07-26</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/categories/requests.xml</loc>
@@ -38,38 +38,42 @@
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/blog/rss.xml</loc>
-  <lastmod>2016-07-05</lastmod>
+  <lastmod>2017-07-26</lastmod>
+ </sitemap>
+ <sitemap>
+  <loc>http://www.eyegrade.org/galleries/quick-start-guide/rss.xml</loc>
+  <lastmod>2017-07-25</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-04/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-05/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-06/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-for-index/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-1/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-2/rss.xml</loc>
-  <lastmod>2016-03-21</lastmod>
+  <lastmod>2017-07-24</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://www.eyegrade.org/sitemap.xml</loc>
-  <lastmod>2016-07-05</lastmod>
+  <lastmod>2017-07-26</lastmod>
  </sitemap>
 </sitemapindex>

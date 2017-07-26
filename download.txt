@@ -4,6 +4,65 @@
 Download
 ====================
 
+Latest stable release:
+-----------------------
+
+The latest stable release is Eyegrade 0.7.
+The recommended way of installation,
+depending on your operating system, is:
+
+- Windows installer:
+  `eyegrade-setup-0.7.exe <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.7/eyegrade-setup-0.7.exe>`_
+
+- Linux portable binary files:
+  `eyegrade-0.7-bin-linux.tar.gz <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.7/eyegrade-0.7-bin-linux.tar.gz>`_
+  (these binaries should be compatible with any reasonably recent distribution,
+  more or less from 2014 or more recent)
+
+There is no support for Mac OS/X yet.
+Volunteers for finding and documenting how to install it
+on that platform are welcome.
+
+If you are trying Eyegrade for the first time,
+you may want to go through the
+`quick start guide <quick-start-guide.html>`_.
+
+Checksums
+............
+
+On Windows, you can verify the checksum of the installer
+from a command-line console
+by entering the following command::
+
+  certUtil -hashfile eyegrade-setup-0.7.exe SHA512
+
+On Linux, run::
+
+  sha512sum eyegrade-0.7-bin-linux.tar.gz
+
+SHA-512 checksums::
+
+  9fced8d2e67eae6a977eb7f4749d2788af19d08eeaab5585f649b131dbc7a5e623252ccc6e5b006e97e82596f190548149ef07887aeb4f7ffd0dfb85f8043eb0  eyegrade-setup-0.7.exe
+  a9fd990ee44a8c80bf7e2644a4e1a7be040f7faa82c58a746192f3759101af333fb1e503a53efc1cbb7bc4f13d585fdfcb945f5017fe8aa8123b2e20e6aad6d7  eyegrade-0.7-bin-linux.tar.gz
+
+
+
+Installation through pip:
+............................
+
+If you are familiar with the Python ecosystem,
+you can try to get Eyegrade from PyPI instead.
+Install Python 2.7,
+OpenCV 2.4 (including its Python bindings)
+and PyQt4. Then, run::
+
+    pip install eyegrade
+
+Note: on Debian and Ubuntu systems Python 2.7 should be installed by default,
+and you can get OpenCV and PyQt by installing
+the packages `python-opencv` and `python-qt4`.
+
+
 License:
 ----------
 
@@ -22,8 +81,9 @@ To download it through git::
 
   git clone https://github.com/jfisteus/eyegrade.git
 
-The `Eyegrade User Manual <doc/user-manual>`_
-explains how to install or upgrade Eyegrade.
+In order to run the program from its sources,
+you'll need Python 2.7, OpenCV 2.4 (including its python bindings)
+and PyQt4 (`master` branch) or PyQt5 (`development` branch).
 
 
 Contribute!
@@ -31,5 +91,3 @@ Contribute!
 
 **Want to contribute?** You can contribute or contact me
 through the `github page of Eyegrade <https://github.com/jfisteus/eyegrade>`_.
-
-

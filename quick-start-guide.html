@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quick start guide | Eyegrade</title>
+
+    
+            <link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+
+    
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="blog/rss.xml">
+
+      <link rel="canonical" href="http://www.eyegrade.org/quick-start-guide.html">
+
+
+
+
+    
+        <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+
+    
+
+
+    
+
+    <meta name="author" content="Jesús Arias Fisteus">
+    
+    <meta property="og:site_name" content="Eyegrade">
+    <meta property="og:title" content="Quick start guide">
+    <meta property="og:url" content="http://www.eyegrade.org/quick-start-guide.html">
+    <meta property="og:description" content="This brief guide explains how to install Eyegrade
+and use it to grade an example exam.
+In order to follow this guide you'll need:
+
+A computer with Microsoft Windows or a not too old Linux distribution">
+    <meta property="og:type" content="article">
+    <meta property="article:published_time" content="2017-07-24T15:42:15+00:00">
+           <meta property="article:tag" content="documentation">
+
+    
+
+    
+
+
+
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://www.eyegrade.org/">
+                <img src="assets/img/title-logo.svg" alt="Eyegrade" id="logo">
+
+                <span id="blog-title">Eyegrade</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                
+                <li>
+<a href="download.html">Download</a>
+                </li>
+<li>
+<a href="documentation.html">Documentation</a>
+                </li>
+<li>
+<a href="https://github.com/jfisteus/eyegrade/">GitHub</a>
+                </li>
+<li>
+<a href="blog/index.html">Blog</a>
+                </li>
+<li>
+<a href="blog/archive.html">Blog archive</a>
+                </li>
+<li>
+<a href="blog/categories/index.html">Blog tags</a>
+                </li>
+<li>
+<a href="blog/rss.xml">RSS feed</a>
+
+                
+            </li>
+</ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                    
+    <li>
+    <a href="quick-start-guide.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+        </div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav>
+
+<!-- End of Menubar -->
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="storypage" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <header>
+        
+    <h1 class="p-name entry-title" itemprop="headline name"><a href="#" class="u-url">Quick start guide</a></h1>
+
+        
+
+    </header>
+    <div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This brief guide explains how to install Eyegrade
+and use it to grade an example exam.
+In order to follow this guide you'll need:</p>
+<ul class="simple">
+<li>A computer with Microsoft Windows or a not too old Linux distribution</li>
+<li>A printer</li>
+<li>A webcam</li>
+</ul>
+<p>Go to the <a class="reference external" href="download.html">downloads page</a>.
+If you are on Windows,
+download the latest stable
+release of the Eyegrade installer for Windows from there.
+Then run the installer.
+The Windows security system will probably alert you
+with a scary message saying that the installer
+was downloaded from the Internet, it isn't trusted
+and may be harmful.
+You should skip the message and proceed with the installation anyway,
+since being it a volunteer project,
+I don't have the resources to pay for a trusted certificate
+to sign the code,
+which is a prerequisite to avoid the alert.
+Once the program is installed,
+you'll find a new folder in your start menu,
+and a program named <em>eyegrade</em> inside it.</p>
+<p>If you are on Linux,
+download the Linux binary files,
+which should run on any reasonably recent Linux distribution.
+Copy them to a directory in your PATH
+(for example, <em>/usr/local/bin</em> is usually fine).
+The binary file <em>eyegrade</em> contains the main program.</p>
+<p>Before running Eyegrade,
+download the following example files
+(a copy of these files is also included
+within the <em>Examples</em> entry in Eyegrade's start menu):</p>
+<ul class="simple">
+<li>An example exam in PDF format:
+<a class="reference external" href="doc/sample-files/exam-A.pdf">exam-A.pdf</a>
+</li>
+<li>The exam configuration file,
+which tells Eyegrade about the exam
+(number of questions, correct answer to each question, etc.):
+<a class="reference external" href="doc/sample-files/exam.eye">exam.eye</a>
+</li>
+<li>The student list, which helps Eyegrade detect the student id
+(it's easier to correctly detect the id when the student list
+is closed):
+<a class="reference external" href="doc/sample-files/student-list.csv">student-list.csv</a>
+</li>
+</ul>
+<p>Print a copy of the exam in PDF format
+and mark your answers to the questions with a cross.
+Write down also the student id, by using one of those from the student list
+(for example, the id of Frodo Baggins is 100000333).</p>
+<p>Let's now grade the exam.
+Make sure the webcam is plugged in the computer and run Eyegrade
+from the start menu.
+You'll see Eyegrade's main window:</p>
+<div class="figure">
+<img alt="Eyegrade's main window" class="thumbnail" src="galleries/quick-start-guide/eyegrade-main.png">
+</div>
+<p>Check the webcam in the <em>Tools</em> menu by clicking on <em>Select camera</em>.
+You should see the video captured by your webcam.
+If your laptop has more than one webcam,
+for example a built-in webcam and an external webcam,
+select the one you want to use.
+External webcams are more practical because you can move them
+or fix them above a try where you place the exams.</p>
+<div class="figure">
+<img alt="Eyegrade's webcam selection dialog" class="thumbnail" src="galleries/quick-start-guide/eyegrade-camera.png">
+</div>
+<p>Before starting to grade exams,
+you have to create a new grading session.
+Go to the <em>Session</em> menu and click on <em>New Session</em>.
+A three-step wizard appears:</p>
+<ul>
+<li>
+<p class="first">In the first page, select or create an <strong>empty folder</strong> in your computer.
+Eyegrade will store there everything related to this session,
+including grades, the photo of each graded exam, etc.
+In the second field, select the <em>exam.eye</em> exam configuration file
+you downloaded before.</p>
+<div class="figure">
+<img alt="New session wizard (first page)" class="thumbnail" src="galleries/quick-start-guide/eyegrade-new-session-1.png">
+</div>
+</li>
+<li>
+<p class="first">In the second page, you'll be asked for a student list.
+Providing the student list improves the detection of student ids
+and lets you see the student name in the graded exams.</p>
+<div class="figure">
+<img alt="New session wizard (second page)" class="thumbnail" src="galleries/quick-start-guide/eyegrade-new-session-2.png">
+</div>
+</li>
+<li>
+<p class="first">In the third page,
+you'll be asked for the scores assigned to correct and incorrect questions.
+The button at the bottom displays a dialog
+that makes Eyegrade automatically compute the values for you:
+enter 100 in the dialog that appears and click on accept.
+Since the exam has 14 questions,
+every correct answer is assigned 50 / 7 points,
+for a total of 100 points if all the questions are correct.</p>
+<div class="figure">
+<img alt="New session wizard (third page)" class="thumbnail" src="galleries/quick-start-guide/eyegrade-new-session-3.png">
+</div>
+</li>
+</ul>
+<p>Now the session has been created.
+You can stop and resume it anytime with the <em>Open Session</em> option
+in the <em>Session</em> menu.</p>
+<p>You can now choose <em>Start Grading</em> in the <em>Grading</em> menu.
+Aim the camera at your exam (just the id and answer boxes).
+The image will freeze when the exam gets detected,
+and the answers, student name, score, etc. will be shown.
+Eyegrade may take a few seconds to detect the exam.
+If it takes too long,
+check the lightning conditions,
+that the image isn't blurry (many webcams let you manually focus the image)
+and that the paper is straight, without bends.</p>
+<blockquote>
+<div class="figure">
+<img alt="Grading an exam" class="thumbnail" src="galleries/quick-start-guide/eyegrade-review.png">
+</div>
+</blockquote>
+<p>Once the exam is fixed,
+you can check that the student id and answers have been correctly detected.
+If not, you can change the answer by clicking on another cell,
+or clear an answer by clinking on the already marked cell.
+The student id can be changed from the <em>Edit student id</em> option
+in the <em>Grading exam</em>.
+Once you're finished with this exam,
+press the <em>space</em> key of your keyboard to continue to the next exam.</p>
+<p>Select <em>Stop Grading</em> from the <em>Grading</em> menu
+when you have finished with all the exams.
+You can now use the <em>Export Grades Listing</em> option
+from the <em>Exams</em> menu to export your list of grades
+to a file you can import in a spreadsheet program
+such as Microsoft Office (Excel), OpenOffice, LibreOffice, etc.</p>
+<blockquote>
+<div class="figure">
+<img alt="The export grades dialog" class="thumbnail" src="galleries/quick-start-guide/eyegrade-export.png">
+</div>
+</blockquote>
+</div>
+    </div>
+    
+
+</article>
+
+        </div>
+        <!--End of body content-->
+
+        <footer>
+            Contents © 2017         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+    </div>
+</div>
+
+
+            <script src="assets/js/all-nocdn.js"></script>
+    
+<!-- Social buttons -->
+<div id="addthisbox" class="addthis_toolbox addthis_peekaboo_style addthis_default_style addthis_label_style addthis_32x32_style">
+<a class="addthis_button_more">Share</a>
+<ul>
+<li>
+<a class="addthis_button_facebook"></a>
+</li>
+<li>
+<a class="addthis_button_google_plusone_share"></a>
+</li>
+<li>
+<a class="addthis_button_linkedin"></a>
+</li>
+<li>
+<a class="addthis_button_twitter"></a>
+</li>
+</ul>
+</div>
+<script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-4f7088a56bb93798"></script>
+<!-- End of social buttons -->
+
+
+    <script>$('a.image-reference:not(.islink)').colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script>
+    <!-- fancy dates -->
+    <script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script>
+    <!-- end fancy dates -->
+    
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-42957388-1', 'eyegrade.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</body>
+</html>

@@ -18,8 +18,8 @@ Latest version
 ---------------
 
 The latest available version is
-**Eyegrade 0.6.4**,
-which was released on July 5, 2016.
+**Eyegrade 0.7**,
+which was released on July 26, 2017.
 
 
 .. class:: alert alert-info sidebar
@@ -34,6 +34,11 @@ News
 |rssicon| `Subscribe <blog/rss.xml>`_
 | `Read more news at the blog <blog/index.html>`_
 
+
+**[Jul 26, 2017]**
+Eyegrade 0.7 has been released!
+See the `blog post <blog/posts/eyegrade-07-released.html>`__
+or go to the `downloads page <blog/posts/download.html>`__.
 
 **[Jul 5, 2016]**
 Eyegrade 0.6.4 has been released!
@@ -54,11 +59,6 @@ See the `blog post <blog/posts/bugfix-release-061.html>`__.
 **[Jun 20, 2015]**
 Eyegrade 0.6 has been released!
 See the `blog post <blog/posts/eyegrade-06-released.html>`__.
-
-**[Apr 22, 2015]**
-The bug fix release 0.5.1 is available.
-See the `blog post:
-<blog/posts/bugfix-release-051.html>`__.
 
 
 
@@ -107,22 +107,14 @@ And here is a more current screenshot:
 
 .. class:: lead
 
-Target audience
+Trying Eyegrade
 
-Eyegrade is still alpha.
-It is fully functional and has been used
-in several courses
+Eyegrade has been used in several courses
 at `Universidad Carlos III de Madrid <http://www.uc3m.es>`_
-since 2010
+since 2010,
 as well as in other institutions worldwide.
-It still needs some improvements
-in its user-friendliness
-in order to be usable for the general public.
-Therefore, for now now we recommend it only for tech-savvy people
-(if you are not afraid of using a plain text editor
-and the command line,
-you won't have any problem getting used to it).
-
+Follow the `quick user guide <quick-user-guide.html>`_
+if you want to give it a try.
 
 
 .. class:: lead
@@ -155,7 +147,3 @@ Journal of Science Education and Technology.
 `doi:10.1007/s10956-012-9414-8 <http://dx.doi.org/10.1007/s10956-012-9414-8>`_
 
 Please, cite the paper if you use Eyegrade for research activities.
-
-
-
-

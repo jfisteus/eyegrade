@@ -29,18 +29,16 @@
     <meta property="og:site_name" content="Eyegrade">
     <meta property="og:title" content="Download Eyegrade">
     <meta property="og:url" content="http://www.eyegrade.org/download.html">
-    <meta property="og:description" content="License:
-Eyegrade is distributed under the
-GNU General Public License (GPL) version 3
-or any later version.
+    <meta property="og:description" content="Latest stable release:
+The latest stable release is Eyegrade 0.7.
+The recommended way of installation,
+depending on your operating system, is:
 
-
-Source code repository:
-The source code repository is available at
-GitHub.
-To download it ">
+Windows installer:
+eyegrade-setup-0.7.exe
+Linux portable">
     <meta property="og:type" content="article">
-    <meta property="article:published_time" content="2015-08-23T09:36:30.136661+00:00">
+    <meta property="article:published_time" content="2017-07-26T10:38:15.567866+00:00">
 
     
 
@@ -133,6 +131,59 @@ To download it ">
     </header>
     <div class="e-content entry-content" itemprop="articleBody text">
     <div>
+<div class="section" id="latest-stable-release">
+<h2>Latest stable release:</h2>
+<p>The latest stable release is Eyegrade 0.7.
+The recommended way of installation,
+depending on your operating system, is:</p>
+<ul class="simple">
+<li>Windows installer:
+<a class="reference external" href="https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.7/eyegrade-setup-0.7.exe">eyegrade-setup-0.7.exe</a>
+</li>
+<li>Linux portable binary files:
+<a class="reference external" href="https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.7/eyegrade-0.7-bin-linux.tar.gz">eyegrade-0.7-bin-linux.tar.gz</a>
+(these binaries should be compatible with any reasonably recent distribution,
+more or less from 2014 or more recent)</li>
+</ul>
+<p>There is no support for Mac OS/X yet.
+Volunteers for finding and documenting how to install it
+on that platform are welcome.</p>
+<p>If you are trying Eyegrade for the first time,
+you may want to go through the
+<a class="reference external" href="quick-start-guide.html">quick start guide</a>.</p>
+<div class="section" id="checksums">
+<h3>Checksums</h3>
+<p>On Windows, you can verify the checksum of the installer
+from a command-line console
+by entering the following command:</p>
+<pre class="literal-block">
+certUtil -hashfile eyegrade-setup-0.7.exe SHA512
+</pre>
+<p>On Linux, run:</p>
+<pre class="literal-block">
+sha512sum eyegrade-0.7-bin-linux.tar.gz
+</pre>
+<p>SHA-512 checksums:</p>
+<pre class="literal-block">
+9fced8d2e67eae6a977eb7f4749d2788af19d08eeaab5585f649b131dbc7a5e623252ccc6e5b006e97e82596f190548149ef07887aeb4f7ffd0dfb85f8043eb0  eyegrade-setup-0.7.exe
+a9fd990ee44a8c80bf7e2644a4e1a7be040f7faa82c58a746192f3759101af333fb1e503a53efc1cbb7bc4f13d585fdfcb945f5017fe8aa8123b2e20e6aad6d7  eyegrade-0.7-bin-linux.tar.gz
+</pre>
+</div>
+<div class="section" id="installation-through-pip">
+<h3>Installation through pip:</h3>
+<p>If you are familiar with the Python ecosystem,
+you can try to get Eyegrade from PyPI instead.
+Install Python 2.7,
+OpenCV 2.4 (including its Python bindings)
+and PyQt4. Then, run:</p>
+<pre class="literal-block">
+pip install eyegrade
+</pre>
+<p>Note: on Debian and Ubuntu systems Python 2.7 should be installed by default,
+and you can get OpenCV and PyQt by installing
+the packages <cite>python-opencv</cite> and <cite>python-qt4</cite>.</p>
+</div>
+</div>
 <div class="section" id="license">
 <h2>License:</h2>
 <p>Eyegrade is distributed under the
@@ -147,8 +198,9 @@ To download it through git:</p>
 <pre class="literal-block">
 git clone https://github.com/jfisteus/eyegrade.git
 </pre>
-<p>The <a class="reference external" href="doc/user-manual">Eyegrade User Manual</a>
-explains how to install or upgrade Eyegrade.</p>
+<p>In order to run the program from its sources,
+you'll need Python 2.7, OpenCV 2.4 (including its python bindings)
+and PyQt4 (<cite>master</cite> branch) or PyQt5 (<cite>development</cite> branch).</p>
 </div>
 <div class="section" id="contribute">
 <h2>Contribute!</h2>
@@ -165,7 +217,7 @@ through the <a class="reference external" href="https://github.com/jfisteus/eyeg
         <!--End of body content-->
 
         <footer>
-            Contents © 2016         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2017         <a href="http://www.it.uc3m.es/jaf/">Jesús Arias Fisteus</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
     </div>

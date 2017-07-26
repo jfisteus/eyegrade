@@ -4,5 +4,6 @@
 Documentation
 ====================
 
-- `Eyegrade user manual <doc/user-manual/>`_
+- `Quick start guide <quick-start-guide.html>`_
 
+- `Eyegrade user manual <doc/user-manual/>`_
