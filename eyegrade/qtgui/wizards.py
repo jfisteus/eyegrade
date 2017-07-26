@@ -881,4 +881,3 @@ class WizardNewSession(QWizard):
             QMessageBox.critical(self, _('Error in student list'),
                                  file_name + '\n\n' + str(e))
         return valid, ''
-

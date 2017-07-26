@@ -16,7 +16,7 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 import ConfigParser
 import csv
@@ -28,12 +28,13 @@ import random
 import re
 import io
 import fractions
+import contextlib
 
 program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.6.4'
+version = '0.7'
 version_status = 'alpha'
 
 re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
@@ -47,6 +48,30 @@ results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
 
 _default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
 
+# The data_dir variable will be intially none.  The functions in this
+# module that depend on the data directory will initialize it if
+# needed.
+data_dir = None
+
+def path_to_unicode(path):
+    """Convert filesystem paths from str to unicode."""
+    encoding = sys.getfilesystemencoding()
+    if encoding is None:
+        # Some Unix systems might return None. Assume ASCII in that case:
+        encoding = 'ascii'
+    return unicode(path, encoding)
+
+def unicode_path_to_str(path):
+    """Convert filesystem paths from unicode to str."""
+    encoding = sys.getfilesystemencoding()
+    if encoding is None:
+        # Some Unix systems might return None. Assume ASCII in that case:
+        encoding = 'ascii'
+    return path.encode(encoding)
+
+def user_home():
+    return path_to_unicode(os.path.expanduser(b'~/'))
+
 def _read_config():
     """Reads the general config file and returns the resulting config object.
 
@@ -54,14 +79,21 @@ def _read_config():
     utils.config variable.
 
     """
-    config = {'camera-dev': '0',
-              'save-filename-pattern': _default_capture_pattern,
-              'csv-dialect': 'tabs',
-              'default-charset': 'utf8', # special value: 'system-default'
-              }
+    config = {
+        'camera-dev': '0',
+        'save-filename-pattern': _default_capture_pattern,
+        'csv-dialect': 'tabs',
+        'default-charset': 'utf8', # special value: 'system-default'
+    }
     parser = ConfigParser.SafeConfigParser()
-    parser.read([os.path.expanduser('~/.eyegrade.cfg'),
-                 os.path.expanduser('~/.camgrade.cfg')])
+    home = user_home()
+    try:
+        parser.read([os.path.join(home, u'.eyegrade.cfg'),
+                     os.path.join(home, u'.camgrade.cfg'),
+                     resource_path('default.cfg'),])
+    except EyegradeException:
+        parser.read([os.path.join(home, u'.eyegrade.cfg'),
+                     os.path.join(home, u'.camgrade.cfg'),])
     if 'default' in parser.sections():
         for option in parser.options('default'):
             config[option] = parser.get('default', option)
@@ -74,11 +106,12 @@ def _read_config():
     config['camera-dev'] = int(config['camera-dev'])
     if config['default-charset'] == 'system-default':
         config['default-charset'] = locale.getpreferredencoding()
+    if 'gui-styles' in config:
+        config['gui-styles'] = tuple(v.strip()
+                                     for v in config['gui-styles'].split(','))
+    else:
+        config['gui-styles'] = None
     return config
-
-# The global configuration object:
-config = _read_config()
-
 
 class EyegradeException(Exception):
     """An Eyegrade-specific exception.
@@ -242,28 +275,43 @@ class ComparableMixin(object):
 
 
 def guess_data_dir():
-    path = os.path.split(os.path.realpath(__file__))[0]
-    if path.endswith('.zip'):
-        path = os.path.split(path)[0]
-    paths_to_try = [os.path.join(path, 'data'),
-                    os.path.join(path, '..', 'data'),
-                    os.path.join(path, '..', '..', 'data'),
-                    os.path.join(path, '..', '..', '..', 'data')]
+    u_file = path_to_unicode(__file__)
+    path = os.path.split(os.path.realpath(u_file))[0]
+    # An alternative path to try for pyinstaller's packages:
+    path_alt = os.path.split(path)[0]
+    paths_to_try = [
+        os.path.join(path, 'data'),
+        os.path.join(path, '..', 'data'),
+        os.path.join(path, '..', '..', 'data'),
+        os.path.join(path, '..', '..', '..', 'data'),
+        os.path.join(path_alt, 'data'),
+    ]
     for p in paths_to_try:
         if os.path.isdir(p):
             return os.path.abspath(p)
-    raise Exception('Data path not found!')
+    raise EyegradeException('Data path not found!')
 
-data_dir = guess_data_dir()
+def init_data_dir():
+    global data_dir
+    data_dir = guess_data_dir()
 
 def locale_dir():
+    if data_dir is None:
+        init_data_dir()
     return os.path.join(data_dir, 'locale')
 
 def qt_translations_dir():
+    if data_dir is None:
+        init_data_dir()
     return os.path.join(data_dir, 'qt-translations')
 
 def resource_path(file_name):
+    if data_dir is None:
+        init_data_dir()
     return os.path.join(data_dir, file_name)
+
+# The global configuration object:
+config = _read_config()
 
 def read_results(filename, permutations = {}, allow_question_mark=False):
     """Parses an eyegrade results file.
@@ -587,7 +635,7 @@ def encode_model(model, num_tables, num_answers):
         raise Exception('Model is currently limited to A - H')
     model_num = ord(model) - 65
     num_bits = num_tables * num_answers
-    if model_num >= 2 ** (num_bits - 1):
+    if model_num >= 2 ** num_bits:
         raise Exception('Model number too big given the number of answers')
     seed = _int_to_bin(model_num, 3, True)
     seed[2] = not seed[2]
@@ -607,7 +655,7 @@ def decode_model(bit_list, accept_model_0=False):
     """
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7 == x8-x11 == ...
     valid = False
-    if len(bit_list) == 3:
+    if len(bit_list) == 2 or len(bit_list) == 3:
         valid = True
     elif len(bit_list) >= 4:
         if (bit_list[3] == bit_list[0] ^ bit_list[1] ^ (not bit_list[2])):
@@ -1619,3 +1667,12 @@ def capture_name(filename_pattern, exam_id, student):
 
 def encode_string(text):
     return text.encode(config['default-charset'])
+
+@contextlib.contextmanager
+def change_dir(directory):
+    prev_directory = os.getcwd()
+    if directory:
+        os.chdir(directory)
+    yield
+    if directory:
+        os.chdir(prev_directory)

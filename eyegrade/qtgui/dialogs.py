@@ -275,7 +275,7 @@ class DialogCameraSelection(QDialog):
     def __init__(self, capture_context, parent):
         """Initializes the dialog.
 
-        `capture_context` is the imageproc.ExamCaptureContext object
+        `capture_context` is the detection.ExamCaptureContext object
         to be used.
 
         """
@@ -388,7 +388,7 @@ class DialogAbout(QDialog):
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2015 Jesús Arias Fisteus <br>
+             (c) 2010-2017 Jesús Arias Fisteus and contributors<br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 
@@ -432,8 +432,14 @@ class DialogAbout(QDialog):
                    <ul><li>Jesús Arias Fisteus</li></ul>
                    <p><b>{1}:</b></p>
                    <ul><li>Jonathan Araneda Labarca</li></ul>
+                   <p><b>{2}:</b></p>
+                   <ul><li>Rodrigo Argüello</li></ul>
+                   <p><b>{3}:</b></p>
+                   <ul><li>Roberto González</li></ul>
                    """.format(_('Lead developers'),
-                              _('Exam configuration dialogs'))
+                              _('Exam configuration dialogs'),
+                              _('Manuscript digits recognition'),
+                              _('Testing and other contributions'),)
         label = QLabel(text)
         label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
                                        | Qt.LinksAccessibleByMouse

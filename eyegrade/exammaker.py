@@ -19,10 +19,10 @@
 import re
 import copy
 import sys
+import subprocess
+import os
 
 from . import utils
-
-EyegradeException = utils.EyegradeException
 
 param_min_num_questions = 1
 
@@ -35,30 +35,33 @@ param_table_limits = [8, 24, 55]
 re_split_template = re.compile('{{([^{}]+)}}')
 
 # Register user-friendly error messages
-EyegradeException.register_error('incoherent_exam_config',
+utils.EyegradeException.register_error('incoherent_exam_config',
     'The exam you are attempting to create is not compatible\n'
     'with the already existing .eye exam configuration file.\n'
     'This happens, for example, when the configuration file\n'
     'contains more or less questions than the exam you are now\n'
     'creating. If you really want to discard the previous .eye file,\n'
     'use the --force option, or just remove the file manually.')
-EyegradeException.register_error('incoherent_num_tables',
+utils.EyegradeException.register_error('incoherent_num_tables',
     'The specified number of tables and the exam dimensions are not\n'
     'compatible. The exam dimensions implicitly specify the number of tables.\n'
     'Therefore, there is no need to explicitly specify the number of tables.',
     'Incoherent number of tables.')
-EyegradeException.register_error('bad_model_value',
+utils.EyegradeException.register_error('bad_model_value',
     'A model must be represented by an uppercase English letter (A-Z).\n'
     'You can also create an unshuffled version of the exam with the\n'
     "special '0' model.",
     'Bad model value.')
-EyegradeException.register_error('too_few_questions',
+utils.EyegradeException.register_error('too_few_questions',
     short_message='At least %d question(s) needed'%param_min_num_questions)
-EyegradeException.register_error('too_few_choices',
+utils.EyegradeException.register_error('too_few_choices',
     short_message='At least 2 choices per question needed')
-EyegradeException.register_error('too_many_tables',
+utils.EyegradeException.register_error('too_many_tables',
     'There cannot be less than two questions per table.',
     'There are too many tables for such a few questions')
+utils.EyegradeException.register_error('latex_not_found',
+    'Install LaTeX and make sure it is in your system\'s PATH variable.',
+    'The command pdflatex was not found.')
 
 
 class ExamMaker(object):
@@ -85,7 +88,7 @@ class ExamMaker(object):
         self.exam_config_filename = exam_config_filename
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
-            raise EyegradeException('', key='incoherent_num_tables')
+            raise utils.EyegradeException('', key='incoherent_num_tables')
         if dimensions is not None:
             self.dimensions = dimensions
         else:
@@ -99,10 +102,10 @@ class ExamMaker(object):
         else:
             self.table_width = table_width
             self.table_height = table_height
-        self.__load_replacements(variables, id_label)
+        self._load_replacements(variables, id_label)
         if self.exam_config_filename is not None:
             if not force_config_overwrite:
-                self.__load_exam_config()
+                self._load_exam_config()
             else:
                 self._new_exam_config()
         else:
@@ -117,7 +120,8 @@ class ExamMaker(object):
             raise Exception('Incorrect number of questions')
         self.exam_questions = exam
 
-    def create_exam(self, model, shuffle, with_solution=False):
+    def create_exam(self, model, shuffle, with_solution=False,
+                    produce_pdf=False):
         """Creates a new exam.
 
            'shuffle' must be a boolean. If True, the exam is shuffled
@@ -127,7 +131,7 @@ class ExamMaker(object):
         """
         if model is None or len(model) != 1 or ((ord(model) < 65 or \
                  ord(model) > 90) and model != '0'):
-            raise EyegradeException('', 'bad_model_value')
+            raise utils.EyegradeException('', 'bad_model_value')
         replacements = copy.copy(self.replacements)
         answer_table = create_answer_table(self.dimensions, model,
                                            self.table_width, self.table_height,
@@ -161,38 +165,50 @@ class ExamMaker(object):
         # Replacement keys are in odd positions of self.parts
         replaced = len(self.parts) * [None]
         replaced[::2] = self.parts[::2]
-        replaced[1::2] = [self.__replace(key, replacements) \
+        replaced[1::2] = [self._replace(key, replacements) \
                               for key in self.parts[1::2]]
         exam_text = ''.join(replaced)
         if self.output_file == sys.stdout:
             utils.write_to_stdout(exam_text)
+            produced_filename = None
         else:
-            utils.write_file(self.output_file%model, exam_text)
+            produced_filename = self.output_file%model
+            utils.write_file(produced_filename, exam_text)
+            if produce_pdf:
+                success, output, produced_filename = \
+                    compile_latex(produced_filename, remove_tex=True)
+                if not success:
+                    raise utils.EyegradeException(output)
+        return produced_filename
 
     def save_exam_config(self):
         if self.exam_config is not None:
             self.exam_config.save(self.exam_config_filename)
 
-    def __load_exam_config(self):
+    def _load_exam_config(self):
         if self.exam_config_filename is not None:
             try:
                 self.exam_config = utils.ExamConfig(self.exam_config_filename)
                 if self.num_questions != self.exam_config.num_questions:
-                    raise EyegradeException('Incoherent number of questions',
+                    raise utils.EyegradeException( \
+                                            'Incoherent number of questions',
                                             key='incoherent_exam_config')
                 if self.id_num_digits != self.exam_config.id_num_digits:
-                    raise EyegradeException(
+                    raise utils.EyegradeException(
                         'Incoherent configuration of id box',
                         key='incoherent_exam_config')
                 if self.dimensions != self.exam_config.dimensions:
-                    raise EyegradeException('Incoherent table dimensions',
+                    raise utils.EyegradeException( \
+                                            'Incoherent table dimensions',
                                             key='incoherent_exam_config')
                 if (self.left_to_right_numbering !=
                     self.exam_config.left_to_right_numbering):
-                    raise EyegradeException('Incoherent question numbering',
+                    raise utils.EyegradeException( \
+                                            'Incoherent question numbering',
                                             key='incoherent_exam_config')
                 if self.survey_mode != self.exam_config.survey_mode:
-                    raise EyegradeException('Incoherent survey mode value',
+                    raise utils.EyegradeException( \
+                                            'Incoherent survey mode value',
                                             key='incoherent_exam_config')
             except IOError:
                 self._new_exam_config()
@@ -254,14 +270,14 @@ class ExamMaker(object):
             id_width = None
         return width, height, id_width
 
-    def __load_replacements(self, variables, id_label):
+    def _load_replacements(self, variables, id_label):
         self.replacements = copy.copy(variables)
         self.replacements['id-box'] = create_id_box(id_label,
                                                     self.id_num_digits,
                                                     self.id_box_width)
         self.replacements['questions'] = ''
 
-    def __replace(self, key, replacements):
+    def _replace(self, key, replacements):
         if key in replacements:
             if not replacements[key] and not key in self.empty_variables:
                 self.empty_variables.append(key)
@@ -272,6 +288,47 @@ class ExamMaker(object):
             return replacements['id-box']
         else:
             raise Exception('Unknown replacement key: ' + key)
+
+def check_latex():
+    with open(os.devnull, 'w') as devnull:
+        try:
+            subprocess.check_call(['pdflatex', '-version'],
+                                  stdout=devnull, stderr=devnull)
+        except:
+            success = False
+        else:
+            success = True
+    return success
+
+def compile_latex(latex_file, remove_tex=False):
+    directory, name = os.path.split(latex_file)
+    base_name = os.path.splitext(name)[0]
+    with utils.change_dir(directory):
+        try:
+            output = subprocess.check_output(['pdflatex',
+                                              '-interaction=nonstopmode',
+                                              name],
+                                             stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            output = e.output
+            success = False
+            produced_filename = None
+        except OSError:
+            success = False
+            raise utils.EyegradeException('', key='latex_not_found')
+        else:
+            success = True
+            produced_filename = os.path.join(directory, base_name + '.pdf')
+        finally:
+            to_remove = [base_name + '.aux']
+            if success:
+                to_remove.append(base_name + '.log')
+                if remove_tex:
+                    to_remove.append(name)
+            for filename in to_remove:
+                if os.path.isfile(filename):
+                    os.remove(filename)
+    return success, output, produced_filename
 
 def latex_declarations(with_solution):
     """Returns the list of declarations to be set in the preamble
@@ -316,18 +373,18 @@ def create_answer_table(dimensions, model, table_width=None, table_height=None,
     num_tables = len(dimensions)
     for d in dimensions:
         if d[0] != num_choices:
-            raise EyegradeException('', 'same_num_choices')
+            raise utils.EyegradeException('', 'same_num_choices')
     if model != '0':
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
         bits = [False] * num_tables * num_choices
-    bits_rows = __create_infobits(bits, num_tables, num_choices)
+    bits_rows = _create_infobits(bits, num_tables, num_choices)
     tables, question_numbers = table_geometry(dimensions)
-    rows = __table_top(num_tables, num_choices, compact, table_width,
+    rows = _table_top(num_tables, num_choices, compact, table_width,
                        table_height)
     for i, row_geometry in enumerate(tables):
-        rows.append(__horizontal_line(row_geometry, num_choices, compact))
-        rows.append(__build_row(i, row_geometry, question_numbers,
+        rows.append(_horizontal_line(row_geometry, num_choices, compact))
+        rows.append(_build_row(i, row_geometry, question_numbers,
                                 num_choices, bits_rows, compact,
                                 left_to_right_numbering))
     rows.append(r'\end{tabular}')
@@ -378,13 +435,13 @@ def compute_table_dimensions(num_questions, num_choices, num_tables):
 
     """
     if num_questions < param_min_num_questions:
-        raise EyegradeException('', key='too_few_questions')
+        raise utils.EyegradeException('', key='too_few_questions')
     if num_choices < 2:
-        raise EyegradeException('', key='too_few_choices')
+        raise utils.EyegradeException('', key='too_few_choices')
     if num_tables <= 0:
-        num_tables = __choose_num_tables(num_questions)
+        num_tables = _choose_num_tables(num_questions)
     elif num_tables * 2 > num_questions:
-        raise EyegradeException('', key='too_many_tables')
+        raise utils.EyegradeException('', key='too_many_tables')
     dimensions = []
     rows_per_table, extra_rows = divmod(num_questions, num_tables)
     for i in range(0, num_tables):
@@ -416,7 +473,7 @@ def table_geometry(dimensions):
         question_numbers.append(question_numbers[-1] + dimensions[i][1])
     return tables, question_numbers
 
-def __choose_num_tables(num_questions):
+def _choose_num_tables(num_questions):
     """Returns a good number of tables for the given number of questions."""
     num_tables = 1
     for numq in param_table_limits:
@@ -426,7 +483,7 @@ def __choose_num_tables(num_questions):
             num_tables += 1
     return num_tables
 
-def __horizontal_line(row_geometry, num_choices, compact):
+def _horizontal_line(row_geometry, num_choices, compact):
     parts = []
     num_empty_columns = 1 if not compact else 0
     first = 2
@@ -438,7 +495,7 @@ def __horizontal_line(row_geometry, num_choices, compact):
         first += 1 + num_empty_columns + num_choices
     return ' '.join(parts)
 
-def __table_top(num_tables, num_choices, compact, table_width=None,
+def _table_top(num_tables, num_choices, compact, table_width=None,
                 table_height=None):
     middle_sep_format = 'p{3mm}' if not compact else ''
     middle_sep_header = ' & & ' if not compact else ' & '
@@ -463,7 +520,7 @@ def __table_top(num_tables, num_choices, compact, table_width=None,
     lines.append(middle_sep_header.join(parts) + r' \\')
     return lines
 
-def __build_row(num_row, row_geometry, question_numbers, num_choices,
+def _build_row(num_row, row_geometry, question_numbers, num_choices,
                 infobits_row, compact, left_to_right_numbering=False):
     parts = []
     for i, geometry in enumerate(row_geometry):
@@ -472,7 +529,7 @@ def __build_row(num_row, row_geometry, question_numbers, num_choices,
                 cell_number = num_row + question_numbers[i]
             else:
                 cell_number = i + 1 + len(row_geometry) * num_row
-            parts.append(__build_question_cell(cell_number, geometry))
+            parts.append(_build_question_cell(cell_number, geometry))
         elif geometry == -1:
             parts.append(infobits_row[0][i])
         elif geometry == -2:
@@ -482,13 +539,13 @@ def __build_row(num_row, row_geometry, question_numbers, num_choices,
     row = ' & & '.join(parts) if not compact else ' & '.join(parts)
     return row + r' \\'
 
-def __build_question_cell(num_question, num_choices):
+def _build_question_cell(num_question, num_choices):
     parts = [str(num_question)]
     for i in range(0, num_choices):
         parts.append(r'\light{%s}'%chr(65 + i))
     return ' & '.join(parts)
 
-def __create_infobits(bits, num_tables, num_choices):
+def _create_infobits(bits, num_tables, num_choices):
     column_active = r'\multicolumn{1}{c}{$\blacksquare$}'
     column_inactive = r'\multicolumn{1}{c}{}'
     parts = [[], []]
@@ -566,7 +623,8 @@ def format_question(question, model, with_solution=False):
         data.append('&\n')
         if question.text.figure is not None:
             data.extend(write_figure(question.text.figure,
-                                     question.text.annex_width))
+                                     question.text.annex_width,
+                                     True))
         elif question.text.code is not None:
             data.extend(write_code(question.text.code))
         data.append('\\\\\n\\end{tabular}\n')
@@ -585,17 +643,20 @@ def format_question_component(component):
                     data.extend(write_code(part[1]))
     if component.figure is not None and component.annex_pos == 'center':
         data.extend(write_figure(component.figure,
-                                 component.annex_width))
+                                 component.annex_width,
+                                 False))
     elif component.code is not None and component.annex_pos == 'center':
         data.extend(write_code(component.code))
     return data
 
-def write_figure(figure, width):
+def write_figure(figure, width, center):
     data = []
-    data.append('\\begin{center}\n')
+    if center:
+        data.append('\\begin{center}\n')
     data.append('\\includegraphics[width=%f\\textwidth]{%s}\n'%\
                     (width * 0.9, figure))
-    data.append('\\end{center}\n')
+    if center:
+        data.append('\\end{center}\n')
     return data
 
 def write_code(code):
