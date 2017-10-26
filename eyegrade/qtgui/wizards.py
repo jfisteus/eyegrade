@@ -250,7 +250,7 @@ class NewSessionPageExamParams(QWizardPage):
                 _('The number of questions per answer box is empty.'
                   ' Enter a comma-separated list of natural numbers.'))
             return False
-        if self.paramNCols.text().endsWith(','):
+        if self.paramNCols.text().endswith(','):
             self.paramNCols.setText(self.paramNCols.text()[:-1])
         if not self.paramNPerm.text():
             QMessageBox.critical(self, _('Error in form'),
@@ -293,13 +293,13 @@ class NewSessionPageExamAnswers(QWizardPage):
         self.tabs.clear()
         self.total_answers = 0
         self.radioGroups = {}
-        filas = int(self.paramNPerm.toString())
+        filas = self.paramNPerm
         for x in range(filas):
             mygroupbox = QScrollArea()
             mygroupbox.setWidget(QWidget())
             mygroupbox.setWidgetResizable(True)
             myform = QHBoxLayout(mygroupbox.widget())
-            cols = self.paramNCols.toString().split(',')
+            cols = self.paramNCols.split(',')
             ansID = 0
             radioGroupList = {}
             for col in cols:
@@ -310,7 +310,7 @@ class NewSessionPageExamAnswers(QWizardPage):
                     ansID += 1
                     radioGroupList[ansID] = QButtonGroup()
                     layoutRow = QHBoxLayout()
-                    for j in range(int(self.paramNAlts.toString())):
+                    for j in range(self.paramNAlts):
                         myradio = QRadioButton(chr(97+j).upper())
                         layoutRow.addWidget(myradio)
                         radioGroupList[ansID].addButton(myradio)
@@ -349,8 +349,8 @@ class NewSessionPageExamAnswers(QWizardPage):
                 self.wizard().exam_config = utils.ExamConfig()
                 # dimentions generation:
                 dimensions = []
-                for c in self.paramNCols.toString().split(','):
-                    dimensions.append("%s,%s" % (self.paramNAlts.toString(),c))
+                for c in self.paramNCols.split(','):
+                    dimensions.append("%d,%s" % (self.paramNAlts, c))
                 self.wizard().exam_config.set_dimensions(';'.join(dimensions))
                 # solutions generation:
                 current_solutions = self._get_values(formated=True)
@@ -358,7 +358,7 @@ class NewSessionPageExamAnswers(QWizardPage):
                     self.wizard().exam_config.set_solutions(k, v)
                 # students ids generation:
                 self.wizard().exam_config.id_num_digits = \
-                    int(self.field("paramNEIDs").toString())
+                    self.field("paramNEIDs")
             except IOError:
                 valid = False
                 msg = _('The exam configuration file cannot be read.')
@@ -375,10 +375,10 @@ class NewSessionPageExamAnswers(QWizardPage):
 
     def nextId(self):
         return WizardNewSession.PageIdFiles
-        ## if (int(self.paramTPerm.toString()) == 0
-        ##     or int(self.paramNPerm.toString()) == 1):
+        ## if self.paramTPerm == 0
+        ##     or self.paramNPerm == 1):
         ##     return WizardNewSession.PageIdFiles
-        ## elif int(self.paramTPerm.toString()) == 1:
+        ## elif self.paramTPerm == 1:
         ##     return WizardNewSession.PagePermutations
         ## else:
         ##     return WizardNewSession.PageExamAnswers
@@ -404,11 +404,11 @@ class NewSessionPagePermutations(QWizardPage):
         self.setLayout(layout)
 
     def initializePage(self):
-        paramNAlts = int(self.field("paramNAlts").toString())
-        paramNPerm = int(self.field("paramNPerm").toString())
+        paramNAlts = self.field("paramNAlts")
+        paramNPerm = self.field("paramNPerm")
         self.question_list.clear()
         # Creation of the list section
-        paramNCols_array = self.field("paramNCols").toString().split(',')
+        paramNCols_array = self.field("paramNCols").split(',')
         total_questions = 1 + (int(paramNCols_array[0]) \
                                if len(paramNCols_array) == 1 \
                                else reduce(lambda x, y: int(x) + int(y),

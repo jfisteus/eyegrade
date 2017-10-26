@@ -443,7 +443,7 @@ class MultipleFilesWidget(QWidget):
         count = model.rowCount()
         for i in range(0, count):
             index = model.index(i, 0)
-            files.append(unicode(model.data(index).toString()))
+            files.append(model.data(index))
         return files
 
     def _add_files(self):
@@ -763,7 +763,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
         r = index.row()
         c = index.column()
         try:
-            value = utils.parse_number(unicode(value_qvar.toString()))
+            value = utils.parse_number(value_qvar)
         except ValueError:
             return False
         if r < self.exam_config.num_questions:
