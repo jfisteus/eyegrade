@@ -19,27 +19,15 @@
 #
 import gettext
 
-# Try PyQt5 first, and then PyQt4 if it fails
-try:
-    from PyQt5.QtWidgets import (
-        QComboBox,
-        QDialog,
-        QDialogButtonBox,
-        QFileDialog,
-        QFormLayout,
-        QVBoxLayout,
-        QWidget,
-    )
-except ImportError:
-    from PyQt4.QtGui import (
-        QComboBox,
-        QDialog,
-        QDialogButtonBox,
-        QFileDialog,
-        QFormLayout,
-        QVBoxLayout,
-        QWidget,
-    )
+from PyQt5.QtWidgets import (
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .widgets import LabelledCheckBox
 from .. import utils

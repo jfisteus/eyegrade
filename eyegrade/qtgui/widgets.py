@@ -22,90 +22,46 @@ from __future__ import division, unicode_literals, print_function
 import gettext
 import fractions
 
-# Try PyQt5 first, and then PyQt4 if it fails
-try:
-    from PyQt5.QtGui import (
-        QIcon,
-        QImage,
-        QPainter,
-        QPixmap,
-        QRegExpValidator,
-    )
+from PyQt5.QtGui import (
+    QIcon,
+    QImage,
+    QPainter,
+    QPixmap,
+    QRegExpValidator,
+)
 
-    from PyQt5.QtWidgets import (
-        QAbstractItemView,
-        QButtonGroup,
-        QCheckBox,
-        QComboBox,
-        QCompleter,
-        QFileDialog,
-        QHBoxLayout,
-        QLabel,
-        QLineEdit,
-        QListWidget,
-        QMessageBox,
-        QPushButton,
-        QRadioButton,
-        QSpinBox,
-        QStatusBar,
-        QStyle,
-        QTableView,
-        QVBoxLayout,
-        QWidget,
-    )
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QCompleter,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QSpinBox,
+    QStatusBar,
+    QStyle,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
 
-    from PyQt5.QtCore import (
-        QAbstractListModel,
-        QAbstractTableModel,
-        QModelIndex,
-        QRegExp,
-        QSortFilterProxyModel,
-        QVariant,
-        Qt,
-        pyqtProperty,
-    )
-except ImportError:
-    from PyQt4.QtGui import (
-        QIcon,
-        QImage,
-        QPainter,
-        QPixmap,
-        QRegExpValidator,
-        QSortFilterProxyModel,
-    )
-
-    from PyQt4.QtGui import (
-        QAbstractItemView,
-        QButtonGroup,
-        QCheckBox,
-        QComboBox,
-        QCompleter,
-        QFileDialog,
-        QHBoxLayout,
-        QLabel,
-        QLineEdit,
-        QListWidget,
-        QMessageBox,
-        QPushButton,
-        QRadioButton,
-        QSpinBox,
-        QStatusBar,
-        QStyle,
-        QTableView,
-        QVBoxLayout,
-        QWidget,
-    )
-
-    from PyQt4.QtCore import (
-        QAbstractListModel,
-        QAbstractTableModel,
-        QModelIndex,
-        QRegExp,
-        QVariant,
-        Qt,
-        pyqtProperty,
-    )
-
+from PyQt5.QtCore import (
+    QAbstractListModel,
+    QAbstractTableModel,
+    QModelIndex,
+    QRegExp,
+    QSortFilterProxyModel,
+    QVariant,
+    Qt,
+    pyqtProperty,
+)
 
 from .. import utils
 from . import Colors
@@ -324,14 +280,9 @@ class OpenFileWidget(QWidget):
                                          | QFileDialog.DontResolveSymlinks
                                          | QFileDialog.DontUseNativeDialog))
         else:
-            result = QFileDialog.getOpenFileName(self, self.title, '',
+            filename, _ = QFileDialog.getOpenFileName(self, self.title, '',
                                             self.name_filter, None,
                                             QFileDialog.DontUseNativeDialog)
-            try:
-                filename, __ = result
-            except ValueError:
-                # PyQt4 compatibility:
-                filename = unicode(result)
         if filename:
             valid = self.check_value(filename=filename)
             if valid:
@@ -447,14 +398,9 @@ class MultipleFilesWidget(QWidget):
         return files
 
     def _add_files(self):
-        result = QFileDialog.getOpenFileNames(self, self.title, '',
-                                              self.file_name_filter, None,
-                                              QFileDialog.DontUseNativeDialog)
-        try:
-            file_list_q, __ = result
-        except ValueError:
-            # PyQt4 compatibility
-            file_list_q = [unicode(filename) for filename in result]
+        file_list_q, __ = QFileDialog.getOpenFileNames(self, self.title, '',
+                                               self.file_name_filter, None,
+                                               QFileDialog.DontUseNativeDialog)
         model = self.file_list.model()
         for file_name in file_list_q:
             valid = True

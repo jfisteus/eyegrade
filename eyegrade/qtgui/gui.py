@@ -21,69 +21,36 @@ from __future__ import division
 
 import gettext
 
-# Try PyQt5 first, and then PyQt4 if it fails
-try:
-    from PyQt5.QtGui import (
-        QIcon,
-        QKeySequence,
-        QPixmap,
-    )
+from PyQt5.QtGui import (
+    QIcon,
+    QKeySequence,
+    QPixmap,
+)
 
-    from PyQt5.QtWidgets import (
-        QAction,
-        QDialog,
-        QFileDialog,
-        QHBoxLayout,
-        QLabel,
-        QMainWindow,
-        QMenu,
-        QMessageBox,
-        QSizePolicy,
-        QStackedLayout,
-        QStyleFactory,
-        QVBoxLayout,
-        QWidget,
-    )
+from PyQt5.QtWidgets import (
+    QAction,
+    QDialog,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QSizePolicy,
+    QStackedLayout,
+    QStyleFactory,
+    QVBoxLayout,
+    QWidget,
+)
 
-    from PyQt5.QtCore import (
-        QObject,
-        QRunnable,
-        QThreadPool,
-        QTimer,
-        Qt,
-        pyqtSignal,
-    )
-except ImportError:
-    from PyQt4.QtGui import (
-        QIcon,
-        QKeySequence,
-        QPixmap,
-    )
-
-    from PyQt4.QtGui import (
-        QAction,
-        QDialog,
-        QFileDialog,
-        QHBoxLayout,
-        QLabel,
-        QMainWindow,
-        QMenu,
-        QMessageBox,
-        QSizePolicy,
-        QStackedLayout,
-        QStyleFactory,
-        QVBoxLayout,
-        QWidget,
-    )
-
-    from PyQt4.QtCore import (
-        QObject,
-        QRunnable,
-        QThreadPool,
-        QTimer,
-        Qt,
-        pyqtSignal,
-    )
+from PyQt5.QtCore import (
+    QObject,
+    QRunnable,
+    QThreadPool,
+    QTimer,
+    Qt,
+    pyqtSignal,
+)
 
 from .. import utils
 from . import examsview
@@ -815,17 +782,12 @@ class Interface(object):
         The filename of the session file is returned or None.
 
         """
-        result = QFileDialog.getOpenFileName(self.window,
+        filename, __ = QFileDialog.getOpenFileName(self.window,
                                                _('Select the session file'),
                                                '',
                                                FileNameFilters.session_db,
                                                None,
                                                QFileDialog.DontUseNativeDialog)
-        try:
-            filename, __ = result
-        except ValueError:
-            # PyQt4 compatibility:
-            filename = unicode(result)
         return filename if filename else None
 
     def dialog_camera_selection(self, capture_context):

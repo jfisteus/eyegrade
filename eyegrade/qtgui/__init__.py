@@ -20,11 +20,7 @@
 
 import gettext
 
-# Try PyQt5 first, and then PyQt4 if it fails
-try:
-    from PyQt5.QtGui import QColor
-except ImportError:
-    from PyQt4.QtGui import QColor
+from PyQt5.QtGui import QColor
 
 from .. import utils
 

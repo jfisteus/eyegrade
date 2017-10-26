@@ -18,53 +18,28 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-# Try PyQt5 first, and then PyQt4 if it fails
-try:
-    from PyQt5.QtGui import (
-        QIcon,
-        QImage,
-        QPainter,
-    )
+from PyQt5.QtGui import (
+    QIcon,
+    QImage,
+    QPainter,
+)
 
-    from PyQt5.QtWidgets import (
-        QListView,
-        QListWidget,
-        QListWidgetItem,
-        QVBoxLayout,
-        QWidget,
-    )
+from PyQt5.QtWidgets import (
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
-    from PyQt5.QtCore import (
-        QEvent,
-        QItemSelection,
-        QObject,
-        QSize,
-        pyqtSignal,
-        pyqtSlot,
-    )
-except ImportError:
-    from PyQt4.QtGui import (
-        QIcon,
-        QImage,
-        QItemSelection,
-        QPainter,
-    )
-
-    from PyQt4.QtGui import (
-        QListView,
-        QListWidget,
-        QListWidgetItem,
-        QVBoxLayout,
-        QWidget,
-    )
-
-    from PyQt4.QtCore import (
-        QEvent,
-        QObject,
-        QSize,
-        pyqtSignal,
-        pyqtSlot,
-    )
+from PyQt5.QtCore import (
+    QEvent,
+    QItemSelection,
+    QObject,
+    QSize,
+    pyqtSignal,
+    pyqtSlot,
+)
 
 from .. import utils
 
