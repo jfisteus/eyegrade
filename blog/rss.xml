@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 26 Jul 2017 10:19:34 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.7 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-07-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.7 has been released!
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 25 Jan 2018 18:34:00 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>New video tutorial</title><link>http://www.eyegrade.org/blog/posts/new-video-tutorial.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Khuất Văn Quyên,
+an eyegrade user from Vietnam,
+has created and published a video tutorial in Youtube
+covering topics such installing eyegrade on Windows,
+using it to grade exams
+and creating answer forms in Microsoft Word.
+Texts are in Vietnamese, but don't worry if you don't speak that language,
+because you should be able to follow the video
+and get most of the information despite of that.&lt;/p&gt;
+&lt;p&gt;Thanks a lot for this contribution!!!&lt;/p&gt;
+&lt;iframe width="360" height="270" src="https://www.youtube.com/embed/PHZLHDxaOxQ" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><category>videos</category><guid>http://www.eyegrade.org/blog/posts/new-video-tutorial.html</guid><pubDate>Thu, 25 Jan 2018 18:21:27 GMT</pubDate></item><item><title>Eyegrade 0.7 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-07-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.7 has been released!
 This release includes two main changes from the point of view
 of the final user:&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -198,43 +208,4 @@ by executing the command
 Although Eyegrade 0.5 is able to work
 with sessions created by the previous versions of Eyegrade,
 those previous versions don't work
-with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
-because I plan to add a couple of features more.
-Today I'll talk about one of them.
-Roberto González, a long time user and contributor of Eyegrade,
-wondered in
-&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html#disqus_thread"&gt;his comment to my previous blog post&lt;/a&gt;
-whether the new feature for assigning different scores to questions
-could be used to void those questions that one doesn't want to grade.
-This may be useful, for example,
-when, being late for doing changes to the text of the exam,
-you want to invalidate a question
-because you discover that there is a severe error in how it's stated.
-Roberto commented another situation
-in which voiding a question would be very useful for him.&lt;/p&gt;
-&lt;p&gt;Roberto cleverly suggested that assigning weight zero
-to those questions would make it.
-I've been working on his idea.
-When you set the scores of the questions
-and select the &lt;em&gt;base score plus per-question weight&lt;/em&gt; option,
-you'll be able to assign weight zero to some questions:&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="Set weight zero to void a question" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/void-question-set-weight.png"&gt;
-&lt;/div&gt;
-&lt;p&gt;The example above voids question 5 in model A,
-which is also question 1 in model B, question 2 in model C
-and question 3 in model D.
-Void questions will be clearly displayed
-in the capture of the exam,
-and won't be considered either for the score
-or the count of correct and incorrect questions:&lt;/p&gt;
-&lt;div class="figure"&gt;
-&lt;img alt="Set weight zero to void a question" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/void-question-capture.png"&gt;
-&lt;/div&gt;
-&lt;p&gt;This new feature has a limitation though:
-you'll have to void the questions when you create the session.
-You won't be able to do it once the session has been created.
-For future releases
-I'll try to allow changing question scores for existing sessions,
-so that the scores of the exams that have already been graded
-get computed again and their captures get updated.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</guid><pubDate>Thu, 26 Feb 2015 08:50:00 GMT</pubDate></item></channel></rss>
+with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item></channel></rss>

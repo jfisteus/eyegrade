@@ -35,6 +35,11 @@ News
 | `Read more news at the blog <blog/index.html>`_
 
 
+**[Jan 25, 2018]**
+A user from Vietnam has contributed with a nice video tutorial.
+It's linked from the `documentation page <documentation.html>`__.
+See the `blog post <blog/posts/new-video-tutorial.html>`__.
+
 **[Jul 26, 2017]**
 Eyegrade 0.7 has been released!
 See the `blog post <blog/posts/eyegrade-07-released.html>`__
@@ -55,10 +60,6 @@ See the `blog post <blog/posts/bugfix-release-062.html>`__.
 **[Oct 21, 2015]**
 Eyegrade 0.6.1 has been released!
 See the `blog post <blog/posts/bugfix-release-061.html>`__.
-
-**[Jun 20, 2015]**
-Eyegrade 0.6 has been released!
-See the `blog post <blog/posts/eyegrade-06-released.html>`__.
 
 
 
