@@ -35,9 +35,19 @@ class SVMClassifier(object):
     def __init__(self, num_classes, features_extractor, load_from_file=None):
         self.num_classes = num_classes
         self.features_extractor = features_extractor
-        self.svm = cv2.SVM()
-        if load_from_file:
-            self.svm.load(SVMClassifier.resource(load_from_file))
+        if not load_from_file:
+            self.svm = cv2.SVM()
+        else:
+            # Support OpenCV 3.2 just for loading (not training)
+            try:
+                import cv2
+                self.svm = cv2.SVM()
+                self.svm.load(SVMClassifier.resource(load_from_file))
+            except AttributeError:
+                # OpenCV 3.2 variant
+                import cv2.ml
+                self.svm = cv2.ml.SVM_load( \
+                                    SVMClassifier.resource(load_from_file))
 
     @property
     def features_len(self):
