@@ -232,6 +232,9 @@ EyegradeException.register_error('error_student_id',
 EyegradeException.register_error('error_student_list_encoding',
     'The student list contains erroneously-encoded characters.')
 
+EyegradeException.register_error('load_image',
+    'The image cannot be loaded (perhaps a wrong path?).')
+
 
 class ExportSortKey(object):
     """Constants for the export dialog."""
