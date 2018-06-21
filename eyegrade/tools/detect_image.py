@@ -46,6 +46,12 @@ def _cmd_options():
                         type=str,
                         default=None,
                         help='Write the processed image to the given file')
+    parser.add_argument('-i', '--id-num-digits',
+                        dest='id_num_digits',
+                        type=int,
+                        default=0,
+                        help=('Detect student id with the given '
+                              'number of digits'))
     return parser.parse_args()
 
 
@@ -58,6 +64,9 @@ def main():
     options['capture-raw-file'] = args.image
     if args.draw_lines_to is not None:
         options['show-lines'] = True
+    if args.id_num_digits:
+        options['read-id'] = True
+        options['id-num-digits'] = 9
     dimensions, _ = utils.parse_dimensions(args.dimensions)
     detector = detection.ExamDetector(dimensions, context, options)
     success = detector.detect()

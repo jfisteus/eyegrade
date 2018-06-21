@@ -634,7 +634,6 @@ def detect_lines(image, hough_threshold):
         lines = [(float(l[0]), float(l[1])) for l in lines]
     else:
         lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
-    print('Lines: {}'.format(len(lines)))
     return sorted(lines, key = lambda x: x[1])
 
 def detect_directions(lines):
