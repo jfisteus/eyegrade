@@ -8,7 +8,10 @@ import sys
 dependencies = {}
 try:
     import cv2
-    if cv2.__version__.startswith('2.4'):
+    if (cv2.__version__.startswith('2.4')
+        or (cv2.__version__.startswith('3.')
+            and not cv2.__version__.startswith('3.0')
+            and not cv2.__version__.startswith('3.1'))):
         dependencies['opencv'] = (True, None)
     else:
         dependencies['opencv'] = (False, 'version')
@@ -28,11 +31,11 @@ else:
     has_opencv, reason = dependencies['opencv']
     if not has_opencv:
         if reason == 'version':
-            print('OpenCV 2.4 is required, but {} found.'
+            print('OpenCV 2.4 or >=3.2 is required, but {} found.'
                   .format(cv2.__version__),
                   file=sys.stderr)
         else:
-            print('Cannot import cv2. You need to install OpenCV 2.4 '
+            print('Cannot import cv2. You need to install OpenCV 2.4 or >=3.2'
                   'and its Python bindings.',
                   file=sys.stderr)
     has_pyqt5, reason = dependencies['pyqt5']

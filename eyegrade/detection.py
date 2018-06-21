@@ -30,12 +30,14 @@ from . import geometry as g
 from . import capture
 from . import sessiondb
 from . import images
+from . import utils
+from . import opencvcompat
 from .ocr import classifiers
 from .ocr import sample
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
-param_adaptive_threshold_offset = 0
+param_adaptive_threshold_offset = 4
 
 # Other detection parameters
 param_collapse_lines_maxgap = 7
@@ -94,6 +96,8 @@ class ExamDetector(object):
         elif self.options['capture-raw-file'] is not None:
             self.image_raw = \
                         images.load_image(self.options['capture-raw-file'])
+            if self.image_raw is None:
+                raise utils.EyegradeException('', key='load_image')
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-proc-file'] is not None:
             self.image_raw = \
@@ -199,6 +203,9 @@ class ExamDetector(object):
                 for line in axes[1][1]:
                     images.draw_line(self.image_to_show, line, (255, 0, 255))
                 self._draw_cell_corners(corner_matrixes)
+            elif self.status['lines']:
+                for line in lines:
+                    images.draw_line(self.image_to_show, line, (255, 0, 0))
             if id_hlines:
                 for line in id_hlines:
                     images.draw_line(self.image_to_show, line, (255, 255, 0))
@@ -614,12 +621,20 @@ def pre_process(image):
     return thr
 
 def detect_lines(image, hough_threshold):
-    lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
-    if lines is None or len(lines[0]) > 500:
+    raw_lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
+    if raw_lines is None:
         return []
-    lines = lines[0]
-    return sorted([(float(l[0]), float(l[1])) for l in lines],
-                  key = lambda x: x[1])
+    if opencvcompat.cv_mode == 2:
+        lines = raw_lines[0]
+    else:
+        lines = raw_lines
+    if len(lines[0]) > 500:
+        return []
+    if opencvcompat.cv_mode == 2:
+        lines = [(float(l[0]), float(l[1])) for l in lines]
+    else:
+        lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
+    return sorted(lines, key = lambda x: x[1])
 
 def detect_directions(lines):
     assert(len(lines) >= 2)

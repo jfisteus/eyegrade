@@ -15,6 +15,8 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from __future__ import print_function
+
 import json
 import os.path
 
@@ -23,7 +25,7 @@ import numpy as np
 
 from . import preprocessing
 from .. import utils
-
+from .. import opencvcompat
 
 DEFAULT_DIG_CLASS_FILE = 'digit_classifier.dat.gz'
 DEFAULT_DIG_META_FILE = 'digit_classifier_metadata.txt'
@@ -31,19 +33,33 @@ DEFAULT_CROSS_CLASS_FILE = 'cross_classifier.dat.gz'
 DEFAULT_CROSS_META_FILE = 'cross_classifier_metadata.json'
 DEFAULT_DIR = 'svm'
 
+
 class SVMClassifier(object):
     def __init__(self, num_classes, features_extractor, load_from_file=None):
         self.num_classes = num_classes
         self.features_extractor = features_extractor
-        self.svm = cv2.SVM()
-        if load_from_file:
-            self.svm.load(SVMClassifier.resource(load_from_file))
+        if opencvcompat.cv_mode == 3:
+            self.train = self.train_cv_mode_3
+            self.classify = self.classify_cv_mode_3
+            if not load_from_file:
+                self.svm = cv2.ml.SVM_create()
+            else:
+                self.svm = cv2.ml.SVM_load( \
+                    SVMClassifier.resource(load_from_file))
+        else:
+            self.train = self.train_cv_mode_2
+            self.classify = self.classify_cv_mode_2
+            if not load_from_file:
+                self.svm = cv2.SVM()
+            else:
+                self.svm = cv2.SVM()
+                self.svm.load(SVMClassifier.resource(load_from_file))
 
     @property
     def features_len(self):
         return self.features_extractor.features_len
 
-    def train(self, samples, params=None):
+    def train_cv_mode_2(self, samples, params=None):
         features = np.ndarray(shape=(len(samples), self.features_len),
                               dtype='float32')
         labels = np.ndarray(shape=(len(samples), 1), dtype='float32')
@@ -61,12 +77,30 @@ class SVMClassifier(object):
                 svm_params['gamma'] = params['gamma']
         self.svm.train(features, labels, params=svm_params)
 
-    def classify(self, sample):
+    def train_cv_mode_3(self, samples, params=None):
+        features = np.ndarray(shape=(len(samples), self.features_len),
+                              dtype='float32')
+        labels = np.ndarray(shape=(len(samples), 1), dtype='int32')
+        for i, sample in enumerate(samples):
+            features[i,:] = self.features_extractor.extract(sample)
+            labels[i] = sample.label
+        self.svm.trainAuto(features, cv2.ml.ROW_SAMPLE, labels)
+
+    def classify_cv_mode_2(self, sample):
         features = self.features_extractor.extract(sample)
         return int(round(self.svm.predict(features)))
 
+    def classify_cv_mode_3(self, sample):
+        features = np.ndarray(shape=(1, self.features_len), dtype='float32')
+        features[0,:] = self.features_extractor.extract(sample)
+        retval, prediction = self.svm.predict(features)
+        return int(prediction[0, 0])
+
     def reset(self):
-        self.svm = cv2.SVM()
+        if opencvcompat.cv_mode == 3:
+            self.svm = cv2.ml.SVM_create()
+        else:
+            self.svm = cv2.SVM()
 
     def save(self, filename):
         self.svm.save(filename)

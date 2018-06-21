@@ -78,12 +78,13 @@ def create_crosses_classifier(sample_set, rounds):
     classifier.save(classifiers.DEFAULT_CROSS_CLASS_FILE)
 
 def _parse_args():
-    parser = argparse.ArgumentParser(description='Generate CSV data files.')
+    parser = argparse.ArgumentParser(
+        description='Create the SVM classifier for digits or crosses.')
     parser.add_argument('classifier',
             help='classifier to be created ("digits" or "crosses")')
     parser.add_argument('sample_files', metavar='sample file', nargs='+',
             help='index file with the samples for training/evaluation')
-    parser.add_argument('--rounds', type=int, default=100,
+    parser.add_argument('--rounds', type=int, default=10,
             help='number of rounds for k-fold cross evaluation (default 100)')
     return parser.parse_args()
 
