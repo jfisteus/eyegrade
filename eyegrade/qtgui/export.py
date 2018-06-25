@@ -33,7 +33,7 @@ from .widgets import LabelledCheckBox
 from .. import utils
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 
 class DialogExportGrades(QDialog):
@@ -130,7 +130,7 @@ class DialogExportGrades(QDialog):
         if save_dialog.exec_():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
-                filename = unicode(filename_list[0])
+                filename = filename_list[0]
         return filename
 
 

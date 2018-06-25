@@ -40,7 +40,7 @@ from .qtgui import gui
 from . import sessiondb
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 utils.EyegradeException.register_error('no_camera',
     _('There is no suitable webcam. Eyegrade needs a webcam to work.\n'
@@ -422,7 +422,7 @@ class ProgramManager(object):
                 self.interface.show_error(_('Input/output error:')
                                           + ' ' + e.message)
             except utils.EyegradeException as e:
-                self.interface.show_error(_('Error:') + u' ' + unicode(e))
+                self.interface.show_error(_('Error:') + ' ' + str(e))
             else:
                 self._start_session()
 
@@ -457,15 +457,17 @@ class ProgramManager(object):
             success = True
             message = ''
         except utils.EyegradeException as e:
+            import traceback
+            traceback.print_exc()
             self.sessiondb = None
             self.exam_data = None
             success = False
-            message = _('Error loading the session') + u': ' + unicode(e)
+            message = _('Error loading the session') + ': ' + str(e)
         except IOError as e:
             self.sessiondb = None
             self.exam_data = None
             success = False
-            message = _('Error loading the session') + u': ' + unicode(e)
+            message = _('Error loading the session') + ': ' + str(e)
         return success, message
 
     def _close_session(self):
@@ -816,7 +818,7 @@ def main():
                                   utils.qt_translations_dir())
     app.installTranslator(translator)
     if len(sys.argv) >= 2:
-        filename = utils.path_to_unicode(sys.argv[1])
+        filename = sys.argv[1]
     else:
         filename = None
     try:
@@ -825,7 +827,7 @@ def main():
         manager = ProgramManager(interface, session_file=filename)
         manager.run()
     except utils.EyegradeException as ex:
-        print(unicode(ex).encode(sys.stdout.encoding))
+        print(ex)
         sys.exit(1)
 
 if __name__ == '__main__':

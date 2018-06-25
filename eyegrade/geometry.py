@@ -138,7 +138,7 @@ def walk_line(p0, p1):
     error = deltax / 2
     y = y0
     ystep = 1 if y0 < y1 else -1
-    for x in xrange(x0, x1 + 1):
+    for x in range(x0, x1 + 1):
         yield (x, y) if not steep else (y, x)
         error = error - deltay
         if error < 0:

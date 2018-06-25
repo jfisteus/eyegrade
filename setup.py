@@ -7,8 +7,8 @@ import setuptools
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-if sys.version_info[0] != 2 or sys.version_info[1] not in [7]:
-    print('ztreamy needs Python 2.7')
+if sys.version_info[0] < 3:
+    print('eyegrade does not run in legacy python versions: use python 3')
     sys.exit(1)
 
 long_description = """
@@ -68,7 +68,7 @@ to work properly:
 """
 
 setuptools.setup(name='eyegrade',
-      version='0.8.dev2',
+      version='0.8.dev3',
       description='Grade MCQ exams with a webcam',
       long_description=long_description,
       author='Jesus Arias Fisteus',
@@ -89,8 +89,7 @@ setuptools.setup(name='eyegrade',
           'Natural Language :: Galician',
           'Operating System :: POSIX :: Linux',
           'Operating System :: Microsoft :: Windows',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
           'Topic :: Education',
       ],
 )

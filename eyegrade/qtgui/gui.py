@@ -61,7 +61,7 @@ from . import export
 from . import FileNameFilters
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 
 class _WorkerSignalEmitter(QObject):
@@ -689,7 +689,7 @@ class Interface(object):
         ('action', 'session', 'close').
 
         """
-        for key, listener in listeners.iteritems():
+        for key, listener in listeners.items():
             self.register_listener(key, listener)
 
     def register_listener(self, key, listener):
@@ -830,7 +830,7 @@ class Interface(object):
         if save_dialog.exec_():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
-                filename = unicode(filename_list[0])
+                filename = filename_list[0]
         return filename
 
     def show_information(self, message, title='Information'):

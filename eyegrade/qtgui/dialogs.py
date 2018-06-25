@@ -54,7 +54,7 @@ from .. import utils
 from . import widgets
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 
 class DialogStudentId(QDialog):
@@ -174,20 +174,20 @@ class NewStudentDialog(QDialog):
         result = super(NewStudentDialog, self).exec_()
         if result == QDialog.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
-            email = unicode(self.email_field.text())
+            email = self.email_field.text()
             if not email:
                 email = None
             if self.combo.currentIndex() == 0:
                 # First name, last name
-                student = utils.Student(None, unicode(self.id_field.text()),
+                student = utils.Student(None, self.id_field.text(),
                                         None,
-                                        unicode(self.name_field.text()),
-                                        unicode(self.surname_field.text()),
+                                        self.name_field.text(),
+                                        self.surname_field.text(),
                                         email, 0, None)
             else:
                 # Full name
-                student = utils.Student(None, unicode(self.id_field.text()),
-                                        unicode(self.full_name_field.text()),
+                student = utils.Student(None, self.id_field.text(),
+                                        self.full_name_field.text(),
                                         None,
                                         None,
                                         email, 0, None)
@@ -382,7 +382,7 @@ class DialogAbout(QDialog):
     values = dialog.exec_()
 
     """
-    _tuple_strcoll = staticmethod(lambda x, y: locale.strcoll(x[0], y[0]))
+    _tuple_strxfrm = staticmethod(lambda x: locale.strxfrm(x[0]))
 
     def __init__(self, parent):
         super(DialogAbout, self).__init__(parent)
@@ -478,7 +478,7 @@ class DialogAbout(QDialog):
             ]
         parts = []
         for language, names in sorted(translators,
-                                      cmp=DialogAbout._tuple_strcoll):
+                                      key=DialogAbout._tuple_strxfrm):
             if names:
                 parts.append(u'<p><b>{0}:</b></p>'.format(language))
                 parts.append(u'<ul>')

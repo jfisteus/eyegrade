@@ -210,6 +210,4 @@ class ExamCapture(object):
 
 
 def save_image(filename, image):
-    if isinstance(filename, unicode):
-        filename = utils.unicode_path_to_str(filename)
     cv2.imwrite(filename, image)

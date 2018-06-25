@@ -25,7 +25,7 @@ from PyQt5.QtGui import QColor
 from .. import utils
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 class FileNameFilters(object):
     exam_config = _('Exam configuration (*.eye)')

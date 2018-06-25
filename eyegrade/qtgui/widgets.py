@@ -67,7 +67,7 @@ from .. import utils
 from . import Colors
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 
 class LineContainer(QWidget):
@@ -94,8 +94,8 @@ class CompletingComboBox(QComboBox):
         self.completer = QCompleter(self.filter, self)
         self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
         self.setCompleter(self.completer)
-        self.lineEdit().textEdited[unicode]\
-            .connect(self.filter.setFilterFixedString)
+        self.lineEdit().textEdited.connect(
+            self.filter.setFilterFixedString)
         self.currentIndexChanged.connect(self._index_changed)
 
     def _index_changed(self, index):
@@ -223,7 +223,7 @@ class OpenFileWidget(QWidget):
         self.last_validated_value = None
 
     def text(self):
-        return unicode(self.filename_widget.text())
+        return self.filename_widget.text()
 
     def set_text(self, filename):
         self.filename_widget.setText(filename)
