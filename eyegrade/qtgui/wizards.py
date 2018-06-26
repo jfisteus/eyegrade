@@ -22,19 +22,12 @@ from __future__ import division
 import gettext
 import os.path
 
-from PyQt5.QtGui import (
-    QColor,
-)
-
 from PyQt5.QtWidgets import (
     QButtonGroup,
     QFormLayout,
-    QGridLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
-    QListWidget,
-    QListWidgetItem,
     QMessageBox,
     QPushButton,
     QRadioButton,
@@ -297,14 +290,17 @@ class NewSessionPageExamAnswers(QWizardPage):
             for ak, av in v.items():
                 answer[ak] = abs(int(av.checkedId())) - 1
             if formated:
-                answer = answer.values()
+                answer = list(answer.values())
             response[k] = answer
         return response
 
     def _check_count_answers(self):
         local_radioGroups = self._get_values(formated=True)
-        local_total_answers = sum(len(filter(lambda a: a != 0, v))
-                                  for v in local_radioGroups.values())
+        local_total_answers = 0
+        for v in local_radioGroups.values():
+            for a in v:
+                if a != 0:
+                    local_total_answers += 1
         return (self.total_answers == local_total_answers)
 
     def validatePage(self):
