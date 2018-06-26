@@ -15,7 +15,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division, print_function
 
 # The gettext module needs in Windows an environment variable
 # to be defined before importing the gettext module itself

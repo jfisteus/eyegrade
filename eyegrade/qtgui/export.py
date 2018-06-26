@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
 # Copyright (C) 2010-2015 Jesus Arias Fisteus
 #

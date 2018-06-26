@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
 # Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
@@ -17,8 +15,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division
-
 import gettext
 import os.path
 

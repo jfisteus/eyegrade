@@ -15,9 +15,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-
-from __future__ import unicode_literals, print_function
-
 import configparser
 import csv
 import os
