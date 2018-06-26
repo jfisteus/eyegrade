@@ -32,7 +32,6 @@ from . import capture
 from . import sessiondb
 from . import images
 from . import utils
-from . import opencvcompat
 from .ocr import classifiers
 from .ocr import sample
 
@@ -626,16 +625,10 @@ def detect_lines(image, hough_threshold):
     raw_lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
     if raw_lines is None:
         return []
-    if opencvcompat.cv_mode == 2:
-        lines = raw_lines[0]
-    else:
-        lines = raw_lines
+    lines = raw_lines
     if len(lines[0]) > 500:
         return []
-    if opencvcompat.cv_mode == 2:
-        lines = [(float(l[0]), float(l[1])) for l in lines]
-    else:
-        lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
+    lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
     return sorted(lines, key = lambda x: x[1])
 
 def detect_directions(lines):
