@@ -1,13 +1,12 @@
-from __future__ import print_function
-
 import os
 import os.path
 import shutil
 import sys
 import subprocess
 import traceback
+import platform
 
-if not sys.platform.startswith("win32"):
+if platform.system() != "Windows":
     print("This script can only run on a Windows platform")
     sys.exit(1)
 
@@ -111,6 +110,7 @@ pyi_path = get_pyi_path()
 if not pyi_path:
     print('Error: PyInstaller executable pyinstaller.exe not found.')
     sys.exit(1)
+
 for filename in pyi_spec_files:
     result = subprocess.call([pyi_path, filename])
     if result != 0:
