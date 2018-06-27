@@ -52,7 +52,7 @@
     <text>
       Is the thing in the right a logo?
     </text>
-    <figure eye:width="0.16" eye:position="right">sample-logo.eps</figure>
+    <figure eye:width="0.16" eye:position="right">sample-logo.pdf</figure>
     <choices>
       <correct>Well, it tries to be a logo, to be honest.</correct>
       <incorrect>No, it's a tree.</incorrect>
@@ -193,16 +193,16 @@ MOV eax, 60
     </text>
     <choices>
       <correct>
-        <figure eye:width="0.03">drawing-1.eps</figure>
+        <figure eye:width="0.03">drawing-1.pdf</figure>
       </correct>
       <incorrect>
-        <figure eye:width="0.03">drawing-2.eps</figure>
+        <figure eye:width="0.03">drawing-2.pdf</figure>
       </incorrect>
       <incorrect>
-        <figure eye:width="0.03">drawing-2.eps</figure>
+        <figure eye:width="0.03">drawing-2.pdf</figure>
       </incorrect>
       <incorrect>
-        <figure eye:width="0.03">drawing-2.eps</figure>
+        <figure eye:width="0.03">drawing-2.pdf</figure>
       </incorrect>
     </choices>
   </question>
