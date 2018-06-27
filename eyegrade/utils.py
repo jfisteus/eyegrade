@@ -15,10 +15,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-
-from __future__ import unicode_literals, print_function
-
-import ConfigParser
+import configparser
 import csv
 import os
 import locale
@@ -34,7 +31,7 @@ program_name = 'eyegrade'
 web_location = 'http://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'http://www.eyegrade.org/doc/user-manual/'
-version = '0.8.dev2'
+version = '0.8.dev3'
 version_status = 'alpha'
 
 re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
@@ -53,24 +50,8 @@ _default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
 # needed.
 data_dir = None
 
-def path_to_unicode(path):
-    """Convert filesystem paths from str to unicode."""
-    encoding = sys.getfilesystemencoding()
-    if encoding is None:
-        # Some Unix systems might return None. Assume ASCII in that case:
-        encoding = 'ascii'
-    return unicode(path, encoding)
-
-def unicode_path_to_str(path):
-    """Convert filesystem paths from unicode to str."""
-    encoding = sys.getfilesystemencoding()
-    if encoding is None:
-        # Some Unix systems might return None. Assume ASCII in that case:
-        encoding = 'ascii'
-    return path.encode(encoding)
-
 def user_home():
-    return path_to_unicode(os.path.expanduser(b'~/'))
+    return os.path.expanduser('~/')
 
 def _read_config():
     """Reads the general config file and returns the resulting config object.
@@ -85,7 +66,7 @@ def _read_config():
         'csv-dialect': 'tabs',
         'default-charset': 'utf8', # special value: 'system-default'
     }
-    parser = ConfigParser.SafeConfigParser()
+    parser = configparser.ConfigParser()
     home = user_home()
     try:
         parser.read([os.path.join(home, u'.eyegrade.cfg'),
@@ -166,16 +147,6 @@ class EyegradeException(Exception):
             return self.full_message
         else:
             return super(EyegradeException, self).__str__()
-
-    def __unicode__(self):
-        if self.full_message is not None:
-            if isinstance(self.full_message, unicode):
-                return self.full_message
-            else:
-                return unicode(self.full_message, encoding='utf-8')
-        else:
-            return unicode(super(EyegradeException, self).__str__(),
-                           encoding='utf-8')
 
     @staticmethod
     def register_error(key, detailed_message='', short_message=''):
@@ -278,8 +249,7 @@ class ComparableMixin(object):
 
 
 def guess_data_dir():
-    u_file = path_to_unicode(__file__)
-    path = os.path.split(os.path.realpath(u_file))[0]
+    path = os.path.split(os.path.realpath(__file__))[0]
     # An alternative path to try for pyinstaller's packages:
     path_alt = os.path.split(path)[0]
     paths_to_try = [
@@ -315,30 +285,6 @@ def resource_path(file_name):
 
 # The global configuration object:
 config = _read_config()
-
-def read_results(filename, permutations = {}, allow_question_mark=False):
-    """Parses an eyegrade results file.
-
-       Results are returned as a list of dictionaries with the keys
-       stored in the 'results_file_keys' variable. If 'permutations'
-       is provided, answers are un-shuffled.
-
-    """
-    results = _read_results_file(filename)
-    for result in results:
-        result['model'] = check_model_letter(result['model'],
-                                       allow_question_mark=allow_question_mark)
-        result['good'] = int(result['good'])
-        result['bad'] = int(result['bad'])
-        if result['score'] != '?':
-            result['score'] = float(result['score'])
-        else:
-            result['score'] = None
-        answers = [int(n) for n in result['answers'].split('/')]
-        if len(permutations) > 0:
-            answers = _permute_answers(answers, permutations[result['model']])
-        result['answers'] = answers
-    return results
 
 def write_results(results, filename, csv_dialect, append=False):
     """Writes exam results to a file.
@@ -382,120 +328,61 @@ def check_model_letter(model, allow_question_mark=False):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename=None, file_=None, data=None):
+def read_student_ids(filename):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
-    Either 'filename', 'file_' or 'data' must be provided.  'filename'
-    specifies the name of a file to read.  'file_' is a file object
-    instead of a file name.  'data' must be a string that contains the
-    actual content of the config file to be parsed. Only one of them
-    should not be None, although this restriction is not enforced: the
-    first one not to be None, in the same order they are specified in
-    the function, is used.
-
     """
-    students = read_student_ids_same_order(filename=filename, file_=file_,
-                                           data=data)
+    students = read_student_ids_same_order(filename)
     students_dict = {}
     for sid, full_name, first_name, last_name, email in students:
         students_dict[sid] = (full_name, first_name, last_name, email)
     return students_dict
 
-def read_student_ids_same_order(filename=None, file_=None, data=None):
+def read_student_ids_same_order(filename):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
-
-    Either 'filename', 'file_' or 'data' must be provided.  'filename'
-    specifies the name of a file to read.  'file_' is a file object
-    instead of a file name.  'data' must be a string that contains the
-    actual content of the config file to be parsed. Only one of them
-    should not be None, although this restriction is not enforced: the
-    first one not to be None, in the same order they are specified in
-    the function, is used.
 
     Returns the results as a list of tuples (id, name, email).
 
     """
-    assert((filename is not None) or (file_ is not None)
-           or (data is not None))
-    csvfile = None
-    if filename is not None:
-        csvfile = open(filename, 'rb')
-        reader = csv.reader(_UTF8Recoder(csvfile), 'tabs')
-    elif file_ is not None:
-        reader = csv.reader(file_, 'tabs')
-    elif data is not None:
-        reader = csv.reader(io.BytesIO(data), 'tabs')
-    student_ids = []
-    for row in reader:
-        name1 = ''
-        name2 = ''
-        email = ''
-        if len(row) == 0:
-            raise EyegradeException('Empty line in student list',
-                                    key='error_student_list')
-        sid = _read_unicode_string(row[0],
-                                   'error_student_list_encoding')
-        _check_student_id(sid)
-        if len(row) > 1:
-            name1 = _read_unicode_string(row[1],
-                                         'error_student_list_encoding')
-        if len(row) > 2:
-            item = _read_unicode_string(row[2],
-                                        'error_student_list_encoding')
-            if _check_email(item):
-                email = item
+    with open(filename, newline='') as csvfile:
+        try:
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+        except csv.Error:
+            dialect = csv.excel_tab
+        csvfile.seek(0)
+        reader = csv.reader(csvfile, dialect=dialect)
+        student_ids = []
+        for row in reader:
+            name1 = ''
+            name2 = ''
+            email = ''
+            if len(row) == 0:
+                raise EyegradeException('Empty line in student list',
+                                        key='error_student_list')
+            sid = row[0]
+            _check_student_id(sid)
+            if len(row) > 1:
+                name1 = row[1]
+            if len(row) > 2:
+                item = row[2]
+                if _check_email(item):
+                    email = item
+                else:
+                    name2 = item
+            if len(row) > 3:
+                item = row[3]
+                if _check_email(item):
+                    email = item
+            if not name2:
+                full_name = name1
+                first_name = ''
+                last_name = ''
             else:
-                name2 = item
-        if len(row) > 3:
-            item = _read_unicode_string(row[3],
-                                        'error_student_list_encoding')
-            if _check_email(item):
-                email = item
-        if not name2:
-            full_name = name1
-            first_name = ''
-            last_name = ''
-        else:
-            full_name = ''
-            first_name = name1
-            last_name = name2
-        student_ids.append((sid, full_name, first_name, last_name, email))
-    if csvfile is not None:
-        csvfile.close()
+                full_name = ''
+                first_name = name1
+                last_name = name2
+            student_ids.append((sid, full_name, first_name, last_name, email))
     return student_ids
-
-def _read_unicode_string(text, error_key):
-    try:
-        value = unicode(text, config['default-charset'])
-    except ValueError:
-        raise EyegradeException('Error while processing {0} data'\
-                                .format(config['default-charset']),
-                                key=error_key)
-    return value
-
-
-class _UTF8Recoder:
-    """
-    Iterator that reads an encoded stream and reencodes the input to UTF-8
-    """
-    def __init__(self, file_, encoding=None):
-        if encoding is None:
-            encoding = config['default-charset']
-        self.reader = codecs.getreader(encoding)(file_)
-        self.first_line = True
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        data = self.reader.next().encode('utf-8')
-        if self.first_line:
-            self.first_line = False
-            if (len(data) >= 3 and data[0] == '\xef'
-                and data[1] == '\xbb' and data[2] == '\xbf'):
-                data = data[3:]
-        return data
-
 
 def _check_student_id(student_id):
     """Checks the student id.
@@ -529,55 +416,8 @@ def read_student_ids_multiple(filenames):
     """
     st = {}
     for f in filenames:
-        st.update(read_student_ids(filename=f))
+        st.update(read_student_ids(f))
     return st
-
-def mix_results(results_filename, student_list_filename, dump_missing,
-                round_score, dump_model):
-    """Returns a list of tuples student_id, good_answers, bad_answers, score.
-
-       - Receives the names of the files with results and student list.
-
-       - If 'dump_missing' is True, grades of students not in the
-       student list are dumped at the end of the list.
-
-       - If 'round_score' is -1, scores are dumped as they are in the
-       file. If it is another value, it is interpreted as the number of
-       decimal digits to which the the score has to be rounded.
-
-       - If 'dump_model' is True, the exam model is also dumped as
-       another column at the end.
-
-    """
-    mixed_grades = []
-    results = results_by_id(read_results(results_filename))
-    ids = read_student_ids(filename=student_list_filename)
-    for student_id in ids:
-        mixed_grades.append(_student_result(student_id, results,
-                                            round_score, dump_model))
-    if dump_missing:
-        for student_id in results:
-            if not student_id in ids:
-                mixed_grades.append(_student_result(student_id, results,
-                                                    round_score, dump_model))
-    return mixed_grades
-
-def _student_result(student_id, results, round_score, dump_model):
-    """Auxiliary funtion for 'mix_results'."""
-    if student_id in results:
-        result = results[student_id]
-        if round_score == -1:
-            score = result['score']
-        else:
-            score = round(result['score'], round_score)
-        parts = [student_id, result['good'], result['bad'], score]
-        model = result['model']
-    else:
-        parts = [student_id, '', '', '']
-        model = ''
-    if dump_model:
-        parts.extend(model)
-    return parts
 
 def write_grades(grades, file_, csv_dialect):
     """Writes the given grades to a file.
@@ -588,27 +428,6 @@ def write_grades(grades, file_, csv_dialect):
     writer = csv.writer(file_, dialect=csv_dialect)
     for grade in grades:
         writer.writerow(grade)
-
-def results_by_id(results):
-    """Returns a dictionary student_id -> (num_good_answers, num_bad_answers).
-
-       Results must be formatted as returned by read_results().
-
-    """
-    id_dict = {}
-    for r in results:
-        id_dict[r['student-id']] = r
-    return id_dict
-
-def _read_results_file(filename):
-    csvfile = open(filename, 'rb')
-    dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    csvfile.seek(0)
-    reader = csv.DictReader(csvfile, fieldnames = results_file_keys,
-                            dialect = dialect)
-    entries = [entry for entry in reader]
-    csvfile.close()
-    return entries
 
 def _permute_answers(answers, permutation):
     assert(len(answers) == len(permutation))
@@ -642,7 +461,7 @@ def encode_model(model, num_tables, num_answers):
         raise Exception('Model number too big given the number of answers')
     seed = _int_to_bin(model_num, 3, True)
     seed[2] = not seed[2]
-    seed.append(reduce(lambda x, y: x ^ y, seed))
+    seed.append(seed[0] ^ seed[1] ^seed[2])
     seed[2] = not seed[2]
     bit_list = seed * (1 + (num_bits - 1) // 4)
     return bit_list[:num_tables * num_answers]
@@ -841,8 +660,8 @@ class Student(object):
         else:
             return ''
 
-    def __unicode__(self):
-        return u'student: ' + self.id_and_name
+    def __str__(self):
+        return 'student: ' + self.id_and_name
 
 
 class StudentGroup(object):
@@ -850,8 +669,8 @@ class StudentGroup(object):
         self.identifier = identifier
         self.name = name
 
-    def __unicode__(self):
-        return u'Group #{0.identifier} ({0.name})'.format(self)
+    def __str__(self):
+        return 'Group #{0.identifier} ({0.name})'.format(self)
 
 
 class Exam(object):
@@ -901,9 +720,8 @@ class Exam(object):
     def rank_students(self):
         if self.decisions.detected_id is not None:
             if self.students:
-                rank = [(self._id_rank(s, self.decisions.id_scores), s) \
-                         for s in self.students.itervalues() \
-                         if s.group_id > 0]
+                rank = [(self._id_rank(s, self.decisions.id_scores), s)
+                         for s in self.students.values() if s.group_id > 0]
                 students_rank = [student for score, student \
                                  in sorted(rank, reverse = True)]
             else:
@@ -912,7 +730,7 @@ class Exam(object):
                 students_rank = [Student(None, self.decisions.detected_id,
                                          None, None, None, None, None, None)]
         else:
-            students_rank = list(self.students.itervalues())
+            students_rank = list(self.students.values())
         return students_rank
 
     def get_student_id_and_name(self):
@@ -1038,7 +856,7 @@ class ExamConfig(object):
     def set_permutations(self, model, permutations):
         if not isinstance(permutations, list):
             permutations = self._parse_permutations(permutations)
-        elif len(permutations) > 0 and isinstance(permutations[0], basestring):
+        elif len(permutations) > 0 and isinstance(permutations[0], str):
             permutations = [self._parse_permutation(p, i) \
                             for i, p in enumerate(permutations)]
         if len(permutations) != self.num_questions:
@@ -1096,7 +914,7 @@ class ExamConfig(object):
         if (self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
             or self.base_scores is None):
             raise ValueError('Invalid scores mode for set_equal_scores')
-        scores = [self.base_scores.clone(new_weight=1) \
+        scores = [self.base_scores.clone(new_weight=1)
                   for i in range(self.num_questions)]
         self._set_question_scores_internal(model, scores)
 
@@ -1113,7 +931,7 @@ class ExamConfig(object):
         """
         if self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
             raise ValueError('Not in scores weight mode.')
-        if isinstance(weights, basestring):
+        if isinstance(weights, str):
             weights = self._parse_weights(weights)
         scores = [self.base_scores.clone(new_weight=weight) \
                   for weight in weights]
@@ -1145,7 +963,7 @@ class ExamConfig(object):
         """
         if len(self.scores) > 0:
             # We only need to check one list of scores
-            return all(s.weight == 1 for s in self.scores.values()[0])
+            return all(s.weight == 1 for s in next(iter(self.scores.values())))
         else:
             return False
 
@@ -1180,7 +998,9 @@ class ExamConfig(object):
         """
         if len(scores) != self.num_questions:
             raise ValueError('Scores with an incorrect number of questions')
-        if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
+        if (self.scores
+            and sorted(scores) != sorted(next(iter(self.scores.values())))):
+#        if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
             raise ValueError('Scores for all models must be equal '
                              'but their order')
         self.scores[model] = scores
@@ -1215,7 +1035,7 @@ class ExamConfig(object):
         """
         assert((filename is not None) or (file_ is not None)
                or (data is not None))
-        exam_data = ConfigParser.SafeConfigParser()
+        exam_data = configparser.ConfigParser()
         if filename is not None:
             files_read = exam_data.read([filename])
             if len(files_read) != 1:
@@ -1380,19 +1200,19 @@ class QuestionScores(ComparableMixin):
 
     def __init__(self, correct_score, incorrect_score, blank_score,
                  weight=1):
-        if isinstance(correct_score, basestring):
+        if isinstance(correct_score, str):
             self.correct_score = self._parse_score(correct_score)
         else:
             self.correct_score = correct_score
-        if isinstance(incorrect_score, basestring):
+        if isinstance(incorrect_score, str):
             self.incorrect_score = self._parse_score(incorrect_score)
         else:
             self.incorrect_score = incorrect_score
-        if isinstance(blank_score, basestring):
+        if isinstance(blank_score, str):
             self.blank_score = self._parse_score(blank_score)
         else:
             self.blank_score = blank_score
-        if isinstance(weight, basestring):
+        if isinstance(weight, str):
             self.weight = self._parse_score(weight)
         else:
             self.weight = weight
@@ -1488,14 +1308,14 @@ def format_number(number, short=False, no_fraction=False):
         if number.denominator != 1:
             return '{0}/{1}'.format(number.numerator, number.denominator)
         else:
-            return unicode(number.numerator)
+            return str(number.numerator)
     elif type(number) == float:
         if short:
             return '{0:.2f}'.format(number)
         else:
             return '{0:.16f}'.format(number)
     else:
-        return unicode(number)
+        return str(number)
 
 def parse_dimensions(text, check_equal_num_choices=False):
     dimensions = []
@@ -1523,9 +1343,9 @@ def parse_dimensions(text, check_equal_num_choices=False):
 
 def read_exam_questions(exam_filename):
     import xml.dom.minidom
-    import examparser
+    from . import examparser
     dom_tree = xml.dom.minidom.parse(exam_filename)
-    # By now, only one parser exists. In the future multiple parser can
+    # By now, only one parser exists. In the future multiple parsers can
     # be called from here, to allow multiple data formats.
     return examparser.parse_exam(dom_tree)
 
@@ -1667,9 +1487,6 @@ def capture_name(filename_pattern, exam_id, student):
     filename = regexp_seqnum.sub(str(exam_id), filename_pattern)
     filename = regexp_id.sub(sid, filename)
     return filename
-
-def encode_string(text):
-    return text.encode(config['default-charset'])
 
 @contextlib.contextmanager
 def change_dir(directory):

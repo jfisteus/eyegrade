@@ -168,8 +168,8 @@ class SessionDB(object):
         self.schema_version = self._check_schema()
         self.exam_config = self._load_exam_config()
         self.students = self.load_students()
-        self.default_students_rank = sorted([s for s \
-                                                in self.students.itervalues()],
+        self.default_students_rank = sorted([s
+                                             for s in self.students.values()],
                                             key=lambda x: x.name)
         self._compute_num_questions_and_choices()
         self.capture_save_func = None
@@ -305,7 +305,7 @@ class SessionDB(object):
 
     def save_legacy_answers(self, csv_dialect):
         answers_file = os.path.join(self.session_dir, 'eyegrade-answers.csv')
-        with open(answers_file, "wb") as f:
+        with open(answers_file, "w") as f:
             writer = csv.writer(f, dialect=csv_dialect)
             for exam in self.exams_iterator():
                 data = [
@@ -326,7 +326,7 @@ class SessionDB(object):
                       model=True, answers=True,
                       sort_key=utils.ExportSortKey.STUDENT_LIST,
                       student_group=None):
-        with open(file_name, "wb") as f:
+        with open(file_name, 'w') as f:
             writer = csv.writer(f, dialect=csv_dialect)
             for exam in self.grades_iterator(all_students=all_students,
                                              sort_key=sort_key,
@@ -336,11 +336,11 @@ class SessionDB(object):
                 if student_id:
                     data.append(student.student_id)
                 if student_name:
-                    data.append(utils.encode_string(student.name))
+                    data.append(student.name)
                 if student_last_name:
-                    data.append(utils.encode_string(student.last_name))
+                    data.append(student.last_name)
                 if student_first_name:
-                    data.append(utils.encode_string(student.first_name))
+                    data.append(student.first_name)
                 if seq_num:
                     data.append(exam['exam_id'])
                 if model:
@@ -406,7 +406,7 @@ class SessionDB(object):
                 exam['answers'] = self.read_answers(exam['exam_id'])
             else:
                 exam['answers'] = ''
-            for k, v in exam.iteritems():
+            for k, v in exam.items():
                 if v is None:
                     exam[k] = ''
             yield exam
@@ -833,9 +833,9 @@ class _Adapter(object):
 
 def check_file_is_sqlite(filename):
     try:
-        with open(filename, 'r') as f:
+        with open(filename, 'rb') as f:
             data = f.read(16)
-        if data == 'SQLite format 3\x00':
+        if data == b'SQLite format 3\x00':
             is_sqlite = True
         else:
             is_sqlite = False
@@ -939,7 +939,7 @@ def _save_exam_config(conn, exam_data):
                        data)
 
 def _save_student_list(conn, students_file):
-    students = utils.read_student_ids_same_order(filename=students_file)
+    students = utils.read_student_ids_same_order(students_file)
     _create_student_group(conn, os.path.basename(students_file), students)
 
 def _create_student_group(conn, group_name, student_list):

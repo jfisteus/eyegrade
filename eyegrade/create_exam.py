@@ -15,11 +15,8 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import print_function
-
 from optparse import OptionParser
 import sys
-import locale
 
 # Local imports
 from . import utils
@@ -118,18 +115,12 @@ def read_cmd_options():
     if options.table_scale < 0.1:
         parser.error('The scale factor must be positive and greater or equal'
                      ' to 0.1')
-    options.output_file_prefix = _arg_to_unicode(options.output_file_prefix)
-    options.exam_filename = _arg_to_unicode(options.exam_filename)
-    options.subject = _arg_to_unicode(options.subject)
-    options.degree = _arg_to_unicode(options.degree)
-    options.title = _arg_to_unicode(options.title)
+    options.output_file_prefix = options.output_file_prefix
+    options.exam_filename = options.exam_filename
+    options.subject = options.subject
+    options.degree = options.degree
+    options.title = options.title
     return options, args
-
-def _arg_to_unicode(arg_value):
-    if arg_value is not None:
-        return utils.path_to_unicode(arg_value)
-    else:
-        return None
 
 def create_exam():
     options, args = read_cmd_options()
@@ -189,17 +180,16 @@ def create_exam():
                 raise Exception('Expected a number of questions and choices')
 
     # Command line options override options from the file
-    encoding = locale.getpreferredencoding()
     if options.date is not None:
-        variables['date'] = unicode(options.date, encoding)
+        variables['date'] = options.date
     if options.subject is not None:
-        variables['subject'] = unicode(options.subject, encoding)
+        variables['subject'] = options.subject
     if options.degree is not None:
-        variables['degree'] = unicode(options.degree, encoding)
+        variables['degree'] = options.degree
     if options.title is not None:
-        variables['title'] = unicode(options.title, encoding)
+        variables['title'] = options.title
     if options.duration is not None:
-        variables['duration'] = unicode(options.duration, encoding)
+        variables['duration'] = options.duration
     if options.output_file_prefix is None:
         output_file = sys.stdout
         config_filename = None

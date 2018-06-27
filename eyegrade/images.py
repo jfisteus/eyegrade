@@ -15,16 +15,12 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-
-from __future__ import division
-
 import math
 
 import cv2
 import numpy as np
 
 from . import geometry as g
-from . import utils
 
 
 # Main image processing functions on numpy images
@@ -62,8 +58,6 @@ def load_image_grayscale(filename):
     return load_image(filename, flags=cv2.IMREAD_GRAYSCALE)
 
 def load_image(filename, **kwargs):
-    if isinstance(filename, unicode):
-        filename = utils.unicode_path_to_str(filename)
     return cv2.imread(filename, **kwargs)
 
 
@@ -88,7 +82,7 @@ def draw_point(image, point, color=(255, 0, 0, 0), radius=2):
     if x >= 0 and x < width(image) and y >= 0 and y < height(image):
         cv2.circle(image, point, radius, color, thickness=-1)
     else:
-        print "draw_point: bad point (%d, %d)"%(x, y)
+        print("draw_point: bad point (%d, %d)"%(x, y))
 
 def draw_text(image, text, color=(255, 0, 0), position=(10, 30)):
     cv2.putText(image, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1.0, color,

@@ -633,7 +633,7 @@ def format_question(question, model, with_solution=False):
 def format_question_component(component):
     data = []
     if component.text is not None:
-        if isinstance(component.text, basestring):
+        if isinstance(component.text, str):
             data.append(component.text)
         else:
             for part in component.text:

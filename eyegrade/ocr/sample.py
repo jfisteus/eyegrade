@@ -15,8 +15,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from __future__ import division
-
 import os.path
 import collections
 import random
@@ -157,13 +155,13 @@ class SampleSet(object):
         return sample_set
 
     def _iterate_samples(self):
-        for samples in self.samples_dict.itervalues():
+        for samples in self.samples_dict.values():
             for sample in samples:
                 yield sample
 
     def _iterate_samples_oversampling(self):
         max_num = self._max_sample_num()
-        for samples in self.samples_dict.itervalues():
+        for samples in self.samples_dict.values():
             rounds = max_num // len(samples)
             remaining = max_num % len(samples)
             for i in range(rounds):
@@ -174,7 +172,7 @@ class SampleSet(object):
 
     def _iterate_samples_downsampling(self):
         min_num = self._min_sample_num()
-        for samples in self.samples_dict.itervalues():
+        for samples in self.samples_dict.values():
             for sample in random.sample(samples, min_num):
                 yield sample
 

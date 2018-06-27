@@ -20,7 +20,8 @@
 from __future__ import unicode_literals
 
 import unittest
-import StringIO
+import os.path
+import tempfile
 import fractions
 
 import eyegrade.utils as utils
@@ -94,69 +95,86 @@ class TestReadStudentsFromFile(unittest.TestCase):
         ]
 
     def test_empty(self):
-        text = ''
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('')
+            data = utils.read_student_ids_same_order(test_file)
         self.assertEqual(data, [])
 
     def test_read_id(self):
-        text = '\n'.join([s[0] for s in self.students])
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n'.join([s[0] for s in self.students]))
+            data = utils.read_student_ids_same_order(test_file)
         key = [(s[0], '', '', '', '') for s in self.students]
         self.assertEqual(data, key)
 
     def test_read_id_full_name(self):
-        text = '\n'.join(['\t'.join((s[0], s[1])) \
-                          for s in self.students])
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n'.join(['\t'.join((s[0], s[1]))
+                                   for s in self.students]))
+            data = utils.read_student_ids_same_order(test_file)
         key = [(s[0], s[1], '', '', '') for s in self.students]
         self.assertEqual(data, key)
 
     def test_read_id_full_name_email(self):
-        text = '\n'.join(['\t'.join((s[0], s[1], s[4])) \
-                          for s in self.students])
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n'.join(['\t'.join((s[0], s[1], s[4]))
+                                   for s in self.students]))
+            data = utils.read_student_ids_same_order(test_file)
         key = [(s[0], s[1], '', '', s[4]) for s in self.students]
         self.assertEqual(data, key)
 
     def test_read_id_name_surname(self):
-        text = '\n'.join(['\t'.join((s[0], s[2], s[3])) \
-                          for s in self.students])
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n'.join(['\t'.join((s[0], s[2], s[3]))
+                                   for s in self.students]))
+            data = utils.read_student_ids_same_order(test_file)
         key = [(s[0], '', s[2], s[3], '') for s in self.students]
         self.assertEqual(data, key)
 
     def test_read_id_name_surname_email(self):
-        text = '\n'.join(['\t'.join((s[0], s[2], s[3], s[4])) \
-                          for s in self.students])
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n'.join(['\t'.join((s[0], s[2], s[3], s[4]))
+                                   for s in self.students]))
+            data = utils.read_student_ids_same_order(test_file)
         key = [(s[0], '', s[2], s[3], s[4]) for s in self.students]
         self.assertEqual(data, key)
 
     def test_errors(self):
-        text = '\n'
-        f = StringIO.StringIO(text.encode('utf-8'))
-        self.assertRaises(utils.EyegradeException,
-                          utils.read_student_ids_same_order,
-                          file_=f)
-        text = '\n'.join(['\t'.join((s[0], s[1], s[4])) \
-                          for s in self.students + self.bad_students])
-        f = StringIO.StringIO(text)
-        self.assertRaises(utils.EyegradeException,
-                          utils.read_student_ids_same_order,
-                          file_=f)
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n')
+            test_file_2 = os.path.join(dir_name, 'test_file_2')
+            with open(test_file_2, mode='w') as f:
+                f.write('\n'.join(['\t'.join((s[0], s[1], s[4]))
+                                for s in self.students + self.bad_students]))
+            self.assertRaises(utils.EyegradeException,
+                              utils.read_student_ids_same_order,
+                              test_file)
+            self.assertRaises(utils.EyegradeException,
+                              utils.read_student_ids_same_order,
+                              test_file_2)
 
     def test_non_ascii(self):
-        text = '\n'.join(['\t'.join((s[0], s[2], s[3], s[4])) \
-                          for s in self.students + self.non_ascii_students])
-        f = StringIO.StringIO(text.encode('utf-8'))
-        data = utils.read_student_ids_same_order(file_=f)
-        key = [(s[0], '', s[2], s[3], s[4]) \
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, 'test_file')
+            with open(test_file, mode='w') as f:
+                f.write('\n'.join(['\t'.join((s[0], s[2], s[3], s[4]))
+                        for s in self.students + self.non_ascii_students]))
+            data = utils.read_student_ids_same_order(test_file)
+        key = [(s[0], '', s[2], s[3], s[4])
                for s in self.students + self.non_ascii_students]
         self.assertEqual(data, key)
 

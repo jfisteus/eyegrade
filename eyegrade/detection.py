@@ -15,12 +15,10 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-
-from __future__ import division
-
 import math
 import copy
 import sys
+import itertools
 
 import cv2
 import numpy as np
@@ -31,7 +29,6 @@ from . import capture
 from . import sessiondb
 from . import images
 from . import utils
-from . import opencvcompat
 from .ocr import classifiers
 from .ocr import sample
 
@@ -272,7 +269,7 @@ class ExamDetector(object):
         import traceback
         import os
         if not self.options['capture-from-file']:
-            print 'Exception catched! Storing trace into a log file...'
+            print('Exception catched! Storing trace into a log file...')
             date = str(datetime.datetime.now())
             logname = os.path.join(self.options['logging-dir'],
                                    param_error_log)
@@ -554,7 +551,8 @@ class ExamDetectorContext(object):
     def _try_next_camera(self, cur_camera_id):
         camera = None
         camera_id = -1
-        for i in range(cur_camera_id + 1, 10) + range(0, cur_camera_id + 1):
+        for i in itertools.chain(range(cur_camera_id + 1, 10),
+                                       range(0, cur_camera_id + 1)):
             camera = self._try_camera(i)
             if camera is not None:
                 camera_id = i
@@ -624,16 +622,10 @@ def detect_lines(image, hough_threshold):
     raw_lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
     if raw_lines is None:
         return []
-    if opencvcompat.cv_mode == 2:
-        lines = raw_lines[0]
-    else:
-        lines = raw_lines
+    lines = raw_lines
     if len(lines[0]) > 500:
         return []
-    if opencvcompat.cv_mode == 2:
-        lines = [(float(l[0]), float(l[1])) for l in lines]
-    else:
-        lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
+    lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
     return sorted(lines, key = lambda x: x[1])
 
 def detect_directions(lines):
@@ -794,9 +786,6 @@ def check_corners(corner_matrixes, width, height):
     max_difs2 = 1 + float(max(difs) - min(difs)) / len(difs) \
         * param_check_corners_tolerance_mul
     if max(difs2) > max_difs2:
-#        print "Failure in differences"
-#        print difs
-#        print difs2
         return False
     if 0.5 * max(difs) > min(difs):
         return False
@@ -806,7 +795,6 @@ def check_corners(corner_matrixes, width, height):
             for point in row:
                 if point[0] < 0 or point[0] >= width \
                         or point[1] < 0 or point[1] >= height:
-#                    print "Failure at point", point
                     return False
 
     # Check that the sequence of points is coherent
@@ -933,7 +921,6 @@ def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
         selected, energy = id_boxes_adjust_points(image, up, down,
                                                   line_up, line_down,
                                                   x_var, iwidth)
-#        print "...", energy
         mean_energy += energy / num_corners
         if energy < param_id_boxes_min_energy_threshold:
             return False
@@ -957,7 +944,6 @@ def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
                 corners_down[i] = selected[1]
         else:
             return False
-#    print mean_energy
     if mean_energy > param_id_boxes_mean_energy_threshold:
         return True
     else:
@@ -1179,12 +1165,12 @@ def fix_box_if_needed(box_corners):
     plu, pru, pld, prd = box_corners
     if plu[1] > pld[1]:
         plu, pld = pld, plu
-        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
-        print ' -> points at the left fixed'
+        print('Warning: testing box [lu,ru,ld,rd]', box_corners)
+        print(' -> points at the left fixed')
     if pru[1] > prd[1]:
         pru, prd = prd, pru
-        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
-        print ' -> points at the rigth fixed'
+        print('Warning: testing box [lu,ru,ld,rd]', box_corners)
+        print(' -> points at the rigth fixed')
     return (plu, pru, pld, prd)
 
 

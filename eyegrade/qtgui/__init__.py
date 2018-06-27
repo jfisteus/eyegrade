@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
 # Copyright (C) 2010-2015 Jesus Arias Fisteus
 #
@@ -25,7 +23,7 @@ from PyQt5.QtGui import QColor
 from .. import utils
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 class FileNameFilters(object):
     exam_config = _('Exam configuration (*.eye)')

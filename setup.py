@@ -7,13 +7,13 @@ import setuptools
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-if sys.version_info[0] != 2 or sys.version_info[1] not in [7]:
-    print('ztreamy needs Python 2.7')
+if sys.version_info[0] < 3:
+    print('eyegrade does not run in legacy python versions: use python 3')
     sys.exit(1)
 
 long_description = """
 Eyegrade
-(`<http://www.eyegrade.org/>`_)
+(`<https://www.eyegrade.org/>`_)
 uses a webcam to grade multiple choice question exams.
 Needing just a cheap low-end webcam, it aims to be a low-cost
 and portable alternative to other solutions based on scanners.
@@ -42,41 +42,25 @@ The user manual can be found at
 Requirements:
 --------------
 
-Eyegrade runs on Python 2.7 only.
-In addition, it requires `OpenCV version 2.4 <http://opencv.org/>`_
-and `PyQt4 <https://www.riverbankcomputing.com/software/pyqt/download>`_
-to work properly:
-
-- For GNU/Linux systems install those packages from your distribution.
-  For example, in Debian (Stretch and previous versions) and Ubuntu
-  (16.10 and previous versions) just install the packages
-  `python-opencv` and `python-qt4`.
-  I've tested Eyegrade with the OpenCV 2.4 series.
-  Some Linux distributions ship OpenCV 3.
-  Note that API changes in that version prevent it from
-  working with this version of Eyegrade.
-  I'll try to adapt the code as soon as possible.
-
-- For Windows platforms you can download OpenCV and PyQt4 from their
-  official websites.
-
-- For Mac OS/X I haven't tested the program.
-  I believe it should be possible to install these dependencies
-  and make Eyegrade work,
-  but I'm not sure because I don't own a Mac computer.
-  Feedback on this would be much appreciated.
+Eyegrade runs on Python 3 only.
+Support for legacy Python versions has been dropped.
+Requirements will be automatically installed from PyPI.
 """
 
 setuptools.setup(name='eyegrade',
-      version='0.8.dev2',
+      version='0.8.dev3',
       description='Grade MCQ exams with a webcam',
       long_description=long_description,
       author='Jesus Arias Fisteus',
       author_email='jfisteus@gmail.com',
-      url='http://www.eyegrade.org/',
+      url='https://www.eyegrade.org/',
       packages=['eyegrade', 'eyegrade.qtgui', 'eyegrade.ocr'],
       package_data={'eyegrade': ['data/*', 'data/svm/*']},
       scripts=['bin/eyegrade', 'bin/eyegrade-create'],
+      install_requires=[
+          'opencv-python',
+          'PyQt5',
+      ],
       test_suite ="tests.get_tests",
       classifiers= [
           'Development Status :: 4 - Beta',
@@ -89,8 +73,7 @@ setuptools.setup(name='eyegrade',
           'Natural Language :: Galician',
           'Operating System :: POSIX :: Linux',
           'Operating System :: Microsoft :: Windows',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
           'Topic :: Education',
       ],
 )
