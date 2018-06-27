@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 import configparser
 import csv
@@ -28,9 +28,9 @@ import fractions
 import contextlib
 
 program_name = 'eyegrade'
-web_location = 'http://www.eyegrade.org/'
+web_location = 'https://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
-help_location = 'http://www.eyegrade.org/doc/user-manual/'
+help_location = 'https://www.eyegrade.org/doc/user-manual/'
 version = '0.8.dev3'
 version_status = 'alpha'
 

@@ -37,7 +37,7 @@ The main features of Eyegrade are:
   choices within the questions.
 
 The user manual can be found at
-`<http://www.eyegrade.org/documentation.html>`_
+`<https://www.eyegrade.org/documentation.html>`_
 
 Requirements:
 --------------

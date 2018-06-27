@@ -5,12 +5,12 @@ solutions based on scanners.
 
 For more information about Eyegrade you can visit:
 
-- Its website: http://www.eyegrade.org/
-- Its blog: http://www.eyegrade.org/blog/
-- Its documentation: http://www.eyegrade.org/documentation.html
+- Its website: https://www.eyegrade.org/
+- Its blog: https://www.eyegrade.org/blog/
+- Its documentation: https://www.eyegrade.org/documentation.html
 - Its source code at GitHub: https://github.com/jfisteus/eyegrade
 - The downloads page, for pre-built binary files:
-  http://www.eyegrade.org/download.html
+  https://www.eyegrade.org/download.html
 
 Eyegrade is fully functional and has been used in courses at
 Universidad Carlos III de Madrid and other institutions since 2010.
@@ -48,7 +48,7 @@ Jesus Arias Fisteus, Abelardo Pardo and Norberto Fernández García,
 "Grading Multiple Choice Exams with Low-Cost and Portable
 Computer-Vision Techniques". Journal of Science Education and
 Technology. DOI: 10.1007/s10956-012-9414-8.  It is available at:
-http://dx.doi.org/10.1007/s10956-012-9414-8
+https://dx.doi.org/10.1007/s10956-012-9414-8
 
 Note for developers: the Eyegrade repository contains two main
 branches, 'master' and 'development'. The 'master' branch will be

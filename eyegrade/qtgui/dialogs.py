@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 import gettext
 import locale
@@ -401,7 +401,7 @@ class DialogAbout(QDialog):
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2017 Jesús Arias Fisteus and contributors<br>
+             (c) 2010-2018 Jesús Arias Fisteus and contributors<br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 
@@ -422,8 +422,8 @@ class DialogAbout(QDialog):
              <p>
              You should have received a copy of the GNU General<br>
              Public License along with this program.  If not, see<br>
-             <a href='http://www.gnu.org/licenses/gpl.txt'>
-             http://www.gnu.org/licenses/gpl.txt</a>.
+             <a href='https://www.gnu.org/licenses/gpl.txt'>
+             https://www.gnu.org/licenses/gpl.txt</a>.
              </p>
              </center>
              """).format(utils.resource_path('logo.svg'),
