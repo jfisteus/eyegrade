@@ -571,12 +571,16 @@ class ProgramManager(object):
     def _action_manual_detect(self):
         """Callback for the manual detection action."""
         if self.mode.in_search():
-            # Take the current snapshot and go to review mode
+            # Take the current snapshot and go to manual detect mode
             self.exam = utils.Exam(self.latest_detector.capture,
                                    self.latest_detector.decisions,
                                    [], self.sessiondb.students,
                                    self.exam_id, None,
                                    sessiondb=self.sessiondb)
+            # Store the exam in order to emulate entering this mode
+            # from review mode.
+            self._store_exam(self.exam)
+            self.interface.run_later(self._store_capture_and_add, delay=100)
         self.exam.reset_image()
         self._start_manual_detect_mode()
 
@@ -697,6 +701,10 @@ class ProgramManager(object):
                     new_exam.draw_answers()
                 else:
                     success = False
+            # Remove the exam that was saved previously,
+            # before having started the manual review mode:
+            self.sessiondb.remove_exam(self.exam.exam_id)
+            self.interface.remove_exam(self.exam)
             if not success:
                 self.exam.reset_image()
                 self.interface.show_error(_('Manual detection failed'))
