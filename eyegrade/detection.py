@@ -1095,7 +1095,7 @@ def line_bounds(image, line, iwidth):
 
 def process_box_corners(points, dimensions):
     num_boxes = len(dimensions)
-    points.sort()
+    points = sorted(points)
     group1 = [points[0]]
     group2 = []
     # First, look for the other left-most point that is opposite to points[0]

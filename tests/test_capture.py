@@ -21,6 +21,32 @@ import unittest
 import eyegrade.detection as detection
 
 
+class _MockExamDetector(detection.ExamDetector):
+    def __init__(self, dimensions):
+        self.dimensions = dimensions
+        self.status = {
+            'lines': False,
+            'boxes': False,
+            'cells': False,
+            'infobits': False,
+            'id-box-hlines': False,
+            'id-box': False,
+        }
+        self.success = False
+        self.options = detection.ExamDetector.default_options
+        self.image_to_show = None
+        self.image_proc = None
+
+    def _decide_cells(self, answer_cells):
+        return None
+
+def _mock_read_infobits(image, corner_matrixes):
+        return [False, True, False, False, False, True]
+
+detection.read_infobits = _mock_read_infobits
+
+
+
 class TestDetection(unittest.TestCase):
 
     def _get_test_file_path(self, filename):
@@ -66,3 +92,50 @@ class TestDetection(unittest.TestCase):
         self.assertEqual(len(detector.decisions.answers), 5)
         self.assertEqual(len(detector.decisions.detected_id), 9)
         self.assertEqual(len(detector.decisions.model), 1)
+
+    def test_manual_detection(self):
+        manual_points = [
+            (113, 125),
+            (251, 117),
+            (304, 115),
+            (447, 106),
+            (117, 332),
+            (259, 325),
+            (312, 323),
+            (458, 317)
+        ]
+        dimensions = [(3, 5), (3, 5)]
+        detector = _MockExamDetector(dimensions)
+        self.assertTrue(detector.detect_manual(manual_points))
+        self.assertTrue(detector.success)
+        corner_matrixes = detection.process_box_corners(manual_points,
+                                                        dimensions)
+        # There are two answer boxes
+        self.assertEqual(len(corner_matrixes), 2)
+        # There are 5 + 1 = 6 lines in each answer box
+        self.assertEqual(len(corner_matrixes[0]), 6)
+        self.assertEqual(len(corner_matrixes[1]), 6)
+        for box in corner_matrixes:
+            for line in box:
+                # There are 3 + 1 = 4 points in each line
+                self.assertEqual(len(line), 4)
+                for point in line:
+                    self.assertEqual(len(point), 2)
+        # Manual points are in the proper places:
+        box_1, box_2 = corner_matrixes
+        self.assertEqual(box_1[0][0], manual_points[0])
+        self.assertEqual(box_1[0][3], manual_points[1])
+        self.assertEqual(box_1[5][0], manual_points[4])
+        self.assertEqual(box_1[5][3], manual_points[5])
+        self.assertEqual(box_2[0][0], manual_points[2])
+        self.assertEqual(box_2[0][3], manual_points[3])
+        self.assertEqual(box_2[5][0], manual_points[6])
+        self.assertEqual(box_2[5][3], manual_points[7])
+        # Reordering points should have no effect:
+        manual_points[1], manual_points[5] = manual_points[5], manual_points[1]
+        manual_points[0], manual_points[4] = manual_points[4], manual_points[0]
+        manual_points[3], manual_points[7] = manual_points[7], manual_points[3]
+        self.assertTrue(detector.detect_manual(manual_points))
+        corner_matrixes_2 = detection.process_box_corners(manual_points,
+                                                          dimensions)
+        self.assertEqual(corner_matrixes, corner_matrixes_2)
