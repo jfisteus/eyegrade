@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 import sys
 import setuptools
@@ -54,7 +52,12 @@ setuptools.setup(name='eyegrade',
       author='Jesus Arias Fisteus',
       author_email='jfisteus@gmail.com',
       url='https://www.eyegrade.org/',
-      packages=['eyegrade', 'eyegrade.qtgui', 'eyegrade.ocr'],
+      packages=[
+          'eyegrade',
+          'eyegrade.qtgui',
+          'eyegrade.ocr',
+          'eyegrade.tools'
+      ],
       package_data={'eyegrade': ['data/*', 'data/svm/*']},
       scripts=['bin/eyegrade', 'bin/eyegrade-create'],
       install_requires=[
