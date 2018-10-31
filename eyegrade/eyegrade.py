@@ -148,7 +148,7 @@ class ProgramMode(object):
                 or self.in_manual_detect())
 
     def enter_mode(self, mode):
-        self.mode == mode
+        self.mode = mode
 
     def enter_no_session(self):
         self.mode = ProgramMode.session
