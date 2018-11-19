@@ -17,6 +17,9 @@
 #
 
 import math
+import itertools
+import statistics
+
 
 # Data representation:
 # - points: tuples (x, y)
@@ -262,6 +265,33 @@ def min_rho_difference(lines):
         if diff < min_diff:
             min_diff = diff
     return min_diff
+
+def discard_spurious_lines(lines, expected):
+    """ Discards the discordant line(s).
+
+    Discards the line or lines that minimizes the variance
+    of the distances between the set of the other lines
+    (of size expected).
+
+    The hypothesis is that, when more lines than expected
+    were detected, the variance of the distances bewteen
+    lines will be minimized when the spurious lines are
+    out of the set of selected lines.
+
+    Be aware of the number of possible combinations before
+    calling this function. Having just one or two extra lines
+    should generally be ok.
+
+    """
+    best_variance = math.inf
+    for combination in itertools.combinations(lines, expected):
+        diffs = [b[0] - a[0]
+                 for a, b in zip(combination[:-1], combination[1:])]
+        variance = statistics.variance(diffs)
+        if variance < best_variance:
+            best_combination = combination
+            best_variance = variance
+    return best_combination
 
 # Functions on rectangles
 #

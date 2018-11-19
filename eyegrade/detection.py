@@ -742,16 +742,17 @@ def collapse_lines_angles(lines, expected, horizontal):
             num_lines += 1
         last_line = line
     main_lines.append((sum_rho / num_lines, sum_theta / num_lines))
-    if (not horizontal and len(main_lines) == expected) or horizontal:
-        return main_lines
-    else:
-        return None
+    return main_lines
 
 def cell_corners(hlines, vlines, iwidth, iheight, dimensions):
     h_expected = 1 + max([box[1] for box in dimensions])
     v_expected = len(dimensions) + sum([box[0] for box in dimensions])
     if len(vlines) != v_expected:
-        return []
+        if len(vlines) > v_expected and len(vlines) <= v_expected + 2:
+            # Remove one or two spurious lines
+            vlines = g.discard_lines(vlines, v_expected)
+        else:
+            return []
     if len(hlines) < h_expected:
         return []
     elif len(hlines) > h_expected:
