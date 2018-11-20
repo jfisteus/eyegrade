@@ -148,8 +148,8 @@ def clear_boundbox(image):
     left = 0
     it = 0
     for index, row in enumerate(image):
-        if (not np.all(row==0)) and it == 0:
-            if not np.all(image[index + 1] == 0):
+        if not np.all(row == 0) and it == 0:
+            if index == image.shape[0] or not np.all(image[index + 1] == 0):
                 top = index
                 it = 1
         elif np.all(row == 0) and it == 1:
@@ -158,7 +158,8 @@ def clear_boundbox(image):
     it = 0
     for index, col in enumerate(image.T):
         if (not np.all(col == 0)) and it == 0:
-            if index + 2 >= right or not np.all(image.T[index + 2] == 0):
+            if (index + 2 >= image.shape[1]
+                    or not np.all(image.T[index + 2] == 0)):
                 left = index
                 it = 1
         elif np.all(col == 0) and it == 1:
