@@ -750,7 +750,7 @@ def cell_corners(hlines, vlines, iwidth, iheight, dimensions):
     if len(vlines) != v_expected:
         if len(vlines) > v_expected and len(vlines) <= v_expected + 2:
             # Remove one or two spurious lines
-            vlines = g.discard_lines(vlines, v_expected)
+            vlines = g.discard_spurious_lines(vlines, v_expected)
         else:
             return []
     if len(hlines) < h_expected:
