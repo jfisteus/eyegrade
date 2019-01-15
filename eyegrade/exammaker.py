@@ -84,7 +84,24 @@ class ExamMaker(object):
         self.survey_mode = survey_mode
         self.output_file = output_file
         self.exam_questions = None
-        id_label, self.id_num_digits = id_num_digits(self.parts)
+        template_id_label, template_id_num_digits = id_num_digits(self.parts)
+        if 'student_id_label' in variables:
+            id_label = variables['student_id_label']
+        else:
+            id_label = template_id_label
+        if 'student_id_length' in variables:
+            self.id_num_digits = variables['student_id_length']
+        else:
+            self.id_num_digits = template_id_num_digits
+        # The ID box is part of the answer table replacement
+        # when it does not appear as a separate key in the template.
+        # The latter is legacy behaviour kept for backwards compatibility.
+        if template_id_label is None and self.id_num_digits > 0:
+            self.id_box_with_answer_table = True
+            if id_label is None:
+                id_label = 'ID'
+        else:
+            self.id_box_with_answer_table = False
         self.exam_config_filename = exam_config_filename
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
@@ -137,6 +154,8 @@ class ExamMaker(object):
                                            self.table_width, self.table_height,
                                            self.table_scale,
                                            self.left_to_right_numbering)
+        if self.id_box_with_answer_table:
+            answer_table = replacements['id-box'] + answer_table
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions

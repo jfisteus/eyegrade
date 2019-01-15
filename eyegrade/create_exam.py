@@ -69,6 +69,12 @@ def read_cmd_options():
     parser.add_option('--iw', '--incorrect-weight',
                       dest='incorrect_weight',
                       help='negative weight of incorrect answers', default=None)
+    parser.add_option('--id-length', type='int',
+                      dest='student_id_length', default=None,
+                      help='Number of digits of student IDs (0 to disable)')
+    parser.add_option('--id-label', type='string',
+                      dest='student_id_label', default=None,
+                      help='Label to show with the student ID box')
     # The -w below is maintained for compatibility; its use is deprecated
     # Use -W instead.
     parser.add_option('-w', '-W', '--table-width', type='float',
@@ -111,6 +117,12 @@ def read_cmd_options():
     else:
         if options.num_questions or options.num_choices:
             parser.error('Option -e is mutually exclusive with -q and -c')
+    # Check student id length 0 <= length <= 16
+    if (options.student_id_length is not None
+            and (options.student_id_length < 0
+                 or options.student_id_length > 16)):
+        parser.error('The number of digits of student IDs must be '
+                     'between 0 and 16 (both included)')
     # The scale factor must be greater than 0.1
     if options.table_scale < 0.1:
         parser.error('The scale factor must be positive and greater or equal'
@@ -145,6 +157,10 @@ def create_exam():
             variables['duration'] = exam.duration
         if exam.title is not None:
             variables['title'] = exam.title
+        if exam.student_id_label is not None:
+            variables['student_id_label'] = exam.student_id_label
+        if exam.student_id_length is not None:
+            variables['student_id_length'] = exam.student_id_length
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if not exam.homogeneous_num_choices():
@@ -190,6 +206,10 @@ def create_exam():
         variables['title'] = options.title
     if options.duration is not None:
         variables['duration'] = options.duration
+    if options.student_id_label is not None:
+        variables['student_id_label'] = options.student_id_label
+    if options.student_id_length is not None:
+        variables['student_id_length'] = options.student_id_length
     if options.output_file_prefix is None:
         output_file = sys.stdout
         config_filename = None

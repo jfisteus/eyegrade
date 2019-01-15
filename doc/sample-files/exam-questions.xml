@@ -8,6 +8,8 @@
   <title>Final examination</title>
   <date>January 1st, 2011</date>
   <duration>10 min.</duration>
+  <student_id_label>ID</student_id_label>
+  <student_id_length>8</student_id_length>
 
   <question>
     <text>

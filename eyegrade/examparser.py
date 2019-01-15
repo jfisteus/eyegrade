@@ -60,6 +60,16 @@ def parse_exam(dom_tree):
         exam.date = get_element_content(root, namespace, 'date')
         exam.duration = get_element_content(root, namespace, 'duration')
         exam.title = get_element_content(root, namespace, 'title')
+        exam.title = get_element_content(root, namespace, 'title')
+        exam.student_id_label = \
+            get_element_content(root, namespace, 'student_id_label')
+        student_id_length_str = \
+            get_element_content(root, namespace, 'student_id_length')
+        try:
+            if student_id_length_str is not None:
+                exam.student_id_length = int(student_id_length_str)
+        except ValueError:
+            raise EyegradeException('Student id length must be an integer')
         exam.questions = []
         for node in get_children_by_tag_name(root, namespace, 'question'):
             exam.questions.append(parse_question(node))

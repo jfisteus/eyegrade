@@ -1356,8 +1356,22 @@ class ExamQuestions(object):
         self.degree = None
         self.date = None
         self.duration = None
+        self.student_id_label = None
+        self._student_id_length = None
         self.shuffled_questions = {}
         self.permutations = {}
+
+    @property
+    def student_id_length(self):
+        return self._student_id_length
+
+    @student_id_length.setter
+    def student_id_length(self, length):
+        if length >= 0 and length <= 16:
+            self._student_id_length = length
+        else:
+            raise EyegradeException('Student id length must be bewteen '
+                                    '0 and 16 (both included)')
 
     def num_questions(self):
         """Returns the number of questions of the exam."""
