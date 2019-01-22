@@ -23,6 +23,8 @@ import subprocess
 import os
 
 from . import utils
+from . import exams
+
 
 param_min_num_questions = 1
 
@@ -70,7 +72,7 @@ class ExamMaker(object):
                  num_tables=0, dimensions=None,
                  table_width=None, table_height=None, table_scale=1.0,
                  id_box_width=None,
-                 force_config_overwrite=False, score_weights=None,
+                 force_config_overwrite=False, scores=None,
                  left_to_right_numbering=False, survey_mode=False):
         """
            Class able to create exams. One object is enough for all models.
@@ -119,7 +121,6 @@ class ExamMaker(object):
         else:
             self.table_width = table_width
             self.table_height = table_height
-        self._load_replacements(variables, id_label)
         if self.exam_config_filename is not None:
             if not force_config_overwrite:
                 self._load_exam_config()
@@ -127,9 +128,12 @@ class ExamMaker(object):
                 self._new_exam_config()
         else:
             self.exam_config = None
-        if score_weights is not None and self.exam_config is not None:
-            scores = utils.QuestionScores(*score_weights)
-            self.exam_config.set_base_scores(scores)
+        if scores is not None:
+            variables['score_correct'] = scores.format_correct_score()
+            variables['score_incorrect'] = scores.format_incorrect_score()
+            if self.exam_config is not None:
+                self.exam_config.set_base_scores(scores)
+        self._load_replacements(variables, id_label)
         self.empty_variables = []
 
     def set_exam_questions(self, exam):
@@ -207,7 +211,7 @@ class ExamMaker(object):
     def _load_exam_config(self):
         if self.exam_config_filename is not None:
             try:
-                self.exam_config = utils.ExamConfig(self.exam_config_filename)
+                self.exam_config = exams.ExamConfig(self.exam_config_filename)
                 if self.num_questions != self.exam_config.num_questions:
                     raise utils.EyegradeException( \
                                             'Incoherent number of questions',
@@ -233,7 +237,7 @@ class ExamMaker(object):
                 self._new_exam_config()
 
     def _new_exam_config(self):
-        self.exam_config = utils.ExamConfig()
+        self.exam_config = exams.ExamConfig()
         self.exam_config.num_questions = self.num_questions
         self.exam_config.id_num_digits = self.id_num_digits
         self.exam_config.left_to_right_numbering = self.left_to_right_numbering
@@ -584,7 +588,7 @@ def _create_infobits(bits, num_tables, num_choices):
 def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
-       'exam' is a utils.ExamQuestions object. Writtes the questions
+       'exam' is a exams.ExamQuestions object. Writtes the questions
        in their 'shuffled' order. If 'with_solution', correct answers
        are marked in the text.
 

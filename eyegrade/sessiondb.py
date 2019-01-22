@@ -21,6 +21,8 @@ import os.path
 import csv
 
 from . import utils
+from . import scoring
+from . import exams
 from . import capture
 from . import images
 
@@ -437,15 +439,15 @@ class SessionDB(object):
 
     def read_exams(self):
         cursor = self.conn.cursor()
-        exams = []
+        exam_list = []
         for row in cursor.execute('SELECT '
                                   'exam_id, student_id, model, '
                                   'correct, incorrect, blank, score '
                                   'FROM Exams '
                                   'LEFT JOIN Students ON student = db_id'):
             exam = ExamFromDB(row, self)
-            exams.append(exam)
-        return exams
+            exam_list.append(exam)
+        return exam_list
 
     def read_capture(self, exam_id):
         image = self.load_raw_capture(exam_id)
@@ -577,7 +579,7 @@ class SessionDB(object):
             self.num_questions += table[1]
 
     def _load_exam_config(self):
-        self.exam_config = utils.ExamConfig()
+        self.exam_config = exams.ExamConfig()
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM Session')
         row = cursor.fetchone()
@@ -593,9 +595,9 @@ class SessionDB(object):
         if self.schema_version >= 3:
             scores_mode = row['scores_mode']
             self.exam_config.scores_mode = scores_mode
-            if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+            if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 if row['base_score_correct'] is not None:
-                    base_scores = utils.QuestionScores( \
+                    base_scores = scoring.QuestionScores( \
                                             row['base_score_correct'],
                                             row['base_score_incorrect'],
                                             row['base_score_blank'])
@@ -608,9 +610,9 @@ class SessionDB(object):
         else:
             # Schema version < 3
             if row['correct_weight'] is not None:
-                base_scores = utils.QuestionScores(row['correct_weight'],
-                                                   row['incorrect_weight'],
-                                                   row['blank_weight'])
+                base_scores = scoring.QuestionScores(row['correct_weight'],
+                                                     row['incorrect_weight'],
+                                                     row['blank_weight'])
             else:
                 base_scores = None
         if self.schema_version >= 3:
@@ -637,9 +639,9 @@ class SessionDB(object):
         solutions = {}
         permutations = {}
         scores = {}
-        if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+        if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
             weights = {}
-        elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+        elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
             scores = {}
         models = []
         model = None
@@ -652,22 +654,22 @@ class SessionDB(object):
                 solutions[model] = model_solutions
                 model_permutations = []
                 permutations[model] = model_permutations
-                if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+                if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                     model_weights = []
                     weights[model] = model_weights
-                elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+                elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
                     model_scores = []
                     scores[model] = model_scores
             if row['question'] != len(model_solutions):
                 raise utils.EyegradeException('', key='session_invalid')
             model_solutions.append(row['solution'])
             model_permutations.append(row['permutation'])
-            if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+            if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 model_weights.append(row['score_weight'])
-            elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
-                model_scores = utils.QuestionScores(row['score_correct'],
-                                                    row['score_incorrect'],
-                                                    row['score_blank'])
+            elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
+                model_scores = scoring.QuestionScores(row['score_correct'],
+                                                      row['score_incorrect'],
+                                                      row['score_blank'])
                 model_scores.append(scores)
         for m in models:
             model = _Adapter.dec_model(m)
@@ -675,9 +677,9 @@ class SessionDB(object):
                 self.exam_config.set_solutions(model, solutions[m])
             if permutations[m][0] is not None:
                 self.exam_config.set_permutations(model, permutations[m])
-            if scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+            if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 self.exam_config.set_question_weights(model, weights[m])
-            elif scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+            elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
                 self.exam_config.set_question_scores(model, scores[m])
 
     def _update_answer(self, exam_id, question, new_answer, commit=True):
@@ -770,7 +772,7 @@ class SessionDB(object):
         return student
 
 
-class ExamFromDB(utils.Exam):
+class ExamFromDB(exams.Exam):
     def __init__(self, db_dict, sessiondb):
         """Creates a new ExamFromDB object.
 
@@ -798,7 +800,7 @@ class ExamFromDB(utils.Exam):
                 sessiondb.exam_config.scores[self.decisions.model]
         else:
             question_scores = None
-        self.score = utils.Score(answers, solutions, question_scores)
+        self.score = scoring.Score(answers, solutions, question_scores)
 
 
 class ExamDecisionsFromDB(capture.ExamDecisions):
@@ -916,7 +918,7 @@ def _save_exam_config(conn, exam_data):
                             for p in permutations]
         else:
             permutations = all_none
-        if exam_data.scores_mode == utils.ExamConfig.SCORES_MODE_INDIVIDUAL:
+        if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
             weights = all_none
             scores_c = [s.format_correct_score() \
                         for s in exam_data.scores[model]]
@@ -925,7 +927,7 @@ def _save_exam_config(conn, exam_data):
             scores_b = [s.format_blank_score() \
                         for s in exam_data.scores[model]]
         else:
-            if exam_data.scores_mode == utils.ExamConfig.SCORES_MODE_WEIGHTS:
+            if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 weights = exam_data.get_question_weights(model, formatted=True)
             else:
                 weights = all_none

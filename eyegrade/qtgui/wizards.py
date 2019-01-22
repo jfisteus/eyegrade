@@ -38,6 +38,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 from .. import utils
+from .. import scoring
+from .. import exams
 from . import widgets
 from . import dialogs
 from . import FileNameFilters
@@ -98,7 +100,7 @@ class NewSessionPageInitial(QWizardPage):
                 ok_config = True
             if ok_dir and ok_config:
                 self.wizard().exam_config = \
-                            utils.ExamConfig(filename=self.config_file.text())
+                            exams.ExamConfig(filename=self.config_file.text())
                 return True
             else:
                 return False
@@ -130,7 +132,7 @@ class NewSessionPageInitial(QWizardPage):
             msg = _('The exam configuration file is not a regular file.')
         else:
             try:
-                utils.ExamConfig(filename=file_name)
+                exams.ExamConfig(filename=file_name)
             except IOError:
                 valid = False
                 msg = _('The exam configuration file cannot be read.')
@@ -308,7 +310,7 @@ class NewSessionPageExamAnswers(QWizardPage):
                     'for some questions.')
         else:
             try:
-                self.wizard().exam_config = utils.ExamConfig()
+                self.wizard().exam_config = exams.ExamConfig()
                 # dimentions generation:
                 dimensions = []
                 for c in self.paramNCols.split(','):
@@ -520,7 +522,7 @@ class NewSessionPageScores(QWizardPage):
             else:
                 i_score = 0
             b_score = 0
-            scores = utils.QuestionScores(c_score, i_score, b_score)
+            scores = scoring.QuestionScores(c_score, i_score, b_score)
             self._set_score_fields(scores)
         else:
              QMessageBox.critical(self, _('Error'),
@@ -552,7 +554,7 @@ class NewSessionPageScores(QWizardPage):
             else:
                 b_score = -b_score
             if i_score >= 0 and b_score >= 0:
-                base_scores = utils.QuestionScores(c_score, i_score, b_score)
+                base_scores = scoring.QuestionScores(c_score, i_score, b_score)
                 same_weights = True if self.current_mode == 1 else False
                 self.wizard().exam_config.set_base_scores(base_scores,
                                                    same_weights=same_weights)

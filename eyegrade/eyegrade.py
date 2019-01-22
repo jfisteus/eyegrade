@@ -35,6 +35,7 @@ import gettext
 # Local imports
 from . import detection
 from . import utils
+from . import exams
 from .qtgui import gui
 from . import sessiondb
 
@@ -391,7 +392,7 @@ class ProgramManager(object):
                         scores = self.exam_data.scores[model]
                     else:
                         scores = None
-                    exam = utils.Exam(detector.capture, detector.decisions,
+                    exam = exams.Exam(detector.capture, detector.decisions,
                                       self.exam_data.get_solutions(model),
                                       self.sessiondb.students,
                                       self.exam_id,
@@ -524,7 +525,7 @@ class ProgramManager(object):
             if self.latest_detector is None:
                 return
             detector = self.latest_detector
-            self.exam = utils.Exam(detector.capture, detector.decisions,
+            self.exam = exams.Exam(detector.capture, detector.decisions,
                                    [], self.sessiondb.students,
                                    self.exam_id, None,
                                    sessiondb=self.sessiondb)
@@ -572,7 +573,7 @@ class ProgramManager(object):
         """Callback for the manual detection action."""
         if self.mode.in_search():
             # Take the current snapshot and go to manual detect mode
-            self.exam = utils.Exam(self.latest_detector.capture,
+            self.exam = exams.Exam(self.latest_detector.capture,
                                    self.latest_detector.decisions,
                                    [], self.sessiondb.students,
                                    self.exam_id, None,

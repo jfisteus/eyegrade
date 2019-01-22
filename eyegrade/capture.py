@@ -20,6 +20,7 @@ import cv2
 
 from . import geometry
 from . import utils
+from . import scoring
 from . import images
 
 _color_blue = (255, 0, 0)
@@ -182,14 +183,14 @@ class ExamCapture(object):
                                                    score.solutions,
                                                    score.answer_status,
                                                    self.answer_cells):
-            if status == utils.QuestionScores.CORRECT:
+            if status == scoring.QuestionScores.CORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_good)
-            elif status == utils.QuestionScores.INCORRECT:
+            elif status == scoring.QuestionScores.INCORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_bad)
                 self._draw_cell_center(cells[solution - 1], _color_dot_bad)
-            elif status == utils.QuestionScores.BLANK:
+            elif status == scoring.QuestionScores.BLANK:
                 self._draw_cell_center(cells[solution - 1], _color_dot_blank)
-            elif status == utils.QuestionScores.VOID:
+            elif status == scoring.QuestionScores.VOID:
                 self._draw_void_question(cells)
 
     def _draw_answers_no_solutions(self, score):

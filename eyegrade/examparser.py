@@ -20,6 +20,9 @@ import xml.dom.minidom as dom
 import re
 
 from . import utils
+from . import exams
+from . import scoring
+
 
 EyegradeException = utils.EyegradeException
 
@@ -49,22 +52,35 @@ EyegradeException.register_error('missing_text',
 EyegradeException.register_error('duplicate_text',
     "Questions must contain exactly one 'text' element.",
     "Multiple text elements in a question.")
+EyegradeException.register_error('score_correct_needed',
+    "When a score for incorrect answers is provided, "
+    "a score for correct answers is also needed.")
+EyegradeException.register_error('duplicate_score_element',
+    "At most one score element can be provided.")
+EyegradeException.register_error('empty_score_element',
+    "The score element must specify either a maximum score "
+    "or a score for correct answers.")
+EyegradeException.register_error('incorrect_score_element',
+    "The score element must specify either a maximum score "
+    "or scores for correct and incorrect answers, but not both.")
+EyegradeException.register_error('penalize_attribute',
+    "The value of the penalize attribute must be either 'true' or 'false'.")
+
 
 def parse_exam(dom_tree):
     assert dom_tree.nodeType == dom.Node.DOCUMENT_NODE
     root = dom_tree.childNodes[0]
     if get_full_name(root) == (namespace, 'exam'):
-        exam = utils.ExamQuestions()
+        exam = exams.ExamQuestions()
         exam.subject = get_element_content(root, namespace, 'subject')
         exam.degree = get_element_content(root, namespace, 'degree')
         exam.date = get_element_content(root, namespace, 'date')
         exam.duration = get_element_content(root, namespace, 'duration')
         exam.title = get_element_content(root, namespace, 'title')
-        exam.title = get_element_content(root, namespace, 'title')
         exam.student_id_label = \
-            get_element_content(root, namespace, 'student_id_label')
+            get_element_content(root, namespace, 'studentIdLabel')
         student_id_length_str = \
-            get_element_content(root, namespace, 'student_id_length')
+            get_element_content(root, namespace, 'studentIdLength')
         try:
             if student_id_length_str is not None:
                 exam.student_id_length = int(student_id_length_str)
@@ -73,13 +89,52 @@ def parse_exam(dom_tree):
         exam.questions = []
         for node in get_children_by_tag_name(root, namespace, 'question'):
             exam.questions.append(parse_question(node))
+        scores = parse_scores(root)
+        if isinstance(scores, scoring.AutomaticScore):
+            exam.scores = scores.compute(exam.num_questions(),
+                                         exam.num_choices())
+        else:
+            exam.scores = scores
     else:
         raise EyegradeException('Bad root element: ' + printable_name(root),
                                 key='exam_root_element')
     return exam
 
+
+def parse_scores(root):
+    scores = None
+    element_list = get_children_by_tag_name(root, namespace, 'scores')
+    if len(element_list) == 1:
+        score_element = element_list[0]
+        max_score_attr = get_attribute_text(score_element, 'maxScore')
+        penalize_attr = get_attribute_text(score_element, 'penalize')
+        correct_attr = get_attribute_text(score_element, 'correct')
+        incorrect_attr = get_attribute_text(score_element, 'incorrect')
+        if max_score_attr is not None:
+            # Automatically compute scores from the maximum score
+            if correct_attr is not None or incorrect_attr is not None:
+                raise EyegradeException('', key='incorrect_score_element')
+            if penalize_attr == 'true':
+                penalize = True
+            elif penalize_attr is None or penalize_attr == 'false':
+                penalize = False
+            else:
+                raise EyegradeException('', key='penalize_attribute')
+            scores = scoring.AutomaticScore(max_score_attr, penalize)
+        elif correct_attr is not None:
+            if incorrect_attr is None:
+                incorrect_attr = 0
+            scores = scoring.QuestionScores(correct_attr, incorrect_attr, 0)
+        elif incorrect_attr is not None:
+            raise EyegradeException('', key='score_correct_needed')
+        else:
+            raise EyegradeException('', key='empty_score_element')
+    elif len(element_list) > 1:
+        raise EyegradeException('', key='duplicate_score_element')
+    return scores
+
 def parse_question(question_node):
-    question = utils.Question()
+    question = exams.Question()
     question.text = parse_question_component(question_node, False)
     choices_list = get_children_by_tag_name(question_node, namespace, 'choices')
     if len(choices_list) != 1:
@@ -92,7 +147,7 @@ def parse_question(question_node):
     return question
 
 def parse_question_component(parent_node, is_choice):
-    component = utils.QuestionComponent(is_choice)
+    component = exams.QuestionComponent(is_choice)
     if not is_choice:
         component.text = get_question_text_content(parent_node, namespace)
     else:

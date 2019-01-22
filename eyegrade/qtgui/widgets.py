@@ -16,7 +16,6 @@
 # <https://www.gnu.org/licenses/>.
 #
 import gettext
-import fractions
 
 from PyQt5.QtGui import (
     QIcon,
@@ -60,6 +59,7 @@ from PyQt5.QtCore import (
 )
 
 from .. import utils
+from .. import scoring
 from . import Colors
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
@@ -290,6 +290,7 @@ class InputScore(QLineEdit):
     def __init__(self, parent=None, minimum_width=100, is_positive=True):
         super(InputScore, self).__init__(parent=parent)
         self.setMinimumWidth(minimum_width)
+        self.is_positive = is_positive
         if is_positive:
             placeholder = _('e.g.: 2; 2.5; 5/2')
         else:
@@ -308,23 +309,13 @@ class InputScore(QLineEdit):
         correct.  If `force_float` a float is returned always.
 
         """
-        value_str = self.text()
-        if value_str:
-            if '/' in value_str:
-                parts = [int(v) for v in value_str.split('/')]
-                try:
-                    value = fractions.Fraction(parts[0], parts[1])
-                    if force_float:
-                        value = float(value)
-                except:
-                    value = None
-            elif not '.' in value_str:
-                value = fractions.Fraction(int(value_str), 1)
-            else:
-                value = float(value_str)
-        else:
-            value = None
-        return value
+        allow_negatives = not self.is_positive
+        try:
+            score = scoring.parse_number(self.text(), force_float=force_float,
+                                         allow_negatives=allow_negatives)
+        except ValueError:
+            score = None
+        return score
 
     def setPlaceholderText(self, text):
         """Proxy for the same method in QLineEdit.
@@ -682,13 +673,14 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                     value = self.weights[c][r]
                 else:
                     value = self.weights[0][self._to_model_0(c, r)]
-                return utils.format_number(value, short=True)
+                return scoring.format_number(value, short=True)
             else:
                 if not self.has_permutations:
                     value = self.sum_weights[c]
                 else:
                     value = self.sum_weights[0]
-                return utils.format_number(value, short=True, no_fraction=True)
+                return scoring.format_number(value, short=True,
+                                             no_fraction=True)
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
         else:
@@ -705,7 +697,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
         r = index.row()
         c = index.column()
         try:
-            value = utils.parse_number(value_qvar)
+            value = scoring.parse_number(value_qvar)
         except ValueError:
             return False
         if r < self.exam_config.num_questions:

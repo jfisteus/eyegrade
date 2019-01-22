@@ -20,6 +20,8 @@ import sys
 
 # Local imports
 from . import utils
+from . import exams
+from . import scoring
 from . import exammaker
 
 EyegradeException = utils.EyegradeException
@@ -65,10 +67,11 @@ def read_cmd_options():
                       help='force removal of the previous .eye exam file')
     parser.add_option('--cw', '--correct-weight',
                       dest='correct_weight',
-                      help='weight of correct answers', default=None)
+                      help='score for correct answers', default=None)
     parser.add_option('--iw', '--incorrect-weight',
                       dest='incorrect_weight',
-                      help='negative weight of incorrect answers', default=None)
+                      help='negative score for incorrect answers',
+                      default=None)
     parser.add_option('--id-length', type='int',
                       dest='student_id_length', default=None,
                       help='Number of digits of student IDs (0 to disable)')
@@ -127,11 +130,12 @@ def read_cmd_options():
     if options.table_scale < 0.1:
         parser.error('The scale factor must be positive and greater or equal'
                      ' to 0.1')
-    options.output_file_prefix = options.output_file_prefix
-    options.exam_filename = options.exam_filename
-    options.subject = options.subject
-    options.degree = options.degree
-    options.title = options.title
+    # Check score weights
+    if options.correct_weight is not None:
+        if options.incorrect_weight is None:
+            options.incorrect_weight = 0
+    elif options.incorrect_weight is not None:
+        parser.error('The score for correct answers is also needed (--cw)')
     return options, args
 
 def create_exam():
@@ -142,11 +146,14 @@ def create_exam():
         'degree': '',
         'date': '',
         'duration': '',
-        'title': ''
+        'title': '',
         }
+    scores = None
     dimensions = None
+
+    # Take options from the input question files
     if options.exam_filename:
-        exam = utils.read_exam_questions(options.exam_filename)
+        exam = exams.read_exam_questions(options.exam_filename)
         if exam.subject is not None:
             variables['subject'] = exam.subject
         if exam.degree is not None:
@@ -161,6 +168,8 @@ def create_exam():
             variables['student_id_label'] = exam.student_id_label
         if exam.student_id_length is not None:
             variables['student_id_length'] = exam.student_id_length
+        if exam.scores is not None:
+            scores = exam.scores
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if not exam.homogeneous_num_choices():
@@ -210,6 +219,9 @@ def create_exam():
         variables['student_id_label'] = options.student_id_label
     if options.student_id_length is not None:
         variables['student_id_length'] = options.student_id_length
+    if options.correct_weight is not None:
+        scores = scoring.QuestionScores(options.correct_weight,
+                                        options.incorrect_weight, 0)
     if options.output_file_prefix is None:
         output_file = sys.stdout
         config_filename = None
@@ -217,29 +229,24 @@ def create_exam():
         output_file = options.output_file_prefix + '-%s.tex'
         config_filename = options.output_file_prefix + '.eye'
 
-    if options.correct_weight is not None:
-        if options.incorrect_weight is None:
-            options.incorrect_weight = 0
-        if options.incorrect_weight < 0:
-            options.incorrect_weight = -options.incorrect_weight
-        score_weights = (options.correct_weight, options.incorrect_weight, 0)
-    elif options.incorrect_weight is not None:
-        raise EyegradeException('', 'correct_weight_none')
-    else:
-        score_weights = None
-
     # Create and call the exam maker object
-    maker = exammaker.ExamMaker(num_questions, num_choices,
-                                template_filename,
-                                output_file, variables, config_filename,
-                                options.num_tables,
-                                dimensions,
-                                options.table_width, options.table_height,
-                                options.table_scale, options.id_box_width,
-                                options.force_config_overwrite,
-                                score_weights,
-                                options.left_to_right_numbering,
-                                options.survey_mode)
+    maker = exammaker.ExamMaker(\
+                    num_questions,
+                    num_choices,
+                    template_filename,
+                    output_file,
+                    variables,
+                    config_filename,
+                    num_tables=options.num_tables,
+                    dimensions=dimensions,
+                    table_width=options.table_width,
+                    table_height=options.table_height,
+                    table_scale=options.table_scale,
+                    id_box_width=options.id_box_width,
+                    force_config_overwrite=options.force_config_overwrite,
+                    scores=scores,
+                    left_to_right_numbering=options.left_to_right_numbering,
+                    survey_mode=options.survey_mode)
     if not options.no_pdf and options.output_file_prefix is not None:
         if exammaker.check_latex():
             produce_pdf = True

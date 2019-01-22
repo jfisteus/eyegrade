@@ -39,7 +39,8 @@ from PyQt5.QtCore import (
     pyqtSlot,
 )
 
-from .. import utils
+from .. import exams
+
 
 class ExamIcon(QIcon):
     def __init__(self, exam):
@@ -69,7 +70,7 @@ class ThumbnailsViewItem(QListWidgetItem):
 
 
 class ThumbnailsView(QListWidget):
-    selection_changed = pyqtSignal(utils.Exam)
+    selection_changed = pyqtSignal(exams.Exam)
 
     def __init__(self, parent):
         super(ThumbnailsView, self).__init__(parent)
