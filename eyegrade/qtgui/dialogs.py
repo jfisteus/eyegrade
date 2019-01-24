@@ -47,6 +47,7 @@ from PyQt5.QtCore import (
 )
 
 from .. import utils
+from .. import students
 from . import widgets
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
@@ -62,13 +63,13 @@ class DialogStudentId(QDialog):
     id = dialog.exec_()
 
     """
-    def __init__(self, parent, students):
+    def __init__(self, parent, student_list):
         super(DialogStudentId, self).__init__(parent)
         self.setWindowTitle(_('Change the student id'))
         layout = QFormLayout()
         self.setLayout(layout)
         self.combo = widgets.StudentComboBox(parent=self)
-        self.combo.add_students(students)
+        self.combo.add_students(student_list)
         self.combo.editTextChanged.connect(self._check_value)
         self.combo.currentIndexChanged.connect(self._check_value)
         new_student_button = QPushButton( \
@@ -175,18 +176,20 @@ class NewStudentDialog(QDialog):
                 email = None
             if self.combo.currentIndex() == 0:
                 # First name, last name
-                student = utils.Student(None, self.id_field.text(),
-                                        None,
-                                        self.name_field.text(),
-                                        self.surname_field.text(),
-                                        email, 0, None)
+                student = students.Student( \
+                                    self.id_field.text(),
+                                    None,
+                                    self.name_field.text(),
+                                    self.surname_field.text(),
+                                    email)
             else:
                 # Full name
-                student = utils.Student(None, self.id_field.text(),
-                                        self.full_name_field.text(),
-                                        None,
-                                        None,
-                                        email, 0, None)
+                student = students.Student( \
+                                    self.id_field.text(),
+                                    self.full_name_field.text(),
+                                    None,
+                                    None,
+                                    email)
         else:
             student = None
         return student

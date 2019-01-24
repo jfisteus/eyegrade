@@ -40,6 +40,7 @@ from PyQt5.QtCore import Qt
 from .. import utils
 from .. import scoring
 from .. import exams
+from .. import students
 from . import widgets
 from . import dialogs
 from . import FileNameFilters
@@ -683,7 +684,7 @@ class WizardNewSession(QWizard):
     def _check_student_ids_file(self, file_name):
         valid = True
         try:
-            utils.read_student_ids(file_name)
+            students.read_student_ids(file_name)
         except Exception as e:
             valid = False
             QMessageBox.critical(self, _('Error in student list'),

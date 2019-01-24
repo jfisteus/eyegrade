@@ -24,6 +24,7 @@ import configparser
 
 from . import utils
 from . import scoring
+from . import students
 
 
 class Exam(object):
@@ -81,9 +82,12 @@ class Exam(object):
             else:
                 students_rank = []
             if students_rank == []:
-                students_rank = [utils.Student( \
-                                        None, self.decisions.detected_id,
-                                        None, None, None, None, None, None)]
+                students_rank = [students.Student( \
+                                        self.decisions.detected_id,
+                                        None,
+                                        None,
+                                        None,
+                                        None)]
         else:
             students_rank = list(self.students.values())
         return students_rank

@@ -32,8 +32,6 @@ help_location = 'https://www.eyegrade.org/doc/user-manual/'
 version = '0.8.dev3'
 version_status = 'alpha'
 
-re_exp_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
-re_email = re.compile(re_exp_email)
 re_model_letter = re.compile('[0a-zA-Z]')
 
 csv.register_dialect('tabs', delimiter=str('\t'))
@@ -327,97 +325,6 @@ def check_model_letter(model, allow_question_mark=False):
     else:
         raise Exception('Incorrect model letter: ' + model)
 
-def read_student_ids(filename):
-    """Reads the list of student IDs from a CSV-formatted file (tab-separated).
-
-    """
-    students = read_student_ids_same_order(filename)
-    students_dict = {}
-    for sid, full_name, first_name, last_name, email in students:
-        students_dict[sid] = (full_name, first_name, last_name, email)
-    return students_dict
-
-def read_student_ids_same_order(filename):
-    """Reads the list of student IDs from a CSV-formatted file (tab-separated).
-
-    Returns the results as a list of tuples (id, name, email).
-
-    """
-    with open(filename, newline='') as csvfile:
-        try:
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-        except csv.Error:
-            dialect = csv.excel_tab
-        csvfile.seek(0)
-        reader = csv.reader(csvfile, dialect=dialect)
-        student_ids = []
-        for row in reader:
-            name1 = ''
-            name2 = ''
-            email = ''
-            if len(row) == 0:
-                raise EyegradeException('Empty line in student list',
-                                        key='error_student_list')
-            sid = row[0]
-            _check_student_id(sid)
-            if len(row) > 1:
-                name1 = row[1]
-            if len(row) > 2:
-                item = row[2]
-                if _check_email(item):
-                    email = item
-                else:
-                    name2 = item
-            if len(row) > 3:
-                item = row[3]
-                if _check_email(item):
-                    email = item
-            if not name2:
-                full_name = name1
-                first_name = ''
-                last_name = ''
-            else:
-                full_name = ''
-                first_name = name1
-                last_name = name2
-            student_ids.append((sid, full_name, first_name, last_name, email))
-    return student_ids
-
-def _check_student_id(student_id):
-    """Checks the student id.
-
-    Raises the appropriate exception in case of error.
-
-    """
-    try:
-        int(student_id)
-    except:
-        raise EyegradeException('Wrong id in student list: ' + student_id,
-                                key='error_student_id')
-
-def _check_email(email):
-    """Checks syntactically an email address.
-
-    Returns True if correct, False if incorrect.
-
-    """
-    if re_email.match(email):
-        return True
-    else:
-        return False
-
-def read_student_ids_multiple(filenames):
-    """Reads student ids from multiple files.
-
-    `filenames` is an iterable of filenames. It may be empty.
-    Returns a dictionary.
-
-    """
-    st = {}
-    for f in filenames:
-        st.update(read_student_ids(f))
-    return st
-
 def write_grades(grades, file_, csv_dialect):
     """Writes the given grades to a file.
 
@@ -546,76 +453,6 @@ def increment_list(list_):
 
     """
     return [n + 1 for n in list_]
-
-
-class Student(object):
-    def __init__(self, db_id, student_id, full_name,
-                 first_name, last_name, email, group_id,
-                 sequence_num, is_in_database=False):
-        if full_name and (first_name or last_name):
-            raise ValueError('Full name incompatible with first / last name')
-        self.db_id = db_id
-        self.student_id = student_id
-        self.full_name = full_name
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.group_id = group_id
-        self.sequence_num = sequence_num
-        self.is_in_database = is_in_database
-
-    @property
-    def name(self):
-        if self.full_name:
-            return self.full_name
-        elif self.last_name:
-            if self.first_name:
-                return '{0} {1}'.format(self.first_name, self.last_name)
-            else:
-                return self.last_name
-        elif self.first_name:
-            return self.first_name
-        else:
-            return ''
-
-    @property
-    def last_comma_first_name(self):
-        if self.last_name:
-            if self.first_name:
-                return '{0}, {1}'.format(self.last_name, self.first_name)
-            else:
-                return self.last_name
-        else:
-            return self.name
-
-    @property
-    def id_and_name(self):
-        if self.name:
-            return ' '.join((self.student_id, self.name))
-        else:
-            return self.student_id
-
-    @property
-    def name_or_id(self):
-        if self.name:
-            return self.name
-        elif self.student_id:
-            return self.student_id
-        else:
-            return ''
-
-    def __str__(self):
-        return 'student: ' + self.id_and_name
-
-
-class StudentGroup(object):
-    def __init__(self, identifier, name):
-        self.identifier = identifier
-        self.name = name
-
-    def __str__(self):
-        return 'Group #{0.identifier} ({0.name})'.format(self)
-
 
 def parse_dimensions(text, check_equal_num_choices=False):
     dimensions = []

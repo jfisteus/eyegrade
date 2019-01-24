@@ -799,7 +799,7 @@ class Interface(object):
     def dialog_export_grades(self, student_groups):
         """Displays the dialog for exporting grades.
 
-        `student_groups` is a list of utils.StudentGroup objects.
+        `student_groups` is a list of students.StudentGroup objects.
 
         If accepted by the user, it returns the tuple (filename, file type,
         students, fields).  Returns None if cancelled.

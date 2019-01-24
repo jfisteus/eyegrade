@@ -30,6 +30,7 @@ from PyQt5.QtWidgets import (
 from .widgets import LabelledCheckBox
 from .. import utils
 
+
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.gettext
 
@@ -37,7 +38,7 @@ _ = t.gettext
 class DialogExportGrades(QDialog):
     """Dialog to export grades listings.
 
-    `student_groups` is a list of utils.StudentGroup objects
+    `student_groups` is a list of students.StudentGroup objects
     that is internally used to allow the user to export
     just one group of students instead of all the students.
 

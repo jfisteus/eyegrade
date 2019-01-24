@@ -63,6 +63,7 @@ setuptools.setup(name='eyegrade',
       install_requires=[
           'opencv-python',
           'PyQt5',
+          'openpyxl',
       ],
       test_suite ="tests.get_tests",
       classifiers= [

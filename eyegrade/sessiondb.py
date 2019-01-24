@@ -23,6 +23,7 @@ import csv
 from . import utils
 from . import scoring
 from . import exams
+from . import students
 from . import capture
 from . import images
 
@@ -276,7 +277,7 @@ class SessionDB(object):
         If `ignore_empty_groups` is set, only the groups with at least one
         student are returned.
 
-        The groups are returned as a list of utils.StudentGroup objects.
+        The groups are returned as a list of students.StudentGroup objects.
 
         """
         groups = []
@@ -293,7 +294,7 @@ class SessionDB(object):
         for row in cursor.execute(query):
             # Use index instead of name because of incompatibilities
             # in the keys between older and newer versions of python/sql:
-            groups.append(utils.StudentGroup(row[0], row[1]))
+            groups.append(students.StudentGroup(row[0], row[1]))
         return groups
 
     def next_exam_id(self):
@@ -759,16 +760,27 @@ class SessionDB(object):
 
     def _student_from_row(self, row):
         if self.schema_version >= 2:
-            student = utils.Student(row['db_id'], row['student_id'],
-                                    row['full_name'],
-                                    row['first_name'], row['last_name'],
-                                    row['email'], row['group_id'],
-                                    row['sequence_num'], is_in_database=True)
+            student = students.Student( \
+                                row['student_id'],
+                                row['full_name'],
+                                row['first_name'],
+                                row['last_name'],
+                                row['email'],
+                                db_id=row['db_id'],
+                                group_id=row['group_id'],
+                                sequence_num=row['sequence_num'],
+                                is_in_database=True)
         else:
-            student = utils.Student(row['db_id'], row['student_id'],
-                                    row['name'], None, None,
-                                    row['email'], row['group_id'],
-                                    row['sequence_num'], is_in_database=True)
+            student = students.Student( \
+                                row['student_id'],
+                                row['name'],
+                                None,
+                                None,
+                                row['email'],
+                                db_id=row['db_id'],
+                                group_id=row['group_id'],
+                                sequence_num=row['sequence_num'],
+                                is_in_database=True)
         return student
 
 
@@ -941,8 +953,8 @@ def _save_exam_config(conn, exam_data):
                        data)
 
 def _save_student_list(conn, students_file):
-    students = utils.read_student_ids_same_order(students_file)
-    _create_student_group(conn, os.path.basename(students_file), students)
+    student_list = students.read_student_ids(students_file)
+    _create_student_group(conn, os.path.basename(students_file), student_list)
 
 def _create_student_group(conn, group_name, student_list):
     """Creates a new student group and loads students in it.
@@ -959,9 +971,15 @@ def _create_student_group(conn, group_name, student_list):
     group_id = cursor.lastrowid
     if len(student_list) > 0:
         internal_list = []
-        for i, data in enumerate(student_list):
-            internal_list.append((data[0], data[1], data[2],
-                                  data[3], data[4], group_id, i))
+        for i, student in enumerate(student_list):
+            internal_list.append(( \
+                        student.student_id,
+                        student.full_name,
+                        student.first_name,
+                        student.last_name,
+                        student.email,
+                        group_id,
+                        i))
         cursor.executemany('INSERT INTO Students '
                            '(student_id, full_name, '
                            ' first_name, last_name, email, group_id, '

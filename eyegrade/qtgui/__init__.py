@@ -28,7 +28,7 @@ _ = t.gettext
 class FileNameFilters(object):
     exam_config = _('Exam configuration (*.eye)')
     session_db = _('Eyegrade session (*.eyedb)')
-    student_list = _('Student list (*.csv *.tsv *.txt *.lst *.list)')
+    student_list = _('Student list (*.xlsx *.csv *.tsv *.txt *.lst *.list)')
 
 class Colors(object):
     eyegrade_blue = QColor(32, 73, 124)
