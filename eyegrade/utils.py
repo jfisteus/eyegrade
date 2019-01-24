@@ -125,6 +125,7 @@ def _read_config():
         config['gui-styles'] = None
     return config
 
+
 class EyegradeException(Exception):
     """An Eyegrade-specific exception.
 
@@ -283,34 +284,6 @@ def resource_path(file_name):
 # The global configuration object:
 config = _read_config()
 
-def write_results(results, filename, csv_dialect, append=False):
-    """Writes exam results to a file.
-
-       If filename is None, results are written to stdout. The output
-       file is overwritting by default. Use append=True to append
-       instead of overwriting.
-
-    """
-    if filename is not None:
-        if not append:
-            file_ = open(filename, 'wb')
-        else:
-            file_ = open(filename, 'ab')
-    else:
-        file_ = sys.stdout
-    writer = csv.writer(file_, dialect=csv_dialect)
-    for result in results:
-        data = [str(result['seq-num']),
-                result['student-id'],
-                result['model'],
-                str(result['good']),
-                str(result['bad']),
-                str(result['score']),
-                '/'.join([str(d) for d in result['answers']])]
-        writer.writerow(data)
-    if filename is not None:
-        file_.close()
-
 def check_model_letter(model, allow_question_mark=False):
     """Checks if a model letter is correct.
 
@@ -324,16 +297,6 @@ def check_model_letter(model, allow_question_mark=False):
         return '?'
     else:
         raise Exception('Incorrect model letter: ' + model)
-
-def write_grades(grades, file_, csv_dialect):
-    """Writes the given grades to a file.
-
-       Results are a list of tuples student_id, good_answers, bad_answers.
-
-    """
-    writer = csv.writer(file_, dialect=csv_dialect)
-    for grade in grades:
-        writer.writerow(grade)
 
 def _permute_answers(answers, permutation):
     assert(len(answers) == len(permutation))
@@ -425,7 +388,7 @@ def _int_to_bin(n, num_digits, reverse = False):
         return bin[::-1]
 
 def read_file(file_name):
-    """Returns contents of a file as a Unicode string using terminal locale.
+    """Return the contents of a file as a Unicode string using terminal locale.
 
     """
     file_ = codecs.open(file_name, 'r', config['default-charset'])
@@ -477,7 +440,6 @@ def parse_dimensions(text, check_equal_num_choices=False):
             if dimensions[i][0] != dimensions[0][0]:
                 raise EyegradeException('', 'same_num_choices')
     return dimensions, num_options
-
 
 # Regular expressions used for capture filename patterns
 regexp_id = re.compile('\{student-id\}')
