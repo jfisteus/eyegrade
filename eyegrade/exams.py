@@ -27,7 +27,7 @@ from . import scoring
 from . import students
 
 
-class Exam(object):
+class Exam:
     def __init__(self, capture_, decisions, solutions, valid_students,
                  exam_id, question_scores, sessiondb=None):
         self.capture = capture_
@@ -149,7 +149,7 @@ class Exam(object):
         return rank
 
 
-class ExamConfig(object):
+class ExamConfig:
     """Class for representing exam configuration. Once an instance has
        been created and data loaded, access directly to the attributes
        to get the data. The constructor reads data from a file. See
@@ -548,7 +548,7 @@ class ExamConfig(object):
         return [p for p in pieces]
 
 
-class ExamQuestions(object):
+class ExamQuestions:
     def __init__(self):
         self.questions = []
         self.subject = None
@@ -633,7 +633,7 @@ class ExamQuestions(object):
         return solutions, permutations
 
 
-class Question(object):
+class Question:
     def __init__(self):
         self.text = None
         self.correct_choices = []
@@ -648,7 +648,7 @@ class Question(object):
         self.permutations[model] = permutations
 
 
-class QuestionComponent(object):
+class QuestionComponent:
     """A piece of text and optional figure or code.
 
        Represents both the text of a question and its choices.

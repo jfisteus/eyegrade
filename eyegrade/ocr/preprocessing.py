@@ -21,7 +21,7 @@ import numpy as np
 import numpy.linalg as linalg
 
 
-class FeatureExtractor(object):
+class FeatureExtractor:
     """Default feature extractor.
 
     It assumes that images contain just one digit
@@ -79,7 +79,7 @@ class CrossesFeatureExtractor(FeatureExtractor):
         return feature_vector
 
 
-class OpenCVExampleExtractor(object):
+class OpenCVExampleExtractor:
     def __init__(self, dim=20, threshold=False):
         self.dim = dim
         self.threshold = threshold

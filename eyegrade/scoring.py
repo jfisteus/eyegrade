@@ -124,7 +124,7 @@ class QuestionScores(utils.ComparableMixin):
                 self.blank_score, self.weight)
 
 
-class Score(object):
+class Score:
     def __init__(self, answers, solutions, question_scores):
         if (answers is not None and solutions
             and len(answers) != len(solutions)):

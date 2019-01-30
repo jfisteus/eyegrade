@@ -20,7 +20,7 @@ import numpy as np
 from . import sample
 
 
-class Evaluation(object):
+class Evaluation:
     def __init__(self, classifier, samples):
         self.classifier = classifier
         self.samples = samples

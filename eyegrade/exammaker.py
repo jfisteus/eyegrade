@@ -66,7 +66,7 @@ utils.EyegradeException.register_error('latex_not_found',
     'The command pdflatex was not found.')
 
 
-class ExamMaker(object):
+class ExamMaker:
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
                  num_tables=0, dimensions=None,

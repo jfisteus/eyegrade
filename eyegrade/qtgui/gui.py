@@ -104,7 +104,7 @@ class Worker(QRunnable):
         Worker._worker_count = len(Worker._active_workers)
 
 
-class ActionsManager(object):
+class ActionsManager:
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
@@ -565,7 +565,7 @@ class MainWindow(QMainWindow):
         self.statusBar().set_message(text)
 
 
-class Interface(object):
+class Interface:
     def __init__(self, app, id_enabled, id_list_enabled, argv,
                  preferred_styles=None):
         self.app = app

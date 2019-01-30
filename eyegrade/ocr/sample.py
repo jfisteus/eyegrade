@@ -25,7 +25,7 @@ import numpy as np
 from .. import geometry as g
 
 
-class Sample(object):
+class Sample:
     def __init__(self, corners,
                  image=None, image_filename=None, label=None):
         if image is None and not image_filename:
@@ -78,7 +78,7 @@ class CrossSampleFromCam(Sample):
         return np.array((plu, pru, pld, prd))
 
 
-class SampleSet(object):
+class SampleSet:
     def __init__(self):
         self.samples_dict = collections.defaultdict(list)
 
@@ -185,7 +185,7 @@ class SampleSet(object):
                    for label in self.samples_dict)
 
 
-class SampleLoader(object):
+class SampleLoader:
     def __init__(self, filename):
         self.filename = filename
         self.dirname = os.path.dirname(filename)

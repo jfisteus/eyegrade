@@ -59,7 +59,7 @@ param_error_log = 'eyegrade-errors.log'
 param_error_image_pattern = 'error-%s.png'
 
 
-class ExamDetector(object):
+class ExamDetector:
 
     default_options = {
         'infobits': True,
@@ -399,7 +399,7 @@ class ExamDetector(object):
                     images.draw_point(self.image_to_show, c)
 
 
-class ExamDetectorContext(object):
+class ExamDetectorContext:
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 

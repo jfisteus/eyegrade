@@ -15,8 +15,6 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 #
-from __future__ import print_function, division
-
 import sys
 import random
 import logging
@@ -30,7 +28,7 @@ from .. import images
 from ..ocr import sample
 
 
-class LabeledDigit(object):
+class LabeledDigit:
 
     def __init__(self, digit, image_file, corners, identifier=None):
         self.digit = digit

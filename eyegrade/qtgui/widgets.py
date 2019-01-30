@@ -523,7 +523,7 @@ class InputRadioGroup(QWidget):
         return str(abs(int(self.group.checkedId())) - 1)
 
 
-class ItemList(object):
+class ItemList:
     """Custom item for permutation list"""
     def __init__(self, optionName, optionNumber):
         super(ItemList, self).__init__()

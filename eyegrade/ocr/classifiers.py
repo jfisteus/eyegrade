@@ -31,7 +31,7 @@ DEFAULT_CROSS_META_FILE = 'cross_classifier_metadata.json'
 DEFAULT_DIR = 'svm'
 
 
-class SVMClassifier(object):
+class SVMClassifier:
     def __init__(self, num_classes, features_extractor, load_from_file=None):
         self.num_classes = num_classes
         self.features_extractor = features_extractor

@@ -27,7 +27,7 @@ from . import utils
 _re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
 
 
-class Student(object):
+class Student:
     def __init__(self, student_id, full_name,
                  first_name, last_name, email,
                  db_id=None,
@@ -88,7 +88,7 @@ class Student(object):
         return 'student: ' + self.id_and_name
 
 
-class StudentGroup(object):
+class StudentGroup:
     def __init__(self, identifier, name):
         self.identifier = identifier
         self.name = name

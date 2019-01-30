@@ -68,7 +68,7 @@ capture_change_period_failure = 0.3
 after_removal_delay = 1.0
 
 
-class ImageDetectTask(object):
+class ImageDetectTask:
     """Used for running image detection in another thread."""
     def __init__(self, detector):
         self.detector = detector
@@ -78,7 +78,7 @@ class ImageDetectTask(object):
         self.detector = None
 
 
-class ImageChangeTask(object):
+class ImageChangeTask:
     """Used for running image change detection in another thread."""
     def __init__(self, detector, reference_image):
         self.detector = detector
@@ -89,7 +89,7 @@ class ImageChangeTask(object):
         self.detector = None
 
 
-class ManualDetectionManager(object):
+class ManualDetectionManager:
     def __init__(self, exam, dimensions, detection_context, detector_options):
         self.exam = exam
         self.points = []
@@ -109,7 +109,7 @@ class ManualDetectionManager(object):
         return self.detector.detect_manual(self.points)
 
 
-class ProgramMode(object):
+class ProgramMode:
     """Represents the mode in which the program is."""
     no_session = 0
     session = 1
@@ -172,7 +172,7 @@ class ProgramMode(object):
         self.mode = ProgramMode.manual_detect
 
 
-class ProgramManager(object):
+class ProgramManager:
     """Manages a grading session."""
 
     def __init__(self, interface, session_file=None):

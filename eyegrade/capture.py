@@ -30,7 +30,7 @@ _color_dot_bad = (255, 0, 0)
 _color_dot_blank = (192, 0, 192)
 
 
-class CellGeometry(object):
+class CellGeometry:
     def __init__(self, plu, pru, pld, prd, center, diagonal):
         """Receives the four corners of the cell, center point and diagonal.
 
@@ -56,7 +56,7 @@ class CellGeometry(object):
         return (self.plu, self.pru, self.pld, self.prd)
 
 
-class ExamDecisions(object):
+class ExamDecisions:
     def __init__(self, success, answers, detected_id, id_scores, model=None,
                  infobits=None):
         self.success = success
@@ -82,7 +82,7 @@ class ExamDecisions(object):
         self.student = student
 
 
-class ExamCapture(object):
+class ExamCapture:
     """Capture of an exam, including the image, cell geometry and drawing."""
 
     def __init__(self, image, answer_cells, id_cells, progress=1.0):

@@ -29,7 +29,7 @@ from . import images
 from . import export
 
 
-class SessionDB(object):
+class SessionDB:
     """Access to a session SQLite database.
 
     This class encapsulates access functions to the session database.
@@ -805,7 +805,7 @@ class ExamDecisionsFromDB(capture.ExamDecisions):
         self.students_rank = students_rank
 
 
-class _Adapter(object):
+class _Adapter:
     @staticmethod
     def enc_model(model_letter):
         if model_letter == '0':

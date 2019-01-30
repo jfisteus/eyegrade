@@ -48,7 +48,7 @@ default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
 data_dir = None
 
 
-class ComparableMixin(object):
+class ComparableMixin:
     """For implementing comparable classes.
 
     As seen on http://regebro.wordpress.com/2010/12/13/

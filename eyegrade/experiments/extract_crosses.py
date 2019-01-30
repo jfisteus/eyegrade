@@ -15,8 +15,6 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 #
-from __future__ import print_function, division
-
 import sys
 import random
 import logging
@@ -32,7 +30,7 @@ from ..ocr import sample
 VALID_LABELS = (0, 1)
 
 
-class LabeledCross(object):
+class LabeledCross:
 
     def __init__(self, label, image_file, corners, identifier=None):
         if not label in VALID_LABELS:
