@@ -34,7 +34,8 @@ version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
 
-csv.register_dialect('tabs', delimiter=str('\t'))
+csv_tabs_dialect = 'tabs'
+csv.register_dialect(csv_tabs_dialect, delimiter=str('\t'))
 
 results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
                      'score', 'answers']
@@ -237,13 +238,6 @@ EyegradeException.register_error('error_student_list_encoding',
 
 EyegradeException.register_error('load_image',
     'The image cannot be loaded (perhaps a wrong path?).')
-
-
-class ExportSortKey(object):
-    """Constants for the export dialog."""
-    STUDENT_LIST = 1
-    STUDENT_LAST_NAME = 2
-    GRADING_SEQUENCE = 3
 
 
 def guess_data_dir():

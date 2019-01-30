@@ -38,6 +38,8 @@ from . import utils
 from . import exams
 from .qtgui import gui
 from . import sessiondb
+from . import export
+
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.gettext
@@ -633,17 +635,13 @@ class ProgramManager(object):
 
     def _action_export_grades(self):
         """Action for exporting the list of grades."""
-        student_groups = self.sessiondb.get_student_groups()
-        opts = self.interface.dialog_export_grades(student_groups)
-        if opts is not None:
-            filename, data_type, students, group, sort_key, options = opts
-            options['all_students'] = (students == 0)
-            options['student_group'] = group
-            options['sort_key'] = sort_key
+        helper = export.GradesExportHelper(
+            self.exam_data,
+            self.sessiondb.get_student_groups())
+        result = self.interface.dialog_export_grades(helper)
+        if result:
             try:
-                self.sessiondb.export_grades(filename,
-                                             self.config['csv-dialect'],
-                                             **options)
+                self.sessiondb.export_grades(helper)
             except IOError as e:
                 msg = _('Input/output error: {0}').format(e.strerror)
                 self.interface.show_error(msg)

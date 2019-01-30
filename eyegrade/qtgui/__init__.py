@@ -29,6 +29,8 @@ class FileNameFilters(object):
     exam_config = _('Exam configuration (*.eye)')
     session_db = _('Eyegrade session (*.eyedb)')
     student_list = _('Student list (*.xlsx *.csv *.tsv *.txt *.lst *.list)')
+    xlsx_file = _('Excel spreadsheet (*.xlsx)')
+    csv_file = _('Data file (*.csv *.tsv)')
 
 class Colors(object):
     eyegrade_blue = QColor(32, 73, 124)

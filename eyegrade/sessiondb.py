@@ -26,6 +26,7 @@ from . import exams
 from . import students
 from . import capture
 from . import images
+from . import export
 
 
 class SessionDB(object):
@@ -307,9 +308,9 @@ class SessionDB(object):
             return 1
 
     def save_legacy_answers(self, csv_dialect):
-        answers_file = os.path.join(self.session_dir, 'eyegrade-answers.csv')
-        with open(answers_file, "w") as f:
-            writer = csv.writer(f, dialect=csv_dialect)
+        file_name = os.path.join(self.session_dir, 'eyegrade-answers.csv')
+        file_format = export.FileFormat.CSV_TABS
+        with export.create_writer(file_name, file_format) as writer:
             for exam in self.exams_iterator():
                 data = [
                     exam['exam_id'],
@@ -320,44 +321,23 @@ class SessionDB(object):
                     exam['score'] if exam['score'] is not None else '?',
                     '/'.join([str(answer) for answer in exam['answers']]),
                     ]
-                writer.writerow(data)
+                writer.append_row(data)
 
-    def export_grades(self, file_name, csv_dialect, all_students=True,
-                      seq_num=True, student_id=True, student_name=True,
-                      student_last_name=False, student_first_name=False,
-                      correct=True, incorrect=True, score=True,
-                      model=True, answers=True,
-                      sort_key=utils.ExportSortKey.STUDENT_LIST,
-                      student_group=None):
-        with open(file_name, 'w') as f:
-            writer = csv.writer(f, dialect=csv_dialect)
-            for exam in self.grades_iterator(all_students=all_students,
-                                             sort_key=sort_key,
-                                             student_group=student_group):
-                student = exam['student']
-                data = []
-                if student_id:
-                    data.append(student.student_id)
-                if student_name:
-                    data.append(student.name)
-                if student_last_name:
-                    data.append(student.last_name)
-                if student_first_name:
-                    data.append(student.first_name)
-                if seq_num:
-                    data.append(exam['exam_id'])
-                if model:
-                    data.append(exam['model'])
-                if correct:
-                    data.append(exam['correct'])
-                if incorrect:
-                    data.append(exam['incorrect'])
-                if score:
-                    data.append(exam['score'])
-                if answers:
-                    data.append('/'.join([str(answer) \
-                                          for answer in exam['answers']]))
-                writer.writerow(data)
+    def export_grades(self, export_helper):
+        if export_helper.add_column_headers:
+            column_headers = export_helper.column_headers()
+        with export_helper.create_writer() as writer:
+            for i, (group, title) in enumerate(export_helper.iter_groups()):
+                if i > 0:
+                    writer.append_sheet()
+                writer.set_sheet_title(title)
+                if export_helper.add_column_headers:
+                    writer.append_row(column_headers)
+                for exam in self.grades_iterator(
+                        all_students=export_helper.all_students,
+                        sort_key=export_helper.sort_by,
+                        student_group=group):
+                    writer.append_row(export_helper.data(exam))
 
     def exams_iterator(self):
         cursor = self.conn.cursor()
@@ -372,21 +352,21 @@ class SessionDB(object):
             yield exam
 
     def grades_iterator(self, all_students=True,
-                        sort_key=utils.ExportSortKey.STUDENT_LIST,
+                        sort_key=export.SortBy.STUDENT_LIST,
                         student_group=None):
         cursor = self.conn.cursor()
         if all_students:
             join_type = 'LEFT'
         else:
             join_type = 'INNER'
-        if sort_key == utils.ExportSortKey.STUDENT_LIST:
+        if sort_key == export.SortBy.STUDENT_LIST:
             sort_clause = 'ORDER BY group_id, sequence_num'
-        elif sort_key == utils.ExportSortKey.STUDENT_LAST_NAME:
+        elif sort_key == export.SortBy.LAST_NAME:
             if self.schema_version >= 2:
                 sort_clause = 'ORDER BY last_name, group_id, sequence_num'
             else:
                 sort_clause = 'ORDER BY name, group_id, sequence_num'
-        elif sort_key == utils.ExportSortKey.GRADING_SEQUENCE:
+        elif sort_key == export.SortBy.GRADING_SEQUENCE:
             sort_clause = 'ORDER BY exam_id'
         if student_group is not None:
             where_clause = 'WHERE group_id = {0.identifier} '\

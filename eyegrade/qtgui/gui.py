@@ -796,16 +796,15 @@ class Interface(object):
         dialog = dialogs.DialogCameraSelection(capture_context, self.window)
         return dialog.exec_()
 
-    def dialog_export_grades(self, student_groups):
+    def dialog_export_grades(self, helper):
         """Displays the dialog for exporting grades.
 
-        `student_groups` is a list of students.StudentGroup objects.
+        `helper` is a `eyegrade.export.GradesExportHelper object.
 
-        If accepted by the user, it returns the tuple (filename, file type,
-        students, fields).  Returns None if cancelled.
+        If accepted by the user, it returns True, else False.
 
         """
-        dialog = export.DialogExportGrades(self.window, student_groups)
+        dialog = export.DialogExportGrades(self.window, helper)
         return dialog.exec_()
 
     def dialog_export_exam_config(self):
