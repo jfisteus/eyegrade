@@ -18,7 +18,6 @@
 import sqlite3
 import os
 import os.path
-import csv
 
 from . import utils
 from . import scoring
