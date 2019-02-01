@@ -262,14 +262,20 @@ class SessionDB:
         if commit:
             self.conn.commit()
 
-    def load_students(self):
+    def load_students(self, group_id=None):
         self.students = {}
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM Students')
-        for row in cursor:
-            student = self._student_from_row(row)
+        for student in self.get_students(group_id=group_id):
             self.students[student.student_id] = student
         return self.students
+
+    def get_students(self, group_id=None):
+        cursor = self.conn.cursor()
+        if group_id is None:
+            cursor.execute('SELECT * FROM Students')
+        else:
+            cursor.execute(
+                'SELECT * FROM Students WHERE group_id=?', (group_id, ))
+        return [self._student_from_row(row) for row in cursor]
 
     def get_student_groups(self, ignore_empty_groups=True):
         """Return the list of student groups.
@@ -296,6 +302,14 @@ class SessionDB:
             # in the keys between older and newer versions of python/sql:
             groups.append(students.StudentGroup(row[0], row[1]))
         return groups
+
+    def get_group_listings(self):
+        """Return a list of `student.GroupListing` objects."""
+        groups = self.get_student_groups(ignore_empty_groups=False)
+        return [students.GroupListing(
+                    group,
+                    self.get_students(group_id=group.identifier))
+                for group in groups]
 
     def next_exam_id(self):
         cursor = self.conn.cursor()
@@ -870,7 +884,7 @@ def _create_tables(conn):
     cursor.execute(SessionDB._table_answer_cells)
     cursor.execute(SessionDB._table_id_cells)
     cursor.execute(SessionDB._table_alterations)
-    cursor.execute('INSERT INTO StudentGroups VALUES (0, "INSERTED")')
+    cursor.execute('INSERT INTO StudentGroups VALUES (0, "DEFAULT")')
 
 def _save_exam_config(conn, exam_data):
     if exam_data.base_scores is None:
@@ -932,7 +946,7 @@ def _save_exam_config(conn, exam_data):
                        data)
 
 def _save_student_list(conn, students_file):
-    student_list = students.read_student_ids(students_file)
+    student_list = students.read_students(students_file)
     _create_student_group(conn, os.path.basename(students_file), student_list)
 
 def _create_student_group(conn, group_name, student_list):

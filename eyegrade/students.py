@@ -23,8 +23,8 @@ import openpyxl
 
 from . import utils
 
-
-_re_email = re.compile(r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$')
+re_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
+_re_email = re.compile(re_email)
 
 
 class Student:
@@ -97,18 +97,39 @@ class StudentGroup:
         return 'Group #{0.identifier} ({0.name})'.format(self)
 
 
-def read_student_ids(filename):
-    """Reads the list of student IDs from a file.
+class GroupListing:
+    def __init__(self, group, students):
+        self.group = group
+        self.students = students
+
+    def add_students(self, students):
+        self.students.append(students)
+        for student in students:
+            student.group_id = self.group.identifier
+
+    def __len__(self):
+        return len(self.students)
+
+    def __getitem__(self, key):
+        return self.students[key]
+
+    def __str__(self):
+        return 'GroupListing({}, {} students)'\
+            .format(self.group, len(self.students))
+
+
+def read_students(file_name):
+    """Reads the list of students from a file.
 
     Formats allowed: CSV-formatted file (tab-separated) and Excel 2010 (.xslx)
 
     Returns the results as a list of Student objects.
 
     """
-    if filename.endswith('.xlsx'):
-        return _read_from_xlsx(filename)
+    if file_name.endswith('.xlsx'):
+        return _read_from_xlsx(file_name)
     else:
-        return _read_from_csv(filename)
+        return _read_from_csv(file_name)
 
 def _student_from_row(row):
     name1 = ''
@@ -165,13 +186,13 @@ def _check_email(email):
     else:
         return False
 
-def _read_from_csv(filename):
+def _read_from_csv(file_name):
     """Reads the list of student IDs from a CSV-formatted file (tab-separated).
 
     Returns the results as a list of Student objects.
 
     """
-    with open(filename, newline='') as csvfile:
+    with open(file_name, newline='') as csvfile:
         try:
             dialect = csv.Sniffer().sniff(csvfile.read(1024))
         except csv.Error:
@@ -184,8 +205,8 @@ def _read_from_csv(filename):
                 student_ids.append(_student_from_row(row))
     return student_ids
 
-def _read_from_xlsx(filename):
-    wb = openpyxl.load_workbook(filename)
+def _read_from_xlsx(file_name):
+    wb = openpyxl.load_workbook(file_name)
     ws = wb.active
     student_ids = []
     for row in ws.iter_rows():

@@ -755,10 +755,14 @@ class CustomTableView(QTableView):
     def __init__(self, parent=None, maximum_width=500, maximum_height=300):
         super(CustomTableView, self).__init__(parent=parent)
         self.maximum_height = maximum_height
-        self.maximum_width=maximum_width
+        self.maximum_width = maximum_width
 
     def adjust_size(self):
         self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+        self._set_dimension_hints()
+
+    def adjust_columns_size(self):
         self.resizeColumnsToContents()
         self._set_dimension_hints()
 

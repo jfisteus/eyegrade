@@ -684,7 +684,7 @@ class WizardNewSession(QWizard):
     def _check_student_ids_file(self, file_name):
         valid = True
         try:
-            students.read_student_ids(file_name)
+            students.read_students(file_name)
         except Exception as e:
             valid = False
             QMessageBox.critical(self, _('Error in student list'),

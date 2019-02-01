@@ -137,7 +137,7 @@ class NewStudentDialog(QDialog):
         self.full_name_label = QLabel(_('Full name'))
         self.email_field = QLineEdit(self)
         self.email_field.setValidator( \
-                        QRegExpValidator(QRegExp(utils.re_exp_email), self))
+                        QRegExpValidator(QRegExp(students.re_email), self))
         self.email_field.textEdited.connect(self._check_values)
         self.combo = QComboBox(parent=self)
         self.combo.addItem(_('Separate given name and surname'))

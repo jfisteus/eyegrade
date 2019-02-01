@@ -649,6 +649,10 @@ class ProgramManager:
                 self.interface.show_information(_('The file has been saved.'),
                                                 title=_('File saved'))
 
+    def _action_students(self):
+        group_listings = self.sessiondb.get_group_listings()
+        self.interface.dialog_students(group_listings)
+
     def _action_export_exam_config(self):
         """Callback for exporting the current exam configuration."""
         filename = self.interface.dialog_export_exam_config()
@@ -798,6 +802,7 @@ class ProgramManager:
             ('actions', 'tools', 'auto_change'): \
                                             self._action_auto_change_changed,
             ('actions', 'exams', 'export'): self._action_export_grades,
+            ('actions', 'exams', 'students'): self._action_students,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
             ('actions', 'help', 'source'): self._action_source_code,

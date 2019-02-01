@@ -54,6 +54,7 @@ from . import widgets
 from . import wizards
 from . import dialogs
 from . import export
+from . import students
 from . import FileNameFilters
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
@@ -133,6 +134,7 @@ class ActionsManager:
 
     _actions_exams_data = [
         ('search', 'search.svg', _('&Search'), []),
+        ('students', None, _('S&tudents'), []),
         ('export', 'export.svg', _('&Export grades listing'), []),
         ]
 
@@ -207,6 +209,7 @@ class ActionsManager:
         self.actions_tools['camera'].setEnabled(False)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(False)
         self.actions_exams['export'].setEnabled(False)
 
     def set_review_from_grading_mode(self):
@@ -225,6 +228,7 @@ class ActionsManager:
         self.actions_tools['camera'].setEnabled(False)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(True)
         self.actions_exams['export'].setEnabled(True)
 
     def set_review_from_session_mode(self):
@@ -243,6 +247,7 @@ class ActionsManager:
         self.actions_tools['camera'].setEnabled(True)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(True)
         self.actions_exams['export'].setEnabled(True)
 
     def set_session_mode(self):
@@ -262,6 +267,7 @@ class ActionsManager:
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(True)
         self.actions_exams['export'].setEnabled(True)
 
     def set_manual_detect_mode(self):
@@ -280,6 +286,7 @@ class ActionsManager:
         self.actions_tools['camera'].setEnabled(False)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(False)
         self.actions_exams['export'].setEnabled(False)
 
     def set_no_session_mode(self):
@@ -805,6 +812,11 @@ class Interface:
 
         """
         dialog = export.DialogExportGrades(self.window, helper)
+        return dialog.exec_()
+
+    def dialog_students(self, group_listings):
+        """Displays the student list."""
+        dialog = students.DialogStudents(self.window, group_listings)
         return dialog.exec_()
 
     def dialog_export_exam_config(self):
