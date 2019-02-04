@@ -262,6 +262,43 @@ class SessionDB:
         if commit:
             self.conn.commit()
 
+    def store_students(self, student_list, commit=True):
+        cursor = self.conn.cursor()
+        data = []
+        next_seq_nums = {}
+        for student in student_list:
+            if student.group_id is None:
+                student.group_id = 0
+            if not student.group_id in next_seq_nums:
+                next_seq_nums[student.group_id] = \
+                    self._group_max_seq(student.group_id) + 1
+            data.append((
+                student.student_id,
+                student.full_name,
+                student.first_name,
+                student.last_name,
+                student.email,
+                student.group_id,
+                next_seq_nums[student.group_id]))
+            next_seq_nums[student.group_id] += 1
+        if self.schema_version >= 2:
+            cursor.executemany(
+                'INSERT INTO Students '
+                '(student_id, full_name, first_name, '
+                ' last_name, email, group_id, sequence_num) '
+                'VALUES (?, ?, ?, ?, ?, ?, ?)',
+                data)
+        else:
+            data = [row[0:2] + row[4:] for row in data]
+            cursor.executemany(
+                'INSERT INTO Students '
+                '(student_id, name, email, group_id, sequence_num) '
+                'VALUES (?, ?, ?, ?, ?)',
+                data)
+        if commit:
+            self.conn.commit()
+        self.load_students()
+
     def load_students(self, group_id=None):
         self.students = {}
         for student in self.get_students(group_id=group_id):
@@ -274,7 +311,8 @@ class SessionDB:
             cursor.execute('SELECT * FROM Students')
         else:
             cursor.execute(
-                'SELECT * FROM Students WHERE group_id=?', (group_id, ))
+                'SELECT * FROM Students WHERE group_id=?',
+                (group_id, ))
         return [self._student_from_row(row) for row in cursor]
 
     def get_student_groups(self, ignore_empty_groups=True):
@@ -303,13 +341,29 @@ class SessionDB:
             groups.append(students.StudentGroup(row[0], row[1]))
         return groups
 
+    def get_group_listing(self, group):
+        """Return a `student.GroupListing` object."""
+        return GroupListingFromDB(
+                   self,
+                   group,
+                   self.get_students(group_id=group.identifier))
+
     def get_group_listings(self):
-        """Return a list of `student.GroupListing` objects."""
+        """Return a `student.GroupListings` object."""
         groups = self.get_student_groups(ignore_empty_groups=False)
-        return [students.GroupListing(
-                    group,
-                    self.get_students(group_id=group.identifier))
-                for group in groups]
+        listings = GroupListingsFromDB(self)
+        for group in groups:
+            listings.add_listing(self.get_group_listing(group))
+        return listings
+
+    def create_student_group(self, group_name):
+        cursor = self.conn.cursor()
+        cursor.execute(
+            'INSERT INTO StudentGroups (group_name) VALUES (?)',
+            (group_name,))
+        group_id = cursor.lastrowid
+        self.conn.commit()
+        return students.StudentGroup(group_id, group_name)
 
     def next_exam_id(self):
         cursor = self.conn.cursor()
@@ -816,6 +870,29 @@ class ExamDecisionsFromDB(capture.ExamDecisions):
         self.detected_id = None
         self.id_scores = None
         self.students_rank = students_rank
+
+
+class GroupListingFromDB(students.GroupListing):
+    def __init__(self, sessiondb, group, student_list):
+        super().__init__(group, student_list)
+        self.sessiondb = sessiondb
+
+    def add_students(self, student_list):
+        super().add_students(student_list)
+        self.sessiondb.store_students(student_list)
+
+
+class GroupListingsFromDB(students.GroupListings):
+    def __init__(self, sessiondb):
+        super().__init__()
+        self.sessiondb = sessiondb
+
+    def create_listing(self, group):
+        created_group = self.sessiondb.create_student_group(group.name)
+        group.identifier = created_group.identifier
+        listing = GroupListingFromDB(self.sessiondb, group, [])
+        self.add_listing(listing)
+        return listing
 
 
 class _Adapter:

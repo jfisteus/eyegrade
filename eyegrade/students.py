@@ -103,7 +103,7 @@ class GroupListing:
         self.students = students
 
     def add_students(self, students):
-        self.students.append(students)
+        self.students.extend(students)
         for student in students:
             student.group_id = self.group.identifier
 
@@ -116,6 +116,34 @@ class GroupListing:
     def __str__(self):
         return 'GroupListing({}, {} students)'\
             .format(self.group, len(self.students))
+
+
+class GroupListings:
+    def __init__(self):
+        self.listings = []
+        self.max_group_id = -1
+
+    def add_listing(self, listing):
+        self.listings.append(listing)
+        group_id = listing.group.identifier
+        if group_id > self.max_group_id:
+            self.max_group_id = group_id
+
+    def create_listing(self, group):
+        if group.identifier is None:
+            group.identifier = self.max_group_id + 1
+        listing = GroupListing(group, [])
+        self.add_listing(listing)
+        return listing
+
+    def __len__(self):
+        return len(self.listings)
+
+    def __getitem__(self, key):
+        return self.listings[key]
+
+    def __str__(self):
+        return 'GroupListings({} groups)'.format(len(self.listings))
 
 
 def read_students(file_name):
@@ -198,22 +226,31 @@ def _read_from_csv(file_name):
         except csv.Error:
             dialect = csv.excel_tab
         csvfile.seek(0)
-        reader = csv.reader(csvfile, dialect=dialect)
-        student_ids = []
-        for row in reader:
-            if not _row_is_empty(row):
-                student_ids.append(_student_from_row(row))
-    return student_ids
+        return _read_student_rows(csv.reader(csvfile, dialect=dialect))
 
 def _read_from_xlsx(file_name):
     wb = openpyxl.load_workbook(file_name)
-    ws = wb.active
-    student_ids = []
-    for row in ws.iter_rows():
-        data = tuple(cell.value for cell in row)
-        if not _row_is_empty(data):
-            student_ids.append(_student_from_row(data))
-    return student_ids
+    return _read_student_rows(_xlsx_row_iter(wb.active))
+
+def _xlsx_row_iter(work_sheet):
+    for row in work_sheet.iter_rows():
+        yield tuple(cell.value for cell in row)
+
+def _read_student_rows(reader):
+    first_line = True
+    student_list = []
+    for row in reader:
+        if not _row_is_empty(row):
+            try:
+                student_list.append(_student_from_row(row))
+                first_line = False
+            except utils.EyegradeException:
+                if first_line:
+                    # Discard a potential column heading line
+                    first_line = False
+                else:
+                    raise
+    return student_list
 
 def _row_is_empty(row):
     for element in row:
