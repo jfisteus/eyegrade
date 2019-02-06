@@ -117,10 +117,11 @@ class GroupWidget(QWidget):
             None,
             QFileDialog.DontUseNativeDialog)
         try:
-            student_list = students.read_students(file_name)
-            self.listing.add_students(student_list)
-            self.model.data_reset()
-            self._resize_table()
+            if file_name:
+                student_list = students.read_students(file_name)
+                self.listing.add_students(student_list)
+                self.model.data_reset()
+                self._resize_table()
         except Exception as e:
             QMessageBox.critical(
                 self,
@@ -132,11 +133,19 @@ class StudentsTableModel(QAbstractTableModel):
     """ Table for showing a student list."""
 
     _headers = (
+        '#',
         _('Id'),
         _('Name'),
     )
 
+    _extract = (
+        lambda s: s.sequence_num,
+        lambda s: s.student_id,
+        lambda s: s.name,
+    )
+
     _column_alignment = (
+        Qt.AlignRight,
         Qt.AlignRight,
         Qt.AlignLeft,
     )
@@ -155,8 +164,8 @@ class StudentsTableModel(QAbstractTableModel):
         return len(self.listing)
 
     def columnCount(self, parent=QModelIndex()):
-        # Columns: id, full name
-        return 2
+        # Columns: sequence num, id, full name
+        return len(StudentsTableModel._headers)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
@@ -171,10 +180,7 @@ class StudentsTableModel(QAbstractTableModel):
         column = index.column()
         if role == Qt.DisplayRole:
             student = self.listing[index.row()]
-            if column == 0:
-                return student.student_id
-            else:
-                return student.name
+            return StudentsTableModel._extract[column](student)
         elif role == Qt.TextAlignmentRole:
             return StudentsTableModel._column_alignment[column]
         else:

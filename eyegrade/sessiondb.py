@@ -265,13 +265,9 @@ class SessionDB:
     def store_students(self, student_list, commit=True):
         cursor = self.conn.cursor()
         data = []
-        next_seq_nums = {}
         for student in student_list:
             if student.group_id is None:
-                student.group_id = 0
-            if not student.group_id in next_seq_nums:
-                next_seq_nums[student.group_id] = \
-                    self._group_max_seq(student.group_id) + 1
+                raise ValueError('Students must belong to a group')
             data.append((
                 student.student_id,
                 student.full_name,
@@ -279,8 +275,7 @@ class SessionDB:
                 student.last_name,
                 student.email,
                 student.group_id,
-                next_seq_nums[student.group_id]))
-            next_seq_nums[student.group_id] += 1
+                student.sequence_num))
         if self.schema_version >= 2:
             cursor.executemany(
                 'INSERT INTO Students '
@@ -308,10 +303,11 @@ class SessionDB:
     def get_students(self, group_id=None):
         cursor = self.conn.cursor()
         if group_id is None:
-            cursor.execute('SELECT * FROM Students')
+            cursor.execute('SELECT * FROM Students ORDER BY sequence_num')
         else:
             cursor.execute(
-                'SELECT * FROM Students WHERE group_id=?',
+                'SELECT * FROM Students WHERE group_id=? '
+                'ORDER BY sequence_num',
                 (group_id, ))
         return [self._student_from_row(row) for row in cursor]
 
@@ -757,7 +753,7 @@ class SessionDB:
         if result is not None:
             return int(result)
         else:
-            return -1
+            return 0
 
     def _store_answers(self, exam_id, answers, commit=True):
         data = []

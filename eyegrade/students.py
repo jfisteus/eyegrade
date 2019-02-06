@@ -103,9 +103,12 @@ class GroupListing:
         self.students = students
 
     def add_students(self, students):
-        self.students.extend(students)
-        for student in students:
-            student.group_id = self.group.identifier
+        if len(students) > 0:
+            if students[0].sequence_num is None:
+                self._update_sequence_num(students)
+            self.students.extend(students)
+            for student in students:
+                student.group_id = self.group.identifier
 
     def __len__(self):
         return len(self.students)
@@ -116,6 +119,14 @@ class GroupListing:
     def __str__(self):
         return 'GroupListing({}, {} students)'\
             .format(self.group, len(self.students))
+
+    def _update_sequence_num(self, students):
+        if len(self.students) > 0:
+            first_num = 1 + max(s.sequence_num for s in self.students)
+        else:
+            first_num = 1
+        for i, student in enumerate(students):
+            student.sequence_num = first_num + i
 
 
 class GroupListings:
@@ -242,7 +253,8 @@ def _read_student_rows(reader):
     for row in reader:
         if not _row_is_empty(row):
             try:
-                student_list.append(_student_from_row(row))
+                student = _student_from_row(row)
+                student_list.append(student)
                 first_line = False
             except utils.EyegradeException:
                 if first_line:
