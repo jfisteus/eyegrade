@@ -776,7 +776,7 @@ class Interface:
         The return value is None if the user cancels the dialog.
 
         """
-        dialog = dialogs.DialogStudentId(self.window, student_ids)
+        dialog = students.DialogStudentId(self.window, student_ids)
         return dialog.exec_()
 
     def dialog_open_session(self):
