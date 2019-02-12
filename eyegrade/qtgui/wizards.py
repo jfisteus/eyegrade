@@ -37,13 +37,13 @@ from PyQt5.QtWidgets import (
 
 from PyQt5.QtCore import Qt
 
-from .. import utils
-from .. import scoring
-from .. import exams
-from .. import students
+from . import students
 from . import widgets
 from . import dialogs
 from . import FileNameFilters
+from .. import utils
+from .. import scoring
+from .. import exams
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
 _ = t.gettext
@@ -159,9 +159,36 @@ class NewSessionPageInitial(QWizardPage):
 
     def nextId(self):
         if self.combo.currentIndex() == 0:
-            return WizardNewSession.PageIdFiles
+            return WizardNewSession.PageStudents
         else:
             return WizardNewSession.PageExamParams
+
+
+class NewSessionPageStudents(QWizardPage):
+    """Page for importing the student list."""
+
+    def __init__(self):
+        super().__init__()
+        self.setTitle(_('Student list'))
+        self.setSubTitle(_('You can import your student list '
+                           'from Excel XLSX files and CSV files. '
+                           'Students can optionally be placed '
+                           'into separate student groups. '
+                           'Go to the user manual '
+                           'for further details regarding valid file formats '
+                           'and contents.'))
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        tabs = students.StudentGroupsTabs(self)
+        layout.addWidget(tabs)
+        self.group_listings = tabs.group_listings
+        for button in tabs.create_buttons():
+            layout.addWidget(button)
+            layout.setAlignment(button, Qt.AlignHCenter)
+
+    def validatePage(self):
+        """Called by QWizardPage to check the values of this page."""
+        return True
 
 
 class NewSessionPageExamParams(QWizardPage):
@@ -341,7 +368,7 @@ class NewSessionPageExamAnswers(QWizardPage):
         return valid
 
     def nextId(self):
-        return WizardNewSession.PageIdFiles
+        return WizardNewSession.PageStudents
 
 
 class NewSessionPageScores(QWizardPage):
@@ -611,7 +638,7 @@ class WizardNewSession(QWizard):
     """
     NUM_PAGES = 5
     (PageInitial, PageExamParams, PageExamAnswers,
-     PageIdFiles, PageScores) = range(NUM_PAGES)
+     PageStudents, PageScores) = range(NUM_PAGES)
 
     def __init__(self, parent, config_filename=None):
         super(WizardNewSession, self).__init__(parent)
@@ -619,7 +646,7 @@ class WizardNewSession(QWizard):
         self.setWindowTitle(_('Create a new session'))
         self.page_initial = \
                  self._create_page_initial(config_filename=config_filename)
-        self.page_id_files = self._create_page_id_files()
+        self.page_students = self._create_page_students()
         self.page_exam_params = self._create_page_exam_file()
         self.page_exam_answers = self._create_page_exam_answers()
         self.page_scores = self._create_page_scores()
@@ -627,7 +654,7 @@ class WizardNewSession(QWizard):
         self.setPage(self.PageInitial, self.page_initial)
         self.setPage(self.PageExamParams, self.page_exam_params)
         self.setPage(self.PageExamAnswers, self.page_exam_answers)
-        self.setPage(self.PageIdFiles, self.page_id_files)
+        self.setPage(self.PageStudents, self.page_students)
         self.setPage(self.PageScores, self.page_scores)
 
         self.setStartId(self.PageInitial)
@@ -638,15 +665,15 @@ class WizardNewSession(QWizard):
     def get_config_file_path(self):
         return self.page_initial.config_file.text()
 
-    def student_id_files(self):
-        return self.files_w.get_files()
+    def student_group_listings(self):
+        return self.page_students.group_listings
 
     def values(self):
         values = {}
         values['directory'] = self.get_directory()
         values['config_file_path'] = self.get_config_file_path()
         values['config'] = self.exam_config
-        values['id_list_files'] = self.student_id_files()
+        values['student_group_listings'] = self.student_group_listings()
         return values
 
     def exam_config_reset(self):
@@ -663,32 +690,9 @@ class WizardNewSession(QWizard):
     def _create_page_exam_answers(self):
         return NewSessionPageExamAnswers()
 
-    def _create_page_id_files(self):
-        """Creates a page for selecting student id files."""
-        page = QWizardPage(self)
-        page.setTitle(_('Student id files'))
-        page.setSubTitle(_('You can select zero, one or more files with the '
-                           'list of student ids. Go to the user manual '
-                           'if you don\'t know the format of the files.'))
-        self.files_w = widgets.MultipleFilesWidget(
-                              _('Select student list files'),
-                              file_name_filter=FileNameFilters.student_list,
-                              check_file_function=self._check_student_ids_file)
-        layout = QVBoxLayout()
-        page.setLayout(layout)
-        layout.addWidget(self.files_w)
-        return page
+    def _create_page_students(self):
+        return NewSessionPageStudents()
 
     def _create_page_scores(self):
         """Creates the scores page, which asks for (in)correct scores."""
         return NewSessionPageScores()
-
-    def _check_student_ids_file(self, file_name):
-        valid = True
-        try:
-            students.read_students(file_name)
-        except Exception as e:
-            valid = False
-            QMessageBox.critical(self, _('Error in student list'),
-                                 file_name + '\n\n' + str(e))
-        return valid, ''

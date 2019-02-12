@@ -415,9 +415,10 @@ class ProgramManager:
             self.exam_data.capture_pattern = \
                                 self.config['save-filename-pattern']
             try:
-                sessiondb.create_session_directory(values['directory'],
-                                                   self.exam_data,
-                                                   values['id_list_files'])
+                sessiondb.create_session_directory(
+                    values['directory'],
+                    self.exam_data,
+                    values['student_group_listings'])
                 self.sessiondb = sessiondb.SessionDB(values['directory'])
                 self.sessiondb.capture_save_func = self.interface.save_capture
             except IOError as e:

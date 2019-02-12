@@ -923,7 +923,7 @@ def check_file_is_sqlite(filename):
         is_sqlite = False
     return is_sqlite
 
-def create_session_directory(dir_name, exam_data, id_files):
+def create_session_directory(dir_name, exam_data, group_listings):
     """Create the session database and directory layout.
 
     `dir_name` must be an empty directory that already exists. If
@@ -935,15 +935,14 @@ def create_session_directory(dir_name, exam_data, id_files):
     os.mkdir(os.path.join(dir_name, 'captures'))
     os.mkdir(os.path.join(dir_name, 'internal'))
     db_file = os.path.join(dir_name, 'session.eyedb')
-    _create_session_db(db_file, exam_data, id_files)
+    _create_session_db(db_file, exam_data, group_listings)
 
-def _create_session_db(db_file, exam_data, id_files):
+def _create_session_db(db_file, exam_data, group_listings):
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     _create_tables(conn)
     _save_exam_config(conn, exam_data)
-    for id_file in id_files:
-        _save_student_list(conn, id_file)
+    _save_group_listings(conn, group_listings)
     conn.commit()
 
 def _create_tables(conn):
@@ -957,7 +956,6 @@ def _create_tables(conn):
     cursor.execute(SessionDB._table_answer_cells)
     cursor.execute(SessionDB._table_id_cells)
     cursor.execute(SessionDB._table_alterations)
-    cursor.execute('INSERT INTO StudentGroups VALUES (0, "DEFAULT")')
 
 def _save_exam_config(conn, exam_data):
     if exam_data.base_scores is None:
@@ -1018,34 +1016,26 @@ def _save_exam_config(conn, exam_data):
     cursor.executemany('INSERT INTO Questions VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                        data)
 
-def _save_student_list(conn, students_file):
-    student_list = students.read_students(students_file)
-    _create_student_group(conn, os.path.basename(students_file), student_list)
+def _save_group_listings(conn, group_listings):
+    for group_listing in group_listings:
+        _save_group_listing(conn, group_listing)
 
-def _create_student_group(conn, group_name, student_list):
-    """Creates a new student group and loads students in it.
-
-    The student list is a list of tuples
-    (student_id, full_name, first_name, last_name, email)
-    where full_name is incompatible with first_name and last_name
-    (or the former is empty/None or the other two are empty/None).
-
-    """
+def _save_group_listing(conn, group_listing):
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO StudentGroups (group_name) VALUES (?)',
-                   (group_name,))
-    group_id = cursor.lastrowid
-    if len(student_list) > 0:
+    cursor.execute(
+        'INSERT INTO StudentGroups (group_id, group_name) VALUES (?, ?)',
+        (group_listing.group.identifier, group_listing.group.name))
+    if len(group_listing) > 0:
         internal_list = []
-        for i, student in enumerate(student_list):
+        for student in group_listing.students:
             internal_list.append(( \
                         student.student_id,
                         student.full_name,
                         student.first_name,
                         student.last_name,
                         student.email,
-                        group_id,
-                        i))
+                        student.group_id,
+                        student.sequence_num))
         cursor.executemany('INSERT INTO Students '
                            '(student_id, full_name, '
                            ' first_name, last_name, email, group_id, '

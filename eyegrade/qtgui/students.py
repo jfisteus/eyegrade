@@ -230,22 +230,13 @@ class DialogStudents(QDialog):
 
     def __init__(self, parent, group_listings):
         super().__init__(parent)
-        self.group_listings = group_listings
         main_layout = QVBoxLayout(self)
         self.setLayout(main_layout)
-        self.tabs = QTabWidget(self)
-        main_layout.addWidget(self.tabs)
-        for listing in group_listings:
-            if (listing.group.identifier > 0
-                    or len(listing) > 0
-                    or len(group_listings) == 1):
-                # Group 0 (default group) is shown only if not empty
-                # or if it is the only group
-                self._add_group_tab(listing)
-        button_new_group = QPushButton(_('New student group'))
-        button_new_group.clicked.connect(self._new_group)
+        tabs = StudentGroupsTabs(self, group_listings=group_listings)
+        main_layout.addWidget(tabs)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
-        buttons.addButton(button_new_group, QDialogButtonBox.ActionRole)
+        for button in tabs.create_buttons():
+            buttons.addButton(button, QDialogButtonBox.ActionRole)
         buttons.accepted.connect(self.accept)
         main_layout.addWidget(buttons)
 
@@ -256,6 +247,33 @@ class DialogStudents(QDialog):
             return True
         else:
             return False
+
+
+class StudentGroupsTabs(QWidget):
+    def __init__(self, parent, group_listings=None):
+        super().__init__(parent)
+        if group_listings is None:
+            self.group_listings = students.GroupListings()
+            default_group = students.StudentGroup(0, _('Default group'))
+            self.group_listings.create_listing(default_group)
+        else:
+            self.group_listings = group_listings
+        main_layout = QVBoxLayout(self)
+        self.setLayout(main_layout)
+        self.tabs = QTabWidget(self)
+        main_layout.addWidget(self.tabs)
+        for listing in self.group_listings:
+            if (listing.group.identifier > 0
+                    or len(listing) > 0
+                    or len(self.group_listings) == 1):
+                # Group 0 (default group) is shown only if not empty
+                # or if it is the only group
+                self._add_group_tab(listing)
+
+    def create_buttons(self):
+        button_new_group = QPushButton(_('New student group'))
+        button_new_group.clicked.connect(self._new_group)
+        return (button_new_group, )
 
     def _add_group_tab(self, listing, show=False):
         self.tabs.addTab(
