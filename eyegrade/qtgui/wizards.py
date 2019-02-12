@@ -172,7 +172,8 @@ class NewSessionPageExamParams(QWizardPage):
         self.setSubTitle(_('Enter the configuration parameters of the exam'))
         layout = QFormLayout(self)
         self.setLayout(layout)
-        self.paramNEIDs = widgets.InputInteger(initial_value=8)
+        self.paramNEIDs = widgets.InputInteger(
+            initial_value=8, min_value=0, max_value=16)
         self.registerField("paramNEIDs", self.paramNEIDs)
         self.paramNAlts = widgets.InputInteger(initial_value=3)
         self.registerField("paramNAlts", self.paramNAlts)
@@ -189,7 +190,7 @@ class NewSessionPageExamParams(QWizardPage):
         ## ])
         ## self.paramTPerm.setCurrentIndex(0)
         ## self.registerField("paramTPerm", self.paramTPerm)
-        layout.addRow(_('Number of digits of the student ID'),
+        layout.addRow(_('Number of digits of the student ID (0 to not scan IDs)'),
                       self.paramNEIDs)
         layout.addRow(_('Number of choices per question'),
                       self.paramNAlts)
