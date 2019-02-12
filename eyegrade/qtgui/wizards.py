@@ -190,7 +190,8 @@ class NewSessionPageExamParams(QWizardPage):
         ## ])
         ## self.paramTPerm.setCurrentIndex(0)
         ## self.registerField("paramTPerm", self.paramTPerm)
-        layout.addRow(_('Number of digits of the student ID (0 to not scan IDs)'),
+        layout.addRow(_('Number of digits of the student ID '
+                        '(0 to not scan IDs)'),
                       self.paramNEIDs)
         layout.addRow(_('Number of choices per question'),
                       self.paramNAlts)
