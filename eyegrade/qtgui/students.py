@@ -249,6 +249,45 @@ class DialogStudents(QDialog):
             return False
 
 
+class GroupNameDialog(QDialog):
+    def __init__(self, parent=None, group_name=''):
+        super().__init__(parent)
+        self.setWindowTitle(_('Create a new group of students'))
+        self.group_name = group_name
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        self._name_widget = QLineEdit(self)
+        self._name_widget.setText(group_name)
+        self._name_widget.textChanged.connect(self._group_name_changed)
+        main_line = widgets.LineContainer(
+            self,
+            QLabel(_('Group name')),
+            self._name_widget)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self._button_ok = buttons.button(QDialogButtonBox.Ok)
+        layout.addWidget(
+            QLabel(_('Please, enter the name of the new group of students '
+                     'you want to create:')))
+        layout.addWidget(main_line)
+        layout.addWidget(buttons)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self._group_name_changed(group_name)
+
+    def exec_(self):
+        result = super().exec_()
+        if result == QDialog.Accepted:
+            return self._name_widget.text()
+        else:
+            return None
+
+    def _group_name_changed(self, group_name):
+        if group_name:
+            self._button_ok.setEnabled(True)
+        else:
+            self._button_ok.setEnabled(False)
+
+
 class StudentGroupsTabs(QWidget):
     def __init__(self, parent, group_listings=None):
         super().__init__(parent)
@@ -262,6 +301,8 @@ class StudentGroupsTabs(QWidget):
         self.setLayout(main_layout)
         self.tabs = QTabWidget(self)
         main_layout.addWidget(self.tabs)
+        # Special tab for creating a new group:
+        self.tabs.addTab(QWidget(), '  +  ')
         for listing in self.group_listings:
             if (listing.group.identifier > 0
                     or len(listing) > 0
@@ -269,22 +310,36 @@ class StudentGroupsTabs(QWidget):
                 # Group 0 (default group) is shown only if not empty
                 # or if it is the only group
                 self._add_group_tab(listing)
+        self.tabs.setCurrentIndex(0)
+        self._active_tab = 0
+        self.tabs.currentChanged.connect(self._tab_changed)
 
     def create_buttons(self):
-        button_new_group = QPushButton(_('New student group'))
-        button_new_group.clicked.connect(self._new_group)
-        return (button_new_group, )
+        return tuple()
 
     def _add_group_tab(self, listing, show=False):
-        self.tabs.addTab(
-            GroupWidget(listing, parent=self.tabs), listing.group.name)
+        self.tabs.insertTab(
+            self.tabs.count() - 1,
+            GroupWidget(listing, parent=self.tabs),
+            listing.group.name
+        )
         if show:
-            self.tabs.setCurrentIndex(self.tabs.count() - 1)
+            self.tabs.setCurrentIndex(self.tabs.count() - 2)
 
     def _new_group(self):
-        group = students.StudentGroup(None, _('New group'))
-        listing = self.group_listings.create_listing(group)
-        self._add_group_tab(listing, show=True)
+        group_name = GroupNameDialog(parent=self).exec_()
+        if group_name is not None:
+            group = students.StudentGroup(None, group_name)
+            listing = self.group_listings.create_listing(group)
+            self._add_group_tab(listing, show=True)
+        else:
+            self.tabs.setCurrentIndex(self._active_tab)
+
+    def _tab_changed(self, index):
+        if index == self.tabs.count() - 1:
+            # The last (special) tab has been activated: create a new group
+            self._new_group()
+        self._active_tab = self.tabs.currentIndex()
 
 
 class GroupWidget(QWidget):
