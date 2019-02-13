@@ -26,7 +26,6 @@ from PyQt5.QtGui import (
 )
 
 from PyQt5.QtWidgets import (
-    QAbstractItemView,
     QButtonGroup,
     QCheckBox,
     QComboBox,
@@ -35,7 +34,6 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QListWidget,
     QMessageBox,
     QPushButton,
     QRadioButton,
@@ -43,7 +41,6 @@ from PyQt5.QtWidgets import (
     QStatusBar,
     QStyle,
     QTableView,
-    QVBoxLayout,
     QWidget,
 )
 
