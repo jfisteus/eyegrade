@@ -235,8 +235,6 @@ class DialogStudents(QDialog):
         tabs = StudentGroupsTabs(self, group_listings=group_listings)
         main_layout.addWidget(tabs)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
-        for button in tabs.create_buttons():
-            buttons.addButton(button, QDialogButtonBox.ActionRole)
         buttons.accepted.connect(self.accept)
         main_layout.addWidget(buttons)
 
@@ -252,12 +250,21 @@ class DialogStudents(QDialog):
 class GroupNameDialog(QDialog):
     def __init__(self, parent=None, group_name=''):
         super().__init__(parent)
-        self.setWindowTitle(_('Create a new group of students'))
+        if not group_name:
+            window_title = _('Create a new group of students')
+            message = _('Please, enter the name of the new group of students '
+                        'you want to create:')
+        else:
+            window_title = _('Rename the group of students')
+            message = _('Please, enter the new name of the group of students')
+        self.setWindowTitle(window_title)
         self.group_name = group_name
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         self._name_widget = QLineEdit(self)
-        self._name_widget.setText(group_name)
+        if group_name:
+            self._name_widget.setText(group_name)
+            self._name_widget.selectAll()
         self._name_widget.textChanged.connect(self._group_name_changed)
         main_line = widgets.LineContainer(
             self,
@@ -265,9 +272,7 @@ class GroupNameDialog(QDialog):
             self._name_widget)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         self._button_ok = buttons.button(QDialogButtonBox.Ok)
-        layout.addWidget(
-            QLabel(_('Please, enter the name of the new group of students '
-                     'you want to create:')))
+        layout.addWidget(QLabel(message))
         layout.addWidget(main_line)
         layout.addWidget(buttons)
         buttons.accepted.connect(self.accept)
@@ -297,30 +302,97 @@ class StudentGroupsTabs(QWidget):
             self.group_listings.create_listing(default_group)
         else:
             self.group_listings = group_listings
-        main_layout = QVBoxLayout(self)
-        self.setLayout(main_layout)
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
         self.tabs = QTabWidget(self)
-        main_layout.addWidget(self.tabs)
         # Special tab for creating a new group:
         self.tabs.addTab(QWidget(), '  +  ')
         for listing in self.group_listings:
-            if (listing.group.identifier > 0
-                    or len(listing) > 0
-                    or len(self.group_listings) == 1):
-                # Group 0 (default group) is shown only if not empty
-                # or if it is the only group
-                self._add_group_tab(listing)
+            self._add_group_tab(listing)
+        button_load = QPushButton(_('Add students from file'), parent=self)
+        button_new_student = QPushButton(
+            QIcon(utils.resource_path('new_id.svg')),
+            _('New student'),
+            parent=self)
+        button_remove = QPushButton(
+            QIcon(utils.resource_path('discard.svg')),
+            _('Remove group'),
+            parent=self)
+        layout.addWidget(self.tabs)
+        layout.addWidget(button_load)
+        layout.addWidget(button_new_student)
+        layout.addWidget(button_remove)
+        layout.setAlignment(button_load, Qt.AlignHCenter)
+        layout.setAlignment(button_new_student, Qt.AlignHCenter)
+        layout.setAlignment(button_remove, Qt.AlignHCenter)
         self.tabs.setCurrentIndex(0)
         self._active_tab = 0
         self.tabs.currentChanged.connect(self._tab_changed)
+        self.tabs.tabBarDoubleClicked.connect(self._rename_group)
+        button_load.clicked.connect(self._load_students)
+        button_new_student.clicked.connect(self._new_student)
+        button_remove.clicked.connect(self._remove_group)
+        button_remove.setEnabled(False)
+        self._button_remove = button_remove
 
-    def create_buttons(self):
-        return tuple()
+    def _load_students(self):
+        index = self.tabs.currentIndex()
+        file_name, __ = QFileDialog.getOpenFileName(
+            self,
+            _('Select the student list file'),
+            '',
+            FileNameFilters.student_list,
+            None,
+            QFileDialog.DontUseNativeDialog)
+        try:
+            if file_name:
+                student_list = students.read_students(file_name)
+                self.tabs.widget(index).add_students(student_list)
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                _('Error in student list'),
+                file_name + '\n\n' + str(e))
+
+    def _new_student(self):
+        index = self.tabs.currentIndex()
+        dialog = NewStudentDialog(parent=self)
+        student = dialog.exec_()
+        if student is not None:
+            self.tabs.widget(index).add_students([student])
+
+    def _remove_group(self):
+        index = self.tabs.currentIndex()
+        if len(self.group_listings[index]) > 0:
+            result = QMessageBox.warning(
+                self,
+                _('Warning'),
+                _('This group and its students will be removed. '
+                  'Are you sure you want to continue?'),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No)
+            remove = (result == QMessageBox.Yes)
+        else:
+            remove = True
+        if remove:
+            try:
+                self.group_listings.remove_at(index)
+                if index == self.tabs.count() - 2:
+                    self.tabs.setCurrentIndex(index - 1)
+                else:
+                    self.tabs.setCurrentIndex(index + 1)
+                self.tabs.removeTab(index)
+            except students.CantRemoveGroupException:
+                QMessageBox.critical(
+                    self,
+                    _('Error'),
+                    _('This group cannot be removed because '
+                      'exams have been graded for some of its students.'))
 
     def _add_group_tab(self, listing, show=False):
         self.tabs.insertTab(
             self.tabs.count() - 1,
-            GroupWidget(listing, parent=self.tabs),
+            GroupWidget(listing, self),
             listing.group.name
         )
         if show:
@@ -335,16 +407,24 @@ class StudentGroupsTabs(QWidget):
         else:
             self.tabs.setCurrentIndex(self._active_tab)
 
+    def _rename_group(self, index):
+        name = self.group_listings[index].group.name
+        new_name = GroupNameDialog(group_name=name, parent=self).exec_()
+        if new_name is not None and new_name != name:
+            self.group_listings[index].rename(new_name)
+            self.tabs.setTabText(index, new_name)
+
     def _tab_changed(self, index):
         if index == self.tabs.count() - 1:
             # The last (special) tab has been activated: create a new group
             self._new_group()
         self._active_tab = self.tabs.currentIndex()
+        self._button_remove.setEnabled(self._active_tab != 0)
 
 
 class GroupWidget(QWidget):
-    def __init__(self, listing, parent=None):
-        super().__init__(parent)
+    def __init__(self, listing, student_tabs):
+        super().__init__(student_tabs.tabs)
         self.listing = listing
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -355,51 +435,17 @@ class GroupWidget(QWidget):
         self.model = StudentsTableModel(listing, self)
         self.table.setModel(self.model)
         self.table.setSelectionBehavior(QTableView.SelectRows)
-        button_load = QPushButton(_('Add students from file'), parent=self)
-        button_new_student = QPushButton(
-            QIcon(utils.resource_path('new_id.svg')),
-            _('New student'),
-            parent=self)
-        button_new_student.clicked.connect(self._new_student)
-        layout.addWidget(button_load)
-        layout.addWidget(button_new_student)
         layout.setAlignment(self.table, Qt.AlignHCenter)
-        layout.setAlignment(button_load, Qt.AlignHCenter)
-        layout.setAlignment(button_new_student, Qt.AlignHCenter)
-        button_load.clicked.connect(self._load_students)
+        self._resize_table()
+
+    def add_students(self, student_list):
+        self.listing.add_students(student_list)
+        self.model.data_reset()
         self._resize_table()
 
     def _resize_table(self):
         self.table.resizeColumnToContents(0)
         self.table.horizontalHeader().setStretchLastSection(True)
-
-    def _load_students(self):
-        file_name, __ = QFileDialog.getOpenFileName(
-            self,
-            _('Select the student list file'),
-            '',
-            FileNameFilters.student_list,
-            None,
-            QFileDialog.DontUseNativeDialog)
-        try:
-            if file_name:
-                student_list = students.read_students(file_name)
-                self.listing.add_students(student_list)
-                self.model.data_reset()
-                self._resize_table()
-        except Exception as e:
-            QMessageBox.critical(
-                self,
-                _('Error in student list'),
-                file_name + '\n\n' + str(e))
-
-    def _new_student(self):
-        dialog = NewStudentDialog(parent=self)
-        student = dialog.exec_()
-        if student is not None:
-            self.listing.add_students([student])
-            self.model.data_reset()
-            self._resize_table()
 
 
 class StudentsTableModel(QAbstractTableModel):

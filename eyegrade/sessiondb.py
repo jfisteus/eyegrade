@@ -352,6 +352,30 @@ class SessionDB:
             listings.add_listing(self.get_group_listing(group))
         return listings
 
+    def num_exams_from_group(self, group):
+        """Get the number of exams of students in the given group."""
+        cursor = self.conn.cursor()
+        cursor.execute(
+            ('SELECT COUNT(*) '
+             'FROM Exams '
+             'INNER JOIN Students ON student=db_id '
+             'INNER JOIN StudentGroups '
+             '    ON Students.group_id=StudentGroups.group_id '
+             'WHERE Students.group_id=?'),
+            (group.identifier, ))
+        return cursor.fetchone()[0]
+
+    def remove_group(self, group):
+        """Removes a group and all its students."""
+        cursor = self.conn.cursor()
+        cursor.execute(
+            'DELETE FROM Students WHERE group_id=?',
+            (group.identifier, ))
+        cursor.execute(
+            'DELETE FROM StudentGroups WHERE group_id=?',
+            (group.identifier, ))
+        self.conn.commit()
+
     def create_student_group(self, group_name):
         cursor = self.conn.cursor()
         cursor.execute(
@@ -360,6 +384,14 @@ class SessionDB:
         group_id = cursor.lastrowid
         self.conn.commit()
         return students.StudentGroup(group_id, group_name)
+
+    def rename_student_group(self, group):
+        """The new name is taken from the group input parameter."""
+        cursor = self.conn.cursor()
+        cursor.execute(
+            'UPDATE StudentGroups SET group_name=? WHERE group_id=?',
+            (group.name, group.identifier))
+        self.conn.commit()
 
     def next_exam_id(self):
         cursor = self.conn.cursor()
@@ -877,6 +909,10 @@ class GroupListingFromDB(students.GroupListing):
         super().add_students(student_list)
         self.sessiondb.store_students(student_list)
 
+    def rename(self, new_name):
+        super().rename(new_name)
+        self.sessiondb.rename_student_group(self.group)
+
 
 class GroupListingsFromDB(students.GroupListings):
     def __init__(self, sessiondb):
@@ -889,6 +925,17 @@ class GroupListingsFromDB(students.GroupListings):
         listing = GroupListingFromDB(self.sessiondb, group, [])
         self.add_listing(listing)
         return listing
+
+    def remove_at(self, index):
+        group = self.listings[index].group
+        num_exams = self.sessiondb.num_exams_from_group(group)
+        print(num_exams)
+        if num_exams == 0:
+            super().remove_at(index)
+            self.sessiondb.remove_group(group)
+        else:
+            raise students.CantRemoveGroupException(
+                'Some exams ({}) belong to the group'.format(num_exams))
 
 
 class _Adapter:

@@ -110,6 +110,9 @@ class GroupListing:
             for student in students:
                 student.group_id = self.group.identifier
 
+    def rename(self, new_name):
+        self.group.name = new_name
+
     def __len__(self):
         return len(self.students)
 
@@ -147,6 +150,9 @@ class GroupListings:
         self.add_listing(listing)
         return listing
 
+    def remove_at(self, index):
+        del self.listings[index]
+
     def __len__(self):
         return len(self.listings)
 
@@ -155,6 +161,11 @@ class GroupListings:
 
     def __str__(self):
         return 'GroupListings({} groups)'.format(len(self.listings))
+
+
+class CantRemoveGroupException(utils.EyegradeException):
+    def __init__(self, message):
+        super().__init__(message)
 
 
 def read_students(file_name):
