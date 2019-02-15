@@ -1,2 +1,3 @@
 opencv-python
 PyQt5
+openpyxl
