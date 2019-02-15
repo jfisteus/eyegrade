@@ -18,6 +18,7 @@
 
 import re
 import csv
+import itertools
 
 import openpyxl
 
@@ -101,6 +102,10 @@ class GroupListing:
     def __init__(self, group, students):
         self.group = group
         self.students = students
+        self._students_dict = {s.student_id: s for s in students}
+
+    def student(self, student_id):
+        return self._students_dict.get(student_id, None)
 
     def add_students(self, students):
         if len(students) > 0:
@@ -109,6 +114,7 @@ class GroupListing:
             self.students.extend(students)
             for student in students:
                 student.group_id = self.group.identifier
+            self._students_dict.update({s.student_id: s for s in students})
 
     def rename(self, new_name):
         self.group.name = new_name
@@ -118,6 +124,9 @@ class GroupListing:
 
     def __getitem__(self, key):
         return self.students[key]
+
+    def __iter__(self):
+        return iter(self.students)
 
     def __str__(self):
         return 'GroupListing({}, {} students)'\
@@ -132,10 +141,11 @@ class GroupListing:
             student.sequence_num = first_num + i
 
 
-class GroupListings:
+class StudentListings:
     def __init__(self):
         self.listings = []
         self.max_group_id = -1
+        self._sorted_students = None
 
     def add_listing(self, listing):
         self.listings.append(listing)
@@ -153,6 +163,29 @@ class GroupListings:
     def remove_at(self, index):
         del self.listings[index]
 
+    def iter_students(self):
+        return itertools.chain(*self.listings)
+
+    def sorted_students(self, key=lambda x: x.student_id):
+        return sorted(
+            [student for student in self.iter_students()],
+            key=key)
+
+    def student(self, student_id):
+        student = None
+        for listing in self.listings:
+            student = listing.student(student_id)
+            if student is not None:
+                break
+        return student
+
+    def listing_by_group_id(self, group_id):
+        for listing in self.listings:
+            if listing.group.identifier == group_id:
+                return listing
+        else:
+            raise KeyError(group_id)
+
     def __len__(self):
         return len(self.listings)
 
@@ -160,7 +193,7 @@ class GroupListings:
         return self.listings[key]
 
     def __str__(self):
-        return 'GroupListings({} groups)'.format(len(self.listings))
+        return 'Studentlistings({} groups)'.format(len(self.listings))
 
 
 class CantRemoveGroupException(utils.EyegradeException):

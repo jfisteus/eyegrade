@@ -228,11 +228,11 @@ class NewStudentDialog(QDialog):
 class DialogStudents(QDialog):
     """Dialog to list students."""
 
-    def __init__(self, parent, group_listings):
+    def __init__(self, parent, student_listings):
         super().__init__(parent)
         main_layout = QVBoxLayout(self)
         self.setLayout(main_layout)
-        tabs = StudentGroupsTabs(self, group_listings=group_listings)
+        tabs = StudentGroupsTabs(self, student_listings=student_listings)
         main_layout.addWidget(tabs)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
         buttons.accepted.connect(self.accept)
@@ -294,20 +294,20 @@ class GroupNameDialog(QDialog):
 
 
 class StudentGroupsTabs(QWidget):
-    def __init__(self, parent, group_listings=None):
+    def __init__(self, parent, student_listings=None):
         super().__init__(parent)
-        if group_listings is None:
-            self.group_listings = students.GroupListings()
+        if student_listings is None:
+            self.student_listings = students.StudentListings()
             default_group = students.StudentGroup(0, _('Default group'))
-            self.group_listings.create_listing(default_group)
+            self.student_listings.create_listing(default_group)
         else:
-            self.group_listings = group_listings
+            self.student_listings = student_listings
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         self.tabs = QTabWidget(self)
         # Special tab for creating a new group:
         self.tabs.addTab(QWidget(), '  +  ')
-        for listing in self.group_listings:
+        for listing in self.student_listings:
             self._add_group_tab(listing)
         button_load = QPushButton(_('Add students from file'), parent=self)
         button_new_student = QPushButton(
@@ -363,7 +363,7 @@ class StudentGroupsTabs(QWidget):
 
     def _remove_group(self):
         index = self.tabs.currentIndex()
-        if len(self.group_listings[index]) > 0:
+        if len(self.student_listings[index]) > 0:
             result = QMessageBox.warning(
                 self,
                 _('Warning'),
@@ -376,7 +376,7 @@ class StudentGroupsTabs(QWidget):
             remove = True
         if remove:
             try:
-                self.group_listings.remove_at(index)
+                self.student_listings.remove_at(index)
                 if index == self.tabs.count() - 2:
                     self.tabs.setCurrentIndex(index - 1)
                 else:
@@ -402,16 +402,16 @@ class StudentGroupsTabs(QWidget):
         group_name = GroupNameDialog(parent=self).exec_()
         if group_name is not None:
             group = students.StudentGroup(None, group_name)
-            listing = self.group_listings.create_listing(group)
+            listing = self.student_listings.create_listing(group)
             self._add_group_tab(listing, show=True)
         else:
             self.tabs.setCurrentIndex(self._active_tab)
 
     def _rename_group(self, index):
-        name = self.group_listings[index].group.name
+        name = self.student_listings[index].group.name
         new_name = GroupNameDialog(group_name=name, parent=self).exec_()
         if new_name is not None and new_name != name:
-            self.group_listings[index].rename(new_name)
+            self.student_listings[index].rename(new_name)
             self.tabs.setTabText(index, new_name)
 
     def _tab_changed(self, index):

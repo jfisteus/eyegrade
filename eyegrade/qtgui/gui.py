@@ -814,9 +814,9 @@ class Interface:
         dialog = export.DialogExportGrades(self.window, helper)
         return dialog.exec_()
 
-    def dialog_students(self, group_listings):
+    def dialog_students(self, student_listings):
         """Displays the student list."""
-        dialog = students.DialogStudents(self.window, group_listings)
+        dialog = students.DialogStudents(self.window, student_listings)
         return dialog.exec_()
 
     def dialog_export_exam_config(self):

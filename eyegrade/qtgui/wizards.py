@@ -181,10 +181,7 @@ class NewSessionPageStudents(QWizardPage):
         self.setLayout(layout)
         tabs = students.StudentGroupsTabs(self)
         layout.addWidget(tabs)
-        self.group_listings = tabs.group_listings
-        for button in tabs.create_buttons():
-            layout.addWidget(button)
-            layout.setAlignment(button, Qt.AlignHCenter)
+        self.student_listings = tabs.student_listings
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -665,15 +662,15 @@ class WizardNewSession(QWizard):
     def get_config_file_path(self):
         return self.page_initial.config_file.text()
 
-    def student_group_listings(self):
-        return self.page_students.group_listings
+    def student_listings(self):
+        return self.page_students.student_listings
 
     def values(self):
         values = {}
         values['directory'] = self.get_directory()
         values['config_file_path'] = self.get_config_file_path()
         values['config'] = self.exam_config
-        values['student_group_listings'] = self.student_group_listings()
+        values['student_listings'] = self.student_listings()
         return values
 
     def exam_config_reset(self):

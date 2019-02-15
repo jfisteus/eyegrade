@@ -394,12 +394,14 @@ class ProgramManager:
                         scores = self.exam_data.scores[model]
                     else:
                         scores = None
-                    exam = exams.Exam(detector.capture, detector.decisions,
-                                      self.exam_data.get_solutions(model),
-                                      self.sessiondb.students,
-                                      self.exam_id,
-                                      scores,
-                                      sessiondb=self.sessiondb)
+                    exam = exams.Exam(
+                        detector.capture,
+                        detector.decisions,
+                        self.exam_data.get_solutions(model),
+                        self.sessiondb.student_listings,
+                        self.exam_id,
+                        scores,
+                        sessiondb=self.sessiondb)
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
                     msg = _('There are no solutions for model {0}.')\
@@ -418,7 +420,7 @@ class ProgramManager:
                 sessiondb.create_session_directory(
                     values['directory'],
                     self.exam_data,
-                    values['student_group_listings'])
+                    values['student_listings'])
                 self.sessiondb = sessiondb.SessionDB(values['directory'])
                 self.sessiondb.capture_save_func = self.interface.save_capture
             except IOError as e:
@@ -528,10 +530,14 @@ class ProgramManager:
             if self.latest_detector is None:
                 return
             detector = self.latest_detector
-            self.exam = exams.Exam(detector.capture, detector.decisions,
-                                   [], self.sessiondb.students,
-                                   self.exam_id, None,
-                                   sessiondb=self.sessiondb)
+            self.exam = exams.Exam(
+                detector.capture,
+                detector.decisions,
+                [],
+                self.sessiondb.student_listings,
+                self.exam_id,
+                None,
+                sessiondb=self.sessiondb)
             self.exam.reset_image()
             enable_manual_detection = True
         else:
@@ -576,11 +582,14 @@ class ProgramManager:
         """Callback for the manual detection action."""
         if self.mode.in_search():
             # Take the current snapshot and go to manual detect mode
-            self.exam = exams.Exam(self.latest_detector.capture,
-                                   self.latest_detector.decisions,
-                                   [], self.sessiondb.students,
-                                   self.exam_id, None,
-                                   sessiondb=self.sessiondb)
+            self.exam = exams.Exam(
+                self.latest_detector.capture,
+                self.latest_detector.decisions,
+                [],
+                self.sessiondb.student_listings,
+                self.exam_id,
+                None,
+                sessiondb=self.sessiondb)
             # Store the exam in order to emulate entering this mode
             # from review mode.
             self._store_exam(self.exam)
@@ -651,8 +660,8 @@ class ProgramManager:
                                                 title=_('File saved'))
 
     def _action_students(self):
-        group_listings = self.sessiondb.get_group_listings()
-        self.interface.dialog_students(group_listings)
+        student_listings = self.sessiondb.student_listings
+        self.interface.dialog_students(student_listings)
 
     def _action_export_exam_config(self):
         """Callback for exporting the current exam configuration."""

@@ -28,14 +28,11 @@ from . import students
 
 
 class Exam:
-    def __init__(self, capture_, decisions, solutions, valid_students,
+    def __init__(self, capture_, decisions, solutions, student_listings,
                  exam_id, question_scores, sessiondb=None):
         self.capture = capture_
         self.decisions = decisions
-        if valid_students is not None:
-            self.students = valid_students
-        else:
-            self.students = {}
+        self.student_listings = student_listings
         self.exam_id = exam_id
         self.score = scoring.Score(decisions.answers, solutions,
                                    question_scores)
@@ -74,14 +71,12 @@ class Exam:
 
     def rank_students(self):
         if self.decisions.detected_id is not None:
-            if self.students:
-                rank = [(self._id_rank(s, self.decisions.id_scores), s)
-                         for s in self.students.values() if s.group_id > 0]
-                students_rank = [student for score, student \
-                                 in sorted(rank, reverse = True)]
-            else:
-                students_rank = []
-            if students_rank == []:
+            rank = [(self._id_rank(s, self.decisions.id_scores), s)
+                    for s in self.student_listings.iter_students()
+                    if s.group_id > 0]
+            students_rank = [student
+                             for score, student in sorted(rank, reverse=True)]
+            if not students_rank:
                 students_rank = [students.Student( \
                                         self.decisions.detected_id,
                                         None,
@@ -89,7 +84,7 @@ class Exam:
                                         None,
                                         None)]
         else:
-            students_rank = list(self.students.values())
+            students_rank = list(self.student_listings.iter_students())
         return students_rank
 
     def get_student_id_and_name(self):
