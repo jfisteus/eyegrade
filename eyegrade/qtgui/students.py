@@ -124,10 +124,10 @@ class NewStudentDialog(QDialog):
     """
     _last_combo_value = None
 
-    def __init__(self, student_listings, fix_group_listing=None, parent=None):
+    def __init__(self, student_listings, group_index=None, parent=None):
         super().__init__(parent)
         self.student_listings = student_listings
-        self.fix_group_listing = fix_group_listing
+        self.group_index = group_index
         self.setMinimumWidth(300)
         self.setWindowTitle(_('Add a new student'))
         layout = QFormLayout()
@@ -149,18 +149,16 @@ class NewStudentDialog(QDialog):
         self.combo.addItem(_('Separate given name and surname'))
         self.combo.addItem(_('Full name in just one field'))
         self.combo.currentIndexChanged.connect(self._update_combo)
-        if fix_group_listing is None:
-            self.group_combo = QComboBox(parent=self)
-            for listing in self.student_listings[1:]:
-                self.group_combo.addItem(listing.group.name)
+        self.group_combo = QComboBox(parent=self)
+        for listing in self.student_listings[1:]:
+            self.group_combo.addItem(listing.group.name)
         layout.addRow(self.combo)
         layout.addRow(_('Id number'), self.id_field)
         layout.addRow(self.name_label, self.name_field)
         layout.addRow(self.surname_label, self.surname_field)
         layout.addRow(self.full_name_label, self.full_name_field)
         layout.addRow(_('Email'), self.email_field)
-        if fix_group_listing is None:
-            layout.addRow(_('Group'), self.group_combo)
+        layout.addRow(_('Group'), self.group_combo)
         self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                          | QDialogButtonBox.Cancel))
         layout.addRow(self.buttons)
@@ -171,6 +169,9 @@ class NewStudentDialog(QDialog):
         if NewStudentDialog._last_combo_value is None:
             NewStudentDialog._last_combo_value = 0
         self.combo.setCurrentIndex(NewStudentDialog._last_combo_value)
+        if self.group_index is not None:
+            self.group_combo.setCurrentIndex(self.group_index)
+            self.group_combo.setEnabled(False)
         self._update_combo(NewStudentDialog._last_combo_value)
 
     def exec_(self):
@@ -183,11 +184,8 @@ class NewStudentDialog(QDialog):
         result = super(NewStudentDialog, self).exec_()
         if result == QDialog.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
-            if self.fix_group_listing is None:
-                listing = \
-                    self.student_listings[self.group_combo.currentIndex() + 1]
-            else:
-                listing = self.fix_group_listing
+            listing = \
+                self.student_listings[self.group_combo.currentIndex() + 1]
             email = self.email_field.text()
             if not email:
                 email = None
@@ -377,7 +375,7 @@ class StudentGroupsTabs(QWidget):
         index = self.tabs.currentIndex()
         dialog = NewStudentDialog(
             self.student_listings,
-            fix_group_listing=self.student_listings[index + 1],
+            group_index=index,
             parent=self)
         student = dialog.exec_()
         if student is not None:
