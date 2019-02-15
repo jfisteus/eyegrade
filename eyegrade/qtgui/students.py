@@ -298,8 +298,8 @@ class StudentGroupsTabs(QWidget):
         super().__init__(parent)
         if student_listings is None:
             self.student_listings = students.StudentListings()
-            default_group = students.StudentGroup(0, _('Default group'))
-            self.student_listings.create_listing(default_group)
+            inserted_group = students.StudentGroup(0, 'INSERTED')
+            self.student_listings.create_listing(inserted_group)
         else:
             self.student_listings = student_listings
         layout = QVBoxLayout(self)
@@ -307,8 +307,12 @@ class StudentGroupsTabs(QWidget):
         self.tabs = QTabWidget(self)
         # Special tab for creating a new group:
         self.tabs.addTab(QWidget(), '  +  ')
-        for listing in self.student_listings:
+        # Group 0 is special: don't show it
+        for listing in self.student_listings[1:]:
             self._add_group_tab(listing)
+        # At least one normal group needs to be present:
+        if len(self.student_listings) == 1:
+            self._create_default_group()
         button_load = QPushButton(_('Add students from file'), parent=self)
         button_new_student = QPushButton(
             QIcon(utils.resource_path('new_id.svg')),
@@ -332,8 +336,6 @@ class StudentGroupsTabs(QWidget):
         button_load.clicked.connect(self._load_students)
         button_new_student.clicked.connect(self._new_student)
         button_remove.clicked.connect(self._remove_group)
-        button_remove.setEnabled(False)
-        self._button_remove = button_remove
 
     def _load_students(self):
         index = self.tabs.currentIndex()
@@ -363,7 +365,7 @@ class StudentGroupsTabs(QWidget):
 
     def _remove_group(self):
         index = self.tabs.currentIndex()
-        if len(self.student_listings[index]) > 0:
+        if len(self.student_listings[index + 1]) > 0:
             result = QMessageBox.warning(
                 self,
                 _('Warning'),
@@ -376,11 +378,15 @@ class StudentGroupsTabs(QWidget):
             remove = True
         if remove:
             try:
-                self.student_listings.remove_at(index)
-                if index == self.tabs.count() - 2:
-                    self.tabs.setCurrentIndex(index - 1)
+                self.student_listings.remove_at(index + 1)
+                if len(self.student_listings) > 1:
+                    if index == self.tabs.count() - 2:
+                        self.tabs.setCurrentIndex(index - 1)
+                    else:
+                        self.tabs.setCurrentIndex(index + 1)
                 else:
-                    self.tabs.setCurrentIndex(index + 1)
+                    self._create_default_group()
+                    self.tabs.setCurrentIndex(1)
                 self.tabs.removeTab(index)
             except students.CantRemoveGroupException:
                 QMessageBox.critical(
@@ -407,6 +413,11 @@ class StudentGroupsTabs(QWidget):
         else:
             self.tabs.setCurrentIndex(self._active_tab)
 
+    def _create_default_group(self):
+        group = students.StudentGroup(None, _('Students'))
+        listing = self.student_listings.create_listing(group)
+        self._add_group_tab(listing, show=True)
+
     def _rename_group(self, index):
         name = self.student_listings[index].group.name
         new_name = GroupNameDialog(group_name=name, parent=self).exec_()
@@ -419,7 +430,6 @@ class StudentGroupsTabs(QWidget):
             # The last (special) tab has been activated: create a new group
             self._new_group()
         self._active_tab = self.tabs.currentIndex()
-        self._button_remove.setEnabled(self._active_tab != 0)
 
 
 class GroupWidget(QWidget):
