@@ -769,14 +769,17 @@ class Interface:
         else:
             return None
 
-    def dialog_student_id(self, student_ids):
+    def dialog_student_id(self, ranked_students, student_listings):
         """Displays a dialog to change the student id.
 
         Returns a student object with the option selected by the user.
         The return value is None if the user cancels the dialog.
 
         """
-        dialog = students.DialogStudentId(self.window, student_ids)
+        dialog = students.DialogStudentId(
+            self.window,
+            ranked_students,
+            student_listings)
         return dialog.exec_()
 
     def dialog_open_session(self):

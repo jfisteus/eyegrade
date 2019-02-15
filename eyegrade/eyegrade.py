@@ -602,7 +602,9 @@ class ProgramManager:
         if not self.mode.in_review():
             return
         students = self.exam.ranked_student_ids()
-        student = self.interface.dialog_student_id(students)
+        student = self.interface.dialog_student_id(
+            students,
+            self.sessiondb.student_listings)
         if student is not None:
             self.exam.update_student_id(student)
             self.interface.update_text_up(self.exam.get_student_id_and_name())

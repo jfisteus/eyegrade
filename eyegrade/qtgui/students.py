@@ -66,13 +66,14 @@ class DialogStudentId(QDialog):
     id = dialog.exec_()
 
     """
-    def __init__(self, parent, student_list):
+    def __init__(self, parent, ranked_students, student_listings):
         super().__init__(parent)
+        self.student_listings = student_listings
         self.setWindowTitle(_('Change the student id'))
         layout = QFormLayout()
         self.setLayout(layout)
         self.combo = widgets.StudentComboBox(parent=self)
-        self.combo.add_students(student_list)
+        self.combo.add_students(ranked_students)
         self.combo.editTextChanged.connect(self._check_value)
         self.combo.currentIndexChanged.connect(self._check_value)
         new_student_button = QPushButton( \
@@ -101,7 +102,7 @@ class DialogStudentId(QDialog):
             return None
 
     def _new_student(self):
-        dialog = NewStudentDialog(parent=self)
+        dialog = NewStudentDialog(self.student_listings, parent=self)
         student = dialog.exec_()
         if student is not None:
             self.combo.add_student(student, set_current=True)
@@ -123,8 +124,10 @@ class NewStudentDialog(QDialog):
     """
     _last_combo_value = None
 
-    def __init__(self, parent=None):
-        super(NewStudentDialog, self).__init__(parent)
+    def __init__(self, student_listings, fix_group_listing=None, parent=None):
+        super().__init__(parent)
+        self.student_listings = student_listings
+        self.fix_group_listing = fix_group_listing
         self.setMinimumWidth(300)
         self.setWindowTitle(_('Add a new student'))
         layout = QFormLayout()
@@ -146,12 +149,18 @@ class NewStudentDialog(QDialog):
         self.combo.addItem(_('Separate given name and surname'))
         self.combo.addItem(_('Full name in just one field'))
         self.combo.currentIndexChanged.connect(self._update_combo)
+        if fix_group_listing is None:
+            self.group_combo = QComboBox(parent=self)
+            for listing in self.student_listings[1:]:
+                self.group_combo.addItem(listing.group.name)
         layout.addRow(self.combo)
         layout.addRow(_('Id number'), self.id_field)
         layout.addRow(self.name_label, self.name_field)
         layout.addRow(self.surname_label, self.surname_field)
         layout.addRow(self.full_name_label, self.full_name_field)
         layout.addRow(_('Email'), self.email_field)
+        if fix_group_listing is None:
+            layout.addRow(_('Group'), self.group_combo)
         self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
                                          | QDialogButtonBox.Cancel))
         layout.addRow(self.buttons)
@@ -174,6 +183,11 @@ class NewStudentDialog(QDialog):
         result = super(NewStudentDialog, self).exec_()
         if result == QDialog.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
+            if self.fix_group_listing is None:
+                listing = \
+                    self.student_listings[self.group_combo.currentIndex() + 1]
+            else:
+                listing = self.fix_group_listing
             email = self.email_field.text()
             if not email:
                 email = None
@@ -184,7 +198,8 @@ class NewStudentDialog(QDialog):
                                     None,
                                     self.name_field.text(),
                                     self.surname_field.text(),
-                                    email)
+                                    email,
+                                    group_id=listing.group.identifier)
             else:
                 # Full name
                 student = students.Student( \
@@ -192,7 +207,9 @@ class NewStudentDialog(QDialog):
                                     self.full_name_field.text(),
                                     None,
                                     None,
-                                    email)
+                                    email,
+                                    group_id=listing.group.identifier)
+            listing.add_students((student, ))
         else:
             student = None
         return student
@@ -358,10 +375,13 @@ class StudentGroupsTabs(QWidget):
 
     def _new_student(self):
         index = self.tabs.currentIndex()
-        dialog = NewStudentDialog(parent=self)
+        dialog = NewStudentDialog(
+            self.student_listings,
+            fix_group_listing=self.student_listings[index + 1],
+            parent=self)
         student = dialog.exec_()
         if student is not None:
-            self.tabs.widget(index).add_students([student])
+            self.tabs.widget(index).listing_updated()
 
     def _remove_group(self):
         index = self.tabs.currentIndex()
@@ -450,6 +470,9 @@ class GroupWidget(QWidget):
 
     def add_students(self, student_list):
         self.listing.add_students(student_list)
+        self.listing_updated()
+
+    def listing_updated(self):
         self.model.data_reset()
         self._resize_table()
 

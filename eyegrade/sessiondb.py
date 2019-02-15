@@ -276,6 +276,7 @@ class SessionDB:
                     'VALUES (?, ?, ?, ?, ?)',
                     data)
             student.db_id = cursor.lastrowid
+            student.is_in_database = True
         if commit:
             self.conn.commit()
 
