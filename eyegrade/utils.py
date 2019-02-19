@@ -227,15 +227,6 @@ _student_list_message = (
     'The second column, if present, is interpreted as the student name.\n'
     'The rest of the columns are ignored.')
 
-EyegradeException.register_error('error_student_list',
-    'The syntax of the student list is not correct.\n' + _student_list_message)
-
-EyegradeException.register_error('error_student_id',
-    'At least one student id is not a number.\n' + _student_list_message)
-
-EyegradeException.register_error('error_student_list_encoding',
-    'The student list contains erroneously-encoded characters.')
-
 EyegradeException.register_error('load_image',
     'The image cannot be loaded (perhaps a wrong path?).')
 

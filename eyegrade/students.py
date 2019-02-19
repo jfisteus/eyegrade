@@ -19,6 +19,7 @@
 import re
 import csv
 import itertools
+import enum
 
 import openpyxl
 
@@ -26,6 +27,7 @@ from . import utils
 
 re_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
 _re_email = re.compile(re_email)
+_re_student_id = re.compile(r'^[0-9]+$')
 
 
 class Student:
@@ -201,6 +203,83 @@ class CantRemoveGroupException(utils.EyegradeException):
         super().__init__(message)
 
 
+class StudentReader:
+    def __init__(self, file_name, column_map=None):
+        self.file_name = file_name
+        self.column_map = column_map
+
+    @staticmethod
+    def create(file_name):
+        if file_name.endswith('.xlsx'):
+            return XLSXStudentReader(file_name)
+        else:
+            return CSVStudentReader(file_name)
+
+    def students(self):
+        first_line = True
+        for row in self.iterator:
+            if not StudentReader._row_is_empty(row):
+                if self.column_map is None:
+                    self.column_map = StudentColumnMap.guess_map(row)
+                    if not self.column_map.is_valid():
+                        if first_line:
+                            first_line = False
+                            self.column_map = None
+                            continue
+                        else:
+                            raise utils.EyegradeException(
+                                '', key='error_student_list')
+                try:
+                    student = self.column_map.student(row)
+                    yield student
+                except utils.EyegradeException:
+                    if not first_line:
+                        raise
+                first_line = False
+
+    @staticmethod
+    def _row_is_empty(row):
+        for element in row:
+            if element is not None and element != '':
+                return False
+        return True
+
+
+class CSVStudentReader(StudentReader):
+    def __init__(self, file_name):
+        super().__init__(file_name)
+
+    def __enter__(self):
+        self.file = open(self.file_name, newline='')
+        try:
+            dialect = csv.Sniffer().sniff(self.file.read(1024))
+        except csv.Error:
+            dialect = csv.excel_tab
+        self.file.seek(0)
+        self.iterator = csv.reader(self.file, dialect=dialect)
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.file.close()
+
+
+class XLSXStudentReader(StudentReader):
+    def __init__(self, file_name):
+        super().__init__(file_name)
+
+    def __enter__(self):
+        workbook = openpyxl.load_workbook(self.file_name)
+        self.iterator = self.iter_rows(workbook.active)
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        pass
+
+    def iter_rows(self, work_sheet):
+        for row in work_sheet.iter_rows():
+            yield tuple(cell.value for cell in row)
+
+
 def read_students(file_name):
     """Reads the list of students from a file.
 
@@ -209,107 +288,142 @@ def read_students(file_name):
     Returns the results as a list of Student objects.
 
     """
-    if file_name.endswith('.xlsx'):
-        return _read_from_xlsx(file_name)
-    else:
-        return _read_from_csv(file_name)
+    with StudentReader.create(file_name) as reader:
+        return list(reader.students())
 
-def _student_from_row(row):
-    name1 = ''
-    name2 = ''
-    email = ''
-    if len(row) == 0:
-        raise utils.EyegradeException('Empty line in student list',
-                                      key='error_student_list')
-    student_id = row[0]
-    _check_student_id(student_id)
-    if len(row) > 1:
-        name1 = row[1]
-    if len(row) > 2:
-        item = row[2]
-        if _check_email(item):
-            email = item
+
+class StudentColumn(enum.Enum):
+    ID = 1
+    FULL_NAME = 2
+    FIRST_NAME = 3
+    LAST_NAME = 4
+    NAME = 5
+    EMAIL = 6
+    SEQUENCE_NUM = 7
+    UNKNOWN = 8
+
+
+class StudentColumnMap:
+    ATTR_NAME = {
+        StudentColumn.ID: 'student_id',
+        StudentColumn.FULL_NAME: 'full_name',
+        StudentColumn.FIRST_NAME: 'first_name',
+        StudentColumn.LAST_NAME: 'last_name',
+        StudentColumn.NAME: 'name',
+        StudentColumn.EMAIL: 'email',
+        StudentColumn.SEQUENCE_NUM: 'sequence_num',
+        StudentColumn.UNKNOWN: '-',
+    }
+
+    def __init__(self, num_columns=None, columns=None):
+        if not ((num_columns is None) ^ (columns is None)):
+            raise ValueError('num_columns or columns required, but not both')
+        if num_columns is not None:
+            self.columns = [StudentColumn.UNKNOWN] * num_columns
         else:
-            name2 = item
-    if len(row) > 3:
-        item = row[3]
-        if _check_email(item):
-            email = item
-    if not name2:
-        full_name = name1
-        first_name = ''
-        last_name = ''
-    else:
-        full_name = ''
-        first_name = name1
-        last_name = name2
-    return Student(student_id, full_name, first_name, last_name, email)
+            self.columns = list(columns)
 
-def _check_student_id(student_id):
-    """Checks the student id.
-
-    Raises the appropriate exception in case of error.
-
-    """
-    try:
-        int(student_id)
-    except:
-        raise utils.EyegradeException( \
-                            'Wrong id in student list: ' + student_id,
-                            key='error_student_id')
-
-def _check_email(email):
-    """Checks syntactically an email address.
-
-    Returns True if correct, False if incorrect.
-
-    """
-    if _re_email.match(email):
-        return True
-    else:
-        return False
-
-def _read_from_csv(file_name):
-    """Reads the list of student IDs from a CSV-formatted file (tab-separated).
-
-    Returns the results as a list of Student objects.
-
-    """
-    with open(file_name, newline='') as csvfile:
-        try:
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-        except csv.Error:
-            dialect = csv.excel_tab
-        csvfile.seek(0)
-        return _read_student_rows(csv.reader(csvfile, dialect=dialect))
-
-def _read_from_xlsx(file_name):
-    wb = openpyxl.load_workbook(file_name)
-    return _read_student_rows(_xlsx_row_iter(wb.active))
-
-def _xlsx_row_iter(work_sheet):
-    for row in work_sheet.iter_rows():
-        yield tuple(cell.value for cell in row)
-
-def _read_student_rows(reader):
-    first_line = True
-    student_list = []
-    for row in reader:
-        if not _row_is_empty(row):
-            try:
-                student = _student_from_row(row)
-                student_list.append(student)
-                first_line = False
-            except utils.EyegradeException:
-                if first_line:
-                    # Discard a potential column heading line
-                    first_line = False
-                else:
-                    raise
-    return student_list
-
-def _row_is_empty(row):
-    for element in row:
-        if element is not None and element != '':
+    def set_column(self, index, column):
+        if not column in self.columns:
+            self.columns[index] = column
+            return True
+        else:
             return False
-    return True
+
+    def resolve(self):
+        # Identify first name / last name / full name columns
+        # They are marked as unkown until now
+        num_columns = len(self.columns)
+        for i in range(num_columns):
+            if self.columns[i] == StudentColumn.UNKNOWN:
+                if (i == num_columns - 1
+                        or self.columns[i + 1] != StudentColumn.UNKNOWN):
+                    self.columns[i] = StudentColumn.FULL_NAME
+                else:
+                    self.columns[i] = StudentColumn.FIRST_NAME
+                    self.columns[i + 1] = StudentColumn.LAST_NAME
+                break
+        for i, col in reversed(list(enumerate(self.columns))):
+            if col != StudentColumn.UNKNOWN:
+                break
+        self.columns = self.columns[:i + 1]
+
+    def is_valid(self):
+        return StudentColumn.ID in self.columns
+
+    def student(self, row):
+        num_columns = len(self.columns)
+        if len(row) < num_columns:
+            raise utils.EyegradeException(
+                'Row with not enough columns', key='error_student_list')
+        student = Student('', '', '', '', '')
+        for i, item in enumerate(row[:num_columns]):
+            if self.columns[i] != StudentColumn.UNKNOWN:
+                self._check_value(self.columns[i], row[i])
+                attr_name = StudentColumnMap.ATTR_NAME[self.columns[i]]
+                setattr(student, attr_name, row[i])
+        return student
+
+    def data(self, index, student):
+        column = self.columns[index]
+        if column != StudentColumn.UNKNOWN:
+            attr_name = StudentColumnMap.ATTR_NAME[column]
+            return getattr(student, attr_name)
+        else:
+            return ''
+
+    def __str__(self):
+        return ('StudentColumnMap <'
+                + ', '.join(StudentColumnMap.ATTR_NAME[column]
+                            for column in self.columns)
+                + '>')
+
+    def __len__(self):
+        return len(self.columns)
+
+    def __getitem__(self, index):
+        return self.columns[index]
+
+    def normalize(self):
+        normal_order = [
+            StudentColumn.ID,
+            StudentColumn.FIRST_NAME,
+            StudentColumn.LAST_NAME,
+            StudentColumn.FULL_NAME,
+            StudentColumn.EMAIL,
+        ]
+        reordered_columns = [column for column in normal_order
+                             if column in self.columns]
+        normalized_map = StudentColumnMap(columns=reordered_columns)
+        return normalized_map
+
+    @staticmethod
+    def guess_map(row):
+        column_map = StudentColumnMap(num_columns=len(row))
+        for i, item in enumerate(row):
+            if _re_student_id.match(row[i]):
+                column = StudentColumn.ID
+            elif _re_email.match(row[i]):
+                column = StudentColumn.EMAIL
+            else:
+                column = StudentColumn.UNKNOWN
+            column_map.set_column(i, column)
+        column_map.resolve()
+        return column_map
+
+    def _check_value(self, column, value):
+        if column == StudentColumn.ID:
+            if not _re_student_id.match(value):
+                raise utils.EyegradeException(
+                    'Wrong id in student list: ' + value,
+                    key='error_student_list')
+        elif column == StudentColumn.EMAIL:
+            if not _re_email.match(value):
+                raise utils.EyegradeException(
+                    'Wrong email in student list: ' + value,
+                    key='error_student_list')
+
+
+utils.EyegradeException.register_error(
+    'error_student_list',
+    'The syntax of the student list isn\'t correct.')

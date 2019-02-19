@@ -451,6 +451,14 @@ class StudentGroupsTabs(QWidget):
 
 
 class GroupWidget(QWidget):
+
+    _COLUMN_MAP = students.StudentColumnMap(
+        columns=[
+            students.StudentColumn.SEQUENCE_NUM,
+            students.StudentColumn.ID,
+            students.StudentColumn.NAME,
+        ])
+
     def __init__(self, listing, student_tabs):
         super().__init__(student_tabs.tabs)
         self.listing = listing
@@ -460,7 +468,7 @@ class GroupWidget(QWidget):
         self.table.setMinimumWidth(500)
         self.table.setMinimumHeight(400)
         layout.addWidget(self.table)
-        self.model = StudentsTableModel(listing, self)
+        self.model = StudentsTableModel(listing, GroupWidget._COLUMN_MAP, self)
         self.table.setModel(self.model)
         self.table.setSelectionBehavior(QTableView.SelectRows)
         layout.setAlignment(self.table, Qt.AlignHCenter)
@@ -482,26 +490,29 @@ class GroupWidget(QWidget):
 class StudentsTableModel(QAbstractTableModel):
     """ Table for showing a student list."""
 
-    _headers = (
-        '#',
-        _('Id'),
-        _('Name'),
-    )
+    _headers = {
+        students.StudentColumn.SEQUENCE_NUM: '#',
+        students.StudentColumn.ID: _('Id'),
+        students.StudentColumn.NAME: _('Name'),
+        students.StudentColumn.FIRST_NAME: _('First name'),
+        students.StudentColumn.LAST_NAME: _('Last name'),
+        students.StudentColumn.FULL_NAME: _('Name'),
+        students.StudentColumn.EMAIL: _('Email'),
+    }
 
-    _extract = (
-        lambda s: s.sequence_num,
-        lambda s: s.student_id,
-        lambda s: s.name,
-    )
+    _alignment = {
+        students.StudentColumn.SEQUENCE_NUM: Qt.AlignRight,
+        students.StudentColumn.ID: Qt.AlignRight,
+        students.StudentColumn.NAME: Qt.AlignLeft,
+        students.StudentColumn.FIRST_NAME: Qt.AlignLeft,
+        students.StudentColumn.LAST_NAME: Qt.AlignLeft,
+        students.StudentColumn.FULL_NAME: Qt.AlignLeft,
+        students.StudentColumn.EMAIL: Qt.AlignLeft,
+    }
 
-    _column_alignment = (
-        Qt.AlignRight,
-        Qt.AlignRight,
-        Qt.AlignLeft,
-    )
-
-    def __init__(self, listing, parent=None):
+    def __init__(self, listing, column_map, parent=None):
         super().__init__(parent=None)
+        self.column_map = column_map
         self.data_reset(listing=listing)
 
     def data_reset(self, listing=None):
@@ -515,12 +526,12 @@ class StudentsTableModel(QAbstractTableModel):
 
     def columnCount(self, parent=QModelIndex()):
         # Columns: sequence num, id, full name
-        return len(StudentsTableModel._headers)
+        return len(self.column_map)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return StudentsTableModel._headers[section]
+                return StudentsTableModel._headers[self.column_map[section]]
             else:
                 return QVariant()
         else:
@@ -530,9 +541,9 @@ class StudentsTableModel(QAbstractTableModel):
         column = index.column()
         if role == Qt.DisplayRole:
             student = self.listing[index.row()]
-            return StudentsTableModel._extract[column](student)
+            return self.column_map.data(column, student)
         elif role == Qt.TextAlignmentRole:
-            return StudentsTableModel._column_alignment[column]
+            return StudentsTableModel._alignment[self.column_map[column]]
         else:
             return QVariant(QVariant.Invalid)
 
