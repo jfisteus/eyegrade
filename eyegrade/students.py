@@ -303,18 +303,19 @@ class StudentColumn(enum.Enum):
     UNKNOWN = 8
 
 
-class StudentColumnMap:
-    ATTR_NAME = {
-        StudentColumn.ID: 'student_id',
-        StudentColumn.FULL_NAME: 'full_name',
-        StudentColumn.FIRST_NAME: 'first_name',
-        StudentColumn.LAST_NAME: 'last_name',
-        StudentColumn.NAME: 'name',
-        StudentColumn.EMAIL: 'email',
-        StudentColumn.SEQUENCE_NUM: 'sequence_num',
-        StudentColumn.UNKNOWN: '-',
-    }
+ATTR_NAME = {
+    StudentColumn.ID: 'student_id',
+    StudentColumn.FULL_NAME: 'full_name',
+    StudentColumn.FIRST_NAME: 'first_name',
+    StudentColumn.LAST_NAME: 'last_name',
+    StudentColumn.NAME: 'name',
+    StudentColumn.EMAIL: 'email',
+    StudentColumn.SEQUENCE_NUM: 'sequence_num',
+    StudentColumn.UNKNOWN: '-',
+}
 
+
+class StudentColumnMap:
     def __init__(self, num_columns=None, columns=None):
         if not ((num_columns is None) ^ (columns is None)):
             raise ValueError('num_columns or columns required, but not both')
@@ -360,29 +361,17 @@ class StudentColumnMap:
         for i, item in enumerate(row[:num_columns]):
             if self.columns[i] != StudentColumn.UNKNOWN:
                 self._check_value(self.columns[i], row[i])
-                attr_name = StudentColumnMap.ATTR_NAME[self.columns[i]]
+                attr_name = ATTR_NAME[self.columns[i]]
                 setattr(student, attr_name, row[i])
         return student
 
     def data(self, index, student):
         column = self.columns[index]
         if column != StudentColumn.UNKNOWN:
-            attr_name = StudentColumnMap.ATTR_NAME[column]
+            attr_name = ATTR_NAME[column]
             return getattr(student, attr_name)
         else:
             return ''
-
-    def __str__(self):
-        return ('StudentColumnMap <'
-                + ', '.join(StudentColumnMap.ATTR_NAME[column]
-                            for column in self.columns)
-                + '>')
-
-    def __len__(self):
-        return len(self.columns)
-
-    def __getitem__(self, index):
-        return self.columns[index]
 
     def normalize(self):
         normal_order = [
@@ -394,8 +383,34 @@ class StudentColumnMap:
         ]
         reordered_columns = [column for column in normal_order
                              if column in self.columns]
-        normalized_map = StudentColumnMap(columns=reordered_columns)
-        return normalized_map
+        return StudentColumnMap(columns=reordered_columns)
+
+    def to_full_name(self):
+        # It will raise ValueError if first or last name aren't present
+        index_first = self.columns.index(StudentColumn.FIRST_NAME)
+        index_last = self.columns.index(StudentColumn.LAST_NAME)
+        new_columns = list(self.columns)
+        if index_first < index_last:
+            new_columns[index_first] = StudentColumn.FULL_NAME
+            del new_columns[index_last]
+        else:
+            new_columns[index_last] = StudentColumn.FULL_NAME
+            del new_columns[index_first]
+        return StudentColumnMap(columns=new_columns)
+
+    def __str__(self):
+        return ('StudentColumnMap <'
+                + ', '.join(ATTR_NAME[column] for column in self.columns)
+                + '>')
+
+    def __len__(self):
+        return len(self.columns)
+
+    def __getitem__(self, index):
+        return self.columns[index]
+
+    def __contains__(self, column):
+        return column in self.columns
 
     @staticmethod
     def guess_map(row):
