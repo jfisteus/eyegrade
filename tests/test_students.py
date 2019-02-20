@@ -214,6 +214,51 @@ class TestReadStudentsFromFile(unittest.TestCase):
         self.assertEqual(data, key)
 
 
+class TestListings(unittest.TestCase):
+
+    def setUp(self):
+        self.students = [
+            students.Student('101010101', 'Donald Duck', '', '', ''),
+            students.Student('202020202', 'Marty McFly', '', '', ''),
+            students.Student('313131313', 'Peter Pan', '', '', ''),
+        ]
+        self.more_students = [
+            students.Student('909090909', 'Donkey Kong', '', '', ''),
+            students.Student('818181818', 'Pinoccio', '', '', ''),
+        ]
+
+    def test_listing_add(self):
+        listing = students.GroupListing(students.StudentGroup(1, 'G'), [])
+        listing.add_students(self.students)
+        self.assertEqual(listing.students, self.students)
+        listing.add_students(self.more_students)
+        self.assertEqual(listing.students, self.students + self.more_students)
+        self.assertTrue(self.more_students[1].student_id in listing)
+
+    def test_listing_find_duplicates(self):
+        listing = students.GroupListing(None, list(self.students))
+        new_students = [
+            students.Student('313131313', 'Peter', '', '', ''),
+            self.more_students[0],
+            self.more_students[1],
+            students.Student('202020202', 'Marty', '', '', ''),
+        ]
+        duplicates = listing.find_duplicates(new_students)
+        key = [new_students[0], new_students[3]]
+        self.assertEqual(duplicates, key)
+
+    def test_listing_add_duplicates(self):
+        listing = students.GroupListing(None, list(self.students))
+        new_students = [
+            students.Student('313131313', 'Peter', '', '', ''),
+            students.Student('909090909', 'Donkey Kong', '', '', ''),
+            students.Student('202020202', 'Marty', '', '', ''),
+        ]
+        self.assertRaises(students.DuplicateStudentIdException,
+                              listing.add_students,
+                              new_students)
+
+
 def _student_tuple(student):
     return (
         student.student_id,

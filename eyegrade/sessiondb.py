@@ -34,8 +34,8 @@ class SessionDB:
     This class encapsulates access functions to the session database.
 
     """
-    DB_SCHEMA_VERSION = 3
-    COMPATIBLE_SCHEMAS = (1, 2, 3, )
+    DB_SCHEMA_VERSION = 4
+    COMPATIBLE_SCHEMAS = (1, 2, 3, 4, )
 
     ALTERATION_VOID_QUESTION = 1
     ALTERATION_SET_SOLUTION = 2
@@ -150,6 +150,9 @@ class SessionDB:
             question INTEGER NOT NULL,
             choice INTEGER
         )"""
+
+    _index_student_id = """
+        CREATE UNIQUE INDEX idx_student_id ON Students(student_id)"""
 
     def __init__(self, session_file):
         """Opens a session database.
@@ -962,6 +965,7 @@ def _create_tables(conn):
     cursor.execute(SessionDB._table_answer_cells)
     cursor.execute(SessionDB._table_id_cells)
     cursor.execute(SessionDB._table_alterations)
+    cursor.execute(SessionDB._index_student_id)
 
 def _save_exam_config(conn, exam_data):
     if exam_data.base_scores is None:

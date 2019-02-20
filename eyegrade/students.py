@@ -46,6 +46,7 @@ class Student:
         self.group_id = group_id
         self.sequence_num = sequence_num
         self.is_in_database = is_in_database
+        self.is_duplicate = False
 
     @property
     def name(self):
@@ -104,6 +105,7 @@ class GroupListing:
     def __init__(self, group, students):
         self.group = group
         self.students = students
+        self.parent = None
         self._students_dict = {s.student_id: s for s in students}
 
     def student(self, student_id):
@@ -111,15 +113,31 @@ class GroupListing:
 
     def add_students(self, students):
         if len(students) > 0:
-            if students[0].sequence_num is None:
-                self._update_sequence_num(students)
-            self.students.extend(students)
-            for student in students:
-                student.group_id = self.group.identifier
-            self._students_dict.update({s.student_id: s for s in students})
+            if self.parent is not None:
+                duplicates = self.parent.find_duplicates(students)
+            else:
+                duplicates = self.find_duplicates(students)
+            if not duplicates:
+                if students[0].sequence_num is None:
+                    self._update_sequence_num(students)
+                self.students.extend(students)
+                for student in students:
+                    student.group_id = self.group.identifier
+                self._students_dict.update({s.student_id: s for s in students})
+            else:
+                raise DuplicateStudentIdException(duplicates)
+
+    def remove_students(self, students):
+        for student in students:
+            if student.student_id in self._students_dict:
+                del self._students_dict[student.student_id]
+                self.students.remove(student)
 
     def rename(self, new_name):
         self.group.name = new_name
+
+    def find_duplicates(self, students):
+        return [s for s in students if s.student_id in self]
 
     def __len__(self):
         return len(self.students)
@@ -129,6 +147,9 @@ class GroupListing:
 
     def __iter__(self):
         return iter(self.students)
+
+    def __contains__(self, student_id):
+        return student_id in self._students_dict
 
     def __str__(self):
         return 'GroupListing({}, {} students)'\
@@ -150,10 +171,15 @@ class StudentListings:
         self._sorted_students = None
 
     def add_listing(self, listing):
-        self.listings.append(listing)
-        group_id = listing.group.identifier
-        if group_id > self.max_group_id:
-            self.max_group_id = group_id
+        duplicates = self.find_duplicates(listing.students)
+        if not duplicates:
+            listing.parent = self
+            self.listings.append(listing)
+            group_id = listing.group.identifier
+            if group_id > self.max_group_id:
+                self.max_group_id = group_id
+        else:
+            raise DuplicateStudentIdException(duplicates)
 
     def create_listing(self, group):
         if group.identifier is None:
@@ -188,11 +214,20 @@ class StudentListings:
         else:
             raise KeyError(group_id)
 
+    def find_duplicates(self, student_list):
+        return [s for s in student_list if s.student_id in self]
+
     def __len__(self):
         return len(self.listings)
 
     def __getitem__(self, key):
         return self.listings[key]
+
+    def __contains__(self, student_id):
+        for listing in self.listings:
+            if student_id in listing:
+                return True
+        return False
 
     def __str__(self):
         return 'Studentlistings({} groups)'.format(len(self.listings))
@@ -201,6 +236,12 @@ class StudentListings:
 class CantRemoveGroupException(utils.EyegradeException):
     def __init__(self, message):
         super().__init__(message)
+
+
+class DuplicateStudentIdException(utils.EyegradeException):
+    def __init__(self, duplicates):
+        super().__init__('Some ids are already in the student listings')
+        self.duplicates = duplicates
 
 
 class StudentReader:

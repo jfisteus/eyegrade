@@ -21,6 +21,8 @@ import gettext
 from PyQt5.QtGui import (
     QRegExpValidator,
     QIcon,
+    QColor,
+    QBrush,
 )
 
 from PyQt5.QtWidgets import (
@@ -207,7 +209,14 @@ class NewStudentDialog(QDialog):
                                     None,
                                     email,
                                     group_id=listing.group.identifier)
-            listing.add_students((student, ))
+            try:
+                listing.add_students((student, ))
+            except students.DuplicateStudentIdException:
+                QMessageBox.critical(
+                    self,
+                    _('Adding a new student'),
+                    _('The student cannot be added: '
+                      'a student with the same id is already in the list'))
         else:
             student = None
         return student
@@ -245,6 +254,7 @@ class DialogStudents(QDialog):
 
     def __init__(self, parent, student_listings):
         super().__init__(parent)
+        self.setWindowTitle(_('Manage the students and student groups'))
         main_layout = QVBoxLayout(self)
         self.setLayout(main_layout)
         tabs = StudentGroupsTabs(self, student_listings=student_listings)
@@ -267,6 +277,7 @@ class DialogPreviewStudents(QDialog):
 
     def __init__(self, parent, student_list, column_map):
         super().__init__(parent)
+        self.setWindowTitle(_('Preview the students to be loaded'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         self.table = PreviewWidget(student_list, column_map, parent=self)
@@ -275,22 +286,33 @@ class DialogPreviewStudents(QDialog):
             _('Take first name as full name'), parent=self)
         self.button_take_last = QPushButton(
             _('Take last name as full name'), parent=self)
+        self.button_remove = QPushButton(
+            _('Remove duplicate students'), parent=self)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.button_accept = buttons.button(QDialogButtonBox.Ok)
         layout.addWidget(self.table)
         layout.addWidget(self.button_swap)
         layout.addWidget(self.button_take_first)
         layout.addWidget(self.button_take_last)
+        layout.addWidget(self.button_remove)
         layout.addWidget(buttons)
         layout.setAlignment(self.button_swap, Qt.AlignHCenter)
         layout.setAlignment(self.button_take_first, Qt.AlignHCenter)
         layout.setAlignment(self.button_take_last, Qt.AlignHCenter)
-        self.button_swap.clicked.connect(self.table._swap_names)
+        layout.setAlignment(self.button_remove, Qt.AlignHCenter)
+        self.button_swap.clicked.connect(self.table.swap_names)
         self.button_take_first.clicked.connect(self._take_first_name)
         self.button_take_last.clicked.connect(self._take_last_name)
+        self.button_remove.clicked.connect(self._remove_duplicates)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         if students.StudentColumn.FIRST_NAME not in column_map:
             self._disable_buttons()
+        if any(s.is_duplicate for s in student_list):
+            self.button_accept.setEnabled(False)
+            self.button_remove.setEnabled(True)
+        else:
+            self.button_remove.setEnabled(False)
 
     def exec_(self):
         """Shows the dialog and waits until it is closed."""
@@ -306,12 +328,17 @@ class DialogPreviewStudents(QDialog):
         self.button_take_last.setEnabled(False)
 
     def _take_first_name(self):
-        self.table._to_full_name(students.StudentColumn.FIRST_NAME)
+        self.table.to_full_name(students.StudentColumn.FIRST_NAME)
         self._disable_buttons()
 
     def _take_last_name(self):
-        self.table._to_full_name(students.StudentColumn.LAST_NAME)
+        self.table.to_full_name(students.StudentColumn.LAST_NAME)
         self._disable_buttons()
+
+    def _remove_duplicates(self):
+        self.table.remove_duplicates()
+        self.button_accept.setEnabled(True)
+        self.button_remove.setEnabled(False)
 
 
 class GroupNameDialog(QDialog):
@@ -417,6 +444,17 @@ class StudentGroupsTabs(QWidget):
             if file_name:
                 with students.StudentReader.create(file_name) as reader:
                     student_list = list(reader.students())
+                # Flag duplicate student ids:
+                warn_duplicates = False
+                for s in self.student_listings.find_duplicates(student_list):
+                    s.is_duplicate = True
+                    warn_duplicates = True
+                if warn_duplicates:
+                    QMessageBox.warning(
+                        self,
+                        _('Importing a student list'),
+                        _('Some student ids are already in the list. '
+                          'Remove them or cancel the import operation.'))
                 column_map = reader.column_map.normalize()
                 preview_dialog = DialogPreviewStudents(
                     self, student_list, column_map)
@@ -564,13 +602,13 @@ class PreviewWidget(QWidget):
         layout.setAlignment(self.table, Qt.AlignHCenter)
         self._resize_table()
 
-    def _swap_names(self):
+    def swap_names(self):
         for s in self.listing.students:
             s.first_name, s.last_name = s.last_name, s.first_name
         self.model.data_reset()
         self._resize_table()
 
-    def _to_full_name(self, column):
+    def to_full_name(self, column):
         attr_name = students.ATTR_NAME[column]
         for s in self.listing.students:
             s.full_name = getattr(s, attr_name)
@@ -579,6 +617,11 @@ class PreviewWidget(QWidget):
         self.column_map = self.column_map.to_full_name()
         self.model.data_reset(column_map=self.column_map)
         self._resize_table()
+
+    def remove_duplicates(self):
+        self.listing.remove_students([s for s in self.listing.students
+                                      if s.is_duplicate])
+        self.model.data_reset()
 
     def _resize_table(self):
         for i in range(len(self.column_map) - 1):
@@ -640,11 +683,16 @@ class StudentsTableModel(QAbstractTableModel):
 
     def data(self, index, role=Qt.DisplayRole):
         column = index.column()
+        student = self.listing[index.row()]
         if role == Qt.DisplayRole:
-            student = self.listing[index.row()]
             return self.column_map.data(column, student)
         elif role == Qt.TextAlignmentRole:
             return StudentsTableModel._alignment[self.column_map[column]]
+        elif role == Qt.BackgroundRole:
+            if student.is_duplicate:
+                return QBrush(QColor(255, 165, 165))
+            else:
+                return QVariant(QVariant.Invalid)
         else:
             return QVariant(QVariant.Invalid)
 
