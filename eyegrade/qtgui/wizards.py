@@ -173,10 +173,7 @@ class NewSessionPageStudents(QWizardPage):
         self.setSubTitle(_('You can import your student list '
                            'from Excel XLSX files and CSV files. '
                            'Students can optionally be placed '
-                           'into separate student groups. '
-                           'Go to the user manual '
-                           'for further details regarding valid file formats '
-                           'and contents.'))
+                           'into separate student groups.'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         tabs = students.StudentGroupsTabs(self)
