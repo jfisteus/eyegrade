@@ -466,8 +466,6 @@ class StudentGroupsTabs(QWidget):
                 self,
                 _('Error in student list'),
                 file_name + '\n\n' + str(e))
-            import traceback
-            traceback.print_exc()
 
     def _new_student(self):
         index = self.tabs.currentIndex()
@@ -535,10 +533,10 @@ class StudentGroupsTabs(QWidget):
         self._add_group_tab(listing, show=True)
 
     def _rename_group(self, index):
-        name = self.student_listings[index].group.name
+        name = self.student_listings[index + 1].group.name
         new_name = GroupNameDialog(group_name=name, parent=self).exec_()
         if new_name is not None and new_name != name:
-            self.student_listings[index].rename(new_name)
+            self.student_listings[index + 1].rename(new_name)
             self.tabs.setTabText(index, new_name)
 
     def _tab_changed(self, index):
@@ -564,7 +562,7 @@ class GroupWidget(QWidget):
         self.setLayout(layout)
         self.table = QTableView()
         self.table.setMinimumWidth(500)
-        self.table.setMinimumHeight(400)
+        self.table.setMinimumHeight(300)
         layout.addWidget(self.table)
         self.model = StudentsTableModel(listing, GroupWidget._COLUMN_MAP, self)
         self.table.setModel(self.model)
@@ -594,7 +592,7 @@ class PreviewWidget(QWidget):
         self.setLayout(layout)
         self.table = QTableView()
         self.table.setMinimumWidth(600)
-        self.table.setMinimumHeight(400)
+        self.table.setMinimumHeight(300)
         layout.addWidget(self.table)
         self.model = StudentsTableModel(self.listing, column_map, self)
         self.table.setModel(self.model)
