@@ -6,9 +6,7 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This user manual refers to Eyegrade 0.7 and later versions.
-For the
-0.6 series see `the user manual version 0.6 <../user-manual-0.6/>`_.
+This is the user manual for Eyegrade 0.8.
 
 
 Installing Eyegrade
@@ -78,45 +76,22 @@ in which to check and build an installer.
 Volunteers to support Eyegrade on Mac OS X are welcome.
 
 
-Upgrading from Eyegrade 0.6.x and previous versions to Eyegrade 0.7
+Upgrading from Eyegrade 0.7 to Eyegrade 0.8
 ......................................................................
 
-The installation procedures for Eyegrade 0.7 are new.
-Instead of upgrading through Git like in previous versions,
-I recommend directly removing your installation
-and doing a fresh installation following the instructions
-in the next sections.
+In Linux systems, just replace the binaries of Eyegrade 0.7
+with the new ones.
+In Windows, the installer will automatically detect and uninstall
+Eyegrade 0.7 before installing Eyegrade 0.8.
 
-On Windows, one possible procedure for uninstalling everything,
-assuming you've followed the installation instructions
-for Eyegrade 0.6.x or a previous version, is:
-
-- If you don't need them for other software,
-  run the uninstallers of PyQT4, OpenCV and Git.
-
-- Remove your Python 2.6 installation directory
-  (probably ``C:\Python26``)
-  from your system's
-  PATH environment variable, if it's there.
-
-- Remove your Python's installation directory
-  (probably ``C:\Python26``).
-
-- Remove the directory of Eyegrade
-  (probably ``C:\eyegrade``).
-
-On Linux, you can uninstall some packages
-that previous versions of Eyegrade depended on
-but are now bundled inside the binaries you'll download.
-If you know no other software in your installation needs them,
-you may remove
-``python-qt4``, ``python-opencv``, ``git``, ``python-dev``,
-``libtre5``, ``libtre-dev``.
-This step is optional,
-since Eyegrade will work normally even if you don't uninstall them.
+Eyegrade 0.8 is backwards-compatible with grading sessions
+created with Eyegrade 0.3 and later versions.
 
 The main changes of the most recent versions are described in the following
 blog posts:
+
+- `Eyegrade 0.8 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-08-released.html>`_
 
 - `Eyegrade 0.7 released
   <http://www.eyegrade.org/blog/posts/eyegrade-07-released.html>`_
@@ -214,18 +189,17 @@ and proceed as explained in `Manual configuration of the exam`_.
 After you have entered the exam configuration
 (either from a file or manually)
 the last two steps of the wizard
-will allow you to load student lists
-and entering the scores of the questions:
+will allow you to create student groups and load student lists,
+as well as to enter the scores awarded to questions:
 
-- Student list files: select zero, one or more files that contain the
-  list of students in the class. The files should be plain text and
-  contain a line per student. See `Student list files`_ for more
-  information on the format of these files.
+- Students: you can import student lists from your file system
+  and manage student groups.
+  See `Student lists`_ for more information about this feature.
 
 - Scores for correct and incorrect answers: this step is optional. If
   you provide the scores awarded to correct answers (and optionally
   deducted from incorrect answers), Eyegrade will show the marks of
-  each exam. See `Scores`_ for more information.
+  each exam. See `Scores`_ for more information about this feature.
 
 After you finish with this dialog, Eyegrade opens the session. It
 shows the image from the webcam and starts scanning for the
@@ -303,65 +277,132 @@ With this file you can create new sessions
 with exactly the same configuration.
 
 
-Student list files
+Student lists
 ...................
 
 The accuracy in the detection of the student identity
 improves dramatically when you supply
-the list of student ids of the class.
-The student list can be provided as one or more plain text files
-with one student per line.
-Each line may have several tab-separated columns.
-Eyegrade accepts lines with the following formats:
+the list of ids of the students in your class,
+where each student id is expected to be a sequence of digits.
 
-- Student id (1 column):
+Many institutions divide the students of the same course
+in separate groups or classes.
+Eyegrade is able to manage students in separate groups,
+which will allow you to export a separate grades listing for each one.
+
+You can manage student groups and import the lists of students
+either in the *New session* wizard
+or later in the *Exams / Students* menu option.
+Both methods provide the same user interface.
+At the beginning, a default group with no student will be shown:
+
+.. image:: images/students-dialog-1.png
+   :alt: Student and group management dialog.
+
+If you don't need to separate your students into groups,
+just load the file or files that contain your student lists.
+Student lists can be provided in Office Open XML format
+(.XLSX files created from Microsoft Excel, LibreOffice
+and other compatible spreadsheet software)
+or in CSV (*comma-separated values*) format.
+In both cases, Eyegrade will scan the first columns
+and try to detect which ones store
+student ids (mandatory)
+and, optionally,
+student names and email.
+Your files may include a header line at the beginning and empty lines.
+They will be ignored when detected.
+
+Some examples of valid student lists are shown below:
+
+- Student ids:
   just one column with the id number of the student::
 
     100000333
     100777777
     100999997
 
-- Student id and full name (2 columns):
-  the first column contains the student id number
-  and the second one their full name.
-  You are free to chose the last name - comma - first name
-  order or the first name - last name order::
+- Student id and full name:
+  one column contains the student id number
+  and the other one their full name::
 
-    100000333	Baggins, Frodo
-    100777777	Bunny, Bugs
-    100999997	Bux, Bastian
+    100000333    Frodo Baggins
+    100777777    Bugs Bunny
+    100999997    Bastian Bux
 
-- Student id, full name and e-mail (3 columns):
-  the first column contains the student id number,
-  the second one their full name
-  and the third one their e-mail address::
+  Column order doesn't matter::
 
-    100000333	Baggins, Frodo	frodo@shire.com
-    100777777	Bunny, Bugs	bugs@cartoon.com
-    100999997	Bux, Bastian	bux@fantastica.com
+    Frodo Baggins   100000333
+    Bugs Bunny      100777777
+    Bastian Bux     100999997
 
-- Student id, first name and last name (3 columns):
-  the first column contains the student id number,
-  the second one their first (given) name
-  and the third one their last (family) name::
+- Separate first and last names:
+  you can enter first and last names in separate columns,
+  as long as they are contiguous.
+  The first of them is treated as the first name by default::
 
     100000333	Frodo	Baggins
     100777777	Bugs	Bunny
     100999997	Bastian	Bux
 
-- Student id, first name, last name and e-mail (4 columns):
-  the first column contains the student id number,
-  the second one their first (given) name,
-  the third one their last (family) name
-  and the fourth one their e-mail address::
+  If your file provides them in the opposite order,
+  you'll be able to swap them once the file is loaded::
 
-    100000333	Frodo	Baggins	frodo@shire.com
-    100777777	Bugs	Bunny	bugs@cartoon.com
-    100999997	Bastian	Bux	bux@fantastica.com
+    100000333	Baggins	Frodo
+    100777777	Bunny	Bugs
+    100999997	Bux	Bastian
 
-The student id number must be composed just by digits.
-The student name may contain non-ASCII characters.
-In that case the file must be UTF-8 encoded.
+- In any of the previous combinations of columns
+  you may also insert a column with emails,
+  in any position except between first and last names::
+
+    100000333	Frodo Baggins	frodo@shire.com
+    100777777	Bugs Bunny	bugs@cartoon.com
+    100999997	Bastian Bux	bux@fantastica.com
+
+Student id numbers must be composed just by digits.
+Leading zeros are allowed.
+Student first and last names
+can contain international (non ASCII) characters.
+They should be properly read from XLSX files.
+In CSV files you should use UTF-8 encoding.
+
+In order to load a file,
+press the *Add students from file* button
+and select the file.
+A preview dialog will appear,
+in which you can revise the student list
+and fine tune how student names are loaded:
+
+.. image:: images/students-dialog-preview.png
+   :alt: Preview the list of students to be loaded.
+
+From this dialog,
+you'll be able to swap the first and last name columns,
+just in case the were provided in the wrong order
+or treat one of these columns as the full name,
+in case Eyegrade wrongly detected separate columns.
+
+Eyegrade won't allow you to load several students with the same student id.
+If that happens,
+the affected students will be highlighted
+and you'll be able to remove them from here.
+
+You can accept or cancel the preview dialog.
+If you accept it,
+the students will appear now in your student list:
+
+.. image:: images/students-dialog-2.png
+   :alt: Student and group management dialog with some students loaded.
+
+You can also create a new group by clicking on the right-most tab header,
+rename a group by doubly-clicking on a tab header
+and remove the active group by pressing the *Remove group* button.
+Groups in which at least one student has an already graded exam
+cannot be removed:
+
+.. image:: images/students-dialog-groups.png
+   :alt: Group management.
 
 
 
