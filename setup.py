@@ -46,7 +46,7 @@ Requirements will be automatically installed from PyPI.
 """
 
 setuptools.setup(name='eyegrade',
-      version='0.8.dev3',
+      version='0.8rc1',
       description='Grade MCQ exams with a webcam',
       long_description=long_description,
       author='Jesus Arias Fisteus',
