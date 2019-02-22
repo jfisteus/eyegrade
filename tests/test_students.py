@@ -19,6 +19,7 @@
 import unittest
 import os.path
 import tempfile
+import copy
 
 import eyegrade.students as students
 import eyegrade.utils as utils
@@ -225,6 +226,7 @@ class TestListings(unittest.TestCase):
         self.more_students = [
             students.Student('909090909', 'Donkey Kong', '', '', ''),
             students.Student('818181818', 'Pinoccio', '', '', ''),
+            students.Student('555555555', 'Gump', '', '', ''),
         ]
 
     def test_listing_add(self):
@@ -246,6 +248,35 @@ class TestListings(unittest.TestCase):
         duplicates = listing.find_duplicates(new_students)
         key = [new_students[0], new_students[3]]
         self.assertEqual(duplicates, key)
+
+    def test_listing_find_duplicates_2(self):
+        listing = students.GroupListing(None, list(self.students))
+        dup = copy.copy(self.more_students[0])
+        dup.full_name = 'Other Donkey'
+        new_students = [
+            self.more_students[0],
+            self.more_students[1],
+            dup,
+            self.more_students[2],
+        ]
+        duplicates = listing.find_duplicates(new_students)
+        key = [dup]
+        self.assertEqual(duplicates, key)
+
+    def test_listing_find_duplicates_3(self):
+        listing = students.GroupListing(None, list(self.students))
+        dup = copy.copy(self.students[1])
+        dup.full_name = 'Other Marty'
+        new_students = [
+            self.more_students[0],
+            self.students[1],
+            dup,
+            self.more_students[1],
+        ]
+        duplicates = listing.find_duplicates(new_students)
+        self.assertTrue(dup in duplicates)
+        self.assertTrue(self.students[1] in duplicates)
+        self.assertEqual(len(duplicates), 2)
 
     def test_listing_add_duplicates(self):
         listing = students.GroupListing(None, list(self.students))
