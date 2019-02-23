@@ -8,10 +8,10 @@ import sys
 dependencies = {}
 try:
     import cv2
-    if (cv2.__version__.startswith('2.4')
-        or (cv2.__version__.startswith('3.')
-            and not cv2.__version__.startswith('3.0')
-            and not cv2.__version__.startswith('3.1'))):
+    if ((cv2.__version__.startswith('3.')
+                and not cv2.__version__.startswith('3.0')
+                and not cv2.__version__.startswith('3.1'))
+            or cv2.__version__.startswith('4.')):
         dependencies['opencv'] = (True, None)
     else:
         dependencies['opencv'] = (False, 'version')
