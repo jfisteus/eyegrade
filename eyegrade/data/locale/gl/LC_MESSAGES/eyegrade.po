@@ -3,13 +3,14 @@ msgstr ""
 "Project-Id-Version: eyegrade\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-23 08:03+0100\n"
-"PO-Revision-Date: 2015-03-17 11:04+0100\n"
+"PO-Revision-Date: 2019-02-25 09:33+0100\n"
 "Last-Translator: Jesús Arias Fisteus\n"
 "Language-Team: \n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
 
 #: eyegrade/eyegrade.py:48
 msgid ""
@@ -676,6 +677,8 @@ msgid ""
 "You can import your student list from Excel XLSX files and CSV files. "
 "Students can optionally be placed into separate student groups."
 msgstr ""
+"Podes importar estudantes dende ficheiros Excel (.XLSX) ou CSV. "
+"Opcionalmente, podes ogranizar os estudantes en grupos."
 
 #: eyegrade/qtgui/wizards.py:192
 msgid "Configuration of exam params"
@@ -691,8 +694,9 @@ msgstr "num,num,..."
 
 #: eyegrade/qtgui/wizards.py:214
 msgid "Number of digits of the student ID (0 to not scan IDs)"
-msgstr "Número de díxitos do identificador de estudante "
-"(0 para non detectar identificadores)"
+msgstr ""
+"Número de díxitos do identificador de estudante (0 para non detectar "
+"identificadores)"
 
 #: eyegrade/qtgui/wizards.py:217
 msgid "Number of choices per question"
@@ -892,8 +896,9 @@ msgstr "Engadindo un novo estudante"
 msgid ""
 "The student cannot be added: a student with the same id is already in the "
 "list"
-msgstr "Non se pode engadir ó estudante: un estudante co mesmo identificador "
-"está ya na lista"
+msgstr ""
+"Non se pode engadir ó estudante: un estudante co mesmo identificador está ya "
+"na lista"
 
 #: eyegrade/qtgui/students.py:257
 msgid "Manage students and student groups"
@@ -959,8 +964,9 @@ msgstr "Importando unha lista de estudantes"
 msgid ""
 "Some student ids are already in the list. Remove them or cancel the import "
 "operation."
-msgstr "Algúns identificadores de estudantes están xa na lista. "
-"Elimínaos ou cancela a operación de carga."
+msgstr ""
+"Algúns identificadores de estudantes están xa na lista. Elimínaos ou cancela "
+"a operación de carga."
 
 #: eyegrade/qtgui/students.py:467
 msgid "Error in student list"
@@ -977,8 +983,9 @@ msgstr ""
 msgid ""
 "This group cannot be removed because exams have been graded for some of its "
 "students."
-msgstr "No se pode borrar este grupo porque hay exámenes correxidos "
-"de algún dos seus estudantes."
+msgstr ""
+"No se pode borrar este grupo porque hay exámenes correxidos de algún dos "
+"seus estudantes."
 
 #: eyegrade/qtgui/students.py:531
 msgid "Students"
