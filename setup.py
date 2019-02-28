@@ -43,41 +43,76 @@ Requirements:
 Eyegrade runs on Python 3 only.
 Support for legacy Python versions has been dropped.
 Requirements will be automatically installed from PyPI.
+
 """
 
-setuptools.setup(name='eyegrade',
-      version='0.8rc1',
-      description='Grade MCQ exams with a webcam',
-      long_description=long_description,
-      author='Jesus Arias Fisteus',
-      author_email='jfisteus@gmail.com',
-      url='https://www.eyegrade.org/',
-      packages=[
-          'eyegrade',
-          'eyegrade.qtgui',
-          'eyegrade.ocr',
-          'eyegrade.tools'
-      ],
-      package_data={'eyegrade': ['data/*', 'data/svm/*']},
-      scripts=['bin/eyegrade', 'bin/eyegrade-create'],
-      install_requires=[
-          'opencv-python',
-          'PyQt5',
-          'openpyxl',
-      ],
-      test_suite ="tests.get_tests",
-      classifiers= [
-          'Development Status :: 4 - Beta',
-          'Environment :: X11 Applications :: Qt',
-          'Intended Audience :: Education',
-          'License :: OSI Approved :: '
-              'GNU General Public License v3 or later (GPLv3+)',
-          'Natural Language :: Spanish',
-          'Natural Language :: English',
-          'Natural Language :: Galician',
-          'Operating System :: POSIX :: Linux',
-          'Operating System :: Microsoft :: Windows',
-          'Programming Language :: Python :: 3',
-          'Topic :: Education',
-      ],
+requirements = [
+    'opencv-python==4.0.0.21',
+    'openpyxl==2.6.0',
+    'PyQt5==5.12',
+]
+
+
+setuptools.setup(
+    name='eyegrade',
+    version='0.8rc1',
+    description='Grade MCQ exams with a webcam',
+    long_description=long_description,
+    author='Jesus Arias Fisteus',
+    author_email='jfisteus@gmail.com',
+    url='https://www.eyegrade.org/',
+    packages=[
+        'eyegrade',
+        'eyegrade.qtgui',
+        'eyegrade.ocr',
+        'eyegrade.tools'
+    ],
+    package_data={
+        'eyegrade': ['data/*', 'data/svm/*']
+    },
+    scripts=[
+        'bin/eyegrade',
+        'bin/eyegrade-create'
+    ],
+    install_requires=requirements,
+    test_suite='tests.get_tests',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: X11 Applications :: Qt',
+        'Intended Audience :: Education',
+        'License :: OSI Approved :: '
+            'GNU General Public License v3 or later (GPLv3+)',
+        'Natural Language :: Spanish',
+        'Natural Language :: English',
+        'Natural Language :: Galician',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: Microsoft :: Windows',
+        'Programming Language :: Python :: 3',
+        'Topic :: Education',
+    ],
+    options={
+        'app': {
+            'formal_name': 'eyegrade',
+            'bundle': 'org.eyegrade',
+        },
+        # Desktop/laptop deployments
+        'macos': {
+            'app_requires': requirements,
+        },
+        'linux': {
+            'app_requires': requirements,
+        },
+        'windows': {
+            'app_requires': requirements,
+            'icon': 'eyegrade/data/eyegrade',
+        },
+    },
+    entry_points={
+        'gui_scripts': [
+            'eyegrade = eyegrade.eyegrade:main',
+        ],
+        'console_scripts': [
+            'eyegrade-create = eyegrade.create_exam:main',
+        ]
+    }
 )
