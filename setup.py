@@ -2,49 +2,15 @@ import os
 import sys
 import setuptools
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
-if sys.version_info[0] < 3:
-    print('eyegrade does not run in legacy python versions: use python 3')
+if sys.version_info[0] < 3 or (sys.version[0] == 3 and sys.version[1] < 5):
+    print('eyegrade does not run in legacy python versions: '
+          'use python 3.5 or later.')
     sys.exit(1)
 
-long_description = """
-Eyegrade
-(`<https://www.eyegrade.org/>`_)
-uses a webcam to grade multiple choice question exams.
-Needing just a cheap low-end webcam, it aims to be a low-cost
-and portable alternative to other solutions based on scanners.
-
-The main features of Eyegrade are:
-
-- Grading the exams: By using a webcam, the graphical user interface
-  of Eyegrade allows you to grade your exams. Eyegrade is able to
-  recognize not only the answers to the questions, but also the
-  identity of the student by using its hand-written digit recognition
-  module. The whole process is supervised by the user in order to
-  detect and fix potential detection errors.
-
-- Exporting grades: Grades can be exported in CSV format, compatible
-  with other programs such as spreadsheets.
-
-- Typesetting the exams: Although you can create your exams with other
-  tools, Eyegrade integrates an utility to creating MCQ exams. It is
-  able to create your exams in PDF format. Eyegrade can automatically
-  build several versions of the exam by shuffling questions and the
-  choices within the questions.
-
-The user manual can be found at
-`<https://www.eyegrade.org/documentation.html>`_
-
-Requirements:
---------------
-
-Eyegrade runs on Python 3 only.
-Support for legacy Python versions has been dropped.
-Requirements will be automatically installed from PyPI.
-
-"""
+# read the contents of the README file
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 requirements = [
     'opencv-python==4.0.0.21',
@@ -58,6 +24,7 @@ setuptools.setup(
     version='0.8rc1',
     description='Grade MCQ exams with a webcam',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Jesus Arias Fisteus',
     author_email='jfisteus@gmail.com',
     url='https://www.eyegrade.org/',
@@ -74,10 +41,11 @@ setuptools.setup(
         'bin/eyegrade',
         'bin/eyegrade-create'
     ],
+    python_requires='>=3.5',
     install_requires=requirements,
     test_suite='tests.get_tests',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: X11 Applications :: Qt',
         'Intended Audience :: Education',
         'License :: OSI Approved :: '
@@ -87,7 +55,12 @@ setuptools.setup(
         'Natural Language :: Galician',
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3 :: Only',
         'Topic :: Education',
     ],
     options={
