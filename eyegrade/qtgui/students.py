@@ -183,7 +183,7 @@ class NewStudentDialog(QDialog):
         the dialog is cancelled.
 
         """
-        result = super(NewStudentDialog, self).exec_()
+        result = super().exec_()
         if result == QDialog.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
             listing = \

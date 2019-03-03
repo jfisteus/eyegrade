@@ -63,13 +63,13 @@ class Sample:
 class DigitSampleFromCam(Sample):
     def __init__(self, corners, image):
         corners = adjust_cell_corners(image, corners)
-        super(DigitSampleFromCam, self).__init__(corners, image=image)
+        super().__init__(corners, image=image)
 
 
 class CrossSampleFromCam(Sample):
     def __init__(self, corners, image):
         corners = self._adjust_cell_corners(image, corners)
-        super(CrossSampleFromCam, self).__init__(corners, image=image)
+        super().__init__(corners, image=image)
 
     @staticmethod
     def _adjust_cell_corners(image, corners):

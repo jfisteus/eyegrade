@@ -73,8 +73,7 @@ class SVMClassifier:
 class SVMDigitClassifier(SVMClassifier):
     def __init__(self, features_extractor, load_from_file=None,
                  confusion_matrix_from_file=None):
-        super(SVMDigitClassifier, self).__init__(10, features_extractor,
-                                                 load_from_file=load_from_file)
+        super().__init__(10, features_extractor, load_from_file=load_from_file)
         self.confusion_matrix = \
             self._load_confusion_matrix(confusion_matrix_from_file)
 
@@ -98,21 +97,18 @@ class DefaultDigitClassifier(SVMDigitClassifier):
     def __init__(self,
                  load_from_file=DEFAULT_DIG_CLASS_FILE,
                  confusion_matrix_from_file=DEFAULT_DIG_META_FILE):
-        super(DefaultDigitClassifier, self).__init__( \
-                        preprocessing.FeatureExtractor(),
-                        load_from_file=load_from_file,
-                        confusion_matrix_from_file=confusion_matrix_from_file)
+        super().__init__(
+            preprocessing.FeatureExtractor(),
+            load_from_file=load_from_file,
+            confusion_matrix_from_file=confusion_matrix_from_file)
 
     def train(self, samples, params=None):
-        super(DefaultDigitClassifier, self).train( \
-                                              samples,
-                                              dict(C=3.16227766, gamma=0.01))
+        super().train(samples, dict(C=3.16227766, gamma=0.01))
 
 
 class SVMCrossesClassifier(SVMClassifier):
     def __init__(self, features_extractor, load_from_file=None):
-        super(SVMCrossesClassifier, self).__init__(2, features_extractor,
-                                                load_from_file=load_from_file)
+        super().__init__(2, features_extractor, load_from_file=load_from_file)
 
     def is_cross(self, sample):
         return self.classify(sample) == 1
@@ -120,11 +116,9 @@ class SVMCrossesClassifier(SVMClassifier):
 
 class DefaultCrossesClassifier(SVMCrossesClassifier):
     def __init__(self, load_from_file=DEFAULT_CROSS_CLASS_FILE):
-        super(DefaultCrossesClassifier, self).__init__( \
-                        preprocessing.CrossesFeatureExtractor(),
-                        load_from_file=load_from_file)
+        super().__init__(
+            preprocessing.CrossesFeatureExtractor(),
+            load_from_file=load_from_file)
 
     def train(self, samples, params=None):
-        super(DefaultCrossesClassifier, self).train( \
-                                              samples,
-                                              dict(C=100, gamma=0.01))
+        super().train(samples, dict(C=100, gamma=0.01))

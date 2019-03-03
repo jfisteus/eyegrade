@@ -57,7 +57,7 @@ class NewSessionPageInitial(QWizardPage):
 
     """
     def __init__(self, config_filename=None):
-        super(NewSessionPageInitial, self).__init__()
+        super().__init__()
         self.setTitle(_('Directory and exam configuration'))
         self.setSubTitle(_('Select or create an empty directory in which you '
                            'want to store the session '
@@ -188,7 +188,7 @@ class NewSessionPageStudents(QWizardPage):
 class NewSessionPageExamParams(QWizardPage):
     """ Wizard's page that ask for the params of the test """
     def __init__(self):
-        super(NewSessionPageExamParams, self).__init__()
+        super().__init__()
         self.setTitle(_('Configuration of exam params'))
         self.setSubTitle(_('Enter the configuration parameters of the exam'))
         layout = QFormLayout(self)
@@ -250,7 +250,7 @@ class NewSessionPageExamParams(QWizardPage):
 class NewSessionPageExamAnswers(QWizardPage):
 
     def __init__(self):
-        super(NewSessionPageExamAnswers, self).__init__()
+        super().__init__()
         self.setTitle(_('Selection of correct answers'))
         self.setSubTitle(_('Select the correct answers for each exam model'))
         layout = QFormLayout()
@@ -368,7 +368,7 @@ class NewSessionPageExamAnswers(QWizardPage):
 class NewSessionPageScores(QWizardPage):
     """Page of WizardNewSession that asks for the scores for answers."""
     def __init__(self):
-        super(NewSessionPageScores, self).__init__()
+        super().__init__()
         self.setTitle(_('Scores for correct and incorrect answers'))
         self.setSubTitle(_('Enter the scores of correct and incorrect '
                            'answers. The program will compute scores based '
@@ -635,7 +635,7 @@ class WizardNewSession(QWizard):
      PageStudents, PageScores) = range(NUM_PAGES)
 
     def __init__(self, parent, config_filename=None):
-        super(WizardNewSession, self).__init__(parent)
+        super().__init__(parent)
         self.exam_config = None
         self.setWindowTitle(_('Create a new session'))
         self.page_initial = \

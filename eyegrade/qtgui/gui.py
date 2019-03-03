@@ -78,7 +78,7 @@ class Worker(QRunnable):
         The `task` must be an object that implements a `run()` method.
 
         """
-        super(Worker, self).__init__()
+        super().__init__()
         self.task = task
         self.is_done = False
         self.signals = _WorkerSignalEmitter()
@@ -431,7 +431,7 @@ class CenterView(QWidget):
                      utils.resource_path('unanswered.svg')
 
     def __init__(self, parent=None):
-        super(CenterView, self).__init__(parent)
+        super().__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.center = QStackedLayout()
@@ -517,7 +517,7 @@ class CenterView(QWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
         policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.setSizePolicy(policy)
         self.setStatusBar(widgets.StatusBar(self))

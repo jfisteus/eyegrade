@@ -66,7 +66,7 @@ _ = t.gettext
 class LineContainer(QWidget):
     """Container that disposes other widgets horizontally."""
     def __init__(self, parent, *widgets):
-        super(LineContainer, self).__init__(parent)
+        super().__init__(parent)
         self.layout = QHBoxLayout(self)
         self.setLayout(self.layout)
         for widget in widgets:
@@ -79,7 +79,7 @@ class LineContainer(QWidget):
 class CompletingComboBox(QComboBox):
     """An editable combo box that filters and autocompletes."""
     def __init__(self, parent=None):
-        super(CompletingComboBox, self).__init__(parent)
+        super().__init__(parent)
         self.setEditable(True)
         self.filter = QSortFilterProxyModel(self)
         self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
@@ -97,7 +97,7 @@ class CompletingComboBox(QComboBox):
 
 class StudentComboBox(CompletingComboBox):
     def __init__(self, parent=None):
-        super(StudentComboBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.lineEdit().selectAll()
         self.lineEdit().setFocus()
         self.students = []
@@ -148,7 +148,7 @@ class StatusBar(QStatusBar):
         :param parent: The parent of this status bar.
 
         """
-        super(StatusBar, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.status_label = QLabel(parent=self)
         self.addWidget(self.status_label)
         self._show_program_version()
@@ -181,7 +181,7 @@ class LabelledCheckBox(QWidget):
         :param checked: Initial state of the checkbox (defaults to False).
 
         """
-        super(LabelledCheckBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         layout = QHBoxLayout(self)
         self.checkbox = QCheckBox(parent=self)
         self.checkbox.setChecked(checked)
@@ -199,7 +199,7 @@ class OpenFileWidget(QWidget):
     """Dialog with a text field and a button to open a file selector."""
     def __init__(self, parent, select_directory=False, name_filter='',
                  minimum_width=200, title='', check_file_function=None):
-        super(OpenFileWidget, self).__init__(parent)
+        super().__init__(parent)
         self.select_directory = select_directory
         self.name_filter = name_filter
         self.title = title
@@ -285,7 +285,7 @@ class OpenFileWidget(QWidget):
 class InputScore(QLineEdit):
     """Allows the user to enter a score."""
     def __init__(self, parent=None, minimum_width=100, is_positive=True):
-        super(InputScore, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setMinimumWidth(minimum_width)
         self.is_positive = is_positive
         if is_positive:
@@ -324,7 +324,7 @@ class InputScore(QLineEdit):
 
         """
         try:
-            super(InputScore, self).setPlaceholderText(text)
+            super().setPlaceholderText(text)
         except AttributeError:
             # Just do nothing if the version of Qt/PyQt is old...
             pass
@@ -332,7 +332,7 @@ class InputScore(QLineEdit):
 
 class CamView(QWidget):
     def __init__(self, size, parent, draw_logo=False, border=False):
-        super(CamView, self).__init__(parent)
+        super().__init__(parent)
         if not border:
             fixed_size = size
         else:
@@ -401,7 +401,7 @@ class InputCustomPattern(QLineEdit):
     """
     def __init__(self, parent=None, fixed_size=40,
                  regex=r'.+', placeholder=None):
-        super(InputCustomPattern, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         if placeholder:
             self.setPlaceholderText(placeholder)
         self.setFixedWidth(fixed_size)
@@ -413,7 +413,7 @@ class InputInteger(QSpinBox):
     """Allows the user to enter an integer field"""
     def __init__(self, parent=None, initial_value=1,
                  min_value=1, max_value=100):
-        super(InputInteger, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setRange(min_value, max_value)
         self.setValue(initial_value)
 
@@ -421,7 +421,7 @@ class InputInteger(QSpinBox):
 class InputRadioGroup(QWidget):
     """Create an horizontal radio group"""
     def __init__(self, parent=None, option_list=None, default_select=0):
-        super(InputRadioGroup, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         layout = QHBoxLayout(self)
         self.group = QButtonGroup()
         for idx, op in enumerate(option_list):
@@ -440,7 +440,7 @@ class InputRadioGroup(QWidget):
 class ItemList:
     """Custom item for permutation list"""
     def __init__(self, optionName, optionNumber):
-        super(ItemList, self).__init__()
+        super().__init__()
         self.name = optionName
         self.numb = optionNumber
         self.perm = {}
@@ -459,7 +459,7 @@ class ItemList:
 class InputComboBox(QComboBox):
     """A Combobox with a specific ID"""
     def __init__(self, parent=None, c_type=None, form=0, alternative=0):
-        super(InputComboBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.c_type = c_type
         self.form = form
         self.alternative = alternative
@@ -470,7 +470,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
 
     """
     def __init__(self, exam_config, parent=None):
-        super(ScoreWeightsTableModel, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.data_reset(exam_config)
         self.dataChanged.connect(self._update_weights_sum)
         self.changes = False
@@ -667,7 +667,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
 class CustomTableView(QTableView):
     """QTableView that can compute its own size."""
     def __init__(self, parent=None, maximum_width=500, maximum_height=300):
-        super(CustomTableView, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.maximum_height = maximum_height
         self.maximum_width = maximum_width
 
@@ -719,7 +719,7 @@ class CustomTableView(QTableView):
 class CustomComboBox(QComboBox):
     """QComboBox that allows enabling / disabling items."""
     def __init__(self, parent=None):
-        super(CustomComboBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setModel(_CustomComboBoxModel(parent=self))
 
     def set_items(self, items):
@@ -731,7 +731,7 @@ class CustomComboBox(QComboBox):
 
 class _CustomComboBoxModel(QAbstractListModel):
     def __init__(self, parent=None):
-        super(_CustomComboBoxModel, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.items = []
         self.enabled = []
 

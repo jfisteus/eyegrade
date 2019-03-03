@@ -55,7 +55,7 @@ class DialogComputeScores(QDialog):
 
     """
     def __init__(self, parent=None):
-        super(DialogComputeScores, self).__init__(parent)
+        super().__init__(parent)
         self.setWindowTitle(_('Compute default scores'))
         layout = QFormLayout()
         self.setLayout(layout)
@@ -80,7 +80,7 @@ class DialogComputeScores(QDialog):
         score = None
         penalize = None
         while not success:
-            result = super(DialogComputeScores, self).exec_()
+            result = super().exec_()
             if result == QDialog.Accepted:
                 if self.score.text():
                     score = self.score.value()
@@ -118,7 +118,7 @@ class DialogCameraSelection(QDialog):
         to be used.
 
         """
-        super(DialogCameraSelection, self).__init__(parent)
+        super().__init__(parent)
         self.capture_context = capture_context
         self.setWindowTitle(_('Select a camera'))
         layout = QVBoxLayout(self)
@@ -156,7 +156,7 @@ class DialogCameraSelection(QDialog):
             self.timer.start()
         else:
             self.camera_error.emit()
-        return super(DialogCameraSelection, self).exec_()
+        return super().exec_()
 
     def _show_camera_error(self):
         QMessageBox.critical(self, _('Camera not available'),
@@ -207,7 +207,7 @@ class DialogAbout(QDialog):
     _tuple_strxfrm = staticmethod(lambda x: locale.strxfrm(x[0]))
 
     def __init__(self, parent):
-        super(DialogAbout, self).__init__(parent)
+        super().__init__(parent)
         self.setWindowTitle(_('About'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)

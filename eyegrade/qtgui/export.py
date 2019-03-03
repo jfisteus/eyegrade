@@ -56,7 +56,7 @@ class DialogExportGrades(QDialog):
 
     """
     def __init__(self, parent, helper):
-        super(DialogExportGrades, self).__init__(parent)
+        super().__init__(parent)
         self.helper = helper
         student_groups = helper.student_groups
         self.setWindowTitle(_('Export grades listing'))
@@ -108,7 +108,7 @@ class DialogExportGrades(QDialog):
 
         """
         result = False
-        dialog_result = super(DialogExportGrades, self).exec_()
+        dialog_result = super().exec_()
         if dialog_result == QDialog.Accepted:
             if self.type_combo.currentIndex() == 0:
                 self.helper.file_format = export.FileFormat.XLSX
@@ -163,7 +163,7 @@ class DialogExportGrades(QDialog):
 
 class ExportItems(QWidget):
     def __init__(self, parent):
-        super(ExportItems, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.checkboxes = [
             ('student_id',
              LabelledCheckBox(_('Student id number'), self, checked=True)),

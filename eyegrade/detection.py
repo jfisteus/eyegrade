@@ -571,7 +571,7 @@ class ExamDetectorContext:
 
 class FalseExamDetectorContext(ExamDetectorContext):
     def __init__(self, session_file):
-        super(FalseExamDetectorContext, self).__init__()
+        super().__init__()
         self.session = sessiondb.SessionDB(session_file)
         self.camera_id = 99
         self.camera = 'Something'
@@ -603,7 +603,7 @@ class FalseExamDetectorContext(ExamDetectorContext):
         pass
 
     def notify_success(self):
-        super(FalseExamDetectorContext, self).notify_success()
+        super().notify_success()
         self.next_exam_idx += 1
         if self.next_exam_idx == len(self.exams):
             self.next_exam_idx = 0
