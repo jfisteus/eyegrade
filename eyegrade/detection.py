@@ -153,10 +153,11 @@ class ExamDetector:
             self.context.next_hough_threshold()
         else:
             self.status['boxes'] = True
-            axes = filter_axes(axes, self.dimensions,
-                               images.width(self.image_raw),
-                               images.height(self.image_raw),
-                               self.options['read-id'])
+            axes = filter_axes(
+                axes,
+                images.width(self.image_raw),
+                images.height(self.image_raw),
+                self.options['read-id'])
             corner_matrixes = cell_corners(axes[1][1], axes[0][1],
                                            images.width(self.image_raw),
                                            images.height(self.image_raw),
@@ -626,9 +627,21 @@ def detect_lines(image, hough_threshold):
     if len(lines[0]) > 500:
         return []
     lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
-    return sorted(lines, key = lambda x: x[1])
+    return sorted(lines, key=lambda x: x[1])
 
 def detect_directions(lines):
+    """ Group lines into axes.
+
+    Parameters:
+    - lines: a list of tuples (rho, theta) sorted from smaller to bigger
+        value of rho.
+
+    Returns the list of detected axes where each ax is a tuple of
+    (theta, list of lines), being theta the average angle
+    of the lines of the ax. Axes are sorted by angle from horizontal
+    to vertical. Lines within each ax are sorted by theta.
+
+    """
     assert(len(lines) >= 2)
     axes = []
     rho, theta = lines[0]
@@ -644,12 +657,29 @@ def detect_directions(lines):
         del axes[-1]
     for i in range(0, len(axes)):
         avg = sum([theta for rho, theta in axes[i][1]]) / len(axes[i][1])
-        axes[i] = (avg, sorted(axes[i][1], key = lambda x: abs(x[0])))
+        axes[i] = (avg, sorted(axes[i][1], key=lambda x: abs(x[0])))
     if abs(axes[-1][0] - math.pi) < abs(axes[0][0]):
         axes = axes[-1:] + axes[0:-1]
     return axes
 
 def detect_boxes(lines, dimensions):
+    """ Classify lines in two groups: horizontal and vertical lines.
+
+    Parameters:
+    - lines: a list of tuples (rho, theta) sorted from smaller to bigger
+        value of rho.
+    - dimensions: a list of boxes dimensions, where each box is a tuple
+        (number-of-choices, number of questions). For example:
+        [(3, 10), (3, 9)] means that the left-most box has 10 questions
+        with 3 options each, and the other box has 9 questions, also with
+        3 options.
+
+    Returns None if detection failed or the list of two axes
+    [vertical, horizontal] where each ax is a tuple of
+    (theta, list of lines), being theta the average angle
+    of the lines of the ax. Lines within each ax are sorted by theta.
+
+    """
     v_expected = len(dimensions) + sum([box[0] for box in dimensions])
     h_expected = 1 + max([box[1] for box in dimensions])
     axes = detect_directions(lines)
@@ -657,7 +687,7 @@ def detect_boxes(lines, dimensions):
                 if len(axis[1]) >= min(v_expected, h_expected)]
     # If there are spurious axes, try to filter them out:
     if len(axes) == 3:
-        # Take the perpendicular angles
+        # Take the (almost) perpendicular angles
         if g.angles_perpendicular(axes[0][0], axes[1][0]):
             del axes[2]
         elif g.angles_perpendicular(axes[0][0], axes[2][0]):
@@ -676,13 +706,13 @@ def detect_boxes(lines, dimensions):
     else:
         return None
 
-def filter_axes(axes, dimensions, image_width, image_height, read_id):
+def filter_axes(axes, image_width, image_height, read_id):
     """Filters out lines near borders and lines too close to other lines.
 
        - axes: [(vlines_angle, vlines), (hlines_angle, hlines)]
-       - dimensions: expected answer boxes dimensions
        - image_width, image_height: image size
        - read_id: True if the id must be read
+
        Returns a new axes object with updated lines if success or
        the lines without collapsing if not.
 
@@ -699,24 +729,21 @@ def filter_axes(axes, dimensions, image_width, image_height, read_id):
                       abs(l[0]) > 0.03 * image_height) or
                      not g.angles_perpendicular(0.0, l[1]))]))
     # Now, colapse lines that are too close
-    v_expected = len(dimensions) + sum([box[0] for box in dimensions])
-    h_expected = 1 + max([box[1] for box in dimensions])
-    if read_id:
-        h_expected += 2
-    hlines = collapse_lines_angles(axes[1][1], h_expected, True)
+    hlines = collapse_lines_angles(axes[1][1], True)
     if hlines is None:
         return axes
-    vlines = collapse_lines_angles(axes[0][1], v_expected, False)
+    vlines = collapse_lines_angles(axes[0][1], False)
     if vlines is None:
         return axes
     return [(axes[0][0], vlines), (axes[1][0], hlines)]
 
-def collapse_lines_angles(lines, expected, horizontal):
+def collapse_lines_angles(lines, horizontal):
     """Collapses lines that are close together.
 
-       Receives the list of pairs of lines (rho, theta), the expected
-       number of lines to be matched, and whether lines are horizontal
-       or not. Returns the lines or None if the expected number of
+       Receives the list of pairs of lines (rho, theta),
+       and whether lines are horizontal or not.
+
+       Returns the lines or None if the expected number of
        lines is not matched.
 
     """
