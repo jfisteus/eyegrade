@@ -21,7 +21,7 @@ requirements = [
 
 setuptools.setup(
     name='eyegrade',
-    version='0.8rc1',
+    version='0.8rc2',
     description='Grade MCQ exams with a webcam',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -35,7 +35,11 @@ setuptools.setup(
         'eyegrade.tools'
     ],
     package_data={
-        'eyegrade': ['data/*', 'data/svm/*']
+        'eyegrade': [
+            'data/*',
+            'data/svm/*',
+            'data/locale/*/LC_MESSAGES/eyegrade.mo',
+        ]
     },
     scripts=[
         'bin/eyegrade',
