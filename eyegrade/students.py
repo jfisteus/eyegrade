@@ -88,6 +88,15 @@ class Student:
         else:
             return ''
 
+    def __lt__(self, other):
+        return self.student_id < other.student_id
+
+    def __eq__(self, other):
+        if isinstance(other, Student):
+            return self.student_id == other.student_id
+        else:
+            return False
+
     def __str__(self):
         return 'student: ' + self.id_and_name
 

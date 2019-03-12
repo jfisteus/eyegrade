@@ -289,6 +289,16 @@ class TestListings(unittest.TestCase):
                               listing.add_students,
                               new_students)
 
+    def test_rank_students(self):
+        # Test for issue #132
+        listing = students.GroupListing(
+            students.StudentGroup(1, 'G'),
+            list(self.students))
+        student_listings = students.StudentListings()
+        student_listings.add_listing(listing)
+        rank = zip([1.5, 1.5, 3], student_listings.iter_students())
+        [student for score, student in sorted(rank, reverse=True)]
+
 
 def _student_tuple(student):
     return (
