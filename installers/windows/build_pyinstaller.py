@@ -119,7 +119,7 @@ for filename in pyi_spec_files:
 
 expected_files = [
     os.path.join(dist_dir, "eyegrade.exe"),
-    os.path.join(dist_dir, "eyegrade-create.exe"),    
+    os.path.join(dist_dir, "eyegrade-create.exe"),
 ]
 try:
     create_dir(dist_files_dir)

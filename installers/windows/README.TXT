@@ -13,7 +13,7 @@ https://github.com/wixtoolset/wix3
 
 3.- Run from the main eyegrade directory:
 
-python setup.py windows -s
+python installers\windows\build_briefcase_wix.py
 
 The installer will appear in the windows subdirectory that will be created.
 
@@ -33,7 +33,7 @@ Use a 32-bit version of python 3.x for maximum portability of the produced files
 
 Create the files from the main eyegrade directory with:
 
-python installers\windows\build.py
+python installers\windows\build_pyinstaller.py
 
 The output installer is created in the dist directory your main
 eyegrade directory.
