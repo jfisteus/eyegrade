@@ -41,10 +41,6 @@ setuptools.setup(
             'data/locale/*/LC_MESSAGES/eyegrade.mo',
         ]
     },
-    scripts=[
-        'bin/eyegrade',
-        'bin/eyegrade-create'
-    ],
     python_requires='>=3.5',
     install_requires=requirements,
     test_suite='tests.get_tests',
