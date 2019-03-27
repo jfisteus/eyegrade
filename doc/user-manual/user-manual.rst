@@ -16,6 +16,29 @@ Installing Eyegrade
 Installation on GNU/Linux
 .........................
 
+We propose several ways to get Eyegrade running,
+so that you can choose the one that better fits your needs
+and experience in Linux systems:
+
+- Install in binary format from a tarball file.
+
+- Install through `pipx` within your user's account.
+
+Both are described below.
+The first alternative is somewhat easier,
+since it doesn't require you to install any other software,
+but has the disadvantages that Eyegrade may take longer to startup
+or, on rare occasions, might fail to start on your Linux system.
+The second alternative, `pipx`,
+requires your system to have Python 3.6 or 3.7 installed.
+The installation procedure is a little bit more complex,
+but in our opinion it's totally worth it
+if you already have Python 3.6 or 3.7.
+
+
+Installation in binary format from a tarball file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Eyegrade for Linux is distributed as a tarball file
 containing the executable files
 `eyegrade` (its main program)
@@ -31,19 +54,79 @@ or place the binaries inside a directory that is already in your `PATH`.
 For example, if you want to place the binaries
 inside `/usr/local/bin`, which is usually in your `PATH`::
 
-  tar xavf eyegrade-0.7-linux-bin.tgz
-  sudo cp eyegrade-0.7-linux-bin/eyegrade /usr/local/bin
-  sudo cp eyegrade-0.7-linux-bin/eyegrade-create /usr/local/bin
+  tar xavf eyegrade-0.8-linux-bin.tgz
+  sudo cp eyegrade-0.8-linux-bin/eyegrade /usr/local/bin
+  sudo cp eyegrade-0.8-linux-bin/eyegrade-create /usr/local/bin
+
+
+Installation through `pipx` within your user's account
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check that your Linux system has Python 3.6 or 3.7 installed
+by running::
+
+  python3 --version
+
+Several things may happen:
+
+- The `python3` command is not found:
+  look for it with your package manager
+  and check that its version is 3.6 or later.
+  The package is called `python3` in most Linux distributions.
+
+- If reports a version number lower than 3.6:
+  your Linux distribution does not probably package a 3.6 or later version.
+  You may install Python 3.6 or 3.7
+  through `pyenv <https://github.com/pyenv/pyenv>`_.
+
+Once you have a working version of Python 3.6 or Python 3.7,
+install `pipx <https://github.com/pipxproject/pipx>`_
+through `pip`::
+
+  python3 -m pip install --user pipx
+
+If you get a message saying that there is no module named `pip`,
+install the `python3-pip` package and then run::
+
+  pip install --user pipx
+
+The `pipx` command might now be available on your shell's PATH. Try to run::
+
+  pipx install eyegrade
+
+If `pipx` isn't found as a command,
+you need to add `$HOME/.local/bin` to your PATH.
+The `pipx` program is able to do that if you run::
+
+  $HOME/.local/bin/pipx ensurepath
+
+Now, try to install Eyegrade again, and it should work::
+
+  pipx install eyegrade
+
+That's it! You can now run Eyegrade by entering the `eyegrade` command
+in a terminal::
+
+  eyegrade
+
+The `eyegrade-create` program will also available as a command-line program::
+
+  eyegrade-create --version
+
 
 
 Installation on Microsoft Windows
 .................................
 
-Download the Windows installer
+Download and install
+`Microsoft's Visual C++ Redistributable for Visual Studio 2015
+<https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_.
+
+Then,
+download Eyegrade's  Windows installer
 from the `downloads page <http://eyegrade.org/download.html>`_
 and run it.
-Once installed, Eyegrade will be installed within your user's account
-and accessible through your Start Menu.
+Once installed, Eyegrade will be accessible through your Start Menu.
 
 **Important:**
 The security systems of Windows will probably alert you
@@ -81,8 +164,8 @@ Upgrading from Eyegrade 0.7 to Eyegrade 0.8
 
 In Linux systems, just replace the binaries of Eyegrade 0.7
 with the new ones.
-In Windows, the installer will automatically detect and uninstall
-Eyegrade 0.7 before installing Eyegrade 0.8.
+In Windows, you can uninstall Eyegrade 0.7
+using the *Add/remove programs* feature.
 
 Eyegrade 0.8 is backwards-compatible with grading sessions
 created with Eyegrade 0.3 and later versions.
