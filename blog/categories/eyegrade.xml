@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 25 Jan 2018 18:34:00 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>New video tutorial</title><link>http://www.eyegrade.org/blog/posts/new-video-tutorial.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Khuất Văn Quyên,
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 14 Mar 2019 09:26:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>New video tutorial</title><link>http://www.eyegrade.org/blog/posts/new-video-tutorial/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Khuất Văn Quyên,
 an eyegrade user from Vietnam,
 has created and published a video tutorial in Youtube
 covering topics such installing eyegrade on Windows,
@@ -9,7 +9,7 @@ Texts are in Vietnamese, but don't worry if you don't speak that language,
 because you should be able to follow the video
 and get most of the information despite of that.&lt;/p&gt;
 &lt;p&gt;Thanks a lot for this contribution!!!&lt;/p&gt;
-&lt;iframe width="360" height="270" src="https://www.youtube.com/embed/PHZLHDxaOxQ" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><category>videos</category><guid>http://www.eyegrade.org/blog/posts/new-video-tutorial.html</guid><pubDate>Thu, 25 Jan 2018 18:21:27 GMT</pubDate></item><item><title>Eyegrade 0.7 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-07-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.7 has been released!
+&lt;iframe width="360" height="270" src="https://www.youtube.com/embed/PHZLHDxaOxQ" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;&lt;/div&gt;</description><category>documentation</category><category>eyegrade</category><category>videos</category><guid>http://www.eyegrade.org/blog/posts/new-video-tutorial/</guid><pubDate>Thu, 25 Jan 2018 18:21:27 GMT</pubDate></item><item><title>Eyegrade 0.7 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-07-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.7 has been released!
 This release includes two main changes from the point of view
 of the final user:&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -26,12 +26,12 @@ and a Windows installer built with
 &lt;/ul&gt;
 &lt;p&gt;Installation is much easier now than before.
 Check the new
-&lt;a class="reference external" href="http://www.eyegrade.org/quick-start-guide.html"&gt;quick start guide&lt;/a&gt;
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/quick-start-guide.html"&gt;quick start guide&lt;/a&gt;
 for instructions,
 also accessible from the
-&lt;a class="reference external" href="http://www.eyegrade.org/documentation.html"&gt;documentation page&lt;/a&gt;.&lt;/p&gt;
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/documentation.html"&gt;documentation page&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Access the binary files for this release
-at the &lt;a class="reference external" href="http://www.eyegrade.org/download.html"&gt;downloads page&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-07-released.html</guid><pubDate>Wed, 26 Jul 2017 09:56:43 GMT</pubDate></item><item><title>Bugfix release 0.6.4</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-064.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The fix in Eyegrade 0.6.3
+at the &lt;a class="reference external" href="http://www.eyegrade.org/blog/download.html"&gt;downloads page&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-07-released/</guid><pubDate>Wed, 26 Jul 2017 09:56:43 GMT</pubDate></item><item><title>Bugfix release 0.6.4</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-064/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;The fix in Eyegrade 0.6.3
 for issue &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108"&gt;#108&lt;/a&gt;
 (the accept button remains sometimes disabled
 in the &lt;em&gt;edit student id&lt;/em&gt; dialog)
@@ -39,24 +39,24 @@ didn't actually fix the problem in some situations.
 I've released Eyegrade 0.6.4 with a fix
 that I hope finally solves the problem.&lt;/p&gt;
 &lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
-if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-064.html</guid><pubDate>Tue, 05 Jul 2016 08:35:57 GMT</pubDate></item><item><title>Bugfix release 0.6.3</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-063.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.3 today.
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-064/</guid><pubDate>Tue, 05 Jul 2016 08:35:57 GMT</pubDate></item><item><title>Bugfix release 0.6.3</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-063/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.3 today.
 This release fixes issues
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108"&gt;#108&lt;/a&gt;
 (again, I hope that it's for good this time)
 and &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/111"&gt;#111&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
-if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-063.html</guid><pubDate>Mon, 21 Mar 2016 12:39:41 GMT</pubDate></item><item><title>Bugfix release 0.6.2</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-062.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.2 today.
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-063/</guid><pubDate>Mon, 21 Mar 2016 12:39:41 GMT</pubDate></item><item><title>Bugfix release 0.6.2</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-062/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.2 today.
 This release fixes a severe bug when grading exams without scoring
 and fixes also issues
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/104"&gt;#104&lt;/a&gt;
 and &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/108"&gt;#108&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
-if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-062.html</guid><pubDate>Mon, 11 Jan 2016 23:10:00 GMT</pubDate></item><item><title>Bugfix release 0.6.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-061.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.1.
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-062/</guid><pubDate>Mon, 11 Jan 2016 23:10:00 GMT</pubDate></item><item><title>Bugfix release 0.6.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-061/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.6.1.
 This release just includes a couple of fixes for bugs
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/105"&gt;#105&lt;/a&gt;
 and &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/issues/106"&gt;#106&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
-if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-061.html</guid><pubDate>Wed, 21 Oct 2015 08:37:13 GMT</pubDate></item><item><title>Eyegrade 0.6 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.6.
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-061/</guid><pubDate>Wed, 21 Oct 2015 08:37:13 GMT</pubDate></item><item><title>Eyegrade 0.6 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-06-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.6.
 This release includes just one main feature
 that the users that don't build their exams with LaTeX
 will find useful:
@@ -103,7 +103,7 @@ by permuting the questions and their answers).&lt;/li&gt;
 &lt;img alt="Editing the key of the exam" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-06/new-session-wizard-manual-3.png"&gt;
 &lt;/div&gt;
 &lt;p&gt;These dialogs are documented in the
-&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#manual-configuration-of-the-exam"&gt;user manual&lt;/a&gt;.
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#manual-configuration-of-the-exam"&gt;user manual&lt;/a&gt;.
 In addition,
 the configuration you entered can be exported
 as a configuration file so that
@@ -111,13 +111,13 @@ you or your colleges can create new sessions with the same configuration
 (see the &lt;em&gt;Tools&lt;/em&gt; menu).&lt;/p&gt;
 &lt;p&gt;But wait,
 what happened to the new OCR system
-that &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html"&gt;I announced for the 0.6 release&lt;/a&gt;?
+that &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-06-released/what-will-eyegrade-06-include-part-1.html"&gt;I announced for the 0.6 release&lt;/a&gt;?
 Unfortunately, I have to leave it for later.
 Although it is ready,
 it depends on some other changes regarding the installation procedure
 that are not yet finished.
 I prefer to keep them for the next release
-in order to avoid delaying the session configuration feature.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-06-released.html</guid><pubDate>Sat, 20 Jun 2015 09:13:00 GMT</pubDate></item><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
+in order to avoid delaying the session configuration feature.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-06-released/</guid><pubDate>Sat, 20 Jun 2015 09:13:00 GMT</pubDate></item><item><title>Bugfix release 0.5.1</title><link>http://www.eyegrade.org/blog/posts/bugfix-release-051/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've released Eyegrade 0.5.1.
 This version does not include any new feature,
 but addresses a bug
 that caused an empty spurious exam
@@ -131,7 +131,7 @@ Additionally,
 it allows Eyegrade to open the session
 even when such an exam made its way into the session database.&lt;/p&gt;
 &lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
-if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-051.html</guid><pubDate>Wed, 22 Apr 2015 22:51:00 GMT</pubDate></item><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-051/</guid><pubDate>Wed, 22 Apr 2015 22:51:00 GMT</pubDate></item><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
 the next release, 0.6, is approaching.
 As I did with the previous release,
 I'll blog about the new features it will include
@@ -173,39 +173,39 @@ and complicated the installation procedure in Linux a little bit.
 If everything goes as planned,
 you can expect a greatly simplified installation procedure,
 especially for Windows users.
-More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>Eyegrade 0.5 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've finally released Eyegrade 0.5.
+More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>Eyegrade 0.5 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've finally released Eyegrade 0.5.
 As I've advanced in the previous four posts,
 its new features are:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;It stores exam captures and updates their miniatures immediately
 when they are captured or you edit an answer or the student id
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;blog post&lt;/a&gt;).&lt;/li&gt;
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-1.html"&gt;blog post&lt;/a&gt;).&lt;/li&gt;
 &lt;li&gt;I've reworked the subsystem that manages the identity of the students.
 Optionally, students may now have separate first and last name,
 and there is a new dialog for entering new students
 when they aren't in your student lists
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html"&gt;blog post&lt;/a&gt;,
-&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#student-list-files"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-2.html"&gt;blog post&lt;/a&gt;,
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#student-list-files"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
 &lt;li&gt;Each question in a exam can have now a different weight in the final scores.
 This way, you can assign a bigger weight to the most important questions
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html"&gt;blog post&lt;/a&gt;,
-&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#scores"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-3.html"&gt;blog post&lt;/a&gt;,
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#scores"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
 &lt;li&gt;If you don't want a question to contribute to the score of the exam,
 now you can do it when creating the session.
 For example, it is useful when you discover an error
 in the statement of a question,
 but it's too late for fixing it.
 With this feature you can avoid grading that question
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html"&gt;blog post&lt;/a&gt;,
-&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#modifying-the-student-id"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-4.html"&gt;blog post&lt;/a&gt;,
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#modifying-the-student-id"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;If you have installed eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
 the program from versions in the series 0.2.x and later
 by executing the command
 &lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed
-(&lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/index.html#updating-eyegrade"&gt;explanation in the user manual&lt;/a&gt;).&lt;/p&gt;
+(&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#updating-eyegrade"&gt;explanation in the user manual&lt;/a&gt;).&lt;/p&gt;
 &lt;p&gt;Be aware that Eyegrade 0.5 uses an updated session database schema.
 Although Eyegrade 0.5 is able to work
 with sessions created by the previous versions of Eyegrade,
 those previous versions don't work
-with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released.html</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item></channel></rss>
+with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item></channel></rss>

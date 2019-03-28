@@ -1,9 +1,6 @@
 .. title: Eyegrade: grading multiple choice exams with a webcam
 .. slug: index
 
-Eyegrade: grading multiple choice exams with a webcam
-=======================================================
-
 .. class:: lead
 
 Eyegrade uses a webcam to grade multiple choice question exams.
@@ -109,6 +106,7 @@ And here is a more current screenshot:
 .. class:: lead
 
 Trying Eyegrade
+------------------
 
 Eyegrade has been used in several courses
 at `Universidad Carlos III de Madrid <http://www.uc3m.es>`_
@@ -121,6 +119,7 @@ if you want to give it a try.
 .. class:: lead
 
 How can you contribute?
+--------------------------
 
 Eyegrade is free software, licensed under the terms of the
 `GNU General Public License (GPL) version 3
@@ -137,6 +136,7 @@ Bug reports, feature requests and pull requests are welcome there.
 .. class:: lead
 
 How can you cite this work from academic papers?
+-----------------------------------------------------
 
 An article describing Eyegrade has been published
 by the Journal of Science Education and Technology:

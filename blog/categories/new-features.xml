@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Eyegrade (new-features)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/new-features.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 03 Apr 2015 20:42:50 GMT</lastBuildDate><generator>http://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about new-features)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/new-features.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 14 Mar 2019 09:26:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
 the next release, 0.6, is approaching.
 As I did with the previous release,
 I'll blog about the new features it will include
@@ -41,12 +41,12 @@ and complicated the installation procedure in Linux a little bit.
 If everything goes as planned,
 you can expect a greatly simplified installation procedure,
 especially for Windows users.
-More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1.html</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
+More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 4)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I'm holding release 0.5 more than expected
 because I plan to add a couple of features more.
 Today I'll talk about one of them.
 Roberto González, a long time user and contributor of Eyegrade,
 wondered in
-&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html#disqus_thread"&gt;his comment to my previous blog post&lt;/a&gt;
+&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4/what-will-eyegrade-05-include-part-3.html#disqus_thread"&gt;his comment to my previous blog post&lt;/a&gt;
 whether the new feature for assigning different scores to questions
 could be used to void those questions that one doesn't want to grade.
 This may be useful, for example,
@@ -80,10 +80,10 @@ You won't be able to do it once the session has been created.
 For future releases
 I'll try to allow changing question scores for existing sessions,
 so that the scores of the exams that have already been graded
-get computed again and their captures get updated.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4.html</guid><pubDate>Thu, 26 Feb 2015 08:50:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 3)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Continuing the series of posts
+get computed again and their captures get updated.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4/</guid><pubDate>Thu, 26 Feb 2015 08:50:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 3)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Continuing the series of posts
 that describe the new features of the future eyegrade 0.5 release
-(see the &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;first&lt;/a&gt;
-and &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html"&gt;second&lt;/a&gt; posts),
+(see the &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3/what-will-eyegrade-05-include-part-1.html"&gt;first&lt;/a&gt;
+and &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3/what-will-eyegrade-05-include-part-2.html"&gt;second&lt;/a&gt; posts),
 I'll introduce today a new one:
 the possibility to assign separate scores to different questions.&lt;/p&gt;
 &lt;p&gt;Until now, the system assumed that all the questions had the same weight
@@ -151,8 +151,8 @@ taking into account the weights you set:&lt;/p&gt;
 &lt;div class="figure"&gt;
 &lt;img alt="Dialog for computing the base score from the desired maximum score" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/compute-scores.png"&gt;
 &lt;/div&gt;
-&lt;p&gt;Keep tuned for more updates.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3.html</guid><pubDate>Sun, 04 Jan 2015 21:03:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 2)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;This post describes another feature that will be available
-in eyegrade 0.5 (see &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html"&gt;the first installment of this series of posts&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Keep tuned for more updates.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3/</guid><pubDate>Sun, 04 Jan 2015 21:03:00 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 2)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;This post describes another feature that will be available
+in eyegrade 0.5 (see &lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2/what-will-eyegrade-05-include-part-1.html"&gt;the first installment of this series of posts&lt;/a&gt;).&lt;/p&gt;
 &lt;p&gt;I've largely reworked the code that handles the student lists.
 In eyegrade 0.5 you'll see two visible changes regarding this.
 Firstly, you'll be able to specify the first and last name of
@@ -181,7 +181,7 @@ This is the current look of the dialog,
 although it might change before the release:&lt;/p&gt;
 &lt;div class="figure"&gt;
 &lt;img alt="Screenshot of the new dialog for adding a new student" class="thumbnail" src="http://www.eyegrade.org/galleries/screenshots-05/new-student-preview.png"&gt;
-&lt;/div&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2.html</guid><pubDate>Mon, 29 Dec 2014 16:54:15 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Apart from fixing some minor issues here and there,
+&lt;/div&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2/</guid><pubDate>Mon, 29 Dec 2014 16:54:15 GMT</pubDate></item><item><title>What will eyegrade 0.5 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Apart from fixing some minor issues here and there,
 I'm currently busy adding some new features to eyegrade.
 Some of them are already integrated into the
 &lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/tree/development"&gt;development branch at GitHub&lt;/a&gt;.
@@ -208,4 +208,4 @@ when the webcam captures a new exam or you edit an exam.
 I believe that having that immediate feedback
 will improve the overall user experience.&lt;/p&gt;
 &lt;p&gt;More posts will follow with the description of other
-new features.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1.html</guid><pubDate>Sun, 28 Dec 2014 13:46:16 GMT</pubDate></item></channel></rss>
+new features.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1/</guid><pubDate>Sun, 28 Dec 2014 13:46:16 GMT</pubDate></item></channel></rss>
