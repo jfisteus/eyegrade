@@ -1364,23 +1364,40 @@ Creating the PDF files
 
 Once the exam file and the template have been created,
 the `eyegrade-create` program parses them and generates the exam in PDF format,
-provided that LaTeX is installed and available in your system's PATH
+provided that LaTeX is installed and available in your system's `PATH`
 (see `Installing the LaTeX system`_).
 
-You'll need the `eyegrade-create.exe` (just `eyegrade-create` on Linux)
+You'll use the `eyegrade-create.exe` (just `eyegrade-create` on Linux)
 binary file.
-Note that, on Windows, you can get this file from
-Eyegrade's installation folder,
-which you can open from Eyegrade's entry at the Start Menu.
 The only way to run `eyegrade-create` by now is from a command-prompt console.
-Therefore, it is better to
-copy the `eyegrade-create` program
-somewhere in your
-computer where you find it convenient
-(for example, the directory where you have prepared your exam's source files).
+If you are on Windows,
+you'll need to provide its full location in the console::
 
-Once you have located `eyegrade-create`, run the following command
-from a command-line console::
+  "C:\Program File (x86)\eyegrade\app\eyegrade-create" -v
+
+Don't forget to add the double quotation marks
+because of the white spaces within its path.
+Alternatively,
+you may add the `C:\\Program Files (x86)\\eyegrade\\app`
+to your system's `PATH`
+(see, for example,
+`this guide about changing the PATH variable in Windows 10 <https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/>`_).
+If you do that, you won't need to enter the full path of the program::
+
+  eyegrade-create -v
+
+On Linux, just run `eyegrade-create` from a console,
+because with the two suggested installation methods the program
+will be in your shell's `PATH` variable::
+
+  eyegrade-create -v
+
+Once you are able to run `eyegrade-create`,
+let's see how to create the PDF files of your exams.
+Run the following command
+from a command-line console
+(remember to change it to the full path if you are in Windows
+and it isn't in your `PATH`)::
 
   eyegrade-create -e exam-questions.xml -m 0AB template.tex -o exam
 
