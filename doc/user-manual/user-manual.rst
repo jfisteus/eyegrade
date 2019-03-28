@@ -7,6 +7,14 @@ Eyegrade User Manual
 .. section-numbering::
 
 This is the user manual for Eyegrade 0.8.
+Versions of this manual for earlier versions
+are available:
+`0.7 <../user-manual-0.7>`_,
+`0.6 <../user-manual-0.6>`_,
+`0.5 <../user-manual-0.5>`_,
+`0.4 <../user-manual-0.4>`_,
+`0.2 <../user-manual-0.2>`_.
+
 
 
 Installing Eyegrade
