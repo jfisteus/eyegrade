@@ -36,10 +36,10 @@ For more information about Eyegrade you can visit:
 
 - Its website: https://www.eyegrade.org/
 - Its blog: https://www.eyegrade.org/blog/
-- Its documentation: https://www.eyegrade.org/documentation.html
+- Its documentation: https://www.eyegrade.org/documentation/
 - Its source code at GitHub: https://github.com/jfisteus/eyegrade
 - The downloads page, for pre-built binary files:
-  https://www.eyegrade.org/download.html
+  https://www.eyegrade.org/download/
 
 Eyegrade is fully functional and has been used in courses at
 Universidad Carlos III de Madrid and other institutions since 2010.
