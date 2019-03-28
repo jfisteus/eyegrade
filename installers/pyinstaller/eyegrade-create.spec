@@ -3,7 +3,7 @@ import platform
 import os.path
 import glob
 
-a = Analysis(['../../bin/eyegrade-create'],
+a = Analysis(['eyegrade-create-launcher.py'],
              pathex=['.'],
              hookspath=None,
              runtime_hooks=None)
