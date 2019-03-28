@@ -1381,7 +1381,7 @@ The only way to run `eyegrade-create` by now is from a command-prompt console.
 If you are on Windows,
 you'll need to provide its full location in the console::
 
-  "C:\Program File (x86)\eyegrade\app\eyegrade-create" -v
+  "C:\Program File (x86)\eyegrade\app\eyegrade-create" --version
 
 Don't forget to add the double quotation marks
 because of the white spaces within its path.
@@ -1392,13 +1392,13 @@ to your system's `PATH`
 `this guide about changing the PATH variable in Windows 10 <https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/>`_).
 If you do that, you won't need to enter the full path of the program::
 
-  eyegrade-create -v
+  eyegrade-create --version
 
 On Linux, just run `eyegrade-create` from a console,
 because with the two suggested installation methods the program
 will be in your shell's `PATH` variable::
 
-  eyegrade-create -v
+  eyegrade-create --version
 
 Once you are able to run `eyegrade-create`,
 let's see how to create the PDF files of your exams.
