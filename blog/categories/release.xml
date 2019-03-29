@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 29 Mar 2019 10:26:17 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 29 Mar 2019 14:25:56 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
 This release includes several changes from the point of view
 of the final user:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;A new dialog to import and manage student lists.&lt;/li&gt;
-&lt;li&gt;Ability to import student lists from Excel (.xlst) files.&lt;/li&gt;
-&lt;li&gt;Ability to export exam results to Excel (.xlst) files.&lt;/li&gt;
+&lt;li&gt;Ability to import student lists from Excel (.xlsx) files.&lt;/li&gt;
+&lt;li&gt;Ability to export exam results to Excel (.xlsx) files.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Other changes include:&lt;/p&gt;
 &lt;ul class="simple"&gt;

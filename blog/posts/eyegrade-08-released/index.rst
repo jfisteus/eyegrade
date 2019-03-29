@@ -13,9 +13,9 @@ of the final user:
 
 - A new dialog to import and manage student lists.
 
-- Ability to import student lists from Excel (.xlst) files.
+- Ability to import student lists from Excel (.xlsx) files.
 
-- Ability to export exam results to Excel (.xlst) files.
+- Ability to export exam results to Excel (.xlsx) files.
 
 Other changes include:
 
