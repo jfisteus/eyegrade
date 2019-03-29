@@ -17,7 +17,7 @@ In order to follow this guide you'll need:
 
 - A webcam
 
-Go to the `downloads page <download.html>`_.
+Go to the `downloads page <../download/>`_.
 If you are on Windows,
 download the latest stable
 release of the Eyegrade installer for Windows from there.

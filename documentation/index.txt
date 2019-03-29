@@ -6,7 +6,7 @@ User guides
 
 - `Quick start guide <../quick-start-guide/index.html>`_
 
-- `Eyegrade user manual <doc/user-manual/>`_
+- `Eyegrade user manual <../doc/user-manual/>`_
 
 
 Videos

@@ -15,8 +15,8 @@ Latest version
 ---------------
 
 The latest available version is
-**Eyegrade 0.7**,
-which was released on July 26, 2017.
+**Eyegrade 0.8**,
+which was released on March 29, 2019.
 
 
 .. class:: alert alert-info sidebar
@@ -31,6 +31,11 @@ News
 |rssicon| `Subscribe <blog/rss.xml>`_
 | `Read more news at the blog <blog/index.html>`_
 
+
+**[Mar 29, 2019]**
+Eyegrade 0.8 has been released!
+See the `blog post <blog/posts/eyegrade-08-released/>`__
+or go to the `downloads page <download/>`__.
 
 **[Jan 25, 2018]**
 A user from Vietnam has contributed with a nice video tutorial.
@@ -52,13 +57,7 @@ See the `blog post <blog/posts/bugfix-release-063.html>`__.
 
 **[Jan 11, 2016]**
 Eyegrade 0.6.2 has been released!
-See the `blog post <blog/posts/bugfix-release-062.html>`__.
-
-**[Oct 21, 2015]**
-Eyegrade 0.6.1 has been released!
-See the `blog post <blog/posts/bugfix-release-061.html>`__.
-
-
+See the `blog post <blog/posts/bugfix-release-062.html>`__
 
 
 Main features
@@ -112,7 +111,7 @@ Eyegrade has been used in several courses
 at `Universidad Carlos III de Madrid <http://www.uc3m.es>`_
 since 2010,
 as well as in other institutions worldwide.
-Follow the `quick start guide <quick-start-guide.html>`_
+Follow the `quick start guide <quick-start-guide/>`_
 if you want to give it a try.
 
 

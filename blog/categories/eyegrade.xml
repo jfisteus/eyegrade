@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 14 Mar 2019 09:26:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>New video tutorial</title><link>http://www.eyegrade.org/blog/posts/new-video-tutorial/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Khuất Văn Quyên,
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about eyegrade)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/eyegrade.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 29 Mar 2019 10:26:17 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
+This release includes several changes from the point of view
+of the final user:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;A new dialog to import and manage student lists.&lt;/li&gt;
+&lt;li&gt;Ability to import student lists from Excel (.xlst) files.&lt;/li&gt;
+&lt;li&gt;Ability to export exam results to Excel (.xlst) files.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Other changes include:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Port to Python 3 (3.5 or later). Python 2 is no longer supported.&lt;/li&gt;
+&lt;li&gt;Port to OpenCV 3 and 4. OpenCV 2.4 is no longer supported.&lt;/li&gt;
+&lt;li&gt;Port to Qt/PyQt 5. Qt/PyQt 4 are no longer supported.&lt;/li&gt;
+&lt;li&gt;A new Windows installer build with &lt;a class="reference external" href="https://pybee.org/project/projects/tools/briefcase/"&gt;briefcase&lt;/a&gt; and the &lt;a class="reference external" href="http://wixtoolset.org/"&gt;WiX Toolset&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Some major code refactorings.&lt;/li&gt;
+&lt;li&gt;Some bugfixes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Installation procedures have been changed.
+Check the new
+&lt;a class="reference external" href="http://www.eyegrade.org/quick-start-guide/"&gt;quick start guide&lt;/a&gt;
+for instructions,
+also accessible from the
+&lt;a class="reference external" href="http://www.eyegrade.org/documentation/"&gt;documentation page&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Access the binary files for this release
+at the &lt;a class="reference external" href="http://www.eyegrade.org/download/"&gt;downloads page&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</guid><pubDate>Fri, 29 Mar 2019 10:11:38 GMT</pubDate></item><item><title>New video tutorial</title><link>http://www.eyegrade.org/blog/posts/new-video-tutorial/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Khuất Văn Quyên,
 an eyegrade user from Vietnam,
 has created and published a video tutorial in Youtube
 covering topics such installing eyegrade on Windows,
@@ -173,39 +197,4 @@ and complicated the installation procedure in Linux a little bit.
 If everything goes as planned,
 you can expect a greatly simplified installation procedure,
 especially for Windows users.
-More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item><item><title>Eyegrade 0.5 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've finally released Eyegrade 0.5.
-As I've advanced in the previous four posts,
-its new features are:&lt;/p&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;It stores exam captures and updates their miniatures immediately
-when they are captured or you edit an answer or the student id
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-1.html"&gt;blog post&lt;/a&gt;).&lt;/li&gt;
-&lt;li&gt;I've reworked the subsystem that manages the identity of the students.
-Optionally, students may now have separate first and last name,
-and there is a new dialog for entering new students
-when they aren't in your student lists
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-2.html"&gt;blog post&lt;/a&gt;,
-&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#student-list-files"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
-&lt;li&gt;Each question in a exam can have now a different weight in the final scores.
-This way, you can assign a bigger weight to the most important questions
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-3.html"&gt;blog post&lt;/a&gt;,
-&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#scores"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
-&lt;li&gt;If you don't want a question to contribute to the score of the exam,
-now you can do it when creating the session.
-For example, it is useful when you discover an error
-in the statement of a question,
-but it's too late for fixing it.
-With this feature you can avoid grading that question
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-05-released/what-will-eyegrade-05-include-part-4.html"&gt;blog post&lt;/a&gt;,
-&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#modifying-the-student-id"&gt;explanation in the user manual&lt;/a&gt;).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;If you have installed eyegrade through &lt;em&gt;git&lt;/em&gt;, you can easily update
-the program from versions in the series 0.2.x and later
-by executing the command
-&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed
-(&lt;a class="reference external" href="http://www.eyegrade.org/blog/doc/user-manual/index.html#updating-eyegrade"&gt;explanation in the user manual&lt;/a&gt;).&lt;/p&gt;
-&lt;p&gt;Be aware that Eyegrade 0.5 uses an updated session database schema.
-Although Eyegrade 0.5 is able to work
-with sessions created by the previous versions of Eyegrade,
-those previous versions don't work
-with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item></channel></rss>
+More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item></channel></rss>

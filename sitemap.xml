@@ -7,11 +7,11 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://www.eyegrade.org/</loc>
-  <lastmod>2019-03-14T09:26:00Z</lastmod>
+  <lastmod>2019-03-29T09:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/</loc>
-  <lastmod>2019-03-14T09:26:00Z</lastmod>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2013/</loc>
@@ -38,8 +38,12 @@
   <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
+  <loc>http://www.eyegrade.org/blog/2019/</loc>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
+ </url>
+ <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
-  <lastmod>2019-03-22T11:04:00Z</lastmod>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/</loc>
@@ -87,7 +91,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-2.html</loc>
-  <lastmod>2019-03-22T11:04:00Z</lastmod>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-051/</loc>
@@ -136,6 +140,10 @@
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-07-released/</loc>
   <lastmod>2019-03-14T09:26:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</loc>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location/</loc>
@@ -202,8 +210,12 @@
   <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
+  <loc>http://www.eyegrade.org/doc/user-manual-0.7/</loc>
+  <lastmod>2019-03-29T09:06:00Z</lastmod>
+ </url>
+ <url>
   <loc>http://www.eyegrade.org/doc/user-manual/</loc>
-  <lastmod>2019-03-14T09:26:00Z</lastmod>
+  <lastmod>2019-03-29T09:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/documentation/</loc>
@@ -239,7 +251,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-1/</loc>
-  <lastmod>2019-03-14T09:26:00Z</lastmod>
+  <lastmod>2019-03-29T09:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-2/</loc>

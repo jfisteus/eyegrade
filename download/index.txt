@@ -7,17 +7,24 @@ Download
 Latest stable release:
 -----------------------
 
-The latest stable release is Eyegrade 0.7.
+The latest stable release is Eyegrade 0.8.
 The recommended way of installation,
 depending on your operating system, is:
 
 - Windows installer:
-  `eyegrade-setup-0.7.exe <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.7/eyegrade-setup-0.7.exe>`_
+  `eyegrade-0.8.msi <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8/eyegrade-0.8.msi>`_
+  (you'll need to install `Microsoft's Visual C++ Redistributable for Visual Studio 2015 <https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_ first).
 
 - Linux portable binary files:
-  `eyegrade-0.7-bin-linux.tar.gz <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.7/eyegrade-0.7-bin-linux.tar.gz>`_
+  `eyegrade-0.8-bin-linux.tar.gz <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8/eyegrade-0.8-bin-linux.tar.gz>`_
   (these binaries should be compatible with any reasonably recent distribution,
-  more or less from 2014 or more recent)
+  more or less from 2016 or more recent)
+
+- Through `pipx <https://github.com/pipxproject/pipx>`_.
+  Just run: `pipx install eyegrade`.
+
+You'll find detailed installation instructions
+in the `user guide <../doc/user-manual/#installing-eyegrade>`_.
 
 There is no support for Mac OS/X yet.
 Volunteers for finding and documenting how to install it
@@ -25,7 +32,7 @@ on that platform are welcome.
 
 If you are trying Eyegrade for the first time,
 you may want to go through the
-`quick start guide <../quick-start-guide/index.html>`_.
+`quick start guide <../quick-start-guide/>`_.
 
 Checksums
 ............
@@ -34,16 +41,16 @@ On Windows, you can verify the checksum of the installer
 from a command-line console
 by entering the following command::
 
-  certUtil -hashfile eyegrade-setup-0.7.exe SHA512
+  certUtil -hashfile eyegrade-0.8.msi SHA512
 
 On Linux, run::
 
-  sha512sum eyegrade-0.7-bin-linux.tar.gz
+  sha512sum eyegrade-0.8-bin-linux.tar.gz
 
 SHA-512 checksums::
 
-  9fced8d2e67eae6a977eb7f4749d2788af19d08eeaab5585f649b131dbc7a5e623252ccc6e5b006e97e82596f190548149ef07887aeb4f7ffd0dfb85f8043eb0  eyegrade-setup-0.7.exe
-  a9fd990ee44a8c80bf7e2644a4e1a7be040f7faa82c58a746192f3759101af333fb1e503a53efc1cbb7bc4f13d585fdfcb945f5017fe8aa8123b2e20e6aad6d7  eyegrade-0.7-bin-linux.tar.gz
+  d5c89afbb3f105c22336fbdcdf18d288ff88505df54b5d550713f4e8a0cb6b36b4a48891cb285e3f6ac1e29c941fd4bbcb6311835da1fba74cd691145cd89a7e  eyegrade-0.8.msi
+  2be5f9bf3b2f063b0f726c5c6afa9ae6a27ab643361d5e5b46b327473ae00c1fc8a9eed9d5871bbc4fbae0c9c9568b7fe8da12163c1532e12cc16624244c0b41  eyegrade-0.8-bin-linux.tar.gz
 
 
 
@@ -52,16 +59,13 @@ Installation through pip:
 
 If you are familiar with the Python ecosystem,
 you can try to get Eyegrade from PyPI instead.
-Install Python 2.7,
-OpenCV 2.4 (including its Python bindings)
-and PyQt4. Then, run::
+Install Python 3.5 or a later release.
+Then, run::
 
-    pip install eyegrade
+    python3 -m pip install eyegrade
 
-Note: on Debian and Ubuntu systems Python 2.7 should be installed by default,
-and you can get OpenCV and PyQt by installing
-the packages `python-opencv` and `python-qt4`.
-
+Nevertheless, I'd rather install eyegrade through `pipx`
+as explained in the `user guide <../doc/user-manual/#installing-eyegrade>`_.
 
 License:
 ----------
@@ -82,8 +86,7 @@ To download it through git::
   git clone https://github.com/jfisteus/eyegrade.git
 
 In order to run the program from its sources,
-you'll need Python 2.7, OpenCV 2.4 (including its python bindings)
-and PyQt4 (`master` branch) or PyQt5 (`development` branch).
+you'll need Python 3.5 or a later version.
 
 
 Contribute!
