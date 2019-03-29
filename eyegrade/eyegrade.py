@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,9 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import division, print_function
 
 # The gettext module needs in Windows an environment variable
 # to be defined before importing the gettext module itself
@@ -36,11 +35,14 @@ import gettext
 # Local imports
 from . import detection
 from . import utils
+from . import exams
 from .qtgui import gui
 from . import sessiondb
+from . import export
+
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 utils.EyegradeException.register_error('no_camera',
     _('There is no suitable webcam. Eyegrade needs a webcam to work.\n'
@@ -66,7 +68,7 @@ capture_change_period_failure = 0.3
 after_removal_delay = 1.0
 
 
-class ImageDetectTask(object):
+class ImageDetectTask:
     """Used for running image detection in another thread."""
     def __init__(self, detector):
         self.detector = detector
@@ -76,7 +78,7 @@ class ImageDetectTask(object):
         self.detector = None
 
 
-class ImageChangeTask(object):
+class ImageChangeTask:
     """Used for running image change detection in another thread."""
     def __init__(self, detector, reference_image):
         self.detector = detector
@@ -87,7 +89,7 @@ class ImageChangeTask(object):
         self.detector = None
 
 
-class ManualDetectionManager(object):
+class ManualDetectionManager:
     def __init__(self, exam, dimensions, detection_context, detector_options):
         self.exam = exam
         self.points = []
@@ -107,7 +109,7 @@ class ManualDetectionManager(object):
         return self.detector.detect_manual(self.points)
 
 
-class ProgramMode(object):
+class ProgramMode:
     """Represents the mode in which the program is."""
     no_session = 0
     session = 1
@@ -149,7 +151,7 @@ class ProgramMode(object):
                 or self.in_manual_detect())
 
     def enter_mode(self, mode):
-        self.mode == mode
+        self.mode = mode
 
     def enter_no_session(self):
         self.mode = ProgramMode.session
@@ -170,7 +172,7 @@ class ProgramMode(object):
         self.mode = ProgramMode.manual_detect
 
 
-class ProgramManager(object):
+class ProgramManager:
     """Manages a grading session."""
 
     def __init__(self, interface, session_file=None):
@@ -392,12 +394,14 @@ class ProgramManager(object):
                         scores = self.exam_data.scores[model]
                     else:
                         scores = None
-                    exam = utils.Exam(detector.capture, detector.decisions,
-                                      self.exam_data.get_solutions(model),
-                                      self.sessiondb.students,
-                                      self.exam_id,
-                                      scores,
-                                      sessiondb=self.sessiondb)
+                    exam = exams.Exam(
+                        detector.capture,
+                        detector.decisions,
+                        self.exam_data.get_solutions(model),
+                        self.sessiondb.student_listings,
+                        self.exam_id,
+                        scores,
+                        sessiondb=self.sessiondb)
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
                     msg = _('There are no solutions for model {0}.')\
@@ -413,16 +417,17 @@ class ProgramManager(object):
             self.exam_data.capture_pattern = \
                                 self.config['save-filename-pattern']
             try:
-                sessiondb.create_session_directory(values['directory'],
-                                                   self.exam_data,
-                                                   values['id_list_files'])
+                sessiondb.create_session_directory(
+                    values['directory'],
+                    self.exam_data,
+                    values['student_listings'])
                 self.sessiondb = sessiondb.SessionDB(values['directory'])
                 self.sessiondb.capture_save_func = self.interface.save_capture
             except IOError as e:
                 self.interface.show_error(_('Input/output error:')
                                           + ' ' + e.message)
             except utils.EyegradeException as e:
-                self.interface.show_error(_('Error:') + u' ' + unicode(e))
+                self.interface.show_error(_('Error:') + ' ' + str(e))
             else:
                 self._start_session()
 
@@ -460,12 +465,12 @@ class ProgramManager(object):
             self.sessiondb = None
             self.exam_data = None
             success = False
-            message = _('Error loading the session') + u': ' + unicode(e)
+            message = _('Error loading the session') + ': ' + str(e)
         except IOError as e:
             self.sessiondb = None
             self.exam_data = None
             success = False
-            message = _('Error loading the session') + u': ' + unicode(e)
+            message = _('Error loading the session') + ': ' + str(e)
         return success, message
 
     def _close_session(self):
@@ -523,10 +528,14 @@ class ProgramManager(object):
             if self.latest_detector is None:
                 return
             detector = self.latest_detector
-            self.exam = utils.Exam(detector.capture, detector.decisions,
-                                   [], self.sessiondb.students,
-                                   self.exam_id, None,
-                                   sessiondb=self.sessiondb)
+            self.exam = exams.Exam(
+                detector.capture,
+                detector.decisions,
+                [],
+                self.sessiondb.student_listings,
+                self.exam_id,
+                None,
+                sessiondb=self.sessiondb)
             self.exam.reset_image()
             enable_manual_detection = True
         else:
@@ -570,12 +579,19 @@ class ProgramManager(object):
     def _action_manual_detect(self):
         """Callback for the manual detection action."""
         if self.mode.in_search():
-            # Take the current snapshot and go to review mode
-            self.exam = utils.Exam(self.latest_detector.capture,
-                                   self.latest_detector.decisions,
-                                   [], self.sessiondb.students,
-                                   self.exam_id, None,
-                                   sessiondb=self.sessiondb)
+            # Take the current snapshot and go to manual detect mode
+            self.exam = exams.Exam(
+                self.latest_detector.capture,
+                self.latest_detector.decisions,
+                [],
+                self.sessiondb.student_listings,
+                self.exam_id,
+                None,
+                sessiondb=self.sessiondb)
+            # Store the exam in order to emulate entering this mode
+            # from review mode.
+            self._store_exam(self.exam)
+            self.interface.run_later(self._store_capture_and_add, delay=100)
         self.exam.reset_image()
         self._start_manual_detect_mode()
 
@@ -584,7 +600,9 @@ class ProgramManager(object):
         if not self.mode.in_review():
             return
         students = self.exam.ranked_student_ids()
-        student = self.interface.dialog_student_id(students)
+        student = self.interface.dialog_student_id(
+            students,
+            self.sessiondb.student_listings)
         if student is not None:
             self.exam.update_student_id(student)
             self.interface.update_text_up(self.exam.get_student_id_and_name())
@@ -627,23 +645,23 @@ class ProgramManager(object):
 
     def _action_export_grades(self):
         """Action for exporting the list of grades."""
-        student_groups = self.sessiondb.get_student_groups()
-        opts = self.interface.dialog_export_grades(student_groups)
-        if opts is not None:
-            filename, data_type, students, group, sort_key, options = opts
-            options['all_students'] = (students == 0)
-            options['student_group'] = group
-            options['sort_key'] = sort_key
+        helper = export.GradesExportHelper(
+            self.exam_data,
+            self.sessiondb.get_student_groups())
+        result = self.interface.dialog_export_grades(helper)
+        if result:
             try:
-                self.sessiondb.export_grades(filename,
-                                             self.config['csv-dialect'],
-                                             **options)
+                self.sessiondb.export_grades(helper)
             except IOError as e:
                 msg = _('Input/output error: {0}').format(e.strerror)
                 self.interface.show_error(msg)
             else:
                 self.interface.show_information(_('The file has been saved.'),
                                                 title=_('File saved'))
+
+    def _action_students(self):
+        student_listings = self.sessiondb.student_listings
+        self.interface.dialog_students(student_listings)
 
     def _action_export_exam_config(self):
         """Callback for exporting the current exam configuration."""
@@ -696,6 +714,10 @@ class ProgramManager(object):
                     new_exam.draw_answers()
                 else:
                     success = False
+            # Remove the exam that was saved previously,
+            # before having started the manual review mode:
+            self.sessiondb.remove_exam(self.exam.exam_id)
+            self.interface.remove_exam(self.exam)
             if not success:
                 self.exam.reset_image()
                 self.interface.show_error(_('Manual detection failed'))
@@ -790,6 +812,7 @@ class ProgramManager(object):
             ('actions', 'tools', 'auto_change'): \
                                             self._action_auto_change_changed,
             ('actions', 'exams', 'export'): self._action_export_grades,
+            ('actions', 'exams', 'students'): self._action_students,
             ('actions', 'help', 'help'): self._action_help,
             ('actions', 'help', 'website'): self._action_website,
             ('actions', 'help', 'source'): self._action_source_code,
@@ -805,8 +828,8 @@ def main():
     # the loading of the translations must be done here instead of the
     # gui module:
     #
-    from PyQt4.QtGui import QApplication
-    from PyQt4.QtCore import QTranslator, QLocale, QLibraryInfo
+    from PyQt5.QtWidgets import QApplication
+    from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
     app = QApplication(sys.argv)
     translator = QTranslator()
     success = translator.load(QLocale.system(), 'qt', '_',
@@ -816,7 +839,7 @@ def main():
                                   utils.qt_translations_dir())
     app.installTranslator(translator)
     if len(sys.argv) >= 2:
-        filename = utils.path_to_unicode(sys.argv[1])
+        filename = sys.argv[1]
     else:
         filename = None
     try:
@@ -825,7 +848,7 @@ def main():
         manager = ProgramManager(interface, session_file=filename)
         manager.run()
     except utils.EyegradeException as ex:
-        print(unicode(ex).encode(sys.stdout.encoding))
+        print(ex)
         sys.exit(1)
 
 if __name__ == '__main__':

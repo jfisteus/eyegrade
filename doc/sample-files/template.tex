@@ -15,7 +15,7 @@
 
 \begin{center}
 \begin{tabular}{p{5.2cm}r}
-\multirow{5}{*}[0.35cm]{\scalebox{0.18}{\includegraphics{sample-logo.eps}}} &
+\multirow{5}{*}[0.35cm]{\scalebox{0.18}{\includegraphics{sample-logo.pdf}}} &
 \Large  \textbf{{{subject}}} \\
 & \textbf{{{degree}}} \\
 & \\
@@ -29,9 +29,8 @@ Duration: {{duration}}
 \vspace{0.5cm}
 
 \emph{There is only one correct answer for each multiple choice
-  question.  Each correct answer adds 1 point.  Each incorrect answer
-  has a penalty of $1/3$ points.  If no answer no score is awarded,
-  neither positive nor negative.}
+  question.  Score por correct answers:  {{score_correct}}.
+  Penalty for wrong answers: {{score_incorrect}} points.}
 
 \vspace{0.5cm}
 
@@ -80,8 +79,6 @@ Group:   &  \\
 \large
 \textbf{Model:} {{model}}
 \end{center}
-
-{{id-box(9,ID)}}
 
 {{answer-table}}
 

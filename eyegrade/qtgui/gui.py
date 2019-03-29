@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,22 +13,40 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import division
-
 import gettext
 
-#from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import (QWidget, QMainWindow,
-                         QSizePolicy, QVBoxLayout, QStackedLayout,
-                         QLabel, QIcon, QAction, QMenu, QDialog,
-                         QFileDialog, QHBoxLayout,
-                         QMessageBox, QPixmap,
-                         QKeySequence, QStyleFactory, )
+from PyQt5.QtGui import (
+    QIcon,
+    QKeySequence,
+    QPixmap,
+)
 
-from PyQt4.QtCore import (Qt, QTimer, QRunnable, QThreadPool,
-                          QObject, pyqtSignal,)
+from PyQt5.QtWidgets import (
+    QAction,
+    QDialog,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QSizePolicy,
+    QStackedLayout,
+    QStyleFactory,
+    QVBoxLayout,
+    QWidget,
+)
+
+from PyQt5.QtCore import (
+    QObject,
+    QRunnable,
+    QThreadPool,
+    QTimer,
+    Qt,
+    pyqtSignal,
+)
 
 from .. import utils
 from . import examsview
@@ -38,10 +54,11 @@ from . import widgets
 from . import wizards
 from . import dialogs
 from . import export
+from . import students
 from . import FileNameFilters
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 
 class _WorkerSignalEmitter(QObject):
@@ -61,7 +78,7 @@ class Worker(QRunnable):
         The `task` must be an object that implements a `run()` method.
 
         """
-        super(Worker, self).__init__()
+        super().__init__()
         self.task = task
         self.is_done = False
         self.signals = _WorkerSignalEmitter()
@@ -88,7 +105,7 @@ class Worker(QRunnable):
         Worker._worker_count = len(Worker._active_workers)
 
 
-class ActionsManager(object):
+class ActionsManager:
     """Creates and manages the toolbar buttons."""
 
     _actions_grading_data = [
@@ -117,6 +134,7 @@ class ActionsManager(object):
 
     _actions_exams_data = [
         ('search', 'search.svg', _('&Search'), []),
+        ('students', None, _('S&tudents'), []),
         ('export', 'export.svg', _('&Export grades listing'), []),
         ]
 
@@ -191,6 +209,7 @@ class ActionsManager(object):
         self.actions_tools['camera'].setEnabled(False)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(False)
         self.actions_exams['export'].setEnabled(False)
 
     def set_review_from_grading_mode(self):
@@ -209,6 +228,7 @@ class ActionsManager(object):
         self.actions_tools['camera'].setEnabled(False)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(True)
         self.actions_exams['export'].setEnabled(True)
 
     def set_review_from_session_mode(self):
@@ -227,6 +247,7 @@ class ActionsManager(object):
         self.actions_tools['camera'].setEnabled(True)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(True)
         self.actions_exams['export'].setEnabled(True)
 
     def set_session_mode(self):
@@ -246,6 +267,7 @@ class ActionsManager(object):
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(True)
         self.actions_exams['export'].setEnabled(True)
 
     def set_manual_detect_mode(self):
@@ -264,6 +286,7 @@ class ActionsManager(object):
         self.actions_tools['camera'].setEnabled(False)
         self.actions_tools['export_exam_config'].setEnabled(True)
         self.actions_exams['search'].setEnabled(False)
+        self.actions_exams['students'].setEnabled(False)
         self.actions_exams['export'].setEnabled(False)
 
     def set_no_session_mode(self):
@@ -408,7 +431,7 @@ class CenterView(QWidget):
                      utils.resource_path('unanswered.svg')
 
     def __init__(self, parent=None):
-        super(CenterView, self).__init__(parent)
+        super().__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.center = QStackedLayout()
@@ -494,7 +517,7 @@ class CenterView(QWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
         policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.setSizePolicy(policy)
         self.setStatusBar(widgets.StatusBar(self))
@@ -549,7 +572,7 @@ class MainWindow(QMainWindow):
         self.statusBar().set_message(text)
 
 
-class Interface(object):
+class Interface:
     def __init__(self, app, id_enabled, id_list_enabled, argv,
                  preferred_styles=None):
         self.app = app
@@ -669,7 +692,7 @@ class Interface(object):
         ('action', 'session', 'close').
 
         """
-        for key, listener in listeners.iteritems():
+        for key, listener in listeners.items():
             self.register_listener(key, listener)
 
     def register_listener(self, key, listener):
@@ -746,14 +769,17 @@ class Interface(object):
         else:
             return None
 
-    def dialog_student_id(self, student_ids):
+    def dialog_student_id(self, ranked_students, student_listings):
         """Displays a dialog to change the student id.
 
         Returns a student object with the option selected by the user.
         The return value is None if the user cancels the dialog.
 
         """
-        dialog = dialogs.DialogStudentId(self.window, student_ids)
+        dialog = students.DialogStudentId(
+            self.window,
+            ranked_students,
+            student_listings)
         return dialog.exec_()
 
     def dialog_open_session(self):
@@ -762,13 +788,13 @@ class Interface(object):
         The filename of the session file is returned or None.
 
         """
-        filename = QFileDialog.getOpenFileName(self.window,
+        filename, __ = QFileDialog.getOpenFileName(self.window,
                                                _('Select the session file'),
                                                '',
                                                FileNameFilters.session_db,
                                                None,
                                                QFileDialog.DontUseNativeDialog)
-        return unicode(filename) if filename else None
+        return filename if filename else None
 
     def dialog_camera_selection(self, capture_context):
         """Displays a camera selection dialog.
@@ -780,16 +806,20 @@ class Interface(object):
         dialog = dialogs.DialogCameraSelection(capture_context, self.window)
         return dialog.exec_()
 
-    def dialog_export_grades(self, student_groups):
+    def dialog_export_grades(self, helper):
         """Displays the dialog for exporting grades.
 
-        `student_groups` is a list of utils.StudentGroup objects.
+        `helper` is a `eyegrade.export.GradesExportHelper object.
 
-        If accepted by the user, it returns the tuple (filename, file type,
-        students, fields).  Returns None if cancelled.
+        If accepted by the user, it returns True, else False.
 
         """
-        dialog = export.DialogExportGrades(self.window, student_groups)
+        dialog = export.DialogExportGrades(self.window, helper)
+        return dialog.exec_()
+
+    def dialog_students(self, student_listings):
+        """Displays the student list."""
+        dialog = students.DialogStudents(self.window, student_listings)
         return dialog.exec_()
 
     def dialog_export_exam_config(self):
@@ -810,7 +840,7 @@ class Interface(object):
         if save_dialog.exec_():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
-                filename = unicode(filename_list[0])
+                filename = filename_list[0]
         return filename
 
     def show_information(self, message, title='Information'):

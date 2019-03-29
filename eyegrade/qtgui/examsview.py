@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,31 +13,49 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 
-from PyQt4.QtGui import (QIcon, QListWidget, QListView, QListWidgetItem,
-                         QWidget, QVBoxLayout,
-                         QItemSelection, QImage, QPainter, )
+from PyQt5.QtGui import (
+    QIcon,
+    QImage,
+    QPainter,
+)
 
-from PyQt4.QtCore import (QObject, QSize, QEvent, pyqtSignal, pyqtSlot, )
+from PyQt5.QtWidgets import (
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
-from .. import utils
+from PyQt5.QtCore import (
+    QEvent,
+    QItemSelection,
+    QObject,
+    QSize,
+    pyqtSignal,
+    pyqtSlot,
+)
+
+from .. import exams
+
 
 class ExamIcon(QIcon):
     def __init__(self, exam):
-        super(ExamIcon, self).__init__(exam.image_drawn_path())
+        super().__init__(exam.image_drawn_path())
 
 
 class ExamImage(QImage):
     def __init__(self, exam):
-        super(ExamImage, self).__init__(exam.image_drawn_path())
+        super().__init__(exam.image_drawn_path())
 
 
 class ThumbnailsViewItem(QListWidgetItem):
     def __init__(self, exam):
         self.exam = exam
-        super(ThumbnailsViewItem, self).__init__(ExamIcon(exam), self._label())
+        super().__init__(ExamIcon(exam), self._label())
 
     def update(self):
         self.setText(self._label())
@@ -54,10 +70,10 @@ class ThumbnailsViewItem(QListWidgetItem):
 
 
 class ThumbnailsView(QListWidget):
-    selection_changed = pyqtSignal(utils.Exam)
+    selection_changed = pyqtSignal(exams.Exam)
 
     def __init__(self, parent):
-        super(ThumbnailsView, self).__init__(parent)
+        super().__init__(parent)
         self.setIconSize(QSize(120, 80))
         self.setViewMode(QListView.IconMode)
         self.setMovement(QListView.Static)
@@ -104,13 +120,13 @@ class ThumbnailsView(QListWidget):
             pos = 1 + self.exams.index(current_exam)
             if pos < len(self.exams):
                 item = self.item(pos)
-                self.setItemSelected(item, True)
+                item.setSelected(True)
                 self.scrollToItem(item)
 
     def clear_selected_exam(self):
         items = self.selectedItems()
         if items:
-            self.setItemSelected(items[0], False)
+            items[0].setSelected(False)
 
     def block_keyboard(self, block):
         self.keyboard_filter.setBlocking(block)
@@ -127,7 +143,7 @@ class ThumbnailsView(QListWidget):
 class KeyboardEventsFilter(QObject):
     def __init__(self):
         self.blocking = True
-        super(KeyboardEventsFilter, self).__init__()
+        super().__init__()
 
     def setBlocking(self, blocking):
         self.blocking = blocking
@@ -136,13 +152,12 @@ class KeyboardEventsFilter(QObject):
         if self.blocking and event.type() == QEvent.KeyPress:
             return True
         else:
-            return super(KeyboardEventsFilter, self)\
-                                     .eventFilter(widget, event)
+            return super().eventFilter(widget, event)
 
 
 class CaptureView(QWidget):
     def __init__(self, size, parent):
-        super(CaptureView, self).__init__(parent)
+        super().__init__(parent)
         self.setFixedSize(*size)
         self.exams = []
         self.icons = []
@@ -181,15 +196,15 @@ class CaptureView(QWidget):
 
 class ExamsView(QWidget):
     def __init__(self, parent):
-        super(ExamsView, self).__init__(parent)
+        super().__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.thumbnails_view = ThumbnailsView(self)
         self.capture_view = CaptureView((640, 300), self)
         layout.addWidget(self.capture_view)
         layout.addWidget(self.thumbnails_view)
-        self.thumbnails_view.selection_changed\
-                                        .connect(self.capture_view.show_exam)
+        self.thumbnails_view.selection_changed.connect(
+            self.capture_view.show_exam)
 
     def set_exams(self, exams):
         self.thumbnails_view.set_exams(exams)

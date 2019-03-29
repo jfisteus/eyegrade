@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,36 +13,60 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import division, unicode_literals
-
 import gettext
-import fractions
 
-from PyQt4.QtGui import (QComboBox, QSortFilterProxyModel, QCompleter,
-                         QStatusBar, QLabel, QHBoxLayout, QCheckBox, QSpinBox,
-                         QWidget, QLineEdit, QPushButton, QIcon, QMessageBox,
-                         QFileDialog, QRegExpValidator,
-                         QListWidget, QAbstractItemView,
-                         QVBoxLayout, QImage, QPainter, QPixmap,
-                         QRadioButton, QButtonGroup,
-                         QTableView, QStyle, )
-from PyQt4.QtCore import (Qt, QRegExp, QAbstractTableModel,
-                          QAbstractListModel,
-                          QModelIndex, QVariant, pyqtProperty, )
+from PyQt5.QtGui import (
+    QIcon,
+    QImage,
+    QPainter,
+    QPixmap,
+    QRegExpValidator,
+)
+
+from PyQt5.QtWidgets import (
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QCompleter,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QSpinBox,
+    QStatusBar,
+    QStyle,
+    QTableView,
+    QWidget,
+)
+
+from PyQt5.QtCore import (
+    QAbstractListModel,
+    QAbstractTableModel,
+    QModelIndex,
+    QRegExp,
+    QSortFilterProxyModel,
+    QVariant,
+    Qt,
+    pyqtProperty,
+)
 
 from .. import utils
+from .. import scoring
 from . import Colors
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
 
 class LineContainer(QWidget):
     """Container that disposes other widgets horizontally."""
     def __init__(self, parent, *widgets):
-        super(LineContainer, self).__init__(parent)
+        super().__init__(parent)
         self.layout = QHBoxLayout(self)
         self.setLayout(self.layout)
         for widget in widgets:
@@ -57,7 +79,7 @@ class LineContainer(QWidget):
 class CompletingComboBox(QComboBox):
     """An editable combo box that filters and autocompletes."""
     def __init__(self, parent=None):
-        super(CompletingComboBox, self).__init__(parent)
+        super().__init__(parent)
         self.setEditable(True)
         self.filter = QSortFilterProxyModel(self)
         self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
@@ -65,10 +87,9 @@ class CompletingComboBox(QComboBox):
         self.completer = QCompleter(self.filter, self)
         self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
         self.setCompleter(self.completer)
-        self.lineEdit().textEdited[unicode]\
-            .connect(self.filter.setFilterFixedString)
+        self.lineEdit().textEdited.connect(
+            self.filter.setFilterFixedString)
         self.currentIndexChanged.connect(self._index_changed)
-        self.setAutoCompletion(True)
 
     def _index_changed(self, index):
         self.lineEdit().selectAll()
@@ -76,7 +97,7 @@ class CompletingComboBox(QComboBox):
 
 class StudentComboBox(CompletingComboBox):
     def __init__(self, parent=None):
-        super(StudentComboBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.lineEdit().selectAll()
         self.lineEdit().setFocus()
         self.students = []
@@ -127,7 +148,7 @@ class StatusBar(QStatusBar):
         :param parent: The parent of this status bar.
 
         """
-        super(StatusBar, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.status_label = QLabel(parent=self)
         self.addWidget(self.status_label)
         self._show_program_version()
@@ -160,7 +181,7 @@ class LabelledCheckBox(QWidget):
         :param checked: Initial state of the checkbox (defaults to False).
 
         """
-        super(LabelledCheckBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         layout = QHBoxLayout(self)
         self.checkbox = QCheckBox(parent=self)
         self.checkbox.setChecked(checked)
@@ -178,7 +199,7 @@ class OpenFileWidget(QWidget):
     """Dialog with a text field and a button to open a file selector."""
     def __init__(self, parent, select_directory=False, name_filter='',
                  minimum_width=200, title='', check_file_function=None):
-        super(OpenFileWidget, self).__init__(parent)
+        super().__init__(parent)
         self.select_directory = select_directory
         self.name_filter = name_filter
         self.title = title
@@ -195,7 +216,7 @@ class OpenFileWidget(QWidget):
         self.last_validated_value = None
 
     def text(self):
-        return unicode(self.filename_widget.text())
+        return self.filename_widget.text()
 
     def set_text(self, filename):
         self.filename_widget.setText(filename)
@@ -252,11 +273,10 @@ class OpenFileWidget(QWidget):
                                          | QFileDialog.DontResolveSymlinks
                                          | QFileDialog.DontUseNativeDialog))
         else:
-            filename = QFileDialog.getOpenFileName(self, self.title, '',
-                                              self.name_filter, None,
-                                              QFileDialog.DontUseNativeDialog)
+            filename, _ = QFileDialog.getOpenFileName(self, self.title, '',
+                                            self.name_filter, None,
+                                            QFileDialog.DontUseNativeDialog)
         if filename:
-            filename = unicode(filename)
             valid = self.check_value(filename=filename)
             if valid:
                 self.filename_widget.setText(filename)
@@ -265,8 +285,9 @@ class OpenFileWidget(QWidget):
 class InputScore(QLineEdit):
     """Allows the user to enter a score."""
     def __init__(self, parent=None, minimum_width=100, is_positive=True):
-        super(InputScore, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setMinimumWidth(minimum_width)
+        self.is_positive = is_positive
         if is_positive:
             placeholder = _('e.g.: 2; 2.5; 5/2')
         else:
@@ -285,23 +306,13 @@ class InputScore(QLineEdit):
         correct.  If `force_float` a float is returned always.
 
         """
-        value_str = self.text()
-        if value_str:
-            if '/' in value_str:
-                parts = [int(v) for v in value_str.split('/')]
-                try:
-                    value = fractions.Fraction(parts[0], parts[1])
-                    if force_float:
-                        value = float(value)
-                except:
-                    value = None
-            elif not '.' in value_str:
-                value = fractions.Fraction(int(value_str), 1)
-            else:
-                value = float(value_str)
-        else:
-            value = None
-        return value
+        allow_negatives = not self.is_positive
+        try:
+            score = scoring.parse_number(self.text(), force_float=force_float,
+                                         allow_negatives=allow_negatives)
+        except ValueError:
+            score = None
+        return score
 
     def setPlaceholderText(self, text):
         """Proxy for the same method in QLineEdit.
@@ -313,98 +324,15 @@ class InputScore(QLineEdit):
 
         """
         try:
-            super(InputScore, self).setPlaceholderText(text)
+            super().setPlaceholderText(text)
         except AttributeError:
             # Just do nothing if the version of Qt/PyQt is old...
             pass
 
 
-class MultipleFilesWidget(QWidget):
-    """Widget that allows the selection of multiple files."""
-    def __init__(self, title, file_name_filter='', check_file_function=None):
-        """Creates a new widget for selecting multiple files.
-
-        - `title`: title of the file selection dialog that is opened
-          when the user clicks on 'Add File'.
-
-        - `file_name_filter`: filter to use for the selection of files
-          (See the documentation of QFileDialog).
-
-        - `check_file_function`: function that receives a file name and
-          returns True if its contents are correct. If None, files are
-          not checked. An error dialog is shown for the files that are
-          not correct. The rest are just added.
-
-        """
-        super(MultipleFilesWidget, self).__init__()
-        self.title = title
-        self.file_name_filter = file_name_filter
-        self._check_file = check_file_function
-        self.file_list = QListWidget()
-        self.file_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        button_add = QPushButton(_('Add files'))
-        self.button_remove = QPushButton(_('Remove selected'))
-        self.button_remove.setEnabled(False)
-        buttons = QWidget()
-        buttons_layout = QVBoxLayout()
-        buttons_layout.setAlignment(Qt.AlignTop)
-        buttons.setLayout(buttons_layout)
-        buttons_layout.addWidget(button_add)
-        buttons_layout.addWidget(self.button_remove)
-        main_layout = QHBoxLayout()
-        self.setLayout(main_layout)
-        main_layout.addWidget(self.file_list)
-        main_layout.addWidget(buttons)
-        button_add.clicked.connect(self._add_files)
-        self.button_remove.clicked.connect(self._remove_files)
-        self.file_list.selectionModel().selectionChanged.connect( \
-                                                       self._selection_changed)
-
-    def get_files(self):
-        """Returns the list of selected file names."""
-        files = []
-        model = self.file_list.model()
-        count = model.rowCount()
-        for i in range(0, count):
-            index = model.index(i, 0)
-            files.append(unicode(model.data(index).toString()))
-        return files
-
-    def _add_files(self):
-        file_list_q = QFileDialog.getOpenFileNames(self, self.title, '',
-                                               self.file_name_filter, None,
-                                               QFileDialog.DontUseNativeDialog)
-        model = self.file_list.model()
-        for file_name in file_list_q:
-            valid = True
-            if self._check_file is not None:
-                valid, msg = self._check_file(unicode(file_name))
-            if valid:
-                # Check if the file is already in the list:
-                match = model.match(model.index(0, 0), 0, file_name, 1,
-                                    Qt.MatchExactly)
-                if len(match) == 0:
-                    self.file_list.addItem(file_name)
-
-    def _remove_files(self):
-        ranges = self.file_list.selectionModel().selection()
-        model = self.file_list.model()
-        to_remove = []
-        for r in ranges:
-            to_remove.extend(range(r.top(), r.bottom() + 1))
-        for row in sorted(to_remove, reverse=True):
-            model.removeRow(row)
-
-    def _selection_changed(self, deselected, selected):
-        if len(self.file_list.selectionModel().selection()) > 0:
-            self.button_remove.setEnabled(True)
-        else:
-            self.button_remove.setEnabled(False)
-
-
 class CamView(QWidget):
     def __init__(self, size, parent, draw_logo=False, border=False):
-        super(CamView, self).__init__(parent)
+        super().__init__(parent)
         if not border:
             fixed_size = size
         else:
@@ -473,7 +401,7 @@ class InputCustomPattern(QLineEdit):
     """
     def __init__(self, parent=None, fixed_size=40,
                  regex=r'.+', placeholder=None):
-        super(InputCustomPattern, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         if placeholder:
             self.setPlaceholderText(placeholder)
         self.setFixedWidth(fixed_size)
@@ -485,7 +413,7 @@ class InputInteger(QSpinBox):
     """Allows the user to enter an integer field"""
     def __init__(self, parent=None, initial_value=1,
                  min_value=1, max_value=100):
-        super(InputInteger, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setRange(min_value, max_value)
         self.setValue(initial_value)
 
@@ -493,7 +421,7 @@ class InputInteger(QSpinBox):
 class InputRadioGroup(QWidget):
     """Create an horizontal radio group"""
     def __init__(self, parent=None, option_list=None, default_select=0):
-        super(InputRadioGroup, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         layout = QHBoxLayout(self)
         self.group = QButtonGroup()
         for idx, op in enumerate(option_list):
@@ -509,10 +437,10 @@ class InputRadioGroup(QWidget):
         return str(abs(int(self.group.checkedId())) - 1)
 
 
-class ItemList(object):
+class ItemList:
     """Custom item for permutation list"""
     def __init__(self, optionName, optionNumber):
-        super(ItemList, self).__init__()
+        super().__init__()
         self.name = optionName
         self.numb = optionNumber
         self.perm = {}
@@ -531,7 +459,7 @@ class ItemList(object):
 class InputComboBox(QComboBox):
     """A Combobox with a specific ID"""
     def __init__(self, parent=None, c_type=None, form=0, alternative=0):
-        super(InputComboBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.c_type = c_type
         self.form = form
         self.alternative = alternative
@@ -542,12 +470,13 @@ class ScoreWeightsTableModel(QAbstractTableModel):
 
     """
     def __init__(self, exam_config, parent=None):
-        super(ScoreWeightsTableModel, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.data_reset(exam_config)
         self.dataChanged.connect(self._update_weights_sum)
         self.changes = False
 
     def data_reset(self, exam_config=None):
+        self.beginResetModel()
         if exam_config is None:
             exam_config = self.exam_config
         else:
@@ -577,14 +506,15 @@ class ScoreWeightsTableModel(QAbstractTableModel):
             self.weights = [weights_0]
         self.sum_weights = [sum(w) for w in self.weights]
         self.changes = False
-        self.reset()
+        self.endResetModel()
 
     def clear(self):
+        self.beginResetModel()
         for i in range(len(self.weights)):
             self.weights[i] = [None] * self.exam_config.num_questions
         self.sum_weights = [None] * len(self.weights)
         self.changes = False
-        self.reset()
+        self.endResetModel()
 
     def validate(self):
         """Checks that the weights are valid.
@@ -657,13 +587,14 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                     value = self.weights[c][r]
                 else:
                     value = self.weights[0][self._to_model_0(c, r)]
-                return utils.format_number(value, short=True)
+                return scoring.format_number(value, short=True)
             else:
                 if not self.has_permutations:
                     value = self.sum_weights[c]
                 else:
                     value = self.sum_weights[0]
-                return utils.format_number(value, short=True, no_fraction=True)
+                return scoring.format_number(value, short=True,
+                                             no_fraction=True)
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
         else:
@@ -680,7 +611,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
         r = index.row()
         c = index.column()
         try:
-            value = utils.parse_number(unicode(value_qvar.toString()))
+            value = scoring.parse_number(value_qvar)
         except ValueError:
             return False
         if r < self.exam_config.num_questions:
@@ -736,12 +667,16 @@ class ScoreWeightsTableModel(QAbstractTableModel):
 class CustomTableView(QTableView):
     """QTableView that can compute its own size."""
     def __init__(self, parent=None, maximum_width=500, maximum_height=300):
-        super(CustomTableView, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.maximum_height = maximum_height
-        self.maximum_width=maximum_width
+        self.maximum_width = maximum_width
 
     def adjust_size(self):
         self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+        self._set_dimension_hints()
+
+    def adjust_columns_size(self):
         self.resizeColumnsToContents()
         self._set_dimension_hints()
 
@@ -784,7 +719,7 @@ class CustomTableView(QTableView):
 class CustomComboBox(QComboBox):
     """QComboBox that allows enabling / disabling items."""
     def __init__(self, parent=None):
-        super(CustomComboBox, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setModel(_CustomComboBoxModel(parent=self))
 
     def set_items(self, items):
@@ -796,14 +731,15 @@ class CustomComboBox(QComboBox):
 
 class _CustomComboBoxModel(QAbstractListModel):
     def __init__(self, parent=None):
-        super(_CustomComboBoxModel, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.items = []
         self.enabled = []
 
     def set_items(self, items):
         self.items = items
         self.enabled = [True] * len(items)
-        self.reset()
+        self.beginResetModel()
+        self.endResetModel()
 
     def set_item_enabled(self, index, enabled):
         self.enabled[index] = enabled

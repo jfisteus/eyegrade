@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,22 +13,24 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 
 import gettext
 
-from PyQt4.QtGui import QColor
+from PyQt5.QtGui import QColor
 
 from .. import utils
 
 t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 
-class FileNameFilters(object):
+class FileNameFilters:
     exam_config = _('Exam configuration (*.eye)')
     session_db = _('Eyegrade session (*.eyedb)')
-    student_list = _('Student list (*.csv *.tsv *.txt *.lst *.list)')
+    student_list = _('Student list (*.xlsx *.csv *.tsv *.txt *.lst *.list)')
+    xlsx_file = _('Excel spreadsheet (*.xlsx)')
+    csv_file = _('Data file (*.csv *.tsv)')
 
-class Colors(object):
+class Colors:
     eyegrade_blue = QColor(32, 73, 124)

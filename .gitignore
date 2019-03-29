@@ -1,2 +1,11 @@
 *.pyc
 todo/todo.org*
+*~
+error-*.png
+eyegrade-errors.log
+build/
+dist/
+notebooks/
+venv*/
+tmp/
+MANIFEST

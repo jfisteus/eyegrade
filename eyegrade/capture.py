@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,13 +13,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 
 import cv2
 
 from . import geometry
 from . import utils
+from . import scoring
 from . import images
 
 _color_blue = (255, 0, 0)
@@ -29,7 +30,7 @@ _color_dot_bad = (255, 0, 0)
 _color_dot_blank = (192, 0, 192)
 
 
-class CellGeometry(object):
+class CellGeometry:
     def __init__(self, plu, pru, pld, prd, center, diagonal):
         """Receives the four corners of the cell, center point and diagonal.
 
@@ -55,7 +56,7 @@ class CellGeometry(object):
         return (self.plu, self.pru, self.pld, self.prd)
 
 
-class ExamDecisions(object):
+class ExamDecisions:
     def __init__(self, success, answers, detected_id, id_scores, model=None,
                  infobits=None):
         self.success = success
@@ -81,7 +82,7 @@ class ExamDecisions(object):
         self.student = student
 
 
-class ExamCapture(object):
+class ExamCapture:
     """Capture of an exam, including the image, cell geometry and drawing."""
 
     def __init__(self, image, answer_cells, id_cells, progress=1.0):
@@ -182,14 +183,14 @@ class ExamCapture(object):
                                                    score.solutions,
                                                    score.answer_status,
                                                    self.answer_cells):
-            if status == utils.QuestionScores.CORRECT:
+            if status == scoring.QuestionScores.CORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_good)
-            elif status == utils.QuestionScores.INCORRECT:
+            elif status == scoring.QuestionScores.INCORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_bad)
                 self._draw_cell_center(cells[solution - 1], _color_dot_bad)
-            elif status == utils.QuestionScores.BLANK:
+            elif status == scoring.QuestionScores.BLANK:
                 self._draw_cell_center(cells[solution - 1], _color_dot_blank)
-            elif status == utils.QuestionScores.VOID:
+            elif status == scoring.QuestionScores.VOID:
                 self._draw_void_question(cells)
 
     def _draw_answers_no_solutions(self, score):
@@ -210,6 +211,4 @@ class ExamCapture(object):
 
 
 def save_image(filename, image):
-    if isinstance(filename, unicode):
-        filename = utils.unicode_path_to_str(filename)
     cv2.imwrite(filename, image)

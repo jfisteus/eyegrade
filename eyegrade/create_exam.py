@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,16 +13,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import print_function
-
 from optparse import OptionParser
 import sys
-import locale
 
 # Local imports
 from . import utils
+from . import exams
+from . import scoring
 from . import exammaker
 
 EyegradeException = utils.EyegradeException
@@ -68,10 +67,17 @@ def read_cmd_options():
                       help='force removal of the previous .eye exam file')
     parser.add_option('--cw', '--correct-weight',
                       dest='correct_weight',
-                      help='weight of correct answers', default=None)
+                      help='score for correct answers', default=None)
     parser.add_option('--iw', '--incorrect-weight',
                       dest='incorrect_weight',
-                      help='negative weight of incorrect answers', default=None)
+                      help='negative score for incorrect answers',
+                      default=None)
+    parser.add_option('--id-length', type='int',
+                      dest='student_id_length', default=None,
+                      help='Number of digits of student IDs (0 to disable)')
+    parser.add_option('--id-label', type='string',
+                      dest='student_id_label', default=None,
+                      help='Label to show with the student ID box')
     # The -w below is maintained for compatibility; its use is deprecated
     # Use -W instead.
     parser.add_option('-w', '-W', '--table-width', type='float',
@@ -114,22 +120,23 @@ def read_cmd_options():
     else:
         if options.num_questions or options.num_choices:
             parser.error('Option -e is mutually exclusive with -q and -c')
+    # Check student id length 0 <= length <= 16
+    if (options.student_id_length is not None
+            and (options.student_id_length < 0
+                 or options.student_id_length > 16)):
+        parser.error('The number of digits of student IDs must be '
+                     'between 0 and 16 (both included)')
     # The scale factor must be greater than 0.1
     if options.table_scale < 0.1:
         parser.error('The scale factor must be positive and greater or equal'
                      ' to 0.1')
-    options.output_file_prefix = _arg_to_unicode(options.output_file_prefix)
-    options.exam_filename = _arg_to_unicode(options.exam_filename)
-    options.subject = _arg_to_unicode(options.subject)
-    options.degree = _arg_to_unicode(options.degree)
-    options.title = _arg_to_unicode(options.title)
+    # Check score weights
+    if options.correct_weight is not None:
+        if options.incorrect_weight is None:
+            options.incorrect_weight = 0
+    elif options.incorrect_weight is not None:
+        parser.error('The score for correct answers is also needed (--cw)')
     return options, args
-
-def _arg_to_unicode(arg_value):
-    if arg_value is not None:
-        return utils.path_to_unicode(arg_value)
-    else:
-        return None
 
 def create_exam():
     options, args = read_cmd_options()
@@ -139,11 +146,14 @@ def create_exam():
         'degree': '',
         'date': '',
         'duration': '',
-        'title': ''
+        'title': '',
         }
+    scores = None
     dimensions = None
+
+    # Take options from the input question files
     if options.exam_filename:
-        exam = utils.read_exam_questions(options.exam_filename)
+        exam = exams.read_exam_questions(options.exam_filename)
         if exam.subject is not None:
             variables['subject'] = exam.subject
         if exam.degree is not None:
@@ -154,6 +164,12 @@ def create_exam():
             variables['duration'] = exam.duration
         if exam.title is not None:
             variables['title'] = exam.title
+        if exam.student_id_label is not None:
+            variables['student_id_label'] = exam.student_id_label
+        if exam.student_id_length is not None:
+            variables['student_id_length'] = exam.student_id_length
+        if exam.scores is not None:
+            scores = exam.scores
         num_questions = exam.num_questions()
         num_choices = exam.num_choices()
         if not exam.homogeneous_num_choices():
@@ -189,17 +205,23 @@ def create_exam():
                 raise Exception('Expected a number of questions and choices')
 
     # Command line options override options from the file
-    encoding = locale.getpreferredencoding()
     if options.date is not None:
-        variables['date'] = unicode(options.date, encoding)
+        variables['date'] = options.date
     if options.subject is not None:
-        variables['subject'] = unicode(options.subject, encoding)
+        variables['subject'] = options.subject
     if options.degree is not None:
-        variables['degree'] = unicode(options.degree, encoding)
+        variables['degree'] = options.degree
     if options.title is not None:
-        variables['title'] = unicode(options.title, encoding)
+        variables['title'] = options.title
     if options.duration is not None:
-        variables['duration'] = unicode(options.duration, encoding)
+        variables['duration'] = options.duration
+    if options.student_id_label is not None:
+        variables['student_id_label'] = options.student_id_label
+    if options.student_id_length is not None:
+        variables['student_id_length'] = options.student_id_length
+    if options.correct_weight is not None:
+        scores = scoring.QuestionScores(options.correct_weight,
+                                        options.incorrect_weight, 0)
     if options.output_file_prefix is None:
         output_file = sys.stdout
         config_filename = None
@@ -207,29 +229,24 @@ def create_exam():
         output_file = options.output_file_prefix + '-%s.tex'
         config_filename = options.output_file_prefix + '.eye'
 
-    if options.correct_weight is not None:
-        if options.incorrect_weight is None:
-            options.incorrect_weight = 0
-        if options.incorrect_weight < 0:
-            options.incorrect_weight = -options.incorrect_weight
-        score_weights = (options.correct_weight, options.incorrect_weight, 0)
-    elif options.incorrect_weight is not None:
-        raise EyegradeException('', 'correct_weight_none')
-    else:
-        score_weights = None
-
     # Create and call the exam maker object
-    maker = exammaker.ExamMaker(num_questions, num_choices,
-                                template_filename,
-                                output_file, variables, config_filename,
-                                options.num_tables,
-                                dimensions,
-                                options.table_width, options.table_height,
-                                options.table_scale, options.id_box_width,
-                                options.force_config_overwrite,
-                                score_weights,
-                                options.left_to_right_numbering,
-                                options.survey_mode)
+    maker = exammaker.ExamMaker(\
+                    num_questions,
+                    num_choices,
+                    template_filename,
+                    output_file,
+                    variables,
+                    config_filename,
+                    num_tables=options.num_tables,
+                    dimensions=dimensions,
+                    table_width=options.table_width,
+                    table_height=options.table_height,
+                    table_scale=options.table_scale,
+                    id_box_width=options.id_box_width,
+                    force_config_overwrite=options.force_config_overwrite,
+                    scores=scores,
+                    left_to_right_numbering=options.left_to_right_numbering,
+                    survey_mode=options.survey_mode)
     if not options.no_pdf and options.output_file_prefix is not None:
         if exammaker.check_latex():
             produce_pdf = True

@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,14 +13,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-
-from __future__ import division
-
 import math
 import copy
 import sys
+import itertools
 
 import cv2
 import numpy as np
@@ -30,12 +28,13 @@ from . import geometry as g
 from . import capture
 from . import sessiondb
 from . import images
+from . import utils
 from .ocr import classifiers
 from .ocr import sample
 
 # Adaptive threshold algorithm
 param_adaptive_threshold_block_size = 45
-param_adaptive_threshold_offset = 0
+param_adaptive_threshold_offset = 4
 
 # Other detection parameters
 param_collapse_lines_maxgap = 7
@@ -60,7 +59,7 @@ param_error_log = 'eyegrade-errors.log'
 param_error_image_pattern = 'error-%s.png'
 
 
-class ExamDetector(object):
+class ExamDetector:
 
     default_options = {
         'infobits': True,
@@ -94,6 +93,8 @@ class ExamDetector(object):
         elif self.options['capture-raw-file'] is not None:
             self.image_raw = \
                         images.load_image(self.options['capture-raw-file'])
+            if self.image_raw is None:
+                raise utils.EyegradeException('', key='load_image')
             self.image_proc = pre_process(self.image_raw)
         elif self.options['capture-proc-file'] is not None:
             self.image_raw = \
@@ -199,6 +200,9 @@ class ExamDetector(object):
                 for line in axes[1][1]:
                     images.draw_line(self.image_to_show, line, (255, 0, 255))
                 self._draw_cell_corners(corner_matrixes)
+            elif self.status['lines']:
+                for line in lines:
+                    images.draw_line(self.image_to_show, line, (255, 0, 0))
             if id_hlines:
                 for line in id_hlines:
                     images.draw_line(self.image_to_show, line, (255, 255, 0))
@@ -265,7 +269,7 @@ class ExamDetector(object):
         import traceback
         import os
         if not self.options['capture-from-file']:
-            print 'Exception catched! Storing trace into a log file...'
+            print('Exception catched! Storing trace into a log file...')
             date = str(datetime.datetime.now())
             logname = os.path.join(self.options['logging-dir'],
                                    param_error_log)
@@ -395,7 +399,7 @@ class ExamDetector(object):
                     images.draw_point(self.image_to_show, c)
 
 
-class ExamDetectorContext(object):
+class ExamDetectorContext:
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 
@@ -547,7 +551,8 @@ class ExamDetectorContext(object):
     def _try_next_camera(self, cur_camera_id):
         camera = None
         camera_id = -1
-        for i in range(cur_camera_id + 1, 10) + range(0, cur_camera_id + 1):
+        for i in itertools.chain(range(cur_camera_id + 1, 10),
+                                       range(0, cur_camera_id + 1)):
             camera = self._try_camera(i)
             if camera is not None:
                 camera_id = i
@@ -566,7 +571,7 @@ class ExamDetectorContext(object):
 
 class FalseExamDetectorContext(ExamDetectorContext):
     def __init__(self, session_file):
-        super(FalseExamDetectorContext, self).__init__()
+        super().__init__()
         self.session = sessiondb.SessionDB(session_file)
         self.camera_id = 99
         self.camera = 'Something'
@@ -598,7 +603,7 @@ class FalseExamDetectorContext(ExamDetectorContext):
         pass
 
     def notify_success(self):
-        super(FalseExamDetectorContext, self).notify_success()
+        super().notify_success()
         self.next_exam_idx += 1
         if self.next_exam_idx == len(self.exams):
             self.next_exam_idx = 0
@@ -614,12 +619,14 @@ def pre_process(image):
     return thr
 
 def detect_lines(image, hough_threshold):
-    lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
-    if lines is None or len(lines[0]) > 500:
+    raw_lines = cv2.HoughLines(image, 1, 0.01, hough_threshold)
+    if raw_lines is None:
         return []
-    lines = lines[0]
-    return sorted([(float(l[0]), float(l[1])) for l in lines],
-                  key = lambda x: x[1])
+    lines = raw_lines
+    if len(lines[0]) > 500:
+        return []
+    lines = [(float(l[0][0]), float(l[0][1])) for l in lines]
+    return sorted(lines, key = lambda x: x[1])
 
 def detect_directions(lines):
     assert(len(lines) >= 2)
@@ -735,16 +742,17 @@ def collapse_lines_angles(lines, expected, horizontal):
             num_lines += 1
         last_line = line
     main_lines.append((sum_rho / num_lines, sum_theta / num_lines))
-    if (not horizontal and len(main_lines) == expected) or horizontal:
-        return main_lines
-    else:
-        return None
+    return main_lines
 
 def cell_corners(hlines, vlines, iwidth, iheight, dimensions):
     h_expected = 1 + max([box[1] for box in dimensions])
     v_expected = len(dimensions) + sum([box[0] for box in dimensions])
     if len(vlines) != v_expected:
-        return []
+        if len(vlines) > v_expected and len(vlines) <= v_expected + 2:
+            # Remove one or two spurious lines
+            vlines = g.discard_spurious_lines(vlines, v_expected)
+        else:
+            return []
     if len(hlines) < h_expected:
         return []
     elif len(hlines) > h_expected:
@@ -779,9 +787,6 @@ def check_corners(corner_matrixes, width, height):
     max_difs2 = 1 + float(max(difs) - min(difs)) / len(difs) \
         * param_check_corners_tolerance_mul
     if max(difs2) > max_difs2:
-#        print "Failure in differences"
-#        print difs
-#        print difs2
         return False
     if 0.5 * max(difs) > min(difs):
         return False
@@ -791,7 +796,6 @@ def check_corners(corner_matrixes, width, height):
             for point in row:
                 if point[0] < 0 or point[0] >= width \
                         or point[1] < 0 or point[1] >= height:
-#                    print "Failure at point", point
                     return False
 
     # Check that the sequence of points is coherent
@@ -918,7 +922,6 @@ def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
         selected, energy = id_boxes_adjust_points(image, up, down,
                                                   line_up, line_down,
                                                   x_var, iwidth)
-#        print "...", energy
         mean_energy += energy / num_corners
         if energy < param_id_boxes_min_energy_threshold:
             return False
@@ -942,7 +945,6 @@ def id_boxes_adjust(image, corners_up, corners_down, line_up, line_down,
                 corners_down[i] = selected[1]
         else:
             return False
-#    print mean_energy
     if mean_energy > param_id_boxes_mean_energy_threshold:
         return True
     else:
@@ -1094,7 +1096,7 @@ def line_bounds(image, line, iwidth):
 
 def process_box_corners(points, dimensions):
     num_boxes = len(dimensions)
-    points.sort()
+    points = sorted(points)
     group1 = [points[0]]
     group2 = []
     # First, look for the other left-most point that is opposite to points[0]
@@ -1164,12 +1166,12 @@ def fix_box_if_needed(box_corners):
     plu, pru, pld, prd = box_corners
     if plu[1] > pld[1]:
         plu, pld = pld, plu
-        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
-        print ' -> points at the left fixed'
+        print('Warning: testing box [lu,ru,ld,rd]', box_corners)
+        print(' -> points at the left fixed')
     if pru[1] > prd[1]:
         pru, prd = prd, pru
-        print 'Warning: testing box [lu,ru,ld,rd]', box_corners
-        print ' -> points at the rigth fixed'
+        print('Warning: testing box [lu,ru,ld,rd]', box_corners)
+        print(' -> points at the rigth fixed')
     return (plu, pru, pld, prd)
 
 

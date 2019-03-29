@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,10 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import unicode_literals
-
 import json
 import argparse
 
@@ -78,12 +76,13 @@ def create_crosses_classifier(sample_set, rounds):
     classifier.save(classifiers.DEFAULT_CROSS_CLASS_FILE)
 
 def _parse_args():
-    parser = argparse.ArgumentParser(description='Generate CSV data files.')
+    parser = argparse.ArgumentParser(
+        description='Create the SVM classifier for digits or crosses.')
     parser.add_argument('classifier',
             help='classifier to be created ("digits" or "crosses")')
     parser.add_argument('sample_files', metavar='sample file', nargs='+',
             help='index file with the samples for training/evaluation')
-    parser.add_argument('--rounds', type=int, default=100,
+    parser.add_argument('--rounds', type=int, default=10,
             help='number of rounds for k-fold cross evaluation (default 100)')
     return parser.parse_args()
 

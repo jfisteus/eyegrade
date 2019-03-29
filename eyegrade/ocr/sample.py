@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,10 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import division
-
 import os.path
 import collections
 import random
@@ -27,7 +25,7 @@ import numpy as np
 from .. import geometry as g
 
 
-class Sample(object):
+class Sample:
     def __init__(self, corners,
                  image=None, image_filename=None, label=None):
         if image is None and not image_filename:
@@ -65,13 +63,13 @@ class Sample(object):
 class DigitSampleFromCam(Sample):
     def __init__(self, corners, image):
         corners = adjust_cell_corners(image, corners)
-        super(DigitSampleFromCam, self).__init__(corners, image=image)
+        super().__init__(corners, image=image)
 
 
 class CrossSampleFromCam(Sample):
     def __init__(self, corners, image):
         corners = self._adjust_cell_corners(image, corners)
-        super(CrossSampleFromCam, self).__init__(corners, image=image)
+        super().__init__(corners, image=image)
 
     @staticmethod
     def _adjust_cell_corners(image, corners):
@@ -80,7 +78,7 @@ class CrossSampleFromCam(Sample):
         return np.array((plu, pru, pld, prd))
 
 
-class SampleSet(object):
+class SampleSet:
     def __init__(self):
         self.samples_dict = collections.defaultdict(list)
 
@@ -157,13 +155,13 @@ class SampleSet(object):
         return sample_set
 
     def _iterate_samples(self):
-        for samples in self.samples_dict.itervalues():
+        for samples in self.samples_dict.values():
             for sample in samples:
                 yield sample
 
     def _iterate_samples_oversampling(self):
         max_num = self._max_sample_num()
-        for samples in self.samples_dict.itervalues():
+        for samples in self.samples_dict.values():
             rounds = max_num // len(samples)
             remaining = max_num % len(samples)
             for i in range(rounds):
@@ -174,7 +172,7 @@ class SampleSet(object):
 
     def _iterate_samples_downsampling(self):
         min_num = self._min_sample_num()
-        for samples in self.samples_dict.itervalues():
+        for samples in self.samples_dict.values():
             for sample in random.sample(samples, min_num):
                 yield sample
 
@@ -187,7 +185,7 @@ class SampleSet(object):
                    for label in self.samples_dict)
 
 
-class SampleLoader(object):
+class SampleLoader:
     def __init__(self, filename):
         self.filename = filename
         self.dirname = os.path.dirname(filename)

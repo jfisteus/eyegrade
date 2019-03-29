@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 
 import re
@@ -23,6 +23,8 @@ import subprocess
 import os
 
 from . import utils
+from . import exams
+
 
 param_min_num_questions = 1
 
@@ -64,13 +66,13 @@ utils.EyegradeException.register_error('latex_not_found',
     'The command pdflatex was not found.')
 
 
-class ExamMaker(object):
+class ExamMaker:
     def __init__(self, num_questions, num_choices, template_filename,
                  output_file, variables, exam_config_filename,
                  num_tables=0, dimensions=None,
                  table_width=None, table_height=None, table_scale=1.0,
                  id_box_width=None,
-                 force_config_overwrite=False, score_weights=None,
+                 force_config_overwrite=False, scores=None,
                  left_to_right_numbering=False, survey_mode=False):
         """
            Class able to create exams. One object is enough for all models.
@@ -84,7 +86,24 @@ class ExamMaker(object):
         self.survey_mode = survey_mode
         self.output_file = output_file
         self.exam_questions = None
-        id_label, self.id_num_digits = id_num_digits(self.parts)
+        template_id_label, template_id_num_digits = id_num_digits(self.parts)
+        if 'student_id_label' in variables:
+            id_label = variables['student_id_label']
+        else:
+            id_label = template_id_label
+        if 'student_id_length' in variables:
+            self.id_num_digits = variables['student_id_length']
+        else:
+            self.id_num_digits = template_id_num_digits
+        # The ID box is part of the answer table replacement
+        # when it does not appear as a separate key in the template.
+        # The latter is legacy behaviour kept for backwards compatibility.
+        if template_id_label is None and self.id_num_digits > 0:
+            self.id_box_with_answer_table = True
+            if id_label is None:
+                id_label = 'ID'
+        else:
+            self.id_box_with_answer_table = False
         self.exam_config_filename = exam_config_filename
         if (num_tables > 0 and dimensions is not None and
             len(dimensions) != num_tables):
@@ -102,7 +121,6 @@ class ExamMaker(object):
         else:
             self.table_width = table_width
             self.table_height = table_height
-        self._load_replacements(variables, id_label)
         if self.exam_config_filename is not None:
             if not force_config_overwrite:
                 self._load_exam_config()
@@ -110,9 +128,12 @@ class ExamMaker(object):
                 self._new_exam_config()
         else:
             self.exam_config = None
-        if score_weights is not None and self.exam_config is not None:
-            scores = utils.QuestionScores(*score_weights)
-            self.exam_config.set_base_scores(scores)
+        if scores is not None:
+            variables['score_correct'] = scores.format_correct_score()
+            variables['score_incorrect'] = scores.format_incorrect_score()
+            if self.exam_config is not None:
+                self.exam_config.set_base_scores(scores)
+        self._load_replacements(variables, id_label)
         self.empty_variables = []
 
     def set_exam_questions(self, exam):
@@ -137,6 +158,8 @@ class ExamMaker(object):
                                            self.table_width, self.table_height,
                                            self.table_scale,
                                            self.left_to_right_numbering)
+        if self.id_box_with_answer_table:
+            answer_table = replacements['id-box'] + answer_table
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
@@ -188,7 +211,7 @@ class ExamMaker(object):
     def _load_exam_config(self):
         if self.exam_config_filename is not None:
             try:
-                self.exam_config = utils.ExamConfig(self.exam_config_filename)
+                self.exam_config = exams.ExamConfig(self.exam_config_filename)
                 if self.num_questions != self.exam_config.num_questions:
                     raise utils.EyegradeException( \
                                             'Incoherent number of questions',
@@ -214,7 +237,7 @@ class ExamMaker(object):
                 self._new_exam_config()
 
     def _new_exam_config(self):
-        self.exam_config = utils.ExamConfig()
+        self.exam_config = exams.ExamConfig()
         self.exam_config.num_questions = self.num_questions
         self.exam_config.id_num_digits = self.id_num_digits
         self.exam_config.left_to_right_numbering = self.left_to_right_numbering
@@ -565,7 +588,7 @@ def _create_infobits(bits, num_tables, num_choices):
 def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
-       'exam' is a utils.ExamQuestions object. Writtes the questions
+       'exam' is a exams.ExamQuestions object. Writtes the questions
        in their 'shuffled' order. If 'with_solution', correct answers
        are marked in the text.
 
@@ -633,7 +656,7 @@ def format_question(question, model, with_solution=False):
 def format_question_component(component):
     data = []
     if component.text is not None:
-        if isinstance(component.text, basestring):
+        if isinstance(component.text, str):
             data.append(component.text)
         else:
             for part in component.text:

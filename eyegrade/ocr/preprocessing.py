@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2015 Rodrigo Arguello, Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Rodrigo Arguello, Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
 
 import cv2
@@ -21,7 +21,7 @@ import numpy as np
 import numpy.linalg as linalg
 
 
-class FeatureExtractor(object):
+class FeatureExtractor:
     """Default feature extractor.
 
     It assumes that images contain just one digit
@@ -69,7 +69,7 @@ class CrossesFeatureExtractor(FeatureExtractor):
 
     """
     def __init__(self, dim=28):
-        super(CrossesFeatureExtractor, self).__init__(dim=dim)
+        super().__init__(dim=dim)
 
     def extract(self, sample):
         image = self._project_to_rectangle(sample, self.dim, self.dim)
@@ -79,7 +79,7 @@ class CrossesFeatureExtractor(FeatureExtractor):
         return feature_vector
 
 
-class OpenCVExampleExtractor(object):
+class OpenCVExampleExtractor:
     def __init__(self, dim=20, threshold=False):
         self.dim = dim
         self.threshold = threshold
@@ -148,8 +148,8 @@ def clear_boundbox(image):
     left = 0
     it = 0
     for index, row in enumerate(image):
-        if (not np.all(row==0)) and it == 0:
-            if not np.all(image[index + 1] == 0):
+        if not np.all(row == 0) and it == 0:
+            if index == image.shape[0] or not np.all(image[index + 1] == 0):
                 top = index
                 it = 1
         elif np.all(row == 0) and it == 1:
@@ -158,7 +158,8 @@ def clear_boundbox(image):
     it = 0
     for index, col in enumerate(image.T):
         if (not np.all(col == 0)) and it == 0:
-            if index + 2 >= right or not np.all(image.T[index + 2] == 0):
+            if (index + 2 >= image.shape[1]
+                    or not np.all(image.T[index + 2] == 0)):
                 left = index
                 it = 1
         elif np.all(col == 0) and it == 1:

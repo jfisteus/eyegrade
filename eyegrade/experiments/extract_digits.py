@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2015 Jesus Arias Fisteus
+# Copyright (C) 2010-2018 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,10 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see
-# <http://www.gnu.org/licenses/>.
+# <https://www.gnu.org/licenses/>.
 #
-from __future__ import print_function, division
-
 import sys
 import random
 import logging
@@ -30,7 +28,7 @@ from .. import images
 from ..ocr import sample
 
 
-class LabeledDigit(object):
+class LabeledDigit:
 
     def __init__(self, digit, image_file, corners, identifier=None):
         self.digit = digit
