@@ -47,17 +47,6 @@ Eyegrade 0.7 has been released!
 See the `blog post <blog/posts/eyegrade-07-released.html>`__
 or go to the `downloads page <blog/posts/download.html>`__.
 
-**[Jul 5, 2016]**
-Eyegrade 0.6.4 has been released!
-See the `blog post <blog/posts/bugfix-release-064.html>`__.
-
-**[Mar 21, 2016]**
-Eyegrade 0.6.3 has been released!
-See the `blog post <blog/posts/bugfix-release-063.html>`__.
-
-**[Jan 11, 2016]**
-Eyegrade 0.6.2 has been released!
-See the `blog post <blog/posts/bugfix-release-062.html>`__
 
 
 Main features
@@ -102,7 +91,7 @@ And here is a more current screenshot:
    :alt: A screenshot of Eyegrade.
 
 
-.. class:: lead
+
 
 Trying Eyegrade
 ------------------
@@ -114,8 +103,6 @@ as well as in other institutions worldwide.
 Follow the `quick start guide <quick-start-guide/>`_
 if you want to give it a try.
 
-
-.. class:: lead
 
 How can you contribute?
 --------------------------
@@ -132,7 +119,6 @@ is hosted at
 Bug reports, feature requests and pull requests are welcome there.
 
 
-.. class:: lead
 
 How can you cite this work from academic papers?
 -----------------------------------------------------
