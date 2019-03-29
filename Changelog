@@ -1,4 +1,9 @@
 2019-03-29  Jesus Arias Fisteus  <jfisteus@gmail.com>
+	* Release 0.8.1
+
+	* Fix an issue loading Excel student lists with integer-typed cells
+
+2019-03-29  Jesus Arias Fisteus  <jfisteus@gmail.com>
 	* Release 0.8.
 
 	* New import student list dialogues.

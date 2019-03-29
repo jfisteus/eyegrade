@@ -21,7 +21,7 @@ requirements = [
 
 setuptools.setup(
     name='eyegrade',
-    version='0.8',
+    version='0.8.1',
     description='Grade MCQ exams with a webcam',
     long_description=long_description,
     long_description_content_type='text/markdown',
