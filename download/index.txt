@@ -12,13 +12,15 @@ The recommended way of installation,
 depending on your operating system, is:
 
 - Windows installer:
-  `eyegrade-0.8.msi <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8/eyegrade-0.8.msi>`_
+  `eyegrade-0.8.1.msi <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8.1/eyegrade-0.8.1.msi>`_
   (you'll need to install `Microsoft's Visual C++ Redistributable for Visual Studio 2015 <https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_ first).
 
 - Linux portable binary files:
   `eyegrade-0.8-bin-linux.tar.gz <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8/eyegrade-0.8-bin-linux.tar.gz>`_
   (these binaries should be compatible with any reasonably recent distribution,
-  more or less from 2016 or more recent)
+  more or less from 2016 or more recent).
+  **Note:** Linux binary files for the bugfix release 0.8.1
+  will be available soon!
 
 - Through `pipx <https://github.com/pipxproject/pipx>`_.
   Just run: `pipx install eyegrade`.
@@ -49,7 +51,7 @@ On Linux, run::
 
 SHA-512 checksums::
 
-  d5c89afbb3f105c22336fbdcdf18d288ff88505df54b5d550713f4e8a0cb6b36b4a48891cb285e3f6ac1e29c941fd4bbcb6311835da1fba74cd691145cd89a7e  eyegrade-0.8.msi
+  d1fa2d4565d3de50c9944e31b8f3dbc382c880c6097c755ffea715e67c5bbb7bf5218a200e1fd3284182c7780c13ce45952058c8e51ad83e3b6c52ca15f73dba  eyegrade-0.8.1.msi
   2be5f9bf3b2f063b0f726c5c6afa9ae6a27ab643361d5e5b46b327473ae00c1fc8a9eed9d5871bbc4fbae0c9c9568b7fe8da12163c1532e12cc16624244c0b41  eyegrade-0.8-bin-linux.tar.gz
 
 

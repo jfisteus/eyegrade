@@ -15,7 +15,7 @@ Latest version
 ---------------
 
 The latest available version is
-**Eyegrade 0.8**,
+**Eyegrade 0.8.1**,
 which was released on March 29, 2019.
 
 
@@ -33,7 +33,7 @@ News
 
 
 **[Mar 29, 2019]**
-Eyegrade 0.8 has been released!
+Eyegrade 0.8.1 has been released!
 See the `blog post <blog/posts/eyegrade-08-released/>`__
 or go to the `downloads page <download/>`__.
 
