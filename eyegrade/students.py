@@ -88,6 +88,15 @@ class Student:
         else:
             return ''
 
+    def __lt__(self, other):
+        return self.student_id < other.student_id
+
+    def __eq__(self, other):
+        if isinstance(other, Student):
+            return self.student_id == other.student_id
+        else:
+            return False
+
     def __str__(self):
         return 'student: ' + self.id_and_name
 
@@ -137,7 +146,9 @@ class GroupListing:
         self.group.name = new_name
 
     def find_duplicates(self, students):
-        return [s for s in students if s.student_id in self]
+        non_duplicates, duplicates = _duplicate_student_ids(students)
+        duplicates.extend([s for s in non_duplicates if s.student_id in self])
+        return duplicates
 
     def __len__(self):
         return len(self.students)
@@ -214,8 +225,10 @@ class StudentListings:
         else:
             raise KeyError(group_id)
 
-    def find_duplicates(self, student_list):
-        return [s for s in student_list if s.student_id in self]
+    def find_duplicates(self, students):
+        non_duplicates, duplicates = _duplicate_student_ids(students)
+        duplicates.extend([s for s in non_duplicates if s.student_id in self])
+        return duplicates
 
     def __len__(self):
         return len(self.listings)
@@ -231,6 +244,19 @@ class StudentListings:
 
     def __str__(self):
         return 'Studentlistings({} groups)'.format(len(self.listings))
+
+
+def _duplicate_student_ids(students):
+    non_duplicates = []
+    duplicates = []
+    student_ids_set = set()
+    for student in students:
+        if student.student_id not in student_ids_set:
+            student_ids_set.add(student.student_id)
+            non_duplicates.append(student)
+        else:
+            duplicates.append(student)
+    return non_duplicates, duplicates
 
 
 class CantRemoveGroupException(utils.EyegradeException):

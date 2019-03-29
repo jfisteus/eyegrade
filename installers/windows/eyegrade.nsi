@@ -11,7 +11,7 @@
 
 ;--------------------------------
 ;General
-  !define VERSION "0.8.dev3"
+  !define VERSION "0.8"
   !define EYEGRADE_DIR "..\.."
 
   ;Name and file
@@ -107,7 +107,7 @@ Section "Installing Eyegrade Files" InstEyegradeFiles
   File "${EYEGRADE_DIR}\eyegrade\data\eyegrade.ico"
   File "${EYEGRADE_DIR}\AUTHORS.TXT"
   File "${EYEGRADE_DIR}\COPYING.TXT"
-  File "/oname=README.TXT" "${EYEGRADE_DIR}\README"
+  File "/oname=README.TXT" "${EYEGRADE_DIR}\README.MD"
   File "/oname=CHANGELOG.TXT" "${EYEGRADE_DIR}\Changelog"
   CreateDirectory "$INSTDIR\examples"
   SetOutPath "$INSTDIR\examples"

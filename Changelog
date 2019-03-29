@@ -1,3 +1,24 @@
+2019-03-29  Jesus Arias Fisteus  <jfisteus@gmail.com>
+	* Release 0.8.
+
+	* New import student list dialogues.
+
+	* Ability to import Excel (.xlst) lists of students.
+
+	* Ability to export grades in Excel (.xlst) files.
+
+	* Installer for Windows built with briefcase and the WiX toolset.
+
+	* Port to Python 3 (3.5 or later) and drop Python 2 compatibility.
+
+	* Port to OpenCV 3/4, and drop OpenCV 2.4 compatibility.
+
+	* Port to Qt/PyQt 5, and drop Qt/PyQt 4 compatibility.
+
+	* Some code refactoring, especially when dealing with students.
+
+	* Some bugfixes.
+
 2017-07-24  Jesus Arias Fisteus  <jfisteus@gmail.com>
 	* Release 0.7.
 
@@ -8,7 +29,7 @@
 
 	* Add support to publish the project in PyPI
 
-	* Transition to the cv2 bindings og OpenCV 2.4
+	* Transition to the cv2 bindings of OpenCV 2.4
 
 	* Several minor improvements and bug fixes
 

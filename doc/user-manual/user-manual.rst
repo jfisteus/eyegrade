@@ -7,6 +7,14 @@ Eyegrade User Manual
 .. section-numbering::
 
 This is the user manual for Eyegrade 0.8.
+Versions of this manual for earlier versions
+are available:
+`0.7 <../user-manual-0.7>`_,
+`0.6 <../user-manual-0.6>`_,
+`0.5 <../user-manual-0.5>`_,
+`0.4 <../user-manual-0.4>`_,
+`0.2 <../user-manual-0.2>`_.
+
 
 
 Installing Eyegrade
@@ -15,6 +23,29 @@ Installing Eyegrade
 
 Installation on GNU/Linux
 .........................
+
+We propose several ways to get Eyegrade running,
+so that you can choose the one that better fits your needs
+and experience in Linux systems:
+
+- Install in binary format from a tarball file.
+
+- Install through `pipx` within your user's account.
+
+Both are described below.
+The first alternative is somewhat easier,
+since it doesn't require you to install any other software,
+but has the disadvantages that Eyegrade may take longer to startup
+or, on rare occasions, might fail to start on your Linux system.
+The second alternative, `pipx`,
+requires your system to have Python 3.6 or 3.7 installed.
+The installation procedure is a little bit more complex,
+but in our opinion it's totally worth it
+if you already have Python 3.6 or 3.7.
+
+
+Installation in binary format from a tarball file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Eyegrade for Linux is distributed as a tarball file
 containing the executable files
@@ -31,19 +62,79 @@ or place the binaries inside a directory that is already in your `PATH`.
 For example, if you want to place the binaries
 inside `/usr/local/bin`, which is usually in your `PATH`::
 
-  tar xavf eyegrade-0.7-linux-bin.tgz
-  sudo cp eyegrade-0.7-linux-bin/eyegrade /usr/local/bin
-  sudo cp eyegrade-0.7-linux-bin/eyegrade-create /usr/local/bin
+  tar xavf eyegrade-0.8-linux-bin.tgz
+  sudo cp eyegrade-0.8-linux-bin/eyegrade /usr/local/bin
+  sudo cp eyegrade-0.8-linux-bin/eyegrade-create /usr/local/bin
+
+
+Installation through `pipx` within your user's account
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check that your Linux system has Python 3.6 or 3.7 installed
+by running::
+
+  python3 --version
+
+Several things may happen:
+
+- The `python3` command is not found:
+  look for it with your package manager
+  and check that its version is 3.6 or later.
+  The package is called `python3` in most Linux distributions.
+
+- If reports a version number lower than 3.6:
+  your Linux distribution does not probably package a 3.6 or later version.
+  You may install Python 3.6 or 3.7
+  through `pyenv <https://github.com/pyenv/pyenv>`_.
+
+Once you have a working version of Python 3.6 or Python 3.7,
+install `pipx <https://github.com/pipxproject/pipx>`_
+through `pip`::
+
+  python3 -m pip install --user pipx
+
+If you get a message saying that there is no module named `pip`,
+install the `python3-pip` package and then run::
+
+  pip install --user pipx
+
+The `pipx` command might now be available on your shell's PATH. Try to run::
+
+  pipx install eyegrade
+
+If `pipx` isn't found as a command,
+you need to add `$HOME/.local/bin` to your PATH.
+The `pipx` program is able to do that if you run::
+
+  $HOME/.local/bin/pipx ensurepath
+
+Now, try to install Eyegrade again, and it should work::
+
+  pipx install eyegrade
+
+That's it! You can now run Eyegrade by entering the `eyegrade` command
+in a terminal::
+
+  eyegrade
+
+The `eyegrade-create` program will also available as a command-line program::
+
+  eyegrade-create --version
+
 
 
 Installation on Microsoft Windows
 .................................
 
-Download the Windows installer
+Download and install
+`Microsoft's Visual C++ Redistributable for Visual Studio 2015
+<https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_.
+
+Then,
+download Eyegrade's  Windows installer
 from the `downloads page <http://eyegrade.org/download.html>`_
 and run it.
-Once installed, Eyegrade will be installed within your user's account
-and accessible through your Start Menu.
+Once installed, Eyegrade will be accessible through your Start Menu.
 
 **Important:**
 The security systems of Windows will probably alert you
@@ -81,8 +172,8 @@ Upgrading from Eyegrade 0.7 to Eyegrade 0.8
 
 In Linux systems, just replace the binaries of Eyegrade 0.7
 with the new ones.
-In Windows, the installer will automatically detect and uninstall
-Eyegrade 0.7 before installing Eyegrade 0.8.
+In Windows, you can uninstall Eyegrade 0.7
+using the *Add/remove programs* feature.
 
 Eyegrade 0.8 is backwards-compatible with grading sessions
 created with Eyegrade 0.3 and later versions.
@@ -848,7 +939,76 @@ the bottom.
 Processing Student Grades
 -------------------------
 
-The output produced by Eyegrade consists of:
+The easiest  way to get the scores of your students
+once you've graded the exam is `Exporting a listing of scores`_.
+You'll get a spreadsheet that you can open with Microsoft Excel,
+Libreoffice and other compatible spreadsheet software.
+
+In addition, Eyegrade will produce some files
+within the session directory,
+including a snapshot of each graded exam.
+See `Output within the session directory`_ for more information.
+
+
+
+Exporting a listing of scores
+.............................
+
+You will probably want to export your listing of scores in order to
+import it into the grade-book, spreadsheet, etc. you use.
+This can be done from the user interface (menu *Exams /
+Export grades listing*).
+
+First, the program shows a dialog like the following one:
+
+.. image:: images/export-dialog.png
+   :alt: Export dialog.
+
+In this dialog you have to select:
+
+- The format of the output file.
+  You can choose between Office Open XML format
+  (.XLSX files that can be opened from Microsoft Excel, LibreOffice
+  and other compatible spreadsheet software)
+  or a plain text file with tabulator-separated fields.
+
+- The students to include in the listing: all the students in the
+  student list or just the students whose exam has been graded in this
+  session.
+
+- The student groups to include in the listing: the grades for just a
+  specific group of students or the grades for all the groups. This
+  option is hidden if there is just one student group in the current
+  session (see `Student lists`_ for more information about groups).
+  If you want to all the groups into a .XLSX spreadsheet,
+  you can also choose to place each group within a separate *workbook*
+  of this spreadsheet.
+
+- How the grades are sorted: according to the order in the student
+  list you imported or according to the order in which you graded the
+  exams.
+
+- Which fields to include in the listing: student id number, student
+  full name, student last name, student first name,
+  grading sequence number, exam model letter, number of correct
+  and incorrect answers, score and full list of answers. Only the
+  fields you check are exported (as columns of the exported file). The
+  order of these fields in the exported file is the same you see in
+  the dialog (first the student id number, then her name, etc.).
+  You can change column order later with your spreadsheet software if needed.
+
+Once you complete the selection of options and press the *OK* button,
+a new dialog allows you to select the location and name with which the
+file will be saved.  The proper filename extension
+(`.xslx` or `.csv`) is automatically set
+if you type a name without extension.
+
+
+Output within the session directory
+......................................
+
+The output produced by Eyegrade within the session directory
+consists mainly of the following files:
 
 - A file with the scores, named ``eyegrade-answers.csv``: it contains
   one line for each graded exam. Each line contains, among other
@@ -867,10 +1027,6 @@ The output produced by Eyegrade consists of:
   captures are stored in the session directory, inside its
   ``captures`` subdirectory. The captures are saved when the exam is
   captured, and updated every time you edit the exam.
-
-
-The answers file
-................
 
 The file ``eyegrade-answers.csv`` produced by Eyegrade contains the
 scores in CSV format (with tabulator instead of comma as a separator),
@@ -904,61 +1060,10 @@ answer. '1', '2', etc. mean the first choice, second choice, etc., in
 the order they were presented in her exam model.
 
 Exams are in the same sequence they were graded. See `Exporting a
-listing of scores`_ to know how to produce a listing of scores in the
-order that best fits your needs.
+listing of scores`_ to know how to produce a listing of scores
+with the columns and student order
+that best fits your needs.
 
-
-Exporting a listing of scores
-.............................
-
-You will probably want to export your listing of scores in order to
-import it into the grade-book, spreadsheet, etc. you use. Since
-version 0.4 this can be done from the user interface (menu *Exams /
-Export grades listing*).
-
-First, the program shows a dialog like the following one:
-
-.. image:: images/export-dialog.png
-   :alt: Export dialog.
-
-In this dialog you have to select:
-
-- The format of the output file. The only option right now is a text
-  file with one row per student and fields separated by tabulators.
-  It is a usual data exchange format compatible with spreadsheet
-  software (such as Microsoft Office and OpenOffice) and databases.
-  Other formats might be added in future versions.
-
-- The students to include in the listing: all the students in the
-  student list or just the students whose exam has been graded in this
-  session.
-
-- The student groups to include in the listing: the grades for just a
-  specific group of students or the grades for all the groups. This
-  option is hidden if there is just one student group in the current
-  session. Each student-list file you import in the session is treated
-  as a distinct group. This option is useful when, for example, you
-  teach the course in several separate classes. In that case you can
-  export a separate grades listing for each class.
-
-- How the grades are sorted: according to the order in the student
-  list you imported or according to the order in which you graded the
-  exams.
-
-- Which fields to include in the listing: student id number, student
-  full name, student last name, student first name,
-  grading sequence number, exam model letter, number of correct
-  and incorrect answers, score and full list of answers. Only the
-  fields you check are exported (as columns of the exported file). The
-  order of these fields in the exported file is the same you see in
-  the dialog (first the student id number, then her name, etc.)
-
-Once you complete the selection of options and press the *OK* button,
-a new dialog allows you to select the location and name with which the
-file will be saved.  The `.csv` filename extension is recommended in
-order to improve compatibility with external programs in which you
-might want to open the grades. This extension is automatically set if
-you type a name without extension.
 
 
 Editing exams
@@ -1008,6 +1113,14 @@ the date
 and the duration of the exam.
 You don't need to provide all those values,
 just the ones you want printed in the exam.
+
+In addition,
+you can optionally configure there
+the scores to be awarded/detracted for correct/incorrect answers
+and configuration for student id detection.
+Got to `Configuring student id detection`_
+and `Configuring scores`_ for more details
+about these two options.
 
 Then, write the questions one by one.
 For each question, you have to provide:
@@ -1138,6 +1251,88 @@ and neither attribute can be used::
     </incorrect>
 
 
+Configuring student id detection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want Eyegrade to detect student ids,
+you can provide a `studentId` element as shown in the example
+at `Editing the questions of the exam`_.
+You just need to specify the length (number of digits) of student ids
+and the label that will be printed on the exam at the left
+of the box where students will write down their ids::
+
+    <studentId eye:label="ID" eye:length="8" />
+
+If you provide a valid student id length,
+a student id box will automatically be inserted above the answer tables.
+Don't include the *studentId* element in your questions file
+if you don't want Eyegrade to detect student ids.
+The student id box won't appear in the exam in that case.
+
+
+Configuring scores
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can optionally provide within the questions file
+the score to be awarded for correct answers
+and the score to be detracted for wrong answers
+by using the `scores` element,
+as shown in the example
+at `Editing the questions of the exam`_.
+If you provide your scores here,
+they will automatically be saved into the exam configuration file.
+If you prefer not to,
+you'll still be able to enter scores later,
+when you create the grading session
+(see section `Scores`_).
+
+You have two ways to provide scores within the questions file.
+The first way consists in directly specifying those scores.
+For example, in order to awarding one point to correct answers::
+
+  <scores eye:correct="1" />
+
+Scores can also be provided as fractional or decimal numbers::
+
+  <scores eye:correct="3/2" />
+  <scores eye:correct="1.5" />
+
+By default, wrong answers don't detract points,
+but you can change this behavior.
+The following example penalizes wrong answers with half the score
+of a correct answer::
+
+  <scores eye:correct="1" eye:incorrect="1/2" />
+
+For example, a student that got 8 correct answers and 2 incorrect answers
+would get 7 points (8 - 2 * 1/2).
+
+You can alternatively let Eyegrade compute scores
+by specifying the maximum grade
+a student can get::
+
+  <scores eye:maxScore="100" />
+
+In the example above, if there were 10 questions in your exam,
+Eyegrade would automatically assign 10 points
+to correct answers.
+
+Wrong answers don't get a penalization in the example above.
+If you want a penalization so that the expected value for random answers
+is a score of 0,
+you can specify::
+
+  <scores eye:maxScore="100" eye:penalize="true" />
+
+In the example above,
+in an exam with 10 questions with 3 choices each,
+wrong answers would get a penalization of 5 points.
+A student that answers randomly would be an average of 10/3 correct answers
+and 20/3 incorrect answers, for a final score of 10 * 10 / 3 - 5 * 20 / 3 = 0.
+
+
+
+
 Editing the LaTeX template
 ...........................
 
@@ -1164,9 +1359,6 @@ exam:
   the questions.
 - `{{model}}`: a letter representing the model of the exam. Each model
   has a different ordering for questions and choices within questions.
-- `{{id-box(9,ID}}`: replaced by a box for students to fill in their IDs.
-  The number of digits and the text to be put at the left of the box are
-  specified within the parenthesis.
 - `{{answer-table}}`: replaced by the table in which students mark out
   their answers.
 - `{{questions}}`: replaced by the questions of the exam.
@@ -1180,23 +1372,40 @@ Creating the PDF files
 
 Once the exam file and the template have been created,
 the `eyegrade-create` program parses them and generates the exam in PDF format,
-provided that LaTeX is installed and available in your system's PATH
+provided that LaTeX is installed and available in your system's `PATH`
 (see `Installing the LaTeX system`_).
 
-You'll need the `eyegrade-create.exe` (just `eyegrade-create` on Linux)
+You'll use the `eyegrade-create.exe` (just `eyegrade-create` on Linux)
 binary file.
-Note that, on Windows, you can get this file from
-Eyegrade's installation folder,
-which you can open from Eyegrade's entry at the Start Menu.
 The only way to run `eyegrade-create` by now is from a command-prompt console.
-Therefore, it is better to
-copy the `eyegrade-create` program
-somewhere in your
-computer where you find it convenient
-(for example, the directory where you have prepared your exam's source files).
+If you are on Windows,
+you'll need to provide its full location in the console::
 
-Once you have located `eyegrade-create`, run the following command
-from a command-line console::
+  "C:\Program File (x86)\eyegrade\app\eyegrade-create" --version
+
+Don't forget to add the double quotation marks
+because of the white spaces within its path.
+Alternatively,
+you may add the `C:\\Program Files (x86)\\eyegrade\\app`
+to your system's `PATH`
+(see, for example,
+`this guide about changing the PATH variable in Windows 10 <https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/>`_).
+If you do that, you won't need to enter the full path of the program::
+
+  eyegrade-create --version
+
+On Linux, just run `eyegrade-create` from a console,
+because with the two suggested installation methods the program
+will be in your shell's `PATH` variable::
+
+  eyegrade-create --version
+
+Once you are able to run `eyegrade-create`,
+let's see how to create the PDF files of your exams.
+Run the following command
+from a command-line console
+(remember to change it to the full path if you are in Windows
+and it isn't in your `PATH`)::
 
   eyegrade-create -e exam-questions.xml -m 0AB template.tex -o exam
 

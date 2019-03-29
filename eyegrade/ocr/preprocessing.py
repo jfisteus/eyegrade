@@ -69,7 +69,7 @@ class CrossesFeatureExtractor(FeatureExtractor):
 
     """
     def __init__(self, dim=28):
-        super(CrossesFeatureExtractor, self).__init__(dim=dim)
+        super().__init__(dim=dim)
 
     def extract(self, sample):
         image = self._project_to_rectangle(sample, self.dim, self.dim)

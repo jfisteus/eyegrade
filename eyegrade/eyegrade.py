@@ -462,8 +462,6 @@ class ProgramManager:
             success = True
             message = ''
         except utils.EyegradeException as e:
-            import traceback
-            traceback.print_exc()
             self.sessiondb = None
             self.exam_data = None
             success = False

@@ -29,7 +29,7 @@ program_name = 'eyegrade'
 web_location = 'https://www.eyegrade.org/'
 source_location = 'https://github.com/jfisteus/eyegrade'
 help_location = 'https://www.eyegrade.org/doc/user-manual/'
-version = '0.8.dev3'
+version = '0.8'
 version_status = 'alpha'
 
 re_model_letter = re.compile('[0a-zA-Z]')
@@ -164,10 +164,10 @@ class EyegradeException(Exception):
                 parts.append(EyegradeException._error_messages[key])
             parts.append('\n')
             self.full_message = ''.join(parts)
-            super(EyegradeException, self).__init__(self.full_message)
+            super().__init__(self.full_message)
         else:
             self.full_message = None
-            super(EyegradeException, self).__init__(message)
+            super().__init__(message)
 
     def __str__(self):
         """Prints the exception.
@@ -179,7 +179,7 @@ class EyegradeException(Exception):
         if self.full_message is not None:
             return self.full_message
         else:
-            return super(EyegradeException, self).__str__()
+            return super().__str__()
 
     @staticmethod
     def register_error(key, detailed_message='', short_message=''):

@@ -55,6 +55,10 @@ EyegradeException.register_error('duplicate_text',
 EyegradeException.register_error('score_correct_needed',
     "When a score for incorrect answers is provided, "
     "a score for correct answers is also needed.")
+EyegradeException.register_error('duplicate_studentid_element',
+    "At most one studentId element can be provided.")
+EyegradeException.register_error('studentid_number_format',
+    'Student id length must be an integer')
 EyegradeException.register_error('duplicate_score_element',
     "At most one score element can be provided.")
 EyegradeException.register_error('empty_score_element',
@@ -77,15 +81,11 @@ def parse_exam(dom_tree):
         exam.date = get_element_content(root, namespace, 'date')
         exam.duration = get_element_content(root, namespace, 'duration')
         exam.title = get_element_content(root, namespace, 'title')
-        exam.student_id_label = \
-            get_element_content(root, namespace, 'studentIdLabel')
-        student_id_length_str = \
-            get_element_content(root, namespace, 'studentIdLength')
-        try:
-            if student_id_length_str is not None:
-                exam.student_id_length = int(student_id_length_str)
-        except ValueError:
-            raise EyegradeException('Student id length must be an integer')
+        student_id_length, student_id_label = parse_student_id(root)
+        if student_id_length is not None:
+            exam.student_id_length = student_id_length
+        if student_id_label is not None:
+            exam.student_id_label = student_id_label
         exam.questions = []
         for node in get_children_by_tag_name(root, namespace, 'question'):
             exam.questions.append(parse_question(node))
@@ -100,6 +100,21 @@ def parse_exam(dom_tree):
                                 key='exam_root_element')
     return exam
 
+def parse_student_id(root):
+    student_id_length = None
+    student_id_label = None
+    element_list = get_children_by_tag_name(root, namespace, 'studentId')
+    if len(element_list) == 1:
+        student_id_element = element_list[0]
+        student_id_length = get_attribute_text(student_id_element, 'length')
+        student_id_label = get_attribute_text(student_id_element, 'label')
+        try:
+            student_id_length = int(student_id_length)
+        except ValueError:
+            raise EyegradeException('', key='student_id_number_format')
+    elif len(element_list) > 1:
+        raise EyegradeException('', key='duplicate_studentid_element')
+    return student_id_length, student_id_label
 
 def parse_scores(root):
     scores = None

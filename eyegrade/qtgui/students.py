@@ -183,7 +183,7 @@ class NewStudentDialog(QDialog):
         the dialog is cancelled.
 
         """
-        result = super(NewStudentDialog, self).exec_()
+        result = super().exec_()
         if result == QDialog.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
             listing = \
@@ -254,7 +254,7 @@ class DialogStudents(QDialog):
 
     def __init__(self, parent, student_listings):
         super().__init__(parent)
-        self.setWindowTitle(_('Manage the students and student groups'))
+        self.setWindowTitle(_('Manage students and student groups'))
         main_layout = QVBoxLayout(self)
         self.setLayout(main_layout)
         tabs = StudentGroupsTabs(self, student_listings=student_listings)
