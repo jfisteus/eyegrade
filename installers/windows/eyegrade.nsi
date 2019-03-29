@@ -11,7 +11,7 @@
 
 ;--------------------------------
 ;General
-  !define VERSION "0.8"
+  !define VERSION "0.8.1"
   !define EYEGRADE_DIR "..\.."
 
   ;Name and file

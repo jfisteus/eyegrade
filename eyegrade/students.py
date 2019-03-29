@@ -427,9 +427,10 @@ class StudentColumnMap:
         student = Student('', '', '', '', '')
         for i, item in enumerate(row[:num_columns]):
             if self.columns[i] != StudentColumn.UNKNOWN:
-                self._check_value(self.columns[i], row[i])
+                value = str(row[i])
+                self._check_value(self.columns[i], value)
                 attr_name = ATTR_NAME[self.columns[i]]
-                setattr(student, attr_name, row[i])
+                setattr(student, attr_name, value)
         return student
 
     def data(self, index, student):
@@ -483,9 +484,10 @@ class StudentColumnMap:
     def guess_map(row):
         column_map = StudentColumnMap(num_columns=len(row))
         for i, item in enumerate(row):
-            if _re_student_id.match(row[i]):
+            value = str(row[i])
+            if _re_student_id.match(value):
                 column = StudentColumn.ID
-            elif _re_email.match(row[i]):
+            elif _re_email.match(value):
                 column = StudentColumn.EMAIL
             else:
                 column = StudentColumn.UNKNOWN
