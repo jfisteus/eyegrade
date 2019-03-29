@@ -7,7 +7,7 @@ Download
 Latest stable release:
 -----------------------
 
-The latest stable release is Eyegrade 0.8.
+The latest stable release is Eyegrade 0.8.1.
 The recommended way of installation,
 depending on your operating system, is:
 
@@ -43,7 +43,7 @@ On Windows, you can verify the checksum of the installer
 from a command-line console
 by entering the following command::
 
-  certUtil -hashfile eyegrade-0.8.msi SHA512
+  certUtil -hashfile eyegrade-0.8.1.msi SHA512
 
 On Linux, run::
 
