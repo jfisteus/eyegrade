@@ -3,9 +3,9 @@
 
 	* New import student list dialogues.
 
-	* Ability to import Excel (.xlst) lists of students.
+	* Ability to import Excel (.xlsx) lists of students.
 
-	* Ability to export grades in Excel (.xlst) files.
+	* Ability to export grades in Excel (.xlsx) files.
 
 	* Installer for Windows built with briefcase and the WiX toolset.
 
