@@ -93,6 +93,10 @@ class TestReadStudentsFromFile(unittest.TestCase):
             ('404040404', 'Rey León', 'Rey', 'León', 'lion@jungle.com'),
         ]
 
+    def _get_test_file_path(self, filename):
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(dirname, filename)
+
     def test_empty(self):
         with tempfile.TemporaryDirectory() as dir_name:
             test_file = os.path.join(dir_name, 'test_file')
@@ -213,6 +217,18 @@ class TestReadStudentsFromFile(unittest.TestCase):
         key = [(s[0], '', s[2], s[3], s[4])
                for s in self.students + self.non_ascii_students]
         self.assertEqual(data, key)
+
+    def test_xlsx(self):
+        test_file = self._get_test_file_path('student-list.xlsx')
+        student_list = students.read_students(test_file)
+        key = [
+            students.Student('100000333', '', 'Frodo', 'Baggins', ''),
+            students.Student('100777777', '', 'Bugs', 'Bunny', ''),
+            students.Student('100999997', '', 'Bastian B.', 'Bux', ''),
+            students.Student('100999991', '', 'Harry', 'Potter', ''),
+            students.Student('100800003', '', 'Lisa', 'Simpson', ''),
+        ]
+        self.assertEqual(student_list, key)
 
 
 class TestListings(unittest.TestCase):
