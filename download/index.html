@@ -14,18 +14,16 @@
 <meta property="og:site_name" content="Eyegrade">
 <meta property="og:title" content="Download Eyegrade">
 <meta property="og:url" content="http://www.eyegrade.org/download/">
-<meta property="og:description" content="Download
-
-Latest stable release:
+<meta property="og:description" content="Latest stable release:
 The latest stable release is Eyegrade 0.8.1.
 The recommended way of installation,
 depending on your operating system, is:
 
 Windows installer:
 eyegrade-0.8.1.msi
-(you'l">
+(you'll need to ">
 <meta property="og:type" content="article">
-<meta property="article:published_time" content="2019-03-29T15:30:33Z">
+<meta property="article:published_time" content="2019-03-31T06:33:31Z">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -91,10 +89,9 @@ navbar-dark bg-dark
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div class="section" id="download">
-<h2>Download</h2>
+    <div>
 <div class="section" id="latest-stable-release">
-<h3>Latest stable release:</h3>
+<h2>Latest stable release:</h2>
 <p>The latest stable release is Eyegrade 0.8.1.
 The recommended way of installation,
 depending on your operating system, is:</p>
@@ -103,11 +100,9 @@ depending on your operating system, is:</p>
 <a class="reference external" href="https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8.1/eyegrade-0.8.1.msi">eyegrade-0.8.1.msi</a>
 (you'll need to install <a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=48145">Microsoft's Visual C++ Redistributable for Visual Studio 2015</a> first).</li>
 <li>Linux portable binary files:
-<a class="reference external" href="https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8/eyegrade-0.8-bin-linux.tar.gz">eyegrade-0.8-bin-linux.tar.gz</a>
+<a class="reference external" href="https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8.1/eyegrade-0.8.1-bin-linux.tar.gz">eyegrade-0.8.1-bin-linux.tar.gz</a>
 (these binaries should be compatible with any reasonably recent distribution,
-more or less from 2016 or more recent).
-<strong>Note:</strong> Linux binary files for the bugfix release 0.8.1
-will be available soon!</li>
+more or less from 2016 or more recent).</li>
 <li>Through <a class="reference external" href="https://github.com/pipxproject/pipx">pipx</a>.
 Just run: <cite>pipx install eyegrade</cite>.</li>
 </ul>
@@ -120,7 +115,7 @@ on that platform are welcome.</p>
 you may want to go through the
 <a class="reference external" href="../quick-start-guide/">quick start guide</a>.</p>
 <div class="section" id="checksums">
-<h4>Checksums</h4>
+<h3>Checksums</h3>
 <p>On Windows, you can verify the checksum of the installer
 from a command-line console
 by entering the following command:</p>
@@ -129,16 +124,16 @@ certUtil -hashfile eyegrade-0.8.1.msi SHA512
 </pre>
 <p>On Linux, run:</p>
 <pre class="literal-block">
-sha512sum eyegrade-0.8-bin-linux.tar.gz
+sha512sum eyegrade-0.8.1-bin-linux.tar.gz
 </pre>
 <p>SHA-512 checksums:</p>
 <pre class="literal-block">
 d1fa2d4565d3de50c9944e31b8f3dbc382c880c6097c755ffea715e67c5bbb7bf5218a200e1fd3284182c7780c13ce45952058c8e51ad83e3b6c52ca15f73dba  eyegrade-0.8.1.msi
-2be5f9bf3b2f063b0f726c5c6afa9ae6a27ab643361d5e5b46b327473ae00c1fc8a9eed9d5871bbc4fbae0c9c9568b7fe8da12163c1532e12cc16624244c0b41  eyegrade-0.8-bin-linux.tar.gz
+1d96e71561e6f59a4f0cd0f4a457926d6850db285d76521dd2c5f2a1346675f57f2bcfba2972c414c8dbff167b10e280ab22e4ba45454da61336ddb7644fa5f8  eyegrade-0.8.1-bin-linux.tar.gz
 </pre>
 </div>
 <div class="section" id="installation-through-pip">
-<h4>Installation through pip:</h4>
+<h3>Installation through pip:</h3>
 <p>If you are familiar with the Python ecosystem,
 you can try to get Eyegrade from PyPI instead.
 Install Python 3.5 or a later release.
@@ -150,14 +145,18 @@ python3 -m pip install eyegrade
 as explained in the <a class="reference external" href="../doc/user-manual/#installing-eyegrade">user guide</a>.</p>
 </div>
 </div>
+<div class="section" id="earlier-releases">
+<h2>Earlier releases:</h2>
+<p>Go to <a class="reference external" href="https://github.com/jfisteus/eyegrade/releases/tag/eyegrade-0.7">Release 0.7</a>.</p>
+</div>
 <div class="section" id="license">
-<h3>License:</h3>
+<h2>License:</h2>
 <p>Eyegrade is distributed under the
 <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License (GPL) version 3</a>
 or any later version.</p>
 </div>
 <div class="section" id="source-code-repository">
-<h3>Source code repository:</h3>
+<h2>Source code repository:</h2>
 <p>The source code repository is available at
 <a class="reference external" href="https://github.com/jfisteus/eyegrade">GitHub</a>.
 To download it through git:</p>
@@ -168,7 +167,7 @@ git clone https://github.com/jfisteus/eyegrade.git
 you'll need Python 3.5 or a later version.</p>
 </div>
 <div class="section" id="contribute">
-<h3>Contribute!</h3>
+<h2>Contribute!</h2>
 <p><strong>Want to contribute?</strong> You can contribute or contact me
 through the <a class="reference external" href="https://github.com/jfisteus/eyegrade">github page of Eyegrade</a>.</p>
 </div>
