@@ -24,25 +24,25 @@ from . import utils
 
 class QuestionScores(utils.ComparableMixin):
     """Compute the score of a question."""
+
     CORRECT = 1
     INCORRECT = 2
     BLANK = 3
     VOID = 4
 
-    def __init__(self, correct_score, incorrect_score, blank_score,
-                 weight=1):
+    def __init__(self, correct_score, incorrect_score, blank_score, weight=1):
         if isinstance(correct_score, str):
             self.correct_score = self._parse_score(correct_score)
         else:
             self.correct_score = correct_score
         if isinstance(incorrect_score, str):
-            self.incorrect_score = self._parse_score(incorrect_score,
-                                                invert_negatives=True)
+            self.incorrect_score = self._parse_score(
+                incorrect_score, invert_negatives=True
+            )
         else:
             self.incorrect_score = incorrect_score
         if isinstance(blank_score, str):
-            self.blank_score = self._parse_score(blank_score,
-                                                invert_negatives=True)
+            self.blank_score = self._parse_score(blank_score, invert_negatives=True)
         else:
             self.blank_score = blank_score
         if isinstance(weight, str):
@@ -60,13 +60,15 @@ class QuestionScores(utils.ComparableMixin):
         elif answer_type == QuestionScores.VOID:
             return 0
         else:
-            raise Exception('Bad answer_type value in QuestionScore')
+            raise Exception("Bad answer_type value in QuestionScore")
 
     def format_all(self):
-        data = (self._format_score(self.correct_score),
-                self._format_score(self.incorrect_score),
-                self._format_score(self.blank_score))
-        return ';'.join(data)
+        data = (
+            self._format_score(self.correct_score),
+            self._format_score(self.incorrect_score),
+            self._format_score(self.blank_score),
+        )
+        return ";".join(data)
 
     def format_weight(self):
         return self._format_score(self.weight)
@@ -79,7 +81,7 @@ class QuestionScores(utils.ComparableMixin):
         elif answer_type == QuestionScores.BLANK:
             return self._format_score(self.blank_score, signed=signed)
         else:
-            raise ValueError('Bad answer_type value in QuestionScore')
+            raise ValueError("Bad answer_type value in QuestionScore")
 
     def format_correct_score(self, signed=False):
         return self._format_score(self.correct_score, signed=False)
@@ -95,11 +97,12 @@ class QuestionScores(utils.ComparableMixin):
             weight = new_weight
         else:
             weight = self.weight
-        return QuestionScores(self.correct_score, self.incorrect_score,
-                              self.blank_score, weight=weight)
+        return QuestionScores(
+            self.correct_score, self.incorrect_score, self.blank_score, weight=weight
+        )
 
     def __str__(self):
-        return '({0}) * {1}'.format(self.format_all(), self.format_weight())
+        return "({0}) * {1}".format(self.format_all(), self.format_weight())
 
     def _parse_score(self, score_str, invert_negatives=False):
         score = parse_number(score_str, allow_negatives=invert_negatives)
@@ -110,8 +113,7 @@ class QuestionScores(utils.ComparableMixin):
     def _parse_weight(self, score_str):
         score = parse_number(score_str)
         if score < 0:
-            raise ValueError('Negative weights are forbidden: {}'\
-                                     .format(score_str))
+            raise ValueError("Negative weights are forbidden: {}".format(score_str))
         return score
 
     def _format_score(self, score, signed=False):
@@ -120,18 +122,19 @@ class QuestionScores(utils.ComparableMixin):
         return format_number(score)
 
     def _cmpkey(self):
-        return (self.correct_score, self.incorrect_score,
-                self.blank_score, self.weight)
+        return (self.correct_score, self.incorrect_score, self.blank_score, self.weight)
 
 
 class Score:
     def __init__(self, answers, solutions, question_scores):
-        if (answers is not None and solutions
-            and len(answers) != len(solutions)):
-            raise ValueError('Parameters must have the same length in Score')
-        if (solutions and question_scores is not None
-            and len(solutions) != len(question_scores)):
-            raise ValueError('Parameters must have the same length in Score')
+        if answers is not None and solutions and len(answers) != len(solutions):
+            raise ValueError("Parameters must have the same length in Score")
+        if (
+            solutions
+            and question_scores is not None
+            and len(solutions) != len(question_scores)
+        ):
+            raise ValueError("Parameters must have the same length in Score")
         self.correct = None
         self.incorrect = None
         self.blank = None
@@ -155,8 +158,7 @@ class Score:
             has_scores = False
         else:
             has_scores = True
-        for answer, solution, q in zip(self.answers, self.solutions,
-                                       question_scores):
+        for answer, solution, q in zip(self.answers, self.solutions, question_scores):
             if q is not None and q.weight == 0:
                 self.answer_status.append(QuestionScores.VOID)
             elif answer == 0:
@@ -169,11 +171,17 @@ class Score:
                 self.incorrect += 1
                 self.answer_status.append(QuestionScores.INCORRECT)
         if has_scores:
-            self.score = float(sum([q.score(status) \
-                                    for q, status in zip(question_scores,
-                                                         self.answer_status)]))
-            self.max_score = float(sum([q.score(QuestionScores.CORRECT)
-                                        for q in self.question_scores]))
+            self.score = float(
+                sum(
+                    [
+                        q.score(status)
+                        for q, status in zip(question_scores, self.answer_status)
+                    ]
+                )
+            )
+            self.max_score = float(
+                sum([q.score(QuestionScores.CORRECT) for q in self.question_scores])
+            )
         else:
             self.score = None
             self.max_score = None
@@ -190,8 +198,7 @@ class AutomaticScore:
     def compute(self, num_questions, num_choices):
         correct_score = self.max_score / num_questions
         if self.penalize:
-            incorrect_score = (self.max_score / (num_choices - 1)
-                               / num_questions)
+            incorrect_score = self.max_score / (num_choices - 1) / num_questions
         else:
             incorrect_score = 0
         return QuestionScores(correct_score, incorrect_score, 0)
@@ -205,29 +212,31 @@ def format_number(number, short=False, no_fraction=False):
             number = float(number)
     if type(number) == fractions.Fraction:
         if number.denominator != 1:
-            return '{0}/{1}'.format(number.numerator, number.denominator)
+            return "{0}/{1}".format(number.numerator, number.denominator)
         else:
             return str(number.numerator)
     elif type(number) == float:
         if short:
-            return '{0:.2f}'.format(number)
+            return "{0:.2f}".format(number)
         else:
-            return '{0:.16f}'.format(number)
+            return "{0:.16f}".format(number)
     else:
         return str(number)
 
+
 # A score is a float number or a fraction, e.g.: '0.8' or '4/5'
-_re_number = re.compile(r'^(-?)\s*((\d+(\.\d+)?)|((\d+)\s*\/\s*(\d+)))\s*$')
-#score_re = re.compile(r'^(-?)((\d*(\.\d+))|((\d+)(\/(\d+))?))$')
+_re_number = re.compile(r"^(-?)\s*((\d+(\.\d+)?)|((\d+)\s*\/\s*(\d+)))\s*$")
+# score_re = re.compile(r'^(-?)((\d*(\.\d+))|((\d+)(\/(\d+))?))$')
+
 
 def parse_number(score_str, force_float=False, allow_negatives=False):
     match = _re_number.match(score_str)
     if match is None:
-        raise ValueError('Syntax error in score: ' + score_str)
+        raise ValueError("Syntax error in score: " + score_str)
     groups = match.groups()
     sign = -1 if groups[0] else 1
     if sign == -1 and not allow_negatives:
-        raise ValueError('The number cannot be negative: ' + score_str)
+        raise ValueError("The number cannot be negative: " + score_str)
     if groups[2] is not None:
         if groups[3] is not None:
             value = sign * float(groups[2])

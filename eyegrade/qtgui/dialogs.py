@@ -32,16 +32,12 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
-from PyQt5.QtCore import (
-    QTimer,
-    Qt,
-    pyqtSignal,
-)
+from PyQt5.QtCore import QTimer, Qt, pyqtSignal
 
 from . import widgets
 from .. import utils
 
-t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
 
 
@@ -54,17 +50,17 @@ class DialogComputeScores(QDialog):
     max_score, penalize = dialog.exec_()
 
     """
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(_('Compute default scores'))
+        self.setWindowTitle(_("Compute default scores"))
         layout = QFormLayout()
         self.setLayout(layout)
         self.score = widgets.InputScore(parent=self)
-        self.penalize = QCheckBox(_('Penalize incorrect answers'), self)
-        buttons = QDialogButtonBox((QDialogButtonBox.Ok
-                                    | QDialogButtonBox.Cancel))
-        layout.addRow(_('Maximum score'), self.score)
-        layout.addRow(_('Penalizations'), self.penalize)
+        self.penalize = QCheckBox(_("Penalize incorrect answers"), self)
+        buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
+        layout.addRow(_("Maximum score"), self.score)
+        layout.addRow(_("Penalizations"), self.penalize)
         layout.addRow(buttons)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -88,8 +84,7 @@ class DialogComputeScores(QDialog):
                         penalize = self.penalize.checkState() == Qt.Checked
                         success = True
                 if not success:
-                    QMessageBox.critical(self, _('Error'),
-                                         _('Enter a valid score.'))
+                    QMessageBox.critical(self, _("Error"), _("Enter a valid score."))
             else:
                 score, penalize = None, None
                 success = True
@@ -108,6 +103,7 @@ class DialogCameraSelection(QDialog):
     set in the context object.
 
     """
+
     capture_period = 0.1
     camera_error = pyqtSignal()
 
@@ -120,15 +116,14 @@ class DialogCameraSelection(QDialog):
         """
         super().__init__(parent)
         self.capture_context = capture_context
-        self.setWindowTitle(_('Select a camera'))
+        self.setWindowTitle(_("Select a camera"))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         self.camview = widgets.CamView((320, 240), self, border=True)
         self.label = QLabel(self)
-        self.button = QPushButton(_('Try this camera'))
+        self.button = QPushButton(_("Try this camera"))
         self.camera_selector = QSpinBox(self)
-        container = widgets.LineContainer(self, self.camera_selector,
-                                          self.button)
+        container = widgets.LineContainer(self, self.camera_selector, self.button)
         self.button.clicked.connect(self._select_camera)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
         buttons.accepted.connect(self.accept)
@@ -136,8 +131,7 @@ class DialogCameraSelection(QDialog):
         layout.addWidget(self.label)
         layout.addWidget(container)
         layout.addWidget(buttons)
-        self.camera_error.connect(self._show_camera_error,
-                                  type=Qt.QueuedConnection)
+        self.camera_error.connect(self._show_camera_error, type=Qt.QueuedConnection)
         self.timer = None
 
     def __del__(self):
@@ -159,8 +153,11 @@ class DialogCameraSelection(QDialog):
         return super().exec_()
 
     def _show_camera_error(self):
-        QMessageBox.critical(self, _('Camera not available'),
-                      _('Eyegrade has not detected any camera in your system.'))
+        QMessageBox.critical(
+            self,
+            _("Camera not available"),
+            _("Eyegrade has not detected any camera in your system."),
+        )
         self.reject()
 
     def _select_camera(self):
@@ -174,17 +171,21 @@ class DialogCameraSelection(QDialog):
                 self._update_camera_label()
                 camera_id = self.capture_context.current_camera_id()
                 if camera_id != new_camera:
-                    QMessageBox.critical(self, _('Camera not available'),
-                           _('Camera {0} is not available.').format(new_camera))
+                    QMessageBox.critical(
+                        self,
+                        _("Camera not available"),
+                        _("Camera {0} is not available.").format(new_camera),
+                    )
 
     def _update_camera_label(self):
         camera_id = self.capture_context.current_camera_id()
         if camera_id is not None and camera_id >= 0:
-            self.label.setText(_('<center>Viewing camera: {0}</center>')\
-                               .format(camera_id))
+            self.label.setText(
+                _("<center>Viewing camera: {0}</center>").format(camera_id)
+            )
             self.camera_selector.setValue(camera_id)
         else:
-            self.label.setText(_('<center>No camera</center>'))
+            self.label.setText(_("<center>No camera</center>"))
 
     def _next_capture(self):
         if not self.isVisible():
@@ -204,26 +205,27 @@ class DialogAbout(QDialog):
     values = dialog.exec_()
 
     """
+
     _tuple_strxfrm = staticmethod(lambda x: locale.strxfrm(x[0]))
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setWindowTitle(_('About'))
+        self.setWindowTitle(_("About"))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
         buttons.accepted.connect(self.accept)
         tabs = QTabWidget(parent)
         tabs.setDocumentMode(True)
-        tabs.addTab(self._create_about_tab(), _('About'))
-        tabs.addTab(self._create_developers_tab(), _('Developers'))
-        tabs.addTab(self._create_translators_tab(), _('Translators'))
+        tabs.addTab(self._create_about_tab(), _("About"))
+        tabs.addTab(self._create_developers_tab(), _("Developers"))
+        tabs.addTab(self._create_translators_tab(), _("Translators"))
         layout.addWidget(tabs)
         layout.addWidget(buttons)
 
     def _create_about_tab(self):
-        text = \
-             _(u"""
+        text = _(
+            u"""
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
@@ -252,18 +254,25 @@ class DialogAbout(QDialog):
              https://www.gnu.org/licenses/gpl.txt</a>.
              </p>
              </center>
-             """).format(utils.resource_path('logo.svg'),
-                         utils.program_name,
-                         utils.version,
-                         utils.web_location,
-                         utils.source_location)
+             """
+        ).format(
+            utils.resource_path("logo.svg"),
+            utils.program_name,
+            utils.version,
+            utils.web_location,
+            utils.source_location,
+        )
         label = QLabel(text)
         label.setOpenExternalLinks(True)
-        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
-                                       | Qt.LinksAccessibleByMouse
-                                       | Qt.TextBrowserInteraction
-                                       | Qt.TextSelectableByKeyboard
-                                       | Qt.TextSelectableByMouse))
+        label.setTextInteractionFlags(
+            (
+                Qt.LinksAccessibleByKeyboard
+                | Qt.LinksAccessibleByMouse
+                | Qt.TextBrowserInteraction
+                | Qt.TextSelectableByKeyboard
+                | Qt.TextSelectableByMouse
+            )
+        )
         return label
 
     def _create_developers_tab(self):
@@ -275,44 +284,53 @@ class DialogAbout(QDialog):
                    <ul><li>Rodrigo Argüello</li></ul>
                    <p><b>{3}:</b></p>
                    <ul><li>Roberto González</li></ul>
-                   """.format(_('Lead developers'),
-                              _('Exam configuration dialogs'),
-                              _('Manuscript digits recognition'),
-                              _('Testing and other contributions'),)
+                   """.format(
+            _("Lead developers"),
+            _("Exam configuration dialogs"),
+            _("Manuscript digits recognition"),
+            _("Testing and other contributions"),
+        )
         label = QLabel(text)
-        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
-                                       | Qt.LinksAccessibleByMouse
-                                       | Qt.TextBrowserInteraction
-                                       | Qt.TextSelectableByKeyboard
-                                       | Qt.TextSelectableByMouse))
+        label.setTextInteractionFlags(
+            (
+                Qt.LinksAccessibleByKeyboard
+                | Qt.LinksAccessibleByMouse
+                | Qt.TextBrowserInteraction
+                | Qt.TextSelectableByKeyboard
+                | Qt.TextSelectableByMouse
+            )
+        )
         scroll_area = QScrollArea(self.parent())
         scroll_area.setWidget(label)
         return scroll_area
 
     def _create_translators_tab(self):
         translators = [
-            (_('Catalan'), [u'Jaume Barcelo']),
-            (_('German'), []),
-            (_('Galician'), [u'Jesús Arias Fisteus']),
-            (_('French'), []),
-            (_('Portuguese'), []),
-            (_('Spanish'), [u'Jesús Arias Fisteus']),
-            ]
+            (_("Catalan"), [u"Jaume Barcelo"]),
+            (_("German"), []),
+            (_("Galician"), [u"Jesús Arias Fisteus"]),
+            (_("French"), []),
+            (_("Portuguese"), []),
+            (_("Spanish"), [u"Jesús Arias Fisteus"]),
+        ]
         parts = []
-        for language, names in sorted(translators,
-                                      key=DialogAbout._tuple_strxfrm):
+        for language, names in sorted(translators, key=DialogAbout._tuple_strxfrm):
             if names:
-                parts.append(u'<p><b>{0}:</b></p>'.format(language))
-                parts.append(u'<ul>')
+                parts.append(u"<p><b>{0}:</b></p>".format(language))
+                parts.append(u"<ul>")
                 for name in names:
-                    parts.append(u'<li>{0}</li>'.format(name))
-                parts.append(u'</ul>')
-        label = QLabel(u''.join(parts))
-        label.setTextInteractionFlags((Qt.LinksAccessibleByKeyboard
-                                       | Qt.LinksAccessibleByMouse
-                                       | Qt.TextBrowserInteraction
-                                       | Qt.TextSelectableByKeyboard
-                                       | Qt.TextSelectableByMouse))
+                    parts.append(u"<li>{0}</li>".format(name))
+                parts.append(u"</ul>")
+        label = QLabel(u"".join(parts))
+        label.setTextInteractionFlags(
+            (
+                Qt.LinksAccessibleByKeyboard
+                | Qt.LinksAccessibleByMouse
+                | Qt.TextBrowserInteraction
+                | Qt.TextSelectableByKeyboard
+                | Qt.TextSelectableByMouse
+            )
+        )
         scroll_area = QScrollArea(self.parent())
         scroll_area.setWidget(label)
         return scroll_area

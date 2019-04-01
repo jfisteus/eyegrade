@@ -31,24 +31,30 @@ import statistics
 #
 def distance(p1, p2):
     """Returns the distance from p1 to p2."""
-    return math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) \
-                         + (p1[1] - p2[1]) * (p1[1] - p2[1]))
+    return math.sqrt(
+        (p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1])
+    )
+
 
 def diff_points(p1, p2):
     """Returns a tuple (p1.x - p2.x, p1.y - p2.y)."""
     return (p1[0] - p2[0], p1[1] - p2[1])
 
+
 def add_points(p1, p2):
     """Returns a tuple (p1.x + p2.x, p1.y + p2.y)."""
     return (p1[0] + p2[0], p1[1] + p2[1])
+
 
 def multiply_vector(vector, factor):
     """Multiplies a vector of two coordinates by a given factor."""
     return (factor * vector[0], factor * vector[1])
 
+
 def round_point(point):
     """Rounds the coordinates of the point to the nearest integers."""
     return int(round(point[0])), int(round(point[1]))
+
 
 def angles_perpendicular(angle1, angle2):
     """Returns True if angles are perpendicular or almost perpendicular.
@@ -57,8 +63,11 @@ def angles_perpendicular(angle1, angle2):
        considered perpendicular.
 
     """
-    return (abs(angle2 - angle1 - math.pi / 2) < 0.1 or
-            abs(angle2 - angle1 + math.pi / 2) < 0.1)
+    return (
+        abs(angle2 - angle1 - math.pi / 2) < 0.1
+        or abs(angle2 - angle1 + math.pi / 2) < 0.1
+    )
+
 
 def points_closer_to_horizontal(p1, p2):
     """Returns True if the line joining the two points is closer to
@@ -67,20 +76,24 @@ def points_closer_to_horizontal(p1, p2):
     d = diff_points(p1, p2)
     return abs(d[0]) > abs(d[1])
 
+
 # Functions on two-dimensional vectors
 #
 def scalar_product(vector1, vector2):
     """Returns the scalar product of two vectors."""
     return vector1[0] * vector2[0] + vector1[1] * vector2[1]
 
+
 def module(vector):
     """Returns the module of a vector, given its two coordinates."""
     return math.sqrt(vector[0] * vector[0] + vector[1] * vector[1])
+
 
 def angle_cosine(vector1, vector2):
     """Returns cos(angle) where angle is the angle between
        vector1 and vector2"""
     return scalar_product(vector1, vector2) / module(vector1) / module(vector2)
+
 
 # Funtions on lines defined by two points
 #
@@ -88,9 +101,11 @@ def slope(p1, p2):
     """Returns the slope of the line from p1 to p2."""
     return float(p2[1] - p1[1]) / (p2[0] - p1[0])
 
+
 def slope_inv(p1, p2):
     """Returns the inverse of the slope of the line from p1 to p2."""
     return float(p2[0] - p1[0]) / (p2[1] - p1[1])
+
 
 def closer_points(p1, p2, offset):
     """Returns a pair of points that are in the line that joins
@@ -98,10 +113,13 @@ def closer_points(p1, p2, offset):
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
     k = float(offset) / math.sqrt(dx * dx + dy * dy)
-    return ((int(p1[0] + dx * k), int(p1[1] + dy * k)),
-            (int(p2[0] - dx * k), int(p2[1] - dy * k)))
+    return (
+        (int(p1[0] + dx * k), int(p1[1] + dy * k)),
+        (int(p2[0] - dx * k), int(p2[1] - dy * k)),
+    )
 
-def closer_points_rel(p1, p2, offset_ratio, abs_offset = 0):
+
+def closer_points_rel(p1, p2, offset_ratio, abs_offset=0):
     """Returns a pair of points that are in the line that joins
        p1 and p2, but closer than them by the given ratio.
 
@@ -115,8 +133,11 @@ def closer_points_rel(p1, p2, offset_ratio, abs_offset = 0):
     xoff = abs_offset * float(dx) / (abs(dx) + abs(dy))
     yoff = abs_offset * float(dy) / (abs(dx) + abs(dy))
     k = (1.0 - float(offset_ratio)) / 2
-    return ((int(p1[0] + dx * k + xoff), int(p1[1] + dy * k + yoff)),
-            (int(p2[0] - dx * k - xoff), int(p2[1] - dy * k - yoff)))
+    return (
+        (int(p1[0] + dx * k + xoff), int(p1[1] + dy * k + yoff)),
+        (int(p2[0] - dx * k - xoff), int(p2[1] - dy * k - yoff)),
+    )
+
 
 def walk_line(p0, p1):
     """Returns a generator of points in the line from p0 to p1 such
@@ -148,6 +169,7 @@ def walk_line(p0, p1):
             y = y + ystep
             error = error + deltax
 
+
 def walk_line_ordered(p0, p1):
     """Wrapper for walk_line that guarantees that points go from p0 to p1."""
     x0, y0 = p0
@@ -160,6 +182,7 @@ def walk_line_ordered(p0, p1):
         return walk_line(p0, p1)
     else:
         return reversed([p for p in walk_line(p0, p1)])
+
 
 def interpolate_line(p0, p1, num_points):
     """Returns a list of num_points points in the line from p0 to p1.
@@ -176,6 +199,7 @@ def interpolate_line(p0, p1, num_points):
         points.append(round_point((p0[0] + dx * i, p0[1] + dy * i)))
     points.append(p1)
     return points
+
 
 def interpolate_line_progressive(p0, p1, num_points, factor):
     """Returns a list of num_points points in the line from p0 to p1.
@@ -196,13 +220,17 @@ def interpolate_line_progressive(p0, p1, num_points, factor):
     n = num_points - 1
     h1 = 2.0 / n / (factor + 1)
     delta = h1 * (factor - 1) / (n - 1)
-    positions = [h1 * (i - 1) + 0.5 * delta * (i * i - 3 * i + 2) \
-                     for i in range(1, num_points + 1)]
-    points = [round_point(add_points(p0, multiply_vector(diff, pos))) \
-                  for pos in positions]
+    positions = [
+        h1 * (i - 1) + 0.5 * delta * (i * i - 3 * i + 2)
+        for i in range(1, num_points + 1)
+    ]
+    points = [
+        round_point(add_points(p0, multiply_vector(diff, pos))) for pos in positions
+    ]
     # Just in case it wasn't rounded to the proper value
     points[-1] = p1
     return points
+
 
 # Functions on lines represented as rho, theta
 #
@@ -212,17 +240,17 @@ def intersection(hline, vline):
        other cases."""
     rho1, theta1 = hline
     rho2, theta2 = vline
-    y = (rho1 * math.cos(theta2) - rho2 * math.cos(theta1)) \
-        / math.sin(theta1 - theta2)
+    y = (rho1 * math.cos(theta2) - rho2 * math.cos(theta1)) / math.sin(theta1 - theta2)
     x = (rho2 - y * math.sin(theta2)) / math.cos(theta2)
     return round_point((x, y))
 
-def line_point(line, x = None, y = None):
+
+def line_point(line, x=None, y=None):
     """Returns a point in the line with the given x or y coordinate.
        Either x or y must be None. Throws division by zero exception
        if x is set and the line is vertical or if y is set and the
        line is horizontal."""
-    assert((x is None) ^ (y is None))
+    assert (x is None) ^ (y is None)
     rho, theta = line
     if y is None:
         y = int((rho - x * math.cos(theta)) / math.sin(theta))
@@ -230,15 +258,21 @@ def line_point(line, x = None, y = None):
         x = int((rho - y * math.sin(theta)) / math.cos(theta))
     return round_point((x, y))
 
+
 def point_is_valid(point, dimensions):
     """Returns True if the coordinates of the point are within the bounds
        of the image, False otherwise. Parameter dimensions is a tuple
        (image_width, image_height)."""
-    if point[0] >= 0 and point[1] >= 0 \
-            and point[0] < dimensions[0] and point[1] < dimensions[1]:
+    if (
+        point[0] >= 0
+        and point[1] >= 0
+        and point[0] < dimensions[0]
+        and point[1] < dimensions[1]
+    ):
         return True
     else:
         return False
+
 
 def project_point(point, from_line, to_line):
     """Assuming that both lines are parallel, traces a perpendicular
@@ -254,17 +288,19 @@ def project_point(point, from_line, to_line):
     delta_y = d * math.sin(theta)
     return (point[0] + delta_x, point[1] + delta_y)
 
+
 def min_rho_difference(lines):
     """Being lines a list of lines (rho, theta) sorted according to rho,
        from low to high, returns the minimum difference between two
        consecutive lines. The size of the list must be at least two."""
-    assert(len(lines) >= 2)
+    assert len(lines) >= 2
     min_diff = lines[1][0] - lines[0][0]
     for i in range(2, len(lines)):
         diff = lines[i][0] - lines[i - 1][0]
         if diff < min_diff:
             min_diff = diff
     return min_diff
+
 
 def discard_spurious_lines(lines, expected):
     """ Discards the discordant line(s).
@@ -285,13 +321,13 @@ def discard_spurious_lines(lines, expected):
     """
     best_variance = math.inf
     for combination in itertools.combinations(lines, expected):
-        diffs = [b[0] - a[0]
-                 for a, b in zip(combination[:-1], combination[1:])]
+        diffs = [b[0] - a[0] for a, b in zip(combination[:-1], combination[1:])]
         variance = statistics.variance(diffs)
         if variance < best_variance:
             best_combination = combination
             best_variance = variance
     return best_combination
+
 
 # Functions on rectangles
 #
@@ -299,6 +335,7 @@ def rect_center(plu, pru, pld, prd):
     """Returns the center of the rectangle with the given corners.
        Note: l/r are for left, right; u, d are for up/down."""
     return round_point((float(plu[0] + prd[0]) / 2, float(plu[1] + prd[1]) / 2))
+
 
 # Functions on angles (in radians)
 #

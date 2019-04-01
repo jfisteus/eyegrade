@@ -28,14 +28,21 @@ from . import students
 
 
 class Exam:
-    def __init__(self, capture_, decisions, solutions, student_listings,
-                 exam_id, question_scores, sessiondb=None):
+    def __init__(
+        self,
+        capture_,
+        decisions,
+        solutions,
+        student_listings,
+        exam_id,
+        question_scores,
+        sessiondb=None,
+    ):
         self.capture = capture_
         self.decisions = decisions
         self.student_listings = student_listings
         self.exam_id = exam_id
-        self.score = scoring.Score(decisions.answers, solutions,
-                                   question_scores)
+        self.score = scoring.Score(decisions.answers, solutions, question_scores)
         rank = self.rank_students()
         self.decisions.set_students_rank(rank)
         if len(rank) > 0:
@@ -71,18 +78,16 @@ class Exam:
 
     def rank_students(self):
         if self.decisions.detected_id is not None:
-            rank = [(self._id_rank(s, self.decisions.id_scores), s)
-                    for s in self.student_listings.iter_students()
-                    if s.group_id > 0]
-            students_rank = [student
-                             for score, student in sorted(rank, reverse=True)]
+            rank = [
+                (self._id_rank(s, self.decisions.id_scores), s)
+                for s in self.student_listings.iter_students()
+                if s.group_id > 0
+            ]
+            students_rank = [student for score, student in sorted(rank, reverse=True)]
             if not students_rank:
-                students_rank = [students.Student( \
-                                        self.decisions.detected_id,
-                                        None,
-                                        None,
-                                        None,
-                                        None)]
+                students_rank = [
+                    students.Student(self.decisions.detected_id, None, None, None, None)
+                ]
         else:
             students_rank = list(self.student_listings.iter_students())
         return students_rank
@@ -101,8 +106,10 @@ class Exam:
         is the first in the list.
 
         """
-        if (len(self.decisions.students_rank) > 0
-            and self.decisions.students_rank[0] != self.decisions.student):
+        if (
+            len(self.decisions.students_rank) > 0
+            and self.decisions.students_rank[0] != self.decisions.student
+        ):
             rank = list(self.decisions.students_rank)
             if self.decisions.student in rank:
                 rank.remove(self.decisions.student)
@@ -129,12 +136,14 @@ class Exam:
             self.capture = None
 
     def image_drawn_path(self):
-        image_name = utils.capture_name( \
-                                self.sessiondb.exam_config.capture_pattern,
-                                self.exam_id, self.decisions.student)
-        path = os.path.join(self.sessiondb.session_dir, 'captures', image_name)
+        image_name = utils.capture_name(
+            self.sessiondb.exam_config.capture_pattern,
+            self.exam_id,
+            self.decisions.student,
+        )
+        path = os.path.join(self.sessiondb.session_dir, "captures", image_name)
         if not os.path.isfile(path):
-            path = utils.resource_path('not_found.png')
+            path = utils.resource_path("not_found.png")
         return path
 
     def _id_rank(self, student, scores):
@@ -154,7 +163,7 @@ class ExamConfig:
     SCORES_MODE_WEIGHTS = 2
     SCORES_MODE_INDIVIDUAL = 3
 
-    re_model = re.compile('model-[0a-zA-Z]')
+    re_model = re.compile("model-[0a-zA-Z]")
 
     def __init__(self, filename=None, capture_pattern=None):
         """Loads data from file if 'filename' is not None. Otherwise,
@@ -186,7 +195,7 @@ class ExamConfig:
         if not isinstance(solutions, list):
             solutions = self._parse_solutions(solutions)
         if len(solutions) != self.num_questions:
-            raise ValueError('Solutions with incorrect number of questions')
+            raise ValueError("Solutions with incorrect number of questions")
         self.solutions[model] = solutions
         self.add_model(model)
 
@@ -209,10 +218,11 @@ class ExamConfig:
         if not isinstance(permutations, list):
             permutations = self._parse_permutations(permutations)
         elif len(permutations) > 0 and isinstance(permutations[0], str):
-            permutations = [self._parse_permutation(p, i) \
-                            for i, p in enumerate(permutations)]
+            permutations = [
+                self._parse_permutation(p, i) for i, p in enumerate(permutations)
+            ]
         if len(permutations) != self.num_questions:
-            raise ValueError('Permutations with incorrect number of questions')
+            raise ValueError("Permutations with incorrect number of questions")
         self.permutations[model] = permutations
         self.add_model(model)
 
@@ -245,11 +255,11 @@ class ExamConfig:
 
         """
         if scores.weight != 1:
-            raise ValueError('The base score must have weigth 1')
+            raise ValueError("The base score must have weigth 1")
         if self.scores_mode == ExamConfig.SCORES_MODE_NONE:
             self.scores_mode = ExamConfig.SCORES_MODE_WEIGHTS
         elif self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
-            raise ValueError('The score mode does not allow base scores')
+            raise ValueError("The score mode does not allow base scores")
         self.base_scores = scores
         if same_weights:
             self.reset_question_weights()
@@ -263,11 +273,14 @@ class ExamConfig:
         It must be done before setting the weights of each question.
 
         """
-        if (self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
-            or self.base_scores is None):
-            raise ValueError('Invalid scores mode for set_equal_scores')
-        scores = [self.base_scores.clone(new_weight=1)
-                  for i in range(self.num_questions)]
+        if (
+            self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
+            or self.base_scores is None
+        ):
+            raise ValueError("Invalid scores mode for set_equal_scores")
+        scores = [
+            self.base_scores.clone(new_weight=1) for i in range(self.num_questions)
+        ]
         self._set_question_scores_internal(model, scores)
 
     def set_question_weights(self, model, weights):
@@ -282,11 +295,10 @@ class ExamConfig:
 
         """
         if self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS:
-            raise ValueError('Not in scores weight mode.')
+            raise ValueError("Not in scores weight mode.")
         if isinstance(weights, str):
             weights = self._parse_weights(weights)
-        scores = [self.base_scores.clone(new_weight=weight) \
-                  for weight in weights]
+        scores = [self.base_scores.clone(new_weight=weight) for weight in weights]
         self._set_question_scores_internal(model, scores)
 
     def get_question_weights(self, model, formatted=False):
@@ -296,8 +308,11 @@ class ExamConfig:
         or there are no scores for this model.
 
         """
-        if (self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
-            or self.base_scores is None or not model in self.scores):
+        if (
+            self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
+            or self.base_scores is None
+            or not model in self.scores
+        ):
             return None
         elif not formatted:
             return [s.weight for s in self.scores[model]]
@@ -332,10 +347,10 @@ class ExamConfig:
         if self.scores_mode == ExamConfig.SCORES_MODE_NONE:
             self.scores_mode = ExamConfig.SCORES_MODE_INDIVIDUAL
         elif self.scores_mode != ExamConfig.SCORES_MODE_INDIVIDUAL:
-            raise ValueError('Invalid scores mode at set_question_scores')
+            raise ValueError("Invalid scores mode at set_question_scores")
         for s in scores:
             if s.weight != 1:
-                raise ValueError('Only weight 1 scores allowed')
+                raise ValueError("Only weight 1 scores allowed")
         self._set_question_scores_internal(model, scores)
 
     def _set_question_scores_internal(self, model, scores):
@@ -349,12 +364,10 @@ class ExamConfig:
 
         """
         if len(scores) != self.num_questions:
-            raise ValueError('Scores with an incorrect number of questions')
-        if (self.scores
-            and sorted(scores) != sorted(next(iter(self.scores.values())))):
-#        if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
-            raise ValueError('Scores for all models must be equal '
-                             'but their order')
+            raise ValueError("Scores with an incorrect number of questions")
+        if self.scores and sorted(scores) != sorted(next(iter(self.scores.values()))):
+            #        if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
+            raise ValueError("Scores for all models must be equal " "but their order")
         self.scores[model] = scores
         self.add_model(model)
 
@@ -385,161 +398,172 @@ class ExamConfig:
            is used.
 
         """
-        assert((filename is not None) or (file_ is not None)
-               or (data is not None))
+        assert (filename is not None) or (file_ is not None) or (data is not None)
         exam_data = configparser.ConfigParser()
         if filename is not None:
             files_read = exam_data.read([filename])
             if len(files_read) != 1:
-                raise IOError('Exam config file not found: ' + filename)
+                raise IOError("Exam config file not found: " + filename)
         elif file_ is not None:
             exam_data.readfp(file_)
         elif data is not None:
             exam_data.readfp(io.BytesIO(data))
         try:
-            self.id_num_digits = exam_data.getint('exam', 'id-num-digits')
+            self.id_num_digits = exam_data.getint("exam", "id-num-digits")
         except:
             self.id_num_digits = 0
-        self.set_dimensions(exam_data.get('exam', 'dimensions'))
-        has_solutions = exam_data.has_section('solutions')
-        has_permutations = exam_data.has_section('permutations')
+        self.set_dimensions(exam_data.get("exam", "dimensions"))
+        has_solutions = exam_data.has_section("solutions")
+        has_permutations = exam_data.has_section("permutations")
         self.solutions = {}
         self.permutations = {}
         self.models = []
         if has_solutions:
-            for key, value in exam_data.items('solutions'):
+            for key, value in exam_data.items("solutions"):
                 if not self.re_model.match(key):
-                    raise Exception('Incorrect key in exam config: ' + key)
+                    raise Exception("Incorrect key in exam config: " + key)
                 model = key[-1].upper()
                 self.set_solutions(model, value)
                 if has_permutations:
-                    key = 'permutations-' + model
-                    value = exam_data.get('permutations', key)
+                    key = "permutations-" + model
+                    value = exam_data.get("permutations", key)
                     self.set_permutations(model, value)
-        has_correct_weight = exam_data.has_option('exam', 'correct-weight')
-        has_incorrect_weight = exam_data.has_option('exam', 'incorrect-weight')
-        has_blank_weight = exam_data.has_option('exam', 'blank-weight')
+        has_correct_weight = exam_data.has_option("exam", "correct-weight")
+        has_incorrect_weight = exam_data.has_option("exam", "incorrect-weight")
+        has_blank_weight = exam_data.has_option("exam", "blank-weight")
         self.scores = {}
         if has_correct_weight and has_incorrect_weight:
-            cw = exam_data.get('exam', 'correct-weight')
-            iw = exam_data.get('exam', 'incorrect-weight')
+            cw = exam_data.get("exam", "correct-weight")
+            iw = exam_data.get("exam", "incorrect-weight")
             if has_blank_weight:
-                bw = exam_data.get('exam', 'blank-weight')
+                bw = exam_data.get("exam", "blank-weight")
             else:
                 bw = 0
             self.scores_mode = ExamConfig.SCORES_MODE_WEIGHTS
             base_scores = scoring.QuestionScores(cw, iw, bw)
-            if not exam_data.has_section('question-score-weights'):
+            if not exam_data.has_section("question-score-weights"):
                 self.set_base_scores(base_scores, same_weights=True)
             else:
                 self.set_base_scores(base_scores)
                 for model in self.models:
-                    key = 'weights-' + model
-                    value = exam_data.get('question-score-weights', key)
+                    key = "weights-" + model
+                    value = exam_data.get("question-score-weights", key)
                     self.set_question_weights(model, value)
         elif not has_correct_weight and not has_incorrect_weight:
             self.base_scores = None
             self.scores_mode = ExamConfig.SCORES_MODE_NONE
         else:
-            raise Exception('Exam config must contain correct and incorrect '
-                            'weight or none')
-        if exam_data.has_option('exam', 'left-to-right-numbering'):
-            self.left_to_right_numbering = \
-                       exam_data.getboolean('exam', 'left-to-right-numbering')
+            raise Exception(
+                "Exam config must contain correct and incorrect " "weight or none"
+            )
+        if exam_data.has_option("exam", "left-to-right-numbering"):
+            self.left_to_right_numbering = exam_data.getboolean(
+                "exam", "left-to-right-numbering"
+            )
         else:
             self.left_to_right_numbering = False
-        if exam_data.has_option('exam', 'survey-mode'):
-            self.survey_mode = exam_data.getboolean('exam', 'survey-mode')
+        if exam_data.has_option("exam", "survey-mode"):
+            self.survey_mode = exam_data.getboolean("exam", "survey-mode")
         else:
             self.survey_mode = False
         self.models.sort()
 
     def save(self, filename):
         data = []
-        data.append('[exam]')
-        data.append('dimensions: %s'%self.format_dimensions())
-        data.append('id-num-digits: %d'%self.id_num_digits)
+        data.append("[exam]")
+        data.append("dimensions: %s" % self.format_dimensions())
+        data.append("id-num-digits: %d" % self.id_num_digits)
         if self.left_to_right_numbering:
-            data.append('left-to-right-numbering: yes')
+            data.append("left-to-right-numbering: yes")
         if self.survey_mode:
-            data.append('survey-mode: yes')
+            data.append("survey-mode: yes")
         if self.base_scores is not None:
-            data.append('correct-weight: {0}'\
-              .format(self.base_scores.format_correct_score()))
-            data.append('incorrect-weight: {0}'\
-              .format(self.base_scores.format_incorrect_score()))
-            data.append('blank-weight: {0}'\
-              .format(self.base_scores.format_blank_score()))
+            data.append(
+                "correct-weight: {0}".format(self.base_scores.format_correct_score())
+            )
+            data.append(
+                "incorrect-weight: {0}".format(
+                    self.base_scores.format_incorrect_score()
+                )
+            )
+            data.append(
+                "blank-weight: {0}".format(self.base_scores.format_blank_score())
+            )
         if len(self.solutions) > 0:
-            data.append('')
-            data.append('[solutions]')
+            data.append("")
+            data.append("[solutions]")
             for model in sorted(self.models):
-                data.append('model-{0}: {1}'\
-                            .format(model, self.format_solutions(model)))
+                data.append(
+                    "model-{0}: {1}".format(model, self.format_solutions(model))
+                )
         if len(self.permutations) > 0:
-            data.append('')
-            data.append('[permutations]')
+            data.append("")
+            data.append("[permutations]")
             for model in sorted(self.models):
-                data.append('permutations-{0}: {1}'\
-                            .format(model, self.format_permutations(model)))
-        if (self.scores_mode == ExamConfig.SCORES_MODE_WEIGHTS
+                data.append(
+                    "permutations-{0}: {1}".format(
+                        model, self.format_permutations(model)
+                    )
+                )
+        if (
+            self.scores_mode == ExamConfig.SCORES_MODE_WEIGHTS
             and len(self.scores)
-            and not self.all_weights_are_one()):
+            and not self.all_weights_are_one()
+        ):
             # If all the scores are equal, there is no need to specify weights
-            data.append('')
-            data.append('[question-score-weights]')
+            data.append("")
+            data.append("[question-score-weights]")
             for model in sorted(self.models):
-                data.append('weights-{0}: {1}'\
-                            .format(model, self.format_weights(model)))
-        data.append('')
-        with open(filename, 'w') as file_:
-            file_.write('\n'.join(data))
+                data.append(
+                    "weights-{0}: {1}".format(model, self.format_weights(model))
+                )
+        data.append("")
+        with open(filename, "w") as file_:
+            file_.write("\n".join(data))
 
     def format_dimensions(self):
-        return ';'.join(['%d,%d'%(cols, rows) \
-                             for cols, rows in self.dimensions])
+        return ";".join(["%d,%d" % (cols, rows) for cols, rows in self.dimensions])
 
     def format_solutions(self, model):
-        return '/'.join([str(n) for n in self.solutions[model]])
+        return "/".join([str(n) for n in self.solutions[model]])
 
     def format_permutations(self, model):
-        return '/'.join([self.format_permutation(p) \
-                         for p in self.permutations[model]])
+        return "/".join([self.format_permutation(p) for p in self.permutations[model]])
 
     def format_permutation(self, permutation):
         num_question, options = permutation
-        return '%d{%s}'%(num_question, ','.join([str(n) for n in options]))
+        return "%d{%s}" % (num_question, ",".join([str(n) for n in options]))
 
     def format_weights(self, model):
-        return ','.join([s.format_weight() for s in self.scores[model]])
+        return ",".join([s.format_weight() for s in self.scores[model]])
 
     def _parse_solutions(self, s):
-        pieces = s.split('/')
+        pieces = s.split("/")
         if len(pieces) != self.num_questions:
-            raise Exception('Wrong number of solutions')
+            raise Exception("Wrong number of solutions")
         return [int(num) for num in pieces]
 
     def _parse_permutations(self, s):
         permutations = []
-        pieces = s.split('/')
+        pieces = s.split("/")
         if len(pieces) != self.num_questions:
-            raise Exception('Wrong number of permutations')
+            raise Exception("Wrong number of permutations")
         for i, piece in enumerate(pieces):
             permutations.append(self._parse_permutation(piece, i))
         return permutations
 
     def _parse_permutation(self, str_value, question_number):
-        splitted = str_value.split('{')
+        splitted = str_value.split("{")
         num_question = int(splitted[0])
-        options = [int(p) for p in splitted[1][:-1].split(',')]
+        options = [int(p) for p in splitted[1][:-1].split(",")]
         if len(options) > self.num_options[question_number]:
-            raise Exception('Wrong number of options in permutation')
+            raise Exception("Wrong number of options in permutation")
         return (num_question, options)
 
     def _parse_weights(self, s):
-        pieces = s.split(',')
+        pieces = s.split(",")
         if len(pieces) != self.num_questions:
-            raise Exception('Wrong number of weight items')
+            raise Exception("Wrong number of weight items")
         return [p for p in pieces]
 
 
@@ -565,8 +589,9 @@ class ExamQuestions:
         if length >= 0 and length <= 16:
             self._student_id_length = length
         else:
-            raise utils.EyegradeException('Student id length must be bewteen '
-                                          '0 and 16 (both included)')
+            raise utils.EyegradeException(
+                "Student id length must be bewteen " "0 and 16 (both included)"
+            )
 
     def num_questions(self):
         """Returns the number of questions of the exam."""
@@ -579,8 +604,9 @@ class ExamQuestions:
            it returns the maximum. If there are no exams, it returns None.
 
         """
-        num = [len(q.correct_choices) + len(q.incorrect_choices) \
-                   for q in self.questions]
+        num = [
+            len(q.correct_choices) + len(q.incorrect_choices) for q in self.questions
+        ]
         if len(num) > 0:
             return max(num)
         else:
@@ -592,8 +618,9 @@ class ExamQuestions:
         Returns None if the list of questions is empty.
 
         """
-        num = [len(q.correct_choices) + len(q.incorrect_choices) \
-                   for q in self.questions]
+        num = [
+            len(q.correct_choices) + len(q.incorrect_choices) for q in self.questions
+        ]
         if len(num) > 0:
             return min(num) == max(num)
         else:
@@ -611,8 +638,9 @@ class ExamQuestions:
 
     def set_permutation(self, model, permutation):
         self.permutations[model] = [p[0] - 1 for p in permutation]
-        self.shuffled_questions[model] = \
-            [self.questions[i] for i in self.permutations[model]]
+        self.shuffled_questions[model] = [
+            self.questions[i] for i in self.permutations[model]
+        ]
         for q, p in zip(self.shuffled_questions[model], permutation):
             choices = q.correct_choices + q.incorrect_choices
             q.permutations[model] = [i - 1 for i in p[1]]
@@ -637,8 +665,7 @@ class Question:
         self.permutations = {}
 
     def shuffle(self, model):
-        shuffled, permutations = \
-            shuffle(self.correct_choices + self.incorrect_choices)
+        shuffled, permutations = shuffle(self.correct_choices + self.incorrect_choices)
         self.shuffled_choices[model] = shuffled
         self.permutations[model] = permutations
 
@@ -649,6 +676,7 @@ class QuestionComponent:
        Represents both the text of a question and its choices.
 
     """
+
     def __init__(self, in_choice):
         self.in_choice = in_choice
         self.text = None
@@ -659,20 +687,27 @@ class QuestionComponent:
 
     def check_is_valid(self):
         if self.code is not None and self.figure is not None:
-            raise Exception('Code and figure cannot be in the same block')
-        if (self.in_choice and self.annex_pos != 'center' and
-            (self.code is not None or self.figure is not None)):
-            raise Exception('Figures and code in answers must be centered')
-        if (self.code is not None and self.annex_pos == 'center' and
-            self.annex_width != None):
-            raise Exception('Centered code cannot have width')
+            raise Exception("Code and figure cannot be in the same block")
+        if (
+            self.in_choice
+            and self.annex_pos != "center"
+            and (self.code is not None or self.figure is not None)
+        ):
+            raise Exception("Figures and code in answers must be centered")
+        if (
+            self.code is not None
+            and self.annex_pos == "center"
+            and self.annex_width != None
+        ):
+            raise Exception("Centered code cannot have width")
         if not self.in_choice and self.text is None:
-            raise Exception('Questions must have a text')
+            raise Exception("Questions must have a text")
 
 
 def read_exam_questions(exam_filename):
     import xml.dom.minidom
     from . import examparser
+
     dom_tree = xml.dom.minidom.parse(exam_filename)
     # By now, only one parser exists. In the future multiple parsers can
     # be called from here, to allow multiple data formats.

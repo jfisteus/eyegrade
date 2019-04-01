@@ -25,13 +25,12 @@ import eyegrade.ocr.classifiers as classifiers
 
 
 class TestClassifier(unittest.TestCase):
-
     def _get_test_file_path(self, filename):
         dirname = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(dirname, filename)
 
     def test_classify_digit(self):
-        image_path = self._get_test_file_path('digit.png')
+        image_path = self._get_test_file_path("digit.png")
         corners = np.array([[0, 1], [19, 0], [0, 7], [21, 17]])
         samp = sample.Sample(corners, image_filename=image_path)
         classifier = classifiers.DefaultDigitClassifier()
@@ -39,7 +38,7 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(label in range(10))
 
     def test_classify_cross(self):
-        image_path = self._get_test_file_path('cross.png')
+        image_path = self._get_test_file_path("cross.png")
         corners = np.array([[0, 0], [27, 0], [1, 32], [29, 32]])
         samp = sample.Sample(corners, image_filename=image_path)
         classifier = classifiers.DefaultCrossesClassifier()

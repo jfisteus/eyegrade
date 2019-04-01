@@ -25,18 +25,26 @@ import openpyxl
 
 from . import utils
 
-re_email = r'^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$'
+re_email = r"^[a-zA-Z0-9._%-\+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$"
 _re_email = re.compile(re_email)
-_re_student_id = re.compile(r'^[0-9]+$')
+_re_student_id = re.compile(r"^[0-9]+$")
 
 
 class Student:
-    def __init__(self, student_id, full_name,
-                 first_name, last_name, email,
-                 db_id=None,
-                 group_id=None, sequence_num=None, is_in_database=False):
+    def __init__(
+        self,
+        student_id,
+        full_name,
+        first_name,
+        last_name,
+        email,
+        db_id=None,
+        group_id=None,
+        sequence_num=None,
+        is_in_database=False,
+    ):
         if full_name and (first_name or last_name):
-            raise ValueError('Full name incompatible with first / last name')
+            raise ValueError("Full name incompatible with first / last name")
         self.db_id = db_id
         self.student_id = student_id
         self.full_name = full_name
@@ -54,19 +62,19 @@ class Student:
             return self.full_name
         elif self.last_name:
             if self.first_name:
-                return '{0} {1}'.format(self.first_name, self.last_name)
+                return "{0} {1}".format(self.first_name, self.last_name)
             else:
                 return self.last_name
         elif self.first_name:
             return self.first_name
         else:
-            return ''
+            return ""
 
     @property
     def last_comma_first_name(self):
         if self.last_name:
             if self.first_name:
-                return '{0}, {1}'.format(self.last_name, self.first_name)
+                return "{0}, {1}".format(self.last_name, self.first_name)
             else:
                 return self.last_name
         else:
@@ -75,7 +83,7 @@ class Student:
     @property
     def id_and_name(self):
         if self.name:
-            return ' '.join((self.student_id, self.name))
+            return " ".join((self.student_id, self.name))
         else:
             return self.student_id
 
@@ -86,7 +94,7 @@ class Student:
         elif self.student_id:
             return self.student_id
         else:
-            return ''
+            return ""
 
     def __lt__(self, other):
         return self.student_id < other.student_id
@@ -98,7 +106,7 @@ class Student:
             return False
 
     def __str__(self):
-        return 'student: ' + self.id_and_name
+        return "student: " + self.id_and_name
 
 
 class StudentGroup:
@@ -107,7 +115,7 @@ class StudentGroup:
         self.name = name
 
     def __str__(self):
-        return 'Group #{0.identifier} ({0.name})'.format(self)
+        return "Group #{0.identifier} ({0.name})".format(self)
 
 
 class GroupListing:
@@ -163,8 +171,7 @@ class GroupListing:
         return student_id in self._students_dict
 
     def __str__(self):
-        return 'GroupListing({}, {} students)'\
-            .format(self.group, len(self.students))
+        return "GroupListing({}, {} students)".format(self.group, len(self.students))
 
     def _update_sequence_num(self, students):
         if len(self.students) > 0:
@@ -206,9 +213,7 @@ class StudentListings:
         return itertools.chain(*self.listings)
 
     def sorted_students(self, key=lambda x: x.student_id):
-        return sorted(
-            [student for student in self.iter_students()],
-            key=key)
+        return sorted([student for student in self.iter_students()], key=key)
 
     def student(self, student_id):
         student = None
@@ -243,7 +248,7 @@ class StudentListings:
         return False
 
     def __str__(self):
-        return 'Studentlistings({} groups)'.format(len(self.listings))
+        return "Studentlistings({} groups)".format(len(self.listings))
 
 
 def _duplicate_student_ids(students):
@@ -266,7 +271,7 @@ class CantRemoveGroupException(utils.EyegradeException):
 
 class DuplicateStudentIdException(utils.EyegradeException):
     def __init__(self, duplicates):
-        super().__init__('Some ids are already in the student listings')
+        super().__init__("Some ids are already in the student listings")
         self.duplicates = duplicates
 
 
@@ -277,7 +282,7 @@ class StudentReader:
 
     @staticmethod
     def create(file_name):
-        if file_name.endswith('.xlsx'):
+        if file_name.endswith(".xlsx"):
             return XLSXStudentReader(file_name)
         else:
             return CSVStudentReader(file_name)
@@ -294,8 +299,7 @@ class StudentReader:
                             self.column_map = None
                             continue
                         else:
-                            raise utils.EyegradeException(
-                                '', key='error_student_list')
+                            raise utils.EyegradeException("", key="error_student_list")
                 try:
                     student = self.column_map.student(row)
                     yield student
@@ -307,7 +311,7 @@ class StudentReader:
     @staticmethod
     def _row_is_empty(row):
         for element in row:
-            if element is not None and element != '':
+            if element is not None and element != "":
                 return False
         return True
 
@@ -317,7 +321,7 @@ class CSVStudentReader(StudentReader):
         super().__init__(file_name)
 
     def __enter__(self):
-        self.file = open(self.file_name, newline='')
+        self.file = open(self.file_name, newline="")
         try:
             dialect = csv.Sniffer().sniff(self.file.read(1024))
         except csv.Error:
@@ -371,21 +375,21 @@ class StudentColumn(enum.Enum):
 
 
 ATTR_NAME = {
-    StudentColumn.ID: 'student_id',
-    StudentColumn.FULL_NAME: 'full_name',
-    StudentColumn.FIRST_NAME: 'first_name',
-    StudentColumn.LAST_NAME: 'last_name',
-    StudentColumn.NAME: 'name',
-    StudentColumn.EMAIL: 'email',
-    StudentColumn.SEQUENCE_NUM: 'sequence_num',
-    StudentColumn.UNKNOWN: '-',
+    StudentColumn.ID: "student_id",
+    StudentColumn.FULL_NAME: "full_name",
+    StudentColumn.FIRST_NAME: "first_name",
+    StudentColumn.LAST_NAME: "last_name",
+    StudentColumn.NAME: "name",
+    StudentColumn.EMAIL: "email",
+    StudentColumn.SEQUENCE_NUM: "sequence_num",
+    StudentColumn.UNKNOWN: "-",
 }
 
 
 class StudentColumnMap:
     def __init__(self, num_columns=None, columns=None):
         if not ((num_columns is None) ^ (columns is None)):
-            raise ValueError('num_columns or columns required, but not both')
+            raise ValueError("num_columns or columns required, but not both")
         if num_columns is not None:
             self.columns = [StudentColumn.UNKNOWN] * num_columns
         else:
@@ -404,8 +408,7 @@ class StudentColumnMap:
         num_columns = len(self.columns)
         for i in range(num_columns):
             if self.columns[i] == StudentColumn.UNKNOWN:
-                if (i == num_columns - 1
-                        or self.columns[i + 1] != StudentColumn.UNKNOWN):
+                if i == num_columns - 1 or self.columns[i + 1] != StudentColumn.UNKNOWN:
                     self.columns[i] = StudentColumn.FULL_NAME
                 else:
                     self.columns[i] = StudentColumn.FIRST_NAME
@@ -414,7 +417,7 @@ class StudentColumnMap:
         for i, col in reversed(list(enumerate(self.columns))):
             if col != StudentColumn.UNKNOWN:
                 break
-        self.columns = self.columns[:i + 1]
+        self.columns = self.columns[: i + 1]
 
     def is_valid(self):
         return StudentColumn.ID in self.columns
@@ -423,8 +426,9 @@ class StudentColumnMap:
         num_columns = len(self.columns)
         if len(row) < num_columns:
             raise utils.EyegradeException(
-                'Row with not enough columns', key='error_student_list')
-        student = Student('', '', '', '', '')
+                "Row with not enough columns", key="error_student_list"
+            )
+        student = Student("", "", "", "", "")
         for i, item in enumerate(row[:num_columns]):
             if self.columns[i] != StudentColumn.UNKNOWN:
                 value = str(row[i])
@@ -439,7 +443,7 @@ class StudentColumnMap:
             attr_name = ATTR_NAME[column]
             return getattr(student, attr_name)
         else:
-            return ''
+            return ""
 
     def normalize(self):
         normal_order = [
@@ -449,8 +453,9 @@ class StudentColumnMap:
             StudentColumn.FULL_NAME,
             StudentColumn.EMAIL,
         ]
-        reordered_columns = [column for column in normal_order
-                             if column in self.columns]
+        reordered_columns = [
+            column for column in normal_order if column in self.columns
+        ]
         return StudentColumnMap(columns=reordered_columns)
 
     def to_full_name(self):
@@ -467,9 +472,11 @@ class StudentColumnMap:
         return StudentColumnMap(columns=new_columns)
 
     def __str__(self):
-        return ('StudentColumnMap <'
-                + ', '.join(ATTR_NAME[column] for column in self.columns)
-                + '>')
+        return (
+            "StudentColumnMap <"
+            + ", ".join(ATTR_NAME[column] for column in self.columns)
+            + ">"
+        )
 
     def __len__(self):
         return len(self.columns)
@@ -499,15 +506,15 @@ class StudentColumnMap:
         if column == StudentColumn.ID:
             if not _re_student_id.match(value):
                 raise utils.EyegradeException(
-                    'Wrong id in student list: ' + value,
-                    key='error_student_list')
+                    "Wrong id in student list: " + value, key="error_student_list"
+                )
         elif column == StudentColumn.EMAIL:
             if not _re_email.match(value):
                 raise utils.EyegradeException(
-                    'Wrong email in student list: ' + value,
-                    key='error_student_list')
+                    "Wrong email in student list: " + value, key="error_student_list"
+                )
 
 
 utils.EyegradeException.register_error(
-    'error_student_list',
-    'The syntax of the student list isn\'t correct.')
+    "error_student_list", "The syntax of the student list isn't correct."
+)

@@ -28,8 +28,10 @@ class Evaluation:
 
     @property
     def confusion_matrix_r(self):
-        return (np.array(self.confusion_matrix, dtype='float32')
-                / np.sum(self.confusion_matrix, axis=1)[np.newaxis].T)
+        return (
+            np.array(self.confusion_matrix, dtype="float32")
+            / np.sum(self.confusion_matrix, axis=1)[np.newaxis].T
+        )
 
     @property
     def success_rate_balanced(self):
@@ -38,8 +40,7 @@ class Evaluation:
     def _evaluate(self):
         num_classes = self.classifier.num_classes
         self.results = np.zeros(len(self.samples), dtype=bool)
-        self.confusion_matrix = np.zeros(shape=(num_classes, num_classes),
-                                         dtype='int')
+        self.confusion_matrix = np.zeros(shape=(num_classes, num_classes), dtype="int")
         for i, samp in enumerate(self.samples):
             detected = self.classifier.classify(samp)
             self.confusion_matrix[samp.label, detected] += 1
@@ -48,8 +49,14 @@ class Evaluation:
 
 
 class KFoldCrossEvaluation(Evaluation):
-    def __init__(self, classifier, sample_sets, oversampling=False,
-                 training_params=None, threshold=None):
+    def __init__(
+        self,
+        classifier,
+        sample_sets,
+        oversampling=False,
+        training_params=None,
+        threshold=None,
+    ):
         self.classifier = classifier
         self.sample_sets = sample_sets
         self.training_params = training_params
@@ -58,23 +65,20 @@ class KFoldCrossEvaluation(Evaluation):
 
     def _evaluate(self, oversampling=False):
         num_classes = self.classifier.num_classes
-        self.confusion_matrix = np.zeros(shape=(num_classes, num_classes),
-                                         dtype='int')
+        self.confusion_matrix = np.zeros(shape=(num_classes, num_classes), dtype="int")
         for i, evaluation_set in enumerate(self.sample_sets):
             training_set = sample.SampleSet()
             training_set.load_from_sample_sets(self.sample_sets[:i])
-            training_set.load_from_sample_sets(self.sample_sets[i + 1:])
+            training_set.load_from_sample_sets(self.sample_sets[i + 1 :])
             if oversampling:
                 training_set = training_set.oversample()
-            self.classifier.train(training_set.samples(),
-                                  params=self.training_params)
+            self.classifier.train(training_set.samples(), params=self.training_params)
             evaluation = Evaluation(self.classifier, evaluation_set)
             self.confusion_matrix += evaluation.confusion_matrix
             self.classifier.reset()
             total = self.confusion_matrix.sum()
             correct = self.confusion_matrix.diagonal().sum()
             self.success_rate = correct / total
-            print('Round {}: {}'.format(i, self.success_rate))
-            if (self.threshold is not None
-                and self.success_rate < self.threshold):
+            print("Round {}: {}".format(i, self.success_rate))
+            if self.threshold is not None and self.success_rate < self.threshold:
                 break

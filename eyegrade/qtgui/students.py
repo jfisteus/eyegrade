@@ -18,12 +18,7 @@
 
 import gettext
 
-from PyQt5.QtGui import (
-    QRegExpValidator,
-    QIcon,
-    QColor,
-    QBrush,
-)
+from PyQt5.QtGui import QRegExpValidator, QIcon, QColor, QBrush
 
 from PyQt5.QtWidgets import (
     QWidget,
@@ -41,13 +36,7 @@ from PyQt5.QtWidgets import (
     QLabel,
 )
 
-from PyQt5.QtCore import (
-    Qt,
-    QAbstractTableModel,
-    QModelIndex,
-    QVariant,
-    QRegExp,
-)
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, QRegExp
 
 from . import FileNameFilters
 from . import widgets
@@ -55,7 +44,7 @@ from .. import utils
 from .. import students
 
 
-t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
 
 
@@ -68,26 +57,26 @@ class DialogStudentId(QDialog):
     id = dialog.exec_()
 
     """
+
     def __init__(self, parent, ranked_students, student_listings):
         super().__init__(parent)
         self.student_listings = student_listings
-        self.setWindowTitle(_('Change the student id'))
+        self.setWindowTitle(_("Change the student id"))
         layout = QFormLayout()
         self.setLayout(layout)
         self.combo = widgets.StudentComboBox(parent=self)
         self.combo.add_students(ranked_students)
         self.combo.editTextChanged.connect(self._check_value)
         self.combo.currentIndexChanged.connect(self._check_value)
-        new_student_button = QPushButton( \
-                                 QIcon(utils.resource_path('new_id.svg')),
-                                 _('New student'), parent=self)
+        new_student_button = QPushButton(
+            QIcon(utils.resource_path("new_id.svg")), _("New student"), parent=self
+        )
         new_student_button.clicked.connect(self._new_student)
-        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
-                                         | QDialogButtonBox.Cancel))
+        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
         self.buttons.addButton(new_student_button, QDialogButtonBox.ActionRole)
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
-        layout.addRow(_('Student id:'), self.combo)
+        layout.addRow(_("Student id:"), self.combo)
         layout.addRow(self.buttons)
 
     def exec_(self):
@@ -124,6 +113,7 @@ class NewStudentDialog(QDialog):
     It returns a Student object with the data of the student.
 
     """
+
     _last_combo_value = None
 
     def __init__(self, student_listings, group_index=None, parent=None):
@@ -131,38 +121,38 @@ class NewStudentDialog(QDialog):
         self.student_listings = student_listings
         self.group_index = group_index
         self.setMinimumWidth(300)
-        self.setWindowTitle(_('Add a new student'))
+        self.setWindowTitle(_("Add a new student"))
         layout = QFormLayout()
         self.setLayout(layout)
         self.id_field = QLineEdit(self)
-        self.id_field.setValidator(QRegExpValidator(QRegExp(r'\d+'), self))
+        self.id_field.setValidator(QRegExpValidator(QRegExp(r"\d+"), self))
         self.id_field.textEdited.connect(self._check_values)
         self.name_field = QLineEdit(self)
         self.surname_field = QLineEdit(self)
         self.full_name_field = QLineEdit(self)
-        self.name_label = QLabel(_('Given name'))
-        self.surname_label = QLabel(_('Surname'))
-        self.full_name_label = QLabel(_('Full name'))
+        self.name_label = QLabel(_("Given name"))
+        self.surname_label = QLabel(_("Surname"))
+        self.full_name_label = QLabel(_("Full name"))
         self.email_field = QLineEdit(self)
-        self.email_field.setValidator( \
-                        QRegExpValidator(QRegExp(students.re_email), self))
+        self.email_field.setValidator(
+            QRegExpValidator(QRegExp(students.re_email), self)
+        )
         self.email_field.textEdited.connect(self._check_values)
         self.combo = QComboBox(parent=self)
-        self.combo.addItem(_('Separate given name and surname'))
-        self.combo.addItem(_('Full name in just one field'))
+        self.combo.addItem(_("Separate given name and surname"))
+        self.combo.addItem(_("Full name in just one field"))
         self.combo.currentIndexChanged.connect(self._update_combo)
         self.group_combo = QComboBox(parent=self)
         for listing in self.student_listings[1:]:
             self.group_combo.addItem(listing.group.name)
         layout.addRow(self.combo)
-        layout.addRow(_('Id number'), self.id_field)
+        layout.addRow(_("Id number"), self.id_field)
         layout.addRow(self.name_label, self.name_field)
         layout.addRow(self.surname_label, self.surname_field)
         layout.addRow(self.full_name_label, self.full_name_field)
-        layout.addRow(_('Email'), self.email_field)
-        layout.addRow(_('Group'), self.group_combo)
-        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok
-                                         | QDialogButtonBox.Cancel))
+        layout.addRow(_("Email"), self.email_field)
+        layout.addRow(_("Group"), self.group_combo)
+        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
         layout.addRow(self.buttons)
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
@@ -186,45 +176,49 @@ class NewStudentDialog(QDialog):
         result = super().exec_()
         if result == QDialog.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
-            listing = \
-                self.student_listings[self.group_combo.currentIndex() + 1]
+            listing = self.student_listings[self.group_combo.currentIndex() + 1]
             email = self.email_field.text()
             if not email:
                 email = None
             if self.combo.currentIndex() == 0:
                 # First name, last name
-                student = students.Student( \
-                                    self.id_field.text(),
-                                    None,
-                                    self.name_field.text(),
-                                    self.surname_field.text(),
-                                    email,
-                                    group_id=listing.group.identifier)
+                student = students.Student(
+                    self.id_field.text(),
+                    None,
+                    self.name_field.text(),
+                    self.surname_field.text(),
+                    email,
+                    group_id=listing.group.identifier,
+                )
             else:
                 # Full name
-                student = students.Student( \
-                                    self.id_field.text(),
-                                    self.full_name_field.text(),
-                                    None,
-                                    None,
-                                    email,
-                                    group_id=listing.group.identifier)
+                student = students.Student(
+                    self.id_field.text(),
+                    self.full_name_field.text(),
+                    None,
+                    None,
+                    email,
+                    group_id=listing.group.identifier,
+                )
             try:
-                listing.add_students((student, ))
+                listing.add_students((student,))
             except students.DuplicateStudentIdException:
                 QMessageBox.critical(
                     self,
-                    _('Adding a new student'),
-                    _('The student cannot be added: '
-                      'a student with the same id is already in the list'))
+                    _("Adding a new student"),
+                    _(
+                        "The student cannot be added: "
+                        "a student with the same id is already in the list"
+                    ),
+                )
         else:
             student = None
         return student
 
     def _check_values(self):
-        if (self.id_field.hasAcceptableInput()
-            and (not self.email_field.text()
-                 or self.email_field.hasAcceptableInput())):
+        if self.id_field.hasAcceptableInput() and (
+            not self.email_field.text() or self.email_field.hasAcceptableInput()
+        ):
             self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
         else:
             self.buttons.button(QDialogButtonBox.Ok).setEnabled(False)
@@ -237,7 +231,7 @@ class NewStudentDialog(QDialog):
             self.name_label.setEnabled(True)
             self.surname_label.setEnabled(True)
             self.full_name_label.setEnabled(False)
-            self.full_name_field.setText('')
+            self.full_name_field.setText("")
         else:
             self.name_field.setEnabled(False)
             self.surname_field.setEnabled(False)
@@ -245,8 +239,8 @@ class NewStudentDialog(QDialog):
             self.name_label.setEnabled(False)
             self.surname_label.setEnabled(False)
             self.full_name_label.setEnabled(True)
-            self.name_field.setText('')
-            self.surname_field.setText('')
+            self.name_field.setText("")
+            self.surname_field.setText("")
 
 
 class DialogStudents(QDialog):
@@ -254,7 +248,7 @@ class DialogStudents(QDialog):
 
     def __init__(self, parent, student_listings):
         super().__init__(parent)
-        self.setWindowTitle(_('Manage students and student groups'))
+        self.setWindowTitle(_("Manage students and student groups"))
         main_layout = QVBoxLayout(self)
         self.setLayout(main_layout)
         tabs = StudentGroupsTabs(self, student_listings=student_listings)
@@ -277,18 +271,19 @@ class DialogPreviewStudents(QDialog):
 
     def __init__(self, parent, student_list, column_map):
         super().__init__(parent)
-        self.setWindowTitle(_('Preview the students to be loaded'))
+        self.setWindowTitle(_("Preview the students to be loaded"))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         self.table = PreviewWidget(student_list, column_map, parent=self)
-        self.button_swap = QPushButton(_('Swap first/last names'), parent=self)
+        self.button_swap = QPushButton(_("Swap first/last names"), parent=self)
         self.button_take_first = QPushButton(
-            _('Take first name as full name'), parent=self)
+            _("Take first name as full name"), parent=self
+        )
         self.button_take_last = QPushButton(
-            _('Take last name as full name'), parent=self)
-        self.button_remove = QPushButton(
-            _('Remove duplicate students'), parent=self)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+            _("Take last name as full name"), parent=self
+        )
+        self.button_remove = QPushButton(_("Remove duplicate students"), parent=self)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_accept = buttons.button(QDialogButtonBox.Ok)
         layout.addWidget(self.table)
         layout.addWidget(self.button_swap)
@@ -342,15 +337,17 @@ class DialogPreviewStudents(QDialog):
 
 
 class GroupNameDialog(QDialog):
-    def __init__(self, parent=None, group_name=''):
+    def __init__(self, parent=None, group_name=""):
         super().__init__(parent)
         if not group_name:
-            window_title = _('Create a new group of students')
-            message = _('Please, enter the name of the new group of students '
-                        'you want to create:')
+            window_title = _("Create a new group of students")
+            message = _(
+                "Please, enter the name of the new group of students "
+                "you want to create:"
+            )
         else:
-            window_title = _('Rename the group of students')
-            message = _('Please, enter the new name of the group of students')
+            window_title = _("Rename the group of students")
+            message = _("Please, enter the new name of the group of students")
         self.setWindowTitle(window_title)
         self.group_name = group_name
         layout = QVBoxLayout(self)
@@ -361,10 +358,9 @@ class GroupNameDialog(QDialog):
             self._name_widget.selectAll()
         self._name_widget.textChanged.connect(self._group_name_changed)
         main_line = widgets.LineContainer(
-            self,
-            QLabel(_('Group name')),
-            self._name_widget)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+            self, QLabel(_("Group name")), self._name_widget
+        )
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self._button_ok = buttons.button(QDialogButtonBox.Ok)
         layout.addWidget(QLabel(message))
         layout.addWidget(main_line)
@@ -392,7 +388,7 @@ class StudentGroupsTabs(QWidget):
         super().__init__(parent)
         if student_listings is None:
             self.student_listings = students.StudentListings()
-            inserted_group = students.StudentGroup(0, 'INSERTED')
+            inserted_group = students.StudentGroup(0, "INSERTED")
             self.student_listings.create_listing(inserted_group)
         else:
             self.student_listings = student_listings
@@ -400,22 +396,20 @@ class StudentGroupsTabs(QWidget):
         self.setLayout(layout)
         self.tabs = QTabWidget(self)
         # Special tab for creating a new group:
-        self.tabs.addTab(QWidget(), '  +  ')
+        self.tabs.addTab(QWidget(), "  +  ")
         # Group 0 is special: don't show it
         for listing in self.student_listings[1:]:
             self._add_group_tab(listing)
         # At least one normal group needs to be present:
         if len(self.student_listings) == 1:
             self._create_default_group()
-        button_load = QPushButton(_('Add students from file'), parent=self)
+        button_load = QPushButton(_("Add students from file"), parent=self)
         button_new_student = QPushButton(
-            QIcon(utils.resource_path('new_id.svg')),
-            _('New student'),
-            parent=self)
+            QIcon(utils.resource_path("new_id.svg")), _("New student"), parent=self
+        )
         button_remove = QPushButton(
-            QIcon(utils.resource_path('discard.svg')),
-            _('Remove group'),
-            parent=self)
+            QIcon(utils.resource_path("discard.svg")), _("Remove group"), parent=self
+        )
         layout.addWidget(self.tabs)
         layout.addWidget(button_load)
         layout.addWidget(button_new_student)
@@ -435,11 +429,12 @@ class StudentGroupsTabs(QWidget):
         index = self.tabs.currentIndex()
         file_name, __ = QFileDialog.getOpenFileName(
             self,
-            _('Select the student list file'),
-            '',
+            _("Select the student list file"),
+            "",
             FileNameFilters.student_list,
             None,
-            QFileDialog.DontUseNativeDialog)
+            QFileDialog.DontUseNativeDialog,
+        )
         try:
             if file_name:
                 with students.StudentReader.create(file_name) as reader:
@@ -452,27 +447,25 @@ class StudentGroupsTabs(QWidget):
                 if warn_duplicates:
                     QMessageBox.warning(
                         self,
-                        _('Importing a student list'),
-                        _('Some student ids are already in the list. '
-                          'Remove them or cancel the import operation.'))
+                        _("Importing a student list"),
+                        _(
+                            "Some student ids are already in the list. "
+                            "Remove them or cancel the import operation."
+                        ),
+                    )
                 column_map = reader.column_map.normalize()
-                preview_dialog = DialogPreviewStudents(
-                    self, student_list, column_map)
+                preview_dialog = DialogPreviewStudents(self, student_list, column_map)
                 result = preview_dialog.exec_()
                 if result == QMessageBox.Accepted:
                     self.tabs.widget(index).add_students(student_list)
         except Exception as e:
             QMessageBox.critical(
-                self,
-                _('Error in student list'),
-                file_name + '\n\n' + str(e))
+                self, _("Error in student list"), file_name + "\n\n" + str(e)
+            )
 
     def _new_student(self):
         index = self.tabs.currentIndex()
-        dialog = NewStudentDialog(
-            self.student_listings,
-            group_index=index,
-            parent=self)
+        dialog = NewStudentDialog(self.student_listings, group_index=index, parent=self)
         student = dialog.exec_()
         if student is not None:
             self.tabs.widget(index).listing_updated()
@@ -482,12 +475,15 @@ class StudentGroupsTabs(QWidget):
         if len(self.student_listings[index + 1]) > 0:
             result = QMessageBox.warning(
                 self,
-                _('Warning'),
-                _('This group and its students will be removed. '
-                  'Are you sure you want to continue?'),
+                _("Warning"),
+                _(
+                    "This group and its students will be removed. "
+                    "Are you sure you want to continue?"
+                ),
                 QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No)
-            remove = (result == QMessageBox.Yes)
+                QMessageBox.No,
+            )
+            remove = result == QMessageBox.Yes
         else:
             remove = True
         if remove:
@@ -505,15 +501,16 @@ class StudentGroupsTabs(QWidget):
             except students.CantRemoveGroupException:
                 QMessageBox.critical(
                     self,
-                    _('Error'),
-                    _('This group cannot be removed because '
-                      'exams have been graded for some of its students.'))
+                    _("Error"),
+                    _(
+                        "This group cannot be removed because "
+                        "exams have been graded for some of its students."
+                    ),
+                )
 
     def _add_group_tab(self, listing, show=False):
         self.tabs.insertTab(
-            self.tabs.count() - 1,
-            GroupWidget(listing, self),
-            listing.group.name
+            self.tabs.count() - 1, GroupWidget(listing, self), listing.group.name
         )
         if show:
             self.tabs.setCurrentIndex(self.tabs.count() - 2)
@@ -528,7 +525,7 @@ class StudentGroupsTabs(QWidget):
             self.tabs.setCurrentIndex(self._active_tab)
 
     def _create_default_group(self):
-        group = students.StudentGroup(None, _('Students'))
+        group = students.StudentGroup(None, _("Students"))
         listing = self.student_listings.create_listing(group)
         self._add_group_tab(listing, show=True)
 
@@ -553,7 +550,8 @@ class GroupWidget(QWidget):
             students.StudentColumn.SEQUENCE_NUM,
             students.StudentColumn.ID,
             students.StudentColumn.NAME,
-        ])
+        ]
+    )
 
     def __init__(self, listing, student_tabs):
         super().__init__(student_tabs.tabs)
@@ -610,15 +608,16 @@ class PreviewWidget(QWidget):
         attr_name = students.ATTR_NAME[column]
         for s in self.listing.students:
             s.full_name = getattr(s, attr_name)
-            s.first_name = ''
-            s.last_name = ''
+            s.first_name = ""
+            s.last_name = ""
         self.column_map = self.column_map.to_full_name()
         self.model.data_reset(column_map=self.column_map)
         self._resize_table()
 
     def remove_duplicates(self):
-        self.listing.remove_students([s for s in self.listing.students
-                                      if s.is_duplicate])
+        self.listing.remove_students(
+            [s for s in self.listing.students if s.is_duplicate]
+        )
         self.model.data_reset()
 
     def _resize_table(self):
@@ -631,13 +630,13 @@ class StudentsTableModel(QAbstractTableModel):
     """ Table for showing a student list."""
 
     _headers = {
-        students.StudentColumn.SEQUENCE_NUM: '#',
-        students.StudentColumn.ID: _('Id'),
-        students.StudentColumn.NAME: _('Name'),
-        students.StudentColumn.FIRST_NAME: _('First name'),
-        students.StudentColumn.LAST_NAME: _('Last name'),
-        students.StudentColumn.FULL_NAME: _('Name'),
-        students.StudentColumn.EMAIL: _('Email'),
+        students.StudentColumn.SEQUENCE_NUM: "#",
+        students.StudentColumn.ID: _("Id"),
+        students.StudentColumn.NAME: _("Name"),
+        students.StudentColumn.FIRST_NAME: _("First name"),
+        students.StudentColumn.LAST_NAME: _("Last name"),
+        students.StudentColumn.FULL_NAME: _("Name"),
+        students.StudentColumn.EMAIL: _("Email"),
     }
 
     _alignment = {
@@ -695,4 +694,4 @@ class StudentsTableModel(QAbstractTableModel):
             return QVariant(QVariant.Invalid)
 
     def flags(self, index):
-        return Qt.ItemFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+        return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)

@@ -35,7 +35,7 @@ def create_writer(file_name, file_format):
     elif file_format == FileFormat.XLSX:
         writer = XLSXWriter(file_name)
     else:
-        raise ValueError('Unknown file format: {}'.format(file_format))
+        raise ValueError("Unknown file format: {}".format(file_format))
     return writer
 
 
@@ -64,7 +64,7 @@ class XLSXWriter:
         self.current_sheet.title = title
 
     def __str__(self):
-        return 'XLSXWriter({})'.format(self.file_name)
+        return "XLSXWriter({})".format(self.file_name)
 
 
 class CSVWriter:
@@ -73,7 +73,7 @@ class CSVWriter:
         self.csv_dialect = csv_dialect
 
     def __enter__(self):
-        self.file = open(self.file_name, 'w')
+        self.file = open(self.file_name, "w")
         self.writer = csv.writer(self.file, dialect=self.csv_dialect)
         return self
 
@@ -90,57 +90,58 @@ class CSVWriter:
         pass
 
     def __str__(self):
-        return 'CSVWriter({})'.format(self.file_name)
+        return "CSVWriter({})".format(self.file_name)
 
 
 class GradesColumn:
     """Extract a field from a Student or Exam object, for exporting data"""
 
     STUDENT_KEYS = {
-        'student_id': 'Id',
-        'name': 'Name',
-        'last_name': 'Last name',
-        'first_name': 'First name',
+        "student_id": "Id",
+        "name": "Name",
+        "last_name": "Last name",
+        "first_name": "First name",
     }
     EXAM_KEYS = {
-        'exam_id': 'Sequence number',
-        'model': 'Model',
-        'correct': 'Correct',
-        'incorrect': 'Incorrect',
-        'score': 'Score',
-        'answers': None,
+        "exam_id": "Sequence number",
+        "model": "Model",
+        "correct": "Correct",
+        "incorrect": "Incorrect",
+        "score": "Score",
+        "answers": None,
     }
 
     def __init__(self, column_key, num_questions=None):
         if column_key in GradesColumn.STUDENT_KEYS:
             self.extract = self._extract_from_student
             self.key = column_key
-            self.headers = (GradesColumn.STUDENT_KEYS[column_key], )
+            self.headers = (GradesColumn.STUDENT_KEYS[column_key],)
         elif column_key in GradesColumn.EXAM_KEYS:
             self.extract = self._extract_from_exam
             self.key = column_key
-            if column_key == 'answers':
+            if column_key == "answers":
                 if num_questions is not None:
-                    self.headers = tuple('Q{}'.format(i) \
-                                         for i in range(1, num_questions + 1))
+                    self.headers = tuple(
+                        "Q{}".format(i) for i in range(1, num_questions + 1)
+                    )
                 else:
-                    raise ValueError('num_questions needs to be set')
+                    raise ValueError("num_questions needs to be set")
             else:
-                self.headers = (GradesColumn.EXAM_KEYS[column_key], )
+                self.headers = (GradesColumn.EXAM_KEYS[column_key],)
         else:
-            raise ValueError('Unknown column key: {}'.format(column_key))
+            raise ValueError("Unknown column key: {}".format(column_key))
 
     def __str__(self):
-        return 'GradesColumn({})'.format(self.key)
+        return "GradesColumn({})".format(self.key)
 
     def _extract_from_student(self, exam):
-        return (getattr(exam['student'], self.key), )
+        return (getattr(exam["student"], self.key),)
 
     def _extract_from_exam(self, exam):
-        if self.key == 'answers':
-            return exam['answers']
+        if self.key == "answers":
+            return exam["answers"]
         else:
-            return (exam[self.key], )
+            return (exam[self.key],)
 
 
 class SortBy(enum.Enum):
@@ -190,7 +191,7 @@ class GradesExportHelper:
     def iter_groups(self):
         if self.group is None:
             if self.one_sheet:
-                yield (None, 'Group')
+                yield (None, "Group")
             else:
                 for group in self.student_groups:
                     yield (group, group.name)

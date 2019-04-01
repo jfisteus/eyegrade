@@ -33,7 +33,7 @@ from .. import utils
 from .. import export
 
 
-t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
 
 
@@ -55,50 +55,47 @@ class DialogExportGrades(QDialog):
         # dialog cancelled
 
     """
+
     def __init__(self, parent, helper):
         super().__init__(parent)
         self.helper = helper
         student_groups = helper.student_groups
-        self.setWindowTitle(_('Export grades listing'))
+        self.setWindowTitle(_("Export grades listing"))
         self.type_combo = QComboBox(parent=self)
-        self.type_combo.addItem(_('Excel spreadsheet (.xlsx)'))
-        self.type_combo.addItem(_('Tabs-separated file'))
+        self.type_combo.addItem(_("Excel spreadsheet (.xlsx)"))
+        self.type_combo.addItem(_("Tabs-separated file"))
         self.students_combo = QComboBox(parent=self)
-        self.students_combo.addItem(_('All the students in the list'))
-        self.students_combo.addItem(_('Only the students who attended'
-                                      ' the exam'))
+        self.students_combo.addItem(_("All the students in the list"))
+        self.students_combo.addItem(_("Only the students who attended" " the exam"))
         self.sort_combo = QComboBox(parent=self)
-        self.sort_combo.addItem(_('Student list'))
-        self.sort_combo.addItem(_('Last name'))
-        self.sort_combo.addItem(_('Exam grading sequence'))
+        self.sort_combo.addItem(_("Student list"))
+        self.sort_combo.addItem(_("Last name"))
+        self.sort_combo.addItem(_("Exam grading sequence"))
         if len(student_groups) > 1:
             self.groups_combo = QComboBox(parent=self)
-            self.groups_combo.addItem(_('All groups (one sheet)'))
-            self.groups_combo.addItem(_('All groups (separate sheets)'))
+            self.groups_combo.addItem(_("All groups (one sheet)"))
+            self.groups_combo.addItem(_("All groups (separate sheets)"))
             for group in student_groups:
-                label = u'{0} #{1.identifier} ({1.name})'.format(_('Group'),
-                                                                 group)
+                label = u"{0} #{1.identifier} ({1.name})".format(_("Group"), group)
                 self.groups_combo.addItem(label)
         else:
             self.groups_combo = None
         self.headers_checkbox = LabelledCheckBox(
-            _('Add column headers'),
-            self,
-            checked=True)
+            _("Add column headers"), self, checked=True
+        )
         self.export_items = ExportItems(self)
-        buttons = QDialogButtonBox((QDialogButtonBox.Ok
-                                    | QDialogButtonBox.Cancel))
+        buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout = QFormLayout(parent=self)
         self.setLayout(layout)
-        layout.addRow(_('File type:'), self.type_combo)
-        layout.addRow(_('Students:'), self.students_combo)
+        layout.addRow(_("File type:"), self.type_combo)
+        layout.addRow(_("Students:"), self.students_combo)
         if self.groups_combo is not None:
-            layout.addRow(_('Student group:'), self.groups_combo)
-        layout.addRow(_('Sort by:'), self.sort_combo)
-        layout.addRow(_('Options:'), self.headers_checkbox)
-        layout.addRow(_('Export fields:'), self.export_items)
+            layout.addRow(_("Student group:"), self.groups_combo)
+        layout.addRow(_("Sort by:"), self.sort_combo)
+        layout.addRow(_("Options:"), self.headers_checkbox)
+        layout.addRow(_("Export fields:"), self.export_items)
         layout.addRow(buttons)
 
     def exec_(self):
@@ -114,8 +111,7 @@ class DialogExportGrades(QDialog):
                 self.helper.file_format = export.FileFormat.XLSX
             elif self.type_combo.currentIndex() == 1:
                 self.helper.file_format = export.FileFormat.CSV_TABS
-            self.helper.file_name = \
-                self._get_save_file_name(self.helper.file_format)
+            self.helper.file_name = self._get_save_file_name(self.helper.file_format)
             if self.helper.file_name:
                 result = True
                 if self.groups_combo is not None:
@@ -133,22 +129,21 @@ class DialogExportGrades(QDialog):
                     self.helper.sort_by = export.SortBy.LAST_NAME
                 elif idx == 2:
                     self.helper.sort_by = export.SortBy.GRADING_SEQUENCE
-                self.helper.all_students = \
-                    (self.students_combo.currentIndex() == 0)
-                self.helper.add_column_headers = \
-                    self.headers_checkbox.is_checked()
+                self.helper.all_students = self.students_combo.currentIndex() == 0
+                self.helper.add_column_headers = self.headers_checkbox.is_checked()
                 self.helper.export_columns(self.export_items.get_column_keys())
         return result
 
     def _get_save_file_name(self, file_format):
         if file_format == export.FileFormat.XLSX:
             file_filter = FileNameFilters.xlsx_file
-            extension = 'xlsx'
+            extension = "xlsx"
         else:
             file_filter = FileNameFilters.csv_file
-            extension = 'csv'
-        save_dialog = QFileDialog(parent=self, caption=_('Save listing as...'),
-                                  filter=file_filter)
+            extension = "csv"
+        save_dialog = QFileDialog(
+            parent=self, caption=_("Save listing as..."), filter=file_filter
+        )
         save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
         save_dialog.setDefaultSuffix(extension)
         save_dialog.setFileMode(QFileDialog.AnyFile)
@@ -165,28 +160,34 @@ class ExportItems(QWidget):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.checkboxes = [
-            ('student_id',
-             LabelledCheckBox(_('Student id number'), self, checked=True)),
-            ('name',
-             LabelledCheckBox(_('Student full name'), self, checked=True)),
-            ('last_name',
-             LabelledCheckBox(_('Student last name'), self, checked=False)),
-            ('first_name',
-             LabelledCheckBox(_('Student first name'), self, checked=False)),
-            ('exam_id',
-             LabelledCheckBox(_('Exam sequence number'), self, checked=False)),
-            ('model',
-             LabelledCheckBox(_('Exam model letter'), self, checked=False)),
-            ('correct',
-             LabelledCheckBox(_('Number of correct answers'), self,
-                              checked=True)),
-            ('incorrect',
-             LabelledCheckBox(_('Number of incorrect answers'), self,
-                              checked=True)),
-            ('score',
-             LabelledCheckBox(_('Score'), self, checked=True)),
-            ('answers',
-             LabelledCheckBox(_('List of answers'), self, checked=False)),
+            (
+                "student_id",
+                LabelledCheckBox(_("Student id number"), self, checked=True),
+            ),
+            ("name", LabelledCheckBox(_("Student full name"), self, checked=True)),
+            (
+                "last_name",
+                LabelledCheckBox(_("Student last name"), self, checked=False),
+            ),
+            (
+                "first_name",
+                LabelledCheckBox(_("Student first name"), self, checked=False),
+            ),
+            (
+                "exam_id",
+                LabelledCheckBox(_("Exam sequence number"), self, checked=False),
+            ),
+            ("model", LabelledCheckBox(_("Exam model letter"), self, checked=False)),
+            (
+                "correct",
+                LabelledCheckBox(_("Number of correct answers"), self, checked=True),
+            ),
+            (
+                "incorrect",
+                LabelledCheckBox(_("Number of incorrect answers"), self, checked=True),
+            ),
+            ("score", LabelledCheckBox(_("Score"), self, checked=True)),
+            ("answers", LabelledCheckBox(_("List of answers"), self, checked=False)),
         ]
         layout = QVBoxLayout(self)
         for column, checkbox in self.checkboxes:
@@ -194,5 +195,4 @@ class ExportItems(QWidget):
         self.setLayout(layout)
 
     def get_column_keys(self):
-        return [key for key, checkbox in self.checkboxes
-                if checkbox.is_checked()]
+        return [key for key, checkbox in self.checkboxes if checkbox.is_checked()]

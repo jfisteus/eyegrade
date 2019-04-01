@@ -24,11 +24,11 @@ import numpy as np
 from . import preprocessing
 from .. import utils
 
-DEFAULT_DIG_CLASS_FILE = 'digit_classifier.dat.gz'
-DEFAULT_DIG_META_FILE = 'digit_classifier_metadata.txt'
-DEFAULT_CROSS_CLASS_FILE = 'cross_classifier.dat.gz'
-DEFAULT_CROSS_META_FILE = 'cross_classifier_metadata.json'
-DEFAULT_DIR = 'svm'
+DEFAULT_DIG_CLASS_FILE = "digit_classifier.dat.gz"
+DEFAULT_DIG_META_FILE = "digit_classifier_metadata.txt"
+DEFAULT_CROSS_CLASS_FILE = "cross_classifier.dat.gz"
+DEFAULT_CROSS_META_FILE = "cross_classifier_metadata.json"
+DEFAULT_DIR = "svm"
 
 
 class SVMClassifier:
@@ -45,17 +45,16 @@ class SVMClassifier:
         return self.features_extractor.features_len
 
     def train(self, samples, params=None):
-        features = np.ndarray(shape=(len(samples), self.features_len),
-                              dtype='float32')
-        labels = np.ndarray(shape=(len(samples), 1), dtype='int32')
+        features = np.ndarray(shape=(len(samples), self.features_len), dtype="float32")
+        labels = np.ndarray(shape=(len(samples), 1), dtype="int32")
         for i, sample in enumerate(samples):
-            features[i,:] = self.features_extractor.extract(sample)
+            features[i, :] = self.features_extractor.extract(sample)
             labels[i] = sample.label
         self.svm.trainAuto(features, cv2.ml.ROW_SAMPLE, labels)
 
     def classify(self, sample):
-        features = np.ndarray(shape=(1, self.features_len), dtype='float32')
-        features[0,:] = self.features_extractor.extract(sample)
+        features = np.ndarray(shape=(1, self.features_len), dtype="float32")
+        features[0, :] = self.features_extractor.extract(sample)
         retval, prediction = self.svm.predict(features)
         return int(prediction[0, 0])
 
@@ -71,11 +70,11 @@ class SVMClassifier:
 
 
 class SVMDigitClassifier(SVMClassifier):
-    def __init__(self, features_extractor, load_from_file=None,
-                 confusion_matrix_from_file=None):
+    def __init__(
+        self, features_extractor, load_from_file=None, confusion_matrix_from_file=None
+    ):
         super().__init__(10, features_extractor, load_from_file=load_from_file)
-        self.confusion_matrix = \
-            self._load_confusion_matrix(confusion_matrix_from_file)
+        self.confusion_matrix = self._load_confusion_matrix(confusion_matrix_from_file)
 
     def classify_digit(self, sample):
         digit = self.classify(sample)
@@ -87,20 +86,23 @@ class SVMDigitClassifier(SVMClassifier):
         if filename:
             with open(SVMClassifier.resource(filename)) as f:
                 metadata = json.load(f)
-                matrix = np.array(metadata['confusion_matrix'], dtype=float)
+                matrix = np.array(metadata["confusion_matrix"], dtype=float)
         else:
             matrix = np.diag(np.ones(10, dtype=float))
         return matrix
 
 
 class DefaultDigitClassifier(SVMDigitClassifier):
-    def __init__(self,
-                 load_from_file=DEFAULT_DIG_CLASS_FILE,
-                 confusion_matrix_from_file=DEFAULT_DIG_META_FILE):
+    def __init__(
+        self,
+        load_from_file=DEFAULT_DIG_CLASS_FILE,
+        confusion_matrix_from_file=DEFAULT_DIG_META_FILE,
+    ):
         super().__init__(
             preprocessing.FeatureExtractor(),
             load_from_file=load_from_file,
-            confusion_matrix_from_file=confusion_matrix_from_file)
+            confusion_matrix_from_file=confusion_matrix_from_file,
+        )
 
     def train(self, samples, params=None):
         super().train(samples, dict(C=3.16227766, gamma=0.01))
@@ -117,8 +119,8 @@ class SVMCrossesClassifier(SVMClassifier):
 class DefaultCrossesClassifier(SVMCrossesClassifier):
     def __init__(self, load_from_file=DEFAULT_CROSS_CLASS_FILE):
         super().__init__(
-            preprocessing.CrossesFeatureExtractor(),
-            load_from_file=load_from_file)
+            preprocessing.CrossesFeatureExtractor(), load_from_file=load_from_file
+        )
 
     def train(self, samples, params=None):
         super().train(samples, dict(C=100, gamma=0.01))

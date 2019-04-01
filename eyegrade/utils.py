@@ -25,22 +25,29 @@ import re
 import contextlib
 
 
-program_name = 'eyegrade'
-web_location = 'https://www.eyegrade.org/'
-source_location = 'https://github.com/jfisteus/eyegrade'
-help_location = 'https://www.eyegrade.org/doc/user-manual/'
-version = '0.8.1'
-version_status = 'alpha'
+program_name = "eyegrade"
+web_location = "https://www.eyegrade.org/"
+source_location = "https://github.com/jfisteus/eyegrade"
+help_location = "https://www.eyegrade.org/doc/user-manual/"
+version = "0.8.1"
+version_status = "alpha"
 
-re_model_letter = re.compile('[0a-zA-Z]')
+re_model_letter = re.compile("[0a-zA-Z]")
 
-csv_tabs_dialect = 'tabs'
-csv.register_dialect(csv_tabs_dialect, delimiter=str('\t'))
+csv_tabs_dialect = "tabs"
+csv.register_dialect(csv_tabs_dialect, delimiter=str("\t"))
 
-results_file_keys = ['seq-num', 'student-id', 'model', 'good', 'bad',
-                     'score', 'answers']
+results_file_keys = [
+    "seq-num",
+    "student-id",
+    "model",
+    "good",
+    "bad",
+    "score",
+    "answers",
+]
 
-default_capture_pattern = 'exam-{student-id}-{seq-number}.png'
+default_capture_pattern = "exam-{student-id}-{seq-number}.png"
 
 # The data_dir variable will be intially none.  The functions in this
 # module that depend on the data directory will initialize it if
@@ -55,6 +62,7 @@ class ComparableMixin:
                       python-implementing-rich-comparison-the-correct-way/
 
     """
+
     def _compare(self, other, method):
         try:
             return method(self._cmpkey(), other._cmpkey())
@@ -64,26 +72,27 @@ class ComparableMixin:
             return NotImplemented
 
     def __lt__(self, other):
-        return self._compare(other, lambda s,o: s < o)
+        return self._compare(other, lambda s, o: s < o)
 
     def __le__(self, other):
-        return self._compare(other, lambda s,o: s <= o)
+        return self._compare(other, lambda s, o: s <= o)
 
     def __eq__(self, other):
-       return self._compare(other, lambda s,o: s == o)
+        return self._compare(other, lambda s, o: s == o)
 
     def __ge__(self, other):
-        return self._compare(other, lambda s,o: s >= o)
+        return self._compare(other, lambda s, o: s >= o)
 
     def __gt__(self, other):
-        return self._compare(other, lambda s,o: s > o)
+        return self._compare(other, lambda s, o: s > o)
 
     def __ne__(self, other):
-        return self._compare(other, lambda s,o: s != o)
+        return self._compare(other, lambda s, o: s != o)
 
 
 def user_home():
-    return os.path.expanduser('~/')
+    return os.path.expanduser("~/")
+
 
 def _read_config():
     """Reads the general config file and returns the resulting config object.
@@ -93,37 +102,41 @@ def _read_config():
 
     """
     config = {
-        'camera-dev': '0',
-        'save-filename-pattern': default_capture_pattern,
-        'csv-dialect': 'tabs',
-        'default-charset': 'utf8', # special value: 'system-default'
+        "camera-dev": "0",
+        "save-filename-pattern": default_capture_pattern,
+        "csv-dialect": "tabs",
+        "default-charset": "utf8",  # special value: 'system-default'
     }
     parser = configparser.ConfigParser()
     home = user_home()
     try:
-        parser.read([os.path.join(home, u'.eyegrade.cfg'),
-                     os.path.join(home, u'.camgrade.cfg'),
-                     resource_path('default.cfg'),])
+        parser.read(
+            [
+                os.path.join(home, u".eyegrade.cfg"),
+                os.path.join(home, u".camgrade.cfg"),
+                resource_path("default.cfg"),
+            ]
+        )
     except EyegradeException:
-        parser.read([os.path.join(home, u'.eyegrade.cfg'),
-                     os.path.join(home, u'.camgrade.cfg'),])
-    if 'default' in parser.sections():
-        for option in parser.options('default'):
-            config[option] = parser.get('default', option)
-    if not config['csv-dialect'] in csv.list_dialects():
-        config['csv-dialect'] = 'tabs'
-    if 'error-logging' in config and config['error-logging'] == 'yes':
-        config['error-logging'] = True
+        parser.read(
+            [os.path.join(home, u".eyegrade.cfg"), os.path.join(home, u".camgrade.cfg")]
+        )
+    if "default" in parser.sections():
+        for option in parser.options("default"):
+            config[option] = parser.get("default", option)
+    if not config["csv-dialect"] in csv.list_dialects():
+        config["csv-dialect"] = "tabs"
+    if "error-logging" in config and config["error-logging"] == "yes":
+        config["error-logging"] = True
     else:
-        config['error-logging'] = False
-    config['camera-dev'] = int(config['camera-dev'])
-    if config['default-charset'] == 'system-default':
-        config['default-charset'] = locale.getpreferredencoding()
-    if 'gui-styles' in config:
-        config['gui-styles'] = tuple(v.strip()
-                                     for v in config['gui-styles'].split(','))
+        config["error-logging"] = False
+    config["camera-dev"] = int(config["camera-dev"])
+    if config["default-charset"] == "system-default":
+        config["default-charset"] = locale.getpreferredencoding()
+    if "gui-styles" in config:
+        config["gui-styles"] = tuple(v.strip() for v in config["gui-styles"].split(","))
     else:
-        config['gui-styles'] = None
+        config["gui-styles"] = None
     return config
 
 
@@ -148,8 +161,10 @@ class EyegradeException(Exception):
 
         """
         self.key = key
-        if (key in EyegradeException._error_messages
-            or key in EyegradeException._short_messages):
+        if (
+            key in EyegradeException._error_messages
+            or key in EyegradeException._short_messages
+        ):
             parts = []
             if message:
                 parts.append(message)
@@ -160,10 +175,10 @@ class EyegradeException(Exception):
                 else:
                     parts.append(short_msg.format(*format_params))
             if key in EyegradeException._error_messages:
-                parts.append('\n\n')
+                parts.append("\n\n")
                 parts.append(EyegradeException._error_messages[key])
-            parts.append('\n')
-            self.full_message = ''.join(parts)
+            parts.append("\n")
+            self.full_message = "".join(parts)
             super().__init__(self.full_message)
         else:
             self.full_message = None
@@ -182,7 +197,7 @@ class EyegradeException(Exception):
             return super().__str__()
 
     @staticmethod
-    def register_error(key, detailed_message='', short_message=''):
+    def register_error(key, detailed_message="", short_message=""):
         """Registers a new error message associated to a key.
 
         `key` is just a string used to identify this error message,
@@ -197,38 +212,46 @@ class EyegradeException(Exception):
         shared for all the instances of the exception.
 
         """
-        if (not key in EyegradeException._error_messages
-            and not key in EyegradeException._short_messages):
+        if (
+            not key in EyegradeException._error_messages
+            and not key in EyegradeException._short_messages
+        ):
             if detailed_message:
                 EyegradeException._error_messages[key] = detailed_message
             if short_message:
                 EyegradeException._short_messages[key] = short_message
         else:
-            raise EyegradeException('Duplicate error key in register_error')
+            raise EyegradeException("Duplicate error key in register_error")
 
 
-EyegradeException.register_error('bad_dimensions',
+EyegradeException.register_error(
+    "bad_dimensions",
     "Dimensions must be specified as a ';' separated list of tables.\n"
     "For each table, specify the number of choices + comma + the number of\n"
     "questions in that table. For example, '4,10;4,9' configures two\n"
     "tables, the left-most with 9 questions and 4 choices per question,\n"
     "and the right-most with 10 questions and the same number of choices."
-    'Bad dimensions value.')
+    "Bad dimensions value.",
+)
 
-EyegradeException.register_error('same_num_choices',
+EyegradeException.register_error(
+    "same_num_choices",
     "By now, Eyegrade needs you to use the same number of choices in\n"
     "all the questions of the exam.",
-    'There are questions with a different number of choices')
+    "There are questions with a different number of choices",
+)
 
 _student_list_message = (
-    'The file is expected to contain one line per student.\n'
-    'Each line can contain one or more TAB-separated columns.\n'
-    'The first column must be the student id (a number).\n'
-    'The second column, if present, is interpreted as the student name.\n'
-    'The rest of the columns are ignored.')
+    "The file is expected to contain one line per student.\n"
+    "Each line can contain one or more TAB-separated columns.\n"
+    "The first column must be the student id (a number).\n"
+    "The second column, if present, is interpreted as the student name.\n"
+    "The rest of the columns are ignored."
+)
 
-EyegradeException.register_error('load_image',
-    'The image cannot be loaded (perhaps a wrong path?).')
+EyegradeException.register_error(
+    "load_image", "The image cannot be loaded (perhaps a wrong path?)."
+)
 
 
 def guess_data_dir():
@@ -236,38 +259,44 @@ def guess_data_dir():
     # An alternative path to try for pyinstaller's packages:
     path_alt = os.path.split(path)[0]
     paths_to_try = [
-        os.path.join(path, 'data'),
-        os.path.join(path, '..', 'data'),
-        os.path.join(path, '..', '..', 'data'),
-        os.path.join(path, '..', '..', '..', 'data'),
-        os.path.join(path_alt, 'data'),
+        os.path.join(path, "data"),
+        os.path.join(path, "..", "data"),
+        os.path.join(path, "..", "..", "data"),
+        os.path.join(path, "..", "..", "..", "data"),
+        os.path.join(path_alt, "data"),
     ]
     for p in paths_to_try:
         if os.path.isdir(p):
             return os.path.abspath(p)
-    raise EyegradeException('Data path not found!')
+    raise EyegradeException("Data path not found!")
+
 
 def init_data_dir():
     global data_dir
     data_dir = guess_data_dir()
 
+
 def locale_dir():
     if data_dir is None:
         init_data_dir()
-    return os.path.join(data_dir, 'locale')
+    return os.path.join(data_dir, "locale")
+
 
 def qt_translations_dir():
     if data_dir is None:
         init_data_dir()
-    return os.path.join(data_dir, 'qt-translations')
+    return os.path.join(data_dir, "qt-translations")
+
 
 def resource_path(file_name):
     if data_dir is None:
         init_data_dir()
     return os.path.join(data_dir, file_name)
 
+
 # The global configuration object:
 config = _read_config()
+
 
 def check_model_letter(model, allow_question_mark=False):
     """Checks if a model letter is correct.
@@ -278,13 +307,14 @@ def check_model_letter(model, allow_question_mark=False):
     """
     if re_model_letter.match(model):
         return model.upper()
-    elif allow_question_mark and model == '?':
-        return '?'
+    elif allow_question_mark and model == "?":
+        return "?"
     else:
-        raise Exception('Incorrect model letter: ' + model)
+        raise Exception("Incorrect model letter: " + model)
+
 
 def _permute_answers(answers, permutation):
-    assert(len(answers) == len(permutation))
+    assert len(answers) == len(permutation)
     permutted = [0] * len(answers)
     for i, option in enumerate(answers):
         if option == 0 or option == -1:
@@ -293,6 +323,7 @@ def _permute_answers(answers, permutation):
             resolved_option = permutation[i][1][option - 1]
         permutted[permutation[i][0] - 1] = resolved_option
     return permutted
+
 
 def encode_model(model, num_tables, num_answers):
     """Given the letter of the model, returns the infobits pattern.
@@ -305,20 +336,21 @@ def encode_model(model, num_tables, num_answers):
        capital ASCII letter.
 
     """
-    if len(model) != 1 or model < 'A' or model > 'Z':
-        raise Exception('Incorrect model letter')
-    if model > 'H':
-        raise Exception('Model is currently limited to A - H')
+    if len(model) != 1 or model < "A" or model > "Z":
+        raise Exception("Incorrect model letter")
+    if model > "H":
+        raise Exception("Model is currently limited to A - H")
     model_num = ord(model) - 65
     num_bits = num_tables * num_answers
     if model_num >= 2 ** num_bits:
-        raise Exception('Model number too big given the number of answers')
+        raise Exception("Model number too big given the number of answers")
     seed = _int_to_bin(model_num, 3, True)
     seed[2] = not seed[2]
-    seed.append(seed[0] ^ seed[1] ^seed[2])
+    seed.append(seed[0] ^ seed[1] ^ seed[2])
     seed[2] = not seed[2]
     bit_list = seed * (1 + (num_bits - 1) // 4)
-    return bit_list[:num_tables * num_answers]
+    return bit_list[: num_tables * num_answers]
+
 
 def decode_model(bit_list, accept_model_0=False):
     """Given the bits that encode the model, returns the associated letter.
@@ -334,21 +366,23 @@ def decode_model(bit_list, accept_model_0=False):
     if len(bit_list) == 2 or len(bit_list) == 3:
         valid = True
     elif len(bit_list) >= 4:
-        if (bit_list[3] == bit_list[0] ^ bit_list[1] ^ (not bit_list[2])):
+        if bit_list[3] == bit_list[0] ^ bit_list[1] ^ (not bit_list[2]):
             valid = True
             for i in range(4, len(bit_list)):
                 if bit_list[i] != bit_list[i - 4]:
                     valid = False
                     break
     if valid:
-        return chr(65 + (int(bit_list[0]) | int(bit_list[1]) << 1 |
-                  int(bit_list[2]) << 2))
+        return chr(
+            65 + (int(bit_list[0]) | int(bit_list[1]) << 1 | int(bit_list[2]) << 2)
+        )
     elif accept_model_0 and max(bit_list) == False:
-        return '0'
+        return "0"
     else:
         return None
 
-def _int_to_bin(n, num_digits, reverse = False):
+
+def _int_to_bin(n, num_digits, reverse=False):
     """Returns the binary representation of a number as a list of booleans.
 
        If the number of digits is less than 'num_digits', it is
@@ -372,22 +406,25 @@ def _int_to_bin(n, num_digits, reverse = False):
     else:
         return bin[::-1]
 
+
 def read_file(file_name):
     """Return the contents of a file as a Unicode string using terminal locale.
 
     """
-    file_ = codecs.open(file_name, 'r', config['default-charset'])
+    file_ = codecs.open(file_name, "r", config["default-charset"])
     data = file_.read()
     file_.close()
     return data
+
 
 def write_file(file_name, unicode_text):
     """Writes a Unicode string in a file using terminal locale.
 
     """
-    file_ = codecs.open(file_name, 'w', config['default-charset'])
+    file_ = codecs.open(file_name, "w", config["default-charset"])
     file_.write(unicode_text)
     file_.close()
+
 
 def write_to_stdout(unicode_text):
     """Writes a Unicode string in sys.stdout using terminal locale.
@@ -396,48 +433,55 @@ def write_to_stdout(unicode_text):
     writer = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
     writer.write(unicode_text)
 
+
 def increment_list(list_):
     """Adds one to every element in a list of integers. Returns a new list.
 
     """
     return [n + 1 for n in list_]
 
+
 def parse_dimensions(text, check_equal_num_choices=False):
     dimensions = []
     num_options = []
-    boxes = text.split(';')
+    boxes = text.split(";")
     for box in boxes:
-        dims = box.split(',')
+        dims = box.split(",")
         try:
             data = (int(dims[0]), int(dims[1]))
         except ValueError:
-            raise EyegradeException('Incorrect number in exam dimensions',
-                                    'bad_dimensions')
+            raise EyegradeException(
+                "Incorrect number in exam dimensions", "bad_dimensions"
+            )
         if data[0] <= 0 or data[1] <= 0:
-            raise EyegradeException('Incorrect number in exam dimensions',
-                                    'bad_dimensions')
+            raise EyegradeException(
+                "Incorrect number in exam dimensions", "bad_dimensions"
+            )
         dimensions.append(data)
         num_options.extend([data[0]] * data[1])
     if len(dimensions) == 0:
-        raise EyegradeException('Dimensions are empty', 'bad_dimensions')
+        raise EyegradeException("Dimensions are empty", "bad_dimensions")
     if check_equal_num_choices:
         for i in range(1, len(dimensions)):
             if dimensions[i][0] != dimensions[0][0]:
-                raise EyegradeException('', 'same_num_choices')
+                raise EyegradeException("", "same_num_choices")
     return dimensions, num_options
 
+
 # Regular expressions used for capture filename patterns
-regexp_id = re.compile('\{student-id\}')
-regexp_seqnum = re.compile('\{seq-number\}')
+regexp_id = re.compile("\{student-id\}")
+regexp_seqnum = re.compile("\{seq-number\}")
+
 
 def capture_name(filename_pattern, exam_id, student):
     if student is not None:
         sid = student.student_id
     else:
-        sid = 'noid'
+        sid = "noid"
     filename = regexp_seqnum.sub(str(exam_id), filename_pattern)
     filename = regexp_id.sub(sid, filename)
     return filename
+
 
 @contextlib.contextmanager
 def change_dir(directory):

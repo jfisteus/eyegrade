@@ -22,15 +22,17 @@ from PyQt5.QtGui import QColor
 
 from .. import utils
 
-t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
 
+
 class FileNameFilters:
-    exam_config = _('Exam configuration (*.eye)')
-    session_db = _('Eyegrade session (*.eyedb)')
-    student_list = _('Student list (*.xlsx *.csv *.tsv *.txt *.lst *.list)')
-    xlsx_file = _('Excel spreadsheet (*.xlsx)')
-    csv_file = _('Data file (*.csv *.tsv)')
+    exam_config = _("Exam configuration (*.eye)")
+    session_db = _("Eyegrade session (*.eyedb)")
+    student_list = _("Student list (*.xlsx *.csv *.tsv *.txt *.lst *.list)")
+    xlsx_file = _("Excel spreadsheet (*.xlsx)")
+    csv_file = _("Data file (*.csv *.tsv)")
+
 
 class Colors:
     eyegrade_blue = QColor(32, 73, 124)

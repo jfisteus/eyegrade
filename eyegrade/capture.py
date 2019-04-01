@@ -57,8 +57,9 @@ class CellGeometry:
 
 
 class ExamDecisions:
-    def __init__(self, success, answers, detected_id, id_scores, model=None,
-                 infobits=None):
+    def __init__(
+        self, success, answers, detected_id, id_scores, model=None, infobits=None
+    ):
         self.success = success
         self.answers = answers
         self.detected_id = detected_id
@@ -118,7 +119,7 @@ class ExamCapture:
         Returns (num_question, num_choice) or None if no cell corresponds.
 
         """
-        min_dst = float('inf')
+        min_dst = float("inf")
         num_question = None
         num_choice = None
         closest_cell = None
@@ -179,10 +180,9 @@ class ExamCapture:
         cv2.rectangle(self.image_drawn, p0, p1, _color_blue, thickness=-1)
 
     def _draw_answers_solutions(self, score):
-        for answer, solution, status, cells in zip(score.answers,
-                                                   score.solutions,
-                                                   score.answer_status,
-                                                   self.answer_cells):
+        for answer, solution, status, cells in zip(
+            score.answers, score.solutions, score.answer_status, self.answer_cells
+        ):
             if status == scoring.QuestionScores.CORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_good)
             elif status == scoring.QuestionScores.INCORRECT:
@@ -206,8 +206,9 @@ class ExamCapture:
         cv2.circle(self.image_drawn, cell.center, 4, color, thickness=-1)
 
     def _draw_void_question(self, cells):
-        cv2.line(self.image_drawn, cells[0].center, cells[-1].center,
-                 _color_bad, thickness=3)
+        cv2.line(
+            self.image_drawn, cells[0].center, cells[-1].center, _color_bad, thickness=3
+        )
 
 
 def save_image(filename, image):
