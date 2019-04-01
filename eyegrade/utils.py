@@ -213,8 +213,8 @@ class EyegradeException(Exception):
 
         """
         if (
-            not key in EyegradeException._error_messages
-            and not key in EyegradeException._short_messages
+            key not in EyegradeException._error_messages
+            and key not in EyegradeException._short_messages
         ):
             if detailed_message:
                 EyegradeException._error_messages[key] = detailed_message
@@ -376,7 +376,7 @@ def decode_model(bit_list, accept_model_0=False):
         return chr(
             65 + (int(bit_list[0]) | int(bit_list[1]) << 1 | int(bit_list[2]) << 2)
         )
-    elif accept_model_0 and max(bit_list) == False:
+    elif accept_model_0 and max(bit_list) is False:
         return "0"
     else:
         return None
@@ -469,8 +469,8 @@ def parse_dimensions(text, check_equal_num_choices=False):
 
 
 # Regular expressions used for capture filename patterns
-regexp_id = re.compile("\{student-id\}")
-regexp_seqnum = re.compile("\{seq-number\}")
+regexp_id = re.compile(r"\{student-id\}")
+regexp_seqnum = re.compile(r"\{seq-number\}")
 
 
 def capture_name(filename_pattern, exam_id, student):

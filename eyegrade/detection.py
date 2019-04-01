@@ -900,7 +900,7 @@ def read_infobits(image, corner_matrixes):
             )
             bits.append(decide_infobit(image, mask, center, dy))
     # Check validity
-    if min([b[0] ^ b[1] for b in bits]) == True:
+    if min([b[0] ^ b[1] for b in bits]) is True:
         return [b[0] for b in bits]
     else:
         return None

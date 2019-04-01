@@ -581,7 +581,7 @@ class SessionDB:
         row = cursor.fetchone()
         schema = row["db_schema_version"]
         version = row["eyegrade_version"]
-        if not schema in SessionDB.COMPATIBLE_SCHEMAS:
+        if schema not in SessionDB.COMPATIBLE_SCHEMAS:
             raise utils.EyegradeException(
                 "",
                 key="incompatible_schema",

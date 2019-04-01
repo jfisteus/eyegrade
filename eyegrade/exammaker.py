@@ -195,13 +195,13 @@ class ExamMaker:
         if self.exam_config is not None:
             if self.exam_config.dimensions == []:
                 self.exam_config.dimensions = self.dimensions
-            if model != "0" and not model in self.exam_config.models:
+            if model != "0" and model not in self.exam_config.models:
                 self.exam_config.models.append(model)
         if self.exam_questions is not None:
             if model != "0" and not self.survey_mode:
                 if (
                     self.exam_config is None
-                    or not model in self.exam_config.permutations
+                    or model not in self.exam_config.permutations
                     or (model in self.exam_config.permutations and shuffle)
                 ):
                     self.exam_questions.shuffle(model)
@@ -342,7 +342,7 @@ class ExamMaker:
 
     def _replace(self, key, replacements):
         if key in replacements:
-            if not replacements[key] and not key in self.empty_variables:
+            if not replacements[key] and key not in self.empty_variables:
                 self.empty_variables.append(key)
                 return ""
             else:

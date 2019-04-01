@@ -188,7 +188,7 @@ class ExamConfig:
             self.capture_pattern = utils.default_capture_pattern
 
     def add_model(self, model):
-        if not model in self.models:
+        if model not in self.models:
             self.models.append(model)
 
     def set_solutions(self, model, solutions):
@@ -311,7 +311,7 @@ class ExamConfig:
         if (
             self.scores_mode != ExamConfig.SCORES_MODE_WEIGHTS
             or self.base_scores is None
-            or not model in self.scores
+            or model not in self.scores
         ):
             return None
         elif not formatted:
@@ -697,7 +697,7 @@ class QuestionComponent:
         if (
             self.code is not None
             and self.annex_pos == "center"
-            and self.annex_width != None
+            and self.annex_width is not None
         ):
             raise Exception("Centered code cannot have width")
         if not self.in_choice and self.text is None:

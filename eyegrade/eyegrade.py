@@ -20,16 +20,6 @@
 # to be defined before importing the gettext module itself
 import os
 import locale
-
-if (
-    not os.getenv("LANG")
-    and not os.getenv("LANGUAGE")
-    and not os.getenv("LC_MESSAGES")
-    and not os.getenv("LC_ALL")
-):
-    lang, enc = locale.getdefaultlocale()
-    os.environ["LANG"] = lang
-
 import sys
 import time
 import webbrowser
@@ -43,6 +33,14 @@ from .qtgui import gui
 from . import sessiondb
 from . import export
 
+if (
+    not os.getenv("LANG")
+    and not os.getenv("LANGUAGE")
+    and not os.getenv("LC_MESSAGES")
+    and not os.getenv("LC_ALL")
+):
+    lang, enc = locale.getdefaultlocale()
+    os.environ["LANG"] = lang
 
 t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext

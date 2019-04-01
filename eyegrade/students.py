@@ -396,7 +396,7 @@ class StudentColumnMap:
             self.columns = list(columns)
 
     def set_column(self, index, column):
-        if not column in self.columns:
+        if column not in self.columns:
             self.columns[index] = column
             return True
         else:
