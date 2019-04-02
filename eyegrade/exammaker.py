@@ -359,7 +359,7 @@ def check_latex():
             subprocess.check_call(
                 ["pdflatex", "-version"], stdout=devnull, stderr=devnull
             )
-        except:
+        except subprocess.CalledProcessError:
             success = False
         else:
             success = True
@@ -594,11 +594,10 @@ def _table_top(num_tables, num_choices, compact, table_width=None, table_height=
         lines.append(r"\resizebox{!}{%fcm}{" % table_height)
     elif table_width is not None and table_height is not None:
         lines.append(r"\resizebox{%fcm}{%fcm}{" % (table_width, table_height))
-    l = middle_sep_format.join(
+    column_flags = middle_sep_format.join(
         num_tables * ["|".join(["r"] + num_choices * ["c"] + [""])]
     )
-    l = r"\begin{tabular}{" + l + "}"
-    lines.append(l)
+    lines.append(r"\begin{tabular}{" + column_flags + "}")
     parts = []
     for i in range(0, num_tables):
         parts_internal = []
@@ -632,7 +631,7 @@ def _build_row(
         elif geometry == -2:
             parts.append(infobits_row[1][i])
         else:
-            parts.append("\multicolumn{%d}{c}{}" % (1 + num_choices))
+            parts.append(r"\multicolumn{%d}{c}{}" % (1 + num_choices))
     row = " & & ".join(parts) if not compact else " & ".join(parts)
     return row + r" \\"
 

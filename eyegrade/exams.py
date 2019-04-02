@@ -410,7 +410,7 @@ class ExamConfig:
             exam_data.readfp(io.BytesIO(data))
         try:
             self.id_num_digits = exam_data.getint("exam", "id-num-digits")
-        except:
+        except ValueError:
             self.id_num_digits = 0
         self.set_dimensions(exam_data.get("exam", "dimensions"))
         has_solutions = exam_data.has_section("solutions")

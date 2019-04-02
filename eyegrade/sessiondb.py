@@ -983,7 +983,7 @@ def check_file_is_sqlite(filename):
             is_sqlite = True
         else:
             is_sqlite = False
-    except:
+    except IOError:
         is_sqlite = False
     return is_sqlite
 
