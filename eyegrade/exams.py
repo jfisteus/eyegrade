@@ -725,7 +725,7 @@ def shuffle(data):
     to_sort = [(random.random(), item, pos) for pos, item in enumerate(data)]
     shuffled_data = []
     permutations = []
-    for val, item, pos in sorted(to_sort):
+    for _, item, pos in sorted(to_sort):
         shuffled_data.append(item)
         permutations.append(pos)
     return shuffled_data, permutations

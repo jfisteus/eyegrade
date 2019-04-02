@@ -325,7 +325,7 @@ class NewSessionPageExamAnswers(QWizardPage):
                 mygroupboxCol = QGroupBox()
                 myformCol = QFormLayout()
                 mygroupboxCol.setLayout(myformCol)
-                for y in range(int(col)):
+                for _ in range(int(col)):
                     ansID += 1
                     radioGroupList[ansID] = QButtonGroup()
                     layoutRow = QHBoxLayout()
@@ -525,26 +525,20 @@ class NewSessionPageScores(QWizardPage):
     def _update_combo(self, new_index):
         if new_index != self.current_mode:
             # Ask the user if changes to weights may be lost
-            if self.current_mode == 2 and self.weights_table.model().changes:
-                if not self._show_warning_weights_reset():
-                    self.combo.setCurrentIndex(self.current_mode)
-                    return
+            if (
+                self.current_mode == 2
+                and self.weights_table.model().changes
+                and not self._show_warning_weights_reset()
+            ):
+                self.combo.setCurrentIndex(self.current_mode)
+                return
             self.button_reset.setEnabled(False)
             if new_index == 0:
-                for widget in self.base_score_widgets:
-                    widget.setEnabled(False)
-                for widget in self.weights_widgets:
-                    widget.setEnabled(False)
+                self._enable_weights_widgets(False, False)
             elif new_index == 1:
-                for widget in self.base_score_widgets:
-                    widget.setEnabled(True)
-                for widget in self.weights_widgets:
-                    widget.setEnabled(False)
+                self._enable_weights_widgets(True, False)
             else:
-                for widget in self.base_score_widgets:
-                    widget.setEnabled(True)
-                for widget in self.weights_widgets:
-                    widget.setEnabled(True)
+                self._enable_weights_widgets(True, True)
             # Reset the weights table
             if self.current_mode == 2:
                 self.weights_table.model().clear()
@@ -554,6 +548,12 @@ class NewSessionPageScores(QWizardPage):
             if new_index == 0:
                 self.clear_base_scores()
             self.current_mode = new_index
+
+    def _enable_weights_widgets(self, enable_base_scores, enable_weights):
+        for widget in self.base_score_widgets:
+            widget.setEnabled(enable_base_scores)
+        for widget in self.weights_widgets:
+            widget.setEnabled(enable_weights)
 
     def _reset_weights(self):
         if self.weights_table.model().changes and self._show_warning_weights_reset():

@@ -599,10 +599,10 @@ def _table_top(num_tables, num_choices, compact, table_width=None, table_height=
     )
     lines.append(r"\begin{tabular}{" + column_flags + "}")
     parts = []
-    for i in range(0, num_tables):
+    for _ in range(num_tables):
         parts_internal = []
         parts_internal.append(r"\multicolumn{1}{c}{}")
-        for j in range(0, num_choices):
+        for j in range(num_choices):
             parts_internal.append(r"\multicolumn{1}{c}{%s}" % chr(65 + j))
         parts.append(" & ".join(parts_internal))
     lines.append(middle_sep_header.join(parts) + r" \\")
@@ -683,7 +683,7 @@ def format_questions(exam, model, with_solution=False):
         data.append("\\end{enumerate}\n")
         if model != "0":
             data.append("\n\n% solutions: ")
-            solutions, permutations = exam.solutions_and_permutations(model)
+            solutions, _ = exam.solutions_and_permutations(model)
             data.append(" ".join([str(n) for n in solutions]))
             data.append("\n")
     return "".join(data)
