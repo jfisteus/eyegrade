@@ -100,7 +100,7 @@ class ImageChangeTask:
         self.reference_image = reference_image
 
     def run(self):
-        self.detector.exam_detected()
+        self.detector.try_to_detect()
         self.detector = None
 
 
@@ -375,7 +375,7 @@ class ProgramManager:
         ):
             return
         exam_removed = False
-        if image.exam_detected:
+        if image.try_to_detect:
             period = capture_change_period
             self.change_failures = 0
         else:
@@ -446,7 +446,7 @@ class ProgramManager:
                 self.sessiondb = sessiondb.SessionDB(values["directory"])
                 self.sessiondb.capture_save_func = self.interface.save_capture
             except IOError as e:
-                self.interface.show_error(_("Input/output error:") + " " + e.message)
+                self.interface.show_error(_("Input/output error:") + " " + str(e))
             except utils.EyegradeException as e:
                 self.interface.show_error(_("Error:") + " " + str(e))
             else:

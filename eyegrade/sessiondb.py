@@ -190,7 +190,7 @@ class SessionDB:
     def close(self):
         self.conn.close()
 
-    def store_exam(self, exam_id, capture, decisions, score, store_captures=True):
+    def store_exam(self, exam_id, exam_capture, decisions, score, store_captures=True):
         student_db_id = self._student_db_id(decisions.student)
         cursor = self.conn.cursor()
         cursor.execute(
@@ -207,13 +207,13 @@ class SessionDB:
         )
         if decisions.answers is not None:
             self._store_answers(exam_id, decisions.answers, commit=False)
-            self._store_answer_cells(exam_id, capture.answer_cells, commit=False)
-        if capture.id_cells:
-            self._store_id_cells(exam_id, capture.id_cells, commit=False)
+            self._store_answer_cells(exam_id, exam_capture.answer_cells, commit=False)
+        if exam_capture.id_cells:
+            self._store_id_cells(exam_id, exam_capture.id_cells, commit=False)
         self.conn.commit()
         if store_captures:
-            self.save_raw_capture(exam_id, capture, decisions.student)
-            self.save_drawn_capture(exam_id, capture, decisions.student)
+            self.save_raw_capture(exam_id, exam_capture, decisions.student)
+            self.save_drawn_capture(exam_id, exam_capture, decisions.student)
 
     def remove_exam(self, exam_id):
         cursor = self.conn.cursor()
@@ -227,16 +227,16 @@ class SessionDB:
         self.remove_raw_capture(exam_id, student)
 
     def update_answer(
-        self, exam_id, question, capture, decisions, score, store_captures=True
+        self, exam_id, question, exam_capture, decisions, score, store_captures=True
     ):
         new_answer = decisions.answers[question]
         self._update_answer(exam_id, question, new_answer, commit=False)
         self._update_score(exam_id, score, commit=False)
         self.conn.commit()
         if store_captures:
-            self.save_drawn_capture(exam_id, capture, decisions.student)
+            self.save_drawn_capture(exam_id, exam_capture, decisions.student)
 
-    def update_student(self, exam_id, capture, decisions, store_captures=True):
+    def update_student(self, exam_id, exam_capture, decisions, store_captures=True):
         new_student_db_id = self._student_db_id(decisions.student)
         old_student = self._read_student_by_exam(exam_id)
         cursor = self.conn.cursor()
@@ -247,7 +247,7 @@ class SessionDB:
         self.conn.commit()
         self.remove_drawn_capture(exam_id, old_student)
         if store_captures:
-            self.save_drawn_capture(exam_id, capture, decisions.student)
+            self.save_drawn_capture(exam_id, exam_capture, decisions.student)
 
     def _store_new_student(self, student):
         if student.group_id is None:
@@ -539,19 +539,19 @@ class SessionDB:
             cells.append(_create_cell_from_row(row, is_id_cell=True))
         return cells
 
-    def save_drawn_capture(self, exam_id, capture, student):
+    def save_drawn_capture(self, exam_id, exam_capture, student):
         name = utils.capture_name(self.exam_config.capture_pattern, exam_id, student)
         drawn_name = os.path.join(self.session_dir, "captures", name)
         if self.capture_save_func:
             self.capture_save_func(drawn_name)
         else:
-            capture.save_image_drawn(drawn_name)
+            exam_capture.save_image_drawn(drawn_name)
 
-    def save_raw_capture(self, exam_id, capture, student):
+    def save_raw_capture(self, exam_id, exam_capture, student):
         raw_name = os.path.join(
             self.session_dir, "internal", "raw-{0}.png".format(exam_id)
         )
-        capture.save_image_raw(raw_name)
+        exam_capture.save_image_raw(raw_name)
 
     def load_raw_capture(self, exam_id):
         return images.load_image(self.get_raw_capture_path(exam_id))
@@ -782,7 +782,7 @@ class SessionDB:
         data = []
         for i, answer in enumerate(answers):
             data.append((exam_id, i, answer))
-        if len(data) > 0:
+        if data:
             cursor = self.conn.cursor()
             cursor.executemany("INSERT INTO Answers VALUES (?, ?, ?)", data)
             if commit:
@@ -809,7 +809,7 @@ class SessionDB:
                     cell.prd[1],
                 )
                 data.append(item)
-        if len(data) > 0:
+        if data:
             cursor = self.conn.cursor()
             cursor.executemany(
                 "INSERT INTO AnswerCells VALUES "

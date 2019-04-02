@@ -169,7 +169,7 @@ class ExamCapture:
                 self._draw_answers_no_solutions(score)
 
     def _draw_status_bar(self):
-        x0 = images.width(self.image_drawn) - 60
+        x0 = images.get_width(self.image_drawn) - 60
         y0 = 10
         width = 50
         height = 20

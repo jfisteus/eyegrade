@@ -154,15 +154,15 @@ class ExamDetector:
             self.status["boxes"] = True
             axes = filter_axes(
                 axes,
-                images.width(self.image_raw),
-                images.height(self.image_raw),
+                images.get_width(self.image_raw),
+                images.get_height(self.image_raw),
                 self.options["read-id"],
             )
             corner_matrixes = cell_corners(
                 axes[1][1],
                 axes[0][1],
-                images.width(self.image_raw),
-                images.height(self.image_raw),
+                images.get_width(self.image_raw),
+                images.get_height(self.image_raw),
                 self.dimensions,
             )
             if len(corner_matrixes) > 0:
@@ -257,7 +257,7 @@ class ExamDetector:
         self.success = success
         return success
 
-    def exam_detected(self):
+    def try_to_detect(self):
         """Checks if the image has a probable exam.
 
         Sets `self.exam_detected` to True if an exam is detected as
@@ -389,14 +389,14 @@ class ExamDetector:
         color_bad = (0, 0, 255)
         y = 75
         width = 24
-        x = images.width(self.image_to_show) - 5 - len(flags) * width
+        x = images.get_width(self.image_to_show) - 5 - len(flags) * width
         for letter, value in flags:
             color = color_good if value else color_bad
             images.draw_text(self.image_to_show, letter, color, (x, y))
             x += width
 
     def _draw_hough_threshold(self):
-        pos = (images.width(self.image_to_show) - 77, 110)
+        pos = (images.get_width(self.image_to_show) - 77, 110)
         images.draw_text(
             self.image_to_show, str(self.context.get_hough_threshold()), position=pos
         )
@@ -886,7 +886,7 @@ def check_corners(corner_matrixes, width, height):
 
 
 def read_infobits(image, corner_matrixes):
-    mask = images.new_image(images.width(image), images.height(image), 1)
+    mask = images.new_image(images.get_width(image), images.get_height(image), 1)
     bits = []
     for corners in corner_matrixes:
         for i in range(1, len(corners[0])):
@@ -956,12 +956,12 @@ def id_boxes_geometry(image, num_cells, lines, dimensions):
         return None, None
     # Now, adjust corners
     pairs_left, pairs_right = line_bounds_adaptive(
-        image, hlines[0], hlines[1], images.width(image), 5
+        image, hlines[0], hlines[1], images.get_width(image), 5
     )
     all_bounds = [(l[0], r[0], l[1], r[1]) for l in pairs_left for r in pairs_right]
     for bounds in all_bounds[:5]:
         corners = id_boxes_check_points(
-            image, bounds, hlines, images.width(image), num_cells
+            image, bounds, hlines, images.get_width(image), num_cells
         )
         if corners is not None:
             success = True
@@ -1179,7 +1179,7 @@ def line_bounds(image, line, iwidth):
     p1 = g.line_point(line, x=iwidth - 1)
     if p1[1] < 0:
         p1 = g.line_point(line, y=0)
-    image_dimensions = (images.width(image), images.height(image))
+    image_dimensions = (images.get_width(image), images.get_height(image))
     if not g.point_is_valid(p0, image_dimensions) or not g.point_is_valid(
         p1, image_dimensions
     ):
