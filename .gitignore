@@ -3,9 +3,14 @@ todo/todo.org*
 *~
 error-*.png
 eyegrade-errors.log
+doc/user-manual/index.html
 build/
 dist/
 notebooks/
 venv*/
+.python-version
+.vscode
+*.po.new
+installers/windows/certs/*
 tmp/
 MANIFEST
