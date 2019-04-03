@@ -598,7 +598,7 @@ class MainWindow(QMainWindow):
 
 
 class Interface:
-    def __init__(self, app, id_enabled, id_list_enabled, argv, preferred_styles=None):
+    def __init__(self, app, id_enabled, id_list_enabled, preferred_styles=None):
         self.app = app
         self.id_enabled = id_enabled
         self.id_list_enabled = id_list_enabled
@@ -618,7 +618,7 @@ class Interface:
 
     def set_manual_detect_enabled(self, enabled):
         self.manual_detect_enabled = enabled
-        self.actions_manager.set_manual_detect_enabled(enabled)
+        self.actions_manager.enable_manual_detect(enabled)
 
     def activate_search_mode(self):
         self.actions_manager.set_search_mode()
@@ -881,7 +881,7 @@ class Interface:
         """
         QMessageBox.critical(self.window, title, message)
 
-    def show_warning(self, message, title="Warning", is_question=True):
+    def show_warning(self, message, is_question=True):
         """Displays a warning dialog.
 
         Returns True if the the user accepts and False otherwise.

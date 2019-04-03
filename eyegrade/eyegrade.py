@@ -894,7 +894,7 @@ def main():
         filename = None
     try:
         interface = gui.Interface(
-            app, False, False, [], preferred_styles=utils.config["gui-styles"]
+            app, False, False, preferred_styles=utils.config["gui-styles"]
         )
         manager = ProgramManager(interface, session_file=filename)
         manager.run()
