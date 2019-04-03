@@ -187,6 +187,28 @@ class ExamConfig:
         else:
             self.capture_pattern = utils.default_capture_pattern
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            equal = self.as_tuple() == other.as_tuple()
+        else:
+            equal = False
+        return equal
+
+    def as_tuple(self):
+        return (
+            self.num_questions,
+            self.solutions,
+            self.id_num_digits,
+            self.dimensions,
+            self.permutations,
+            self.models,
+            self.scores,
+            self.base_scores,
+            self.left_to_right_numbering,
+            self.survey_mode,
+            self.scores_mode,
+        )
+
     def add_model(self, model):
         if model not in self.models:
             self.models.append(model)
@@ -367,7 +389,7 @@ class ExamConfig:
             raise ValueError("Scores with an incorrect number of questions")
         if self.scores and sorted(scores) != sorted(next(iter(self.scores.values()))):
             #        if self.scores and sorted(scores) != sorted(self.scores.values()[0]):
-            raise ValueError("Scores for all models must be equal " "but their order")
+            raise ValueError("Scores for all models must be equal but their order")
         self.scores[model] = scores
         self.add_model(model)
 
@@ -454,7 +476,7 @@ class ExamConfig:
             self.scores_mode = ExamConfig.SCORES_MODE_NONE
         else:
             raise Exception(
-                "Exam config must contain correct and incorrect " "weight or none"
+                "Exam config must contain correct and incorrect weight or none"
             )
         if exam_data.has_option("exam", "left-to-right-numbering"):
             self.left_to_right_numbering = exam_data.getboolean(
@@ -725,7 +747,7 @@ def shuffle(data):
     to_sort = [(random.random(), item, pos) for pos, item in enumerate(data)]
     shuffled_data = []
     permutations = []
-    for _, item, pos in sorted(to_sort):
+    for __, item, pos in sorted(to_sort):
         shuffled_data.append(item)
         permutations.append(pos)
     return shuffled_data, permutations

@@ -121,7 +121,7 @@ class StudentGroup:
 class GroupListing:
     def __init__(self, group, students):
         self.group = group
-        self.students = students
+        self.students = list(students)
         self.parent = None
         self._students_dict = {s.student_id: s for s in students}
 
@@ -129,7 +129,7 @@ class GroupListing:
         return self._students_dict.get(student_id, None)
 
     def add_students(self, students):
-        if len(students) > 0:
+        if students:
             if self.parent is not None:
                 duplicates = self.parent.find_duplicates(students)
             else:
@@ -279,6 +279,8 @@ class StudentReader:
     def __init__(self, file_name, column_map=None):
         self.file_name = file_name
         self.column_map = column_map
+        # To be overwritten by subclasses:
+        self.iterator = iter([])
 
     @staticmethod
     def create(file_name):

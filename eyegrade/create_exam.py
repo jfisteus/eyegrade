@@ -283,7 +283,7 @@ def create_exam():
     else:
         exam = None
         if options.dimensions is not None:
-            dimensions, _ = utils.parse_dimensions(options.dimensions, True)
+            dimensions, __ = utils.parse_dimensions(options.dimensions, True)
             num_choices = dimensions[0][0]
             num_questions = sum([d[1] for d in dimensions])
             if options.num_choices is not None and options.num_choices != num_choices:

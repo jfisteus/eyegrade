@@ -175,7 +175,7 @@ class SessionDB:
         self.schema_version = self._check_schema()
         self.exam_config = self._load_exam_config()
         self._compute_num_questions_and_choices()
-        self.capture_save_func = None
+        self.capture_save_func = lambda name: None
         self._student_listings = None
 
     @property
@@ -255,7 +255,7 @@ class SessionDB:
         listing = self.student_listings.listing_by_group_id(student.group_id)
         listing.add_students((student,))
 
-    def _store_students(self, student_list, commit=True):
+    def store_students(self, student_list, commit=True):
         cursor = self.conn.cursor()
         data = []
         # Insert one by one with execute() instead of using executemany()
@@ -389,7 +389,7 @@ class SessionDB:
         else:
             return 1
 
-    def save_legacy_answers(self, csv_dialect):
+    def save_legacy_answers(self):
         file_name = os.path.join(self.session_dir, "eyegrade-answers.csv")
         file_format = export.FileFormat.CSV_TABS
         with export.create_writer(file_name, file_format) as writer:
@@ -709,9 +709,7 @@ class SessionDB:
             scores = {}
         models = []
         model = None
-        for row in cursor.execute(
-            "SELECT * FROM Questions " "ORDER BY model, question"
-        ):
+        for row in cursor.execute("SELECT * FROM Questions ORDER BY model, question"):
             if row["model"] != model:
                 model = row["model"]
                 models.append(model)
@@ -732,10 +730,10 @@ class SessionDB:
             if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 model_weights.append(row["score_weight"])
             elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
-                model_scores = scoring.QuestionScores(
+                question_scores = scoring.QuestionScores(
                     row["score_correct"], row["score_incorrect"], row["score_blank"]
                 )
-                model_scores.append(scores)
+                model_scores.append(question_scores)
         for m in models:
             model = _Adapter.dec_model(m)
             if solutions[m][0] is not None:
@@ -924,7 +922,7 @@ class GroupListingFromDB(students.GroupListing):
 
     def add_students(self, student_list):
         super().add_students(student_list)
-        self.sessiondb._store_students(student_list)
+        self.sessiondb.store_students(student_list)
 
     def rename(self, new_name):
         super().rename(new_name)

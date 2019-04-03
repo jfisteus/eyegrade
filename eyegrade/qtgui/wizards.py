@@ -325,7 +325,7 @@ class NewSessionPageExamAnswers(QWizardPage):
                 mygroupboxCol = QGroupBox()
                 myformCol = QFormLayout()
                 mygroupboxCol.setLayout(myformCol)
-                for _ in range(int(col)):
+                for __ in range(int(col)):
                     ansID += 1
                     radioGroupList[ansID] = QButtonGroup()
                     layoutRow = QHBoxLayout()

@@ -507,7 +507,7 @@ class ProgramManager:
                 return
         if self.mode.in_grading() or self.mode.in_review_from_session():
             self._stop_grading()
-        self.sessiondb.save_legacy_answers(self.config["csv-dialect"])
+        self.sessiondb.save_legacy_answers()
         self.sessiondb.close()
         self.mode.enter_no_session()
         self.sessiondb = None
@@ -518,7 +518,7 @@ class ProgramManager:
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
         if self.mode.in_manual_detect():
-            exit = self.interface.show_warning(
+            exit_ = self.interface.show_warning(
                 _(
                     "The current capture has not been saved and will be lost. "
                     "Are you sure you want to exit the application?"
@@ -527,13 +527,13 @@ class ProgramManager:
             )
         elif self.mode.in_grading() or self.mode.in_review_from_session():
             self._stop_grading()
-            exit = True
+            exit_ = True
         else:
-            exit = True
+            exit_ = True
         if exit and self.sessiondb is not None:
-            self.sessiondb.save_legacy_answers(self.config["csv-dialect"])
+            self.sessiondb.save_legacy_answers()
             self.sessiondb.close()
-        return exit
+        return exit_
 
     def _action_start(self):
         if self.mode.in_review_from_session():
