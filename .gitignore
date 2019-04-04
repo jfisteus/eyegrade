@@ -14,3 +14,5 @@ venv*/
 installers/windows/certs/*
 tmp/
 MANIFEST
+.eggs
+*.egg-info
