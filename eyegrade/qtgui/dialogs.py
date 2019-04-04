@@ -30,12 +30,14 @@ from PyQt5.QtWidgets import (
     QSpinBox,
     QTabWidget,
     QVBoxLayout,
+    QComboBox,
 )
 
 from PyQt5.QtCore import QTimer, Qt, pyqtSignal
 
 from . import widgets
 from .. import utils
+from .. import detection
 
 t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
@@ -124,12 +126,22 @@ class DialogCameraSelection(QDialog):
         self.button = QPushButton(_("Try this camera"))
         self.camera_selector = QSpinBox(self)
         container = widgets.LineContainer(self, self.camera_selector, self.button)
+        self.flip_combo = QComboBox(parent=self)
+        self.flip_combo.addItem(_("No"))
+        self.flip_combo.addItem(_("Horizontally"))
+        self.flip_combo.addItem(_("Vertically"))
+        self.flip_combo.addItem(_("Both axes"))
+        flip_container = widgets.LineContainer(
+            self, QLabel(_("Flip image")), self.flip_combo
+        )
         self.button.clicked.connect(self._select_camera)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok)
         buttons.accepted.connect(self.accept)
+        self.flip_combo.currentIndexChanged.connect(self._flip_changed)
         layout.addWidget(self.camview)
         layout.addWidget(self.label)
         layout.addWidget(container)
+        layout.addWidget(flip_container)
         layout.addWidget(buttons)
         self.camera_error.connect(self._show_camera_error, type=Qt.QueuedConnection)
         self.timer = None
@@ -176,6 +188,8 @@ class DialogCameraSelection(QDialog):
                         _("Camera not available"),
                         _("Camera {0} is not available.").format(new_camera),
                     )
+                else:
+                    self.flip_combo.setCurrentIndex(0)
 
     def _update_camera_label(self):
         camera_id = self.capture_context.current_camera_id()
@@ -186,6 +200,19 @@ class DialogCameraSelection(QDialog):
             self.camera_selector.setValue(camera_id)
         else:
             self.label.setText(_("<center>No camera</center>"))
+
+    def _flip_changed(self, index):
+        if index == 0:
+            transformation = detection.ImageTransformer.IDENTITY
+        elif index == 1:
+            transformation = detection.ImageTransformer.FLIP_H
+        elif index == 2:
+            transformation = detection.ImageTransformer.FLIP_V
+        elif index == 3:
+            transformation = detection.ImageTransformer.FLIP_BOTH
+        self.capture_context.image_transformer = detection.ImageTransformer(
+            transformation
+        )
 
     def _next_capture(self):
         if not self.isVisible():

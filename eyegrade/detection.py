@@ -408,14 +408,52 @@ class ExamDetector:
                     images.draw_point(self.image_to_show, c)
 
 
+class ImageTransformer:
+    """ Apply transformations to the image captured by the webcam.
+
+    Available transformations are: flipping around the x axis, the y axis or both.
+
+    By default, no transformation gets applied.
+
+    """
+
+    IDENTITY = 2
+    FLIP_V = 0
+    FLIP_H = 1
+    FLIP_BOTH = -1
+
+    def __init__(self, transformation):
+        if transformation < -1 or transformation > 2:
+            raise ValueError("Unknown transformation: {}".format(transformation))
+        self.transformation = transformation
+
+    def transform(self, image):
+        """ Apply the configured transformation to an image and return a new image.
+
+        In case of the identity transformation, a reference to the same image is returned
+        (it isn't copied into a new image).
+
+        """
+        if self.transformation == ImageTransformer.IDENTITY:
+            dst_image = image
+        else:
+            dst_image = cv2.flip(image, self.transformation)
+        return dst_image
+
+
 class ExamDetectorContext:
     """ Class intended for persistency of data accross several
         ExamCapture objects.
 
     """
 
-    def __init__(self, camera_id=-1, fixed_hough_threshold=None):
-        """Creates a new camera capture context.
+    def __init__(
+        self,
+        camera_id=-1,
+        fixed_hough_threshold=None,
+        image_transformer=ImageTransformer(ImageTransformer.IDENTITY),
+    ):
+        """ Creates a new camera capture context.
 
         A default initial camera can be specified with `camera_id` (an
         integer). Pass -1 (the default value) for letting this object
@@ -431,6 +469,7 @@ class ExamDetectorContext:
         self.camera = None
         self.camera_id = camera_id
         self.threshold_locked = False
+        self.image_transformer = image_transformer
         self.ocr = classifiers.DefaultDigitClassifier()
         self.crosses_classifier = classifiers.DefaultCrossesClassifier()
 
@@ -483,6 +522,10 @@ class ExamDetectorContext:
             return True
         else:
             return False
+
+    def apply_image_transfomer(self, image_transfomer):
+        """ Use the given image tranformer from now on."""
+        self.image_transformer = image_transfomer
 
     def lock_threshold(self):
         self.threshold_locked = True
@@ -542,7 +585,7 @@ class ExamDetectorContext:
                 image = np.zeros((480, 640, 3), dtype=np.uint8)
             if resize is not None:
                 image = cv2.resize(image, resize, interpolation=cv2.INTER_AREA)
-        return image
+        return self.image_transformer.transform(image)
 
     def dump_buffer(self, delay_suffered):
         if self.camera is not None and delay_suffered > 0.1:
