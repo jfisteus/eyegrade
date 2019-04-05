@@ -29,8 +29,7 @@ program_name = "eyegrade"
 web_location = "https://www.eyegrade.org/"
 source_location = "https://github.com/jfisteus/eyegrade"
 help_location = "https://www.eyegrade.org/doc/user-manual/"
-version = "0.8.1"
-version_status = "alpha"
+version = "0.9.dev1"
 
 re_model_letter = re.compile("[0a-zA-Z]")
 
