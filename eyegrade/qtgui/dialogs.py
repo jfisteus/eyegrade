@@ -131,6 +131,7 @@ class DialogCameraSelection(QDialog):
         self.flip_combo.addItem(_("Horizontally"))
         self.flip_combo.addItem(_("Vertically"))
         self.flip_combo.addItem(_("Both axes"))
+        self._init_flip_combo()
         flip_container = widgets.LineContainer(
             self, QLabel(_("Flip image")), self.flip_combo
         )
@@ -213,6 +214,17 @@ class DialogCameraSelection(QDialog):
         self.capture_context.image_transformer = detection.ImageTransformer(
             transformation
         )
+
+    def _init_flip_combo(self):
+        transformation = self.capture_context.image_transformer.transformation
+        if transformation == detection.ImageTransformer.IDENTITY:
+            self.flip_combo.setCurrentIndex(0)
+        elif transformation == detection.ImageTransformer.FLIP_H:
+            self.flip_combo.setCurrentIndex(1)
+        elif transformation == detection.ImageTransformer.FLIP_V:
+            self.flip_combo.setCurrentIndex(2)
+        elif transformation == detection.ImageTransformer.FLIP_BOTH:
+            self.flip_combo.setCurrentIndex(3)
 
     def _next_capture(self):
         if not self.isVisible():
