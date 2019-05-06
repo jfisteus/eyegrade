@@ -211,7 +211,12 @@ class ExportItems(QWidget):
                 "exam_id",
                 LabelledCheckBox(_("Exam sequence number"), self, checked=survey_mode),
             ),
-            ("model", LabelledCheckBox(_("Exam model letter"), self, checked=False)),
+            (
+                "model",
+                LabelledCheckBox(
+                    _("Exam model letter"), self, checked=False, enabled=not survey_mode
+                ),
+            ),
             (
                 "correct",
                 LabelledCheckBox(

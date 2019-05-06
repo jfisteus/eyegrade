@@ -410,7 +410,10 @@ class ProgramManager:
     def _process_capture(self, detector):
         """Processes a captured image."""
         exam = None
-        if detector.status["infobits"]:
+        if detector.status["infobits"] or not self.detection_options["infobits"]:
+            if not self.detection_options["infobits"]:
+                # If models are configured not to be detected, assume the default model "A"
+                detector.decisions.model = "A"
             model = detector.decisions.model
             if model is not None:
                 if model in self.exam_data.solutions or self.exam_data.survey_mode:
@@ -791,6 +794,8 @@ class ProgramManager:
     def _start_grading(self):
         exam_data = self.exam_data
         self.detection_options = detection.ExamDetector.get_default_options()
+        if self.exam_data.survey_mode:
+            self.detection_options["infobits"] = False
         self.detection_options["error-logging"] = self.config["error-logging"]
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
             self.detection_options["read-id"] = True
