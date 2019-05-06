@@ -107,7 +107,8 @@ class Exam:
 
         """
         if (
-            len(self.decisions.students_rank) > 0
+            self.decisions.students_rank
+            and self.decisions.student is not None
             and self.decisions.students_rank[0] != self.decisions.student
         ):
             rank = list(self.decisions.students_rank)

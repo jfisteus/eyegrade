@@ -415,11 +415,15 @@ class SessionDB:
                 writer.set_sheet_title(title)
                 if export_helper.add_column_headers:
                     writer.append_row(column_headers)
-                for exam in self.grades_iterator(
-                    all_students=export_helper.all_students,
-                    sort_key=export_helper.sort_by,
-                    student_group=group,
-                ):
+                if export_helper.export_by_exam:
+                    iterator = self.exams_iterator()
+                else:
+                    iterator = self.grades_iterator(
+                        all_students=export_helper.all_students,
+                        sort_key=export_helper.sort_by,
+                        student_group=group,
+                    )
+                for exam in iterator:
                     writer.append_row(export_helper.data(exam))
 
     def exams_iterator(self):
@@ -429,17 +433,15 @@ class SessionDB:
             "exam_id, student_id, model, "
             "correct, incorrect, score "
             "FROM Exams "
-            "LEFT JOIN Students ON student = db_id"
+            "LEFT JOIN Students ON student = db_id "
+            "ORDER BY exam_id"
         ):
             exam = dict(row)
             exam["model"] = _Adapter.dec_model(exam["model"])
             exam["answers"] = self.read_answers(exam["exam_id"])
             yield exam
 
-    def grades_iterator(
-        self, all_students=True, sort_key=export.SortBy.STUDENT_LIST, student_group=None
-    ):
-        cursor = self.conn.cursor()
+    def _grades_iterator_query(self, all_students, sort_key, student_group):
         if all_students:
             join_type = "LEFT"
         else:
@@ -457,7 +459,7 @@ class SessionDB:
             where_clause = "WHERE group_id = {0.identifier} ".format(student_group)
         else:
             where_clause = ""
-        query = (
+        return (
             "SELECT "
             "* "
             "FROM Students "
@@ -465,19 +467,35 @@ class SessionDB:
             "{1}"
             "{2}"
         ).format(join_type, where_clause, sort_clause)
+
+    def grades_iterator(
+        self,
+        all_students=True,
+        sort_key=export.SortBy.STUDENT_LIST,
+        student_group=None,
+        by_exams=False,
+    ):
+        if by_exams:
+            query = (
+                "SELECT "
+                "* "
+                "FROM Exams "
+                "LEFT JOIN Students ON student = db_id "
+                "ORDER BY exam_id"
+            )
+        else:
+            query = self._grades_iterator_query(all_students, sort_key, student_group)
+        cursor = self.conn.cursor()
         for row in cursor.execute(query):
             student = self._student_from_row(row)
             exam = {"student": student}
             for key in ("exam_id", "model", "correct", "incorrect", "score"):
                 exam[key] = row[key]
-            if exam["correct"] is not None:
-                exam["model"] = _Adapter.dec_model(exam["model"])
-                exam["answers"] = self.read_answers(exam["exam_id"])
-            else:
-                exam["answers"] = ""
-            for k, v in exam.items():
-                if v is None:
-                    exam[k] = ""
+            exam["model"] = _Adapter.dec_model(exam["model"])
+            exam["answers"] = self.read_answers(exam["exam_id"])
+            for key, value in exam.items():
+                if value is None:
+                    exam[key] = ""
             yield exam
 
     def read_answers(self, exam_id):
@@ -967,7 +985,7 @@ class _Adapter:
     def dec_model(model_number):
         if model_number == 0:
             return "0"
-        elif model_number == -1:
+        elif model_number == -1 or model_number is None:
             return None
         else:
             return chr(64 + model_number)

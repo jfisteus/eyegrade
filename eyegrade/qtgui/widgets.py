@@ -170,7 +170,7 @@ class StatusBar(QStatusBar):
 class LabelledCheckBox(QWidget):
     """A checkbox with a label."""
 
-    def __init__(self, label_text, parent, checked=False):
+    def __init__(self, label_text, parent, checked=False, enabled=True):
         """Creates a new instance.
 
         :param label: The label to show with the checkbox.
@@ -182,6 +182,7 @@ class LabelledCheckBox(QWidget):
         layout = QHBoxLayout(self)
         self.checkbox = QCheckBox(parent=self)
         self.checkbox.setChecked(checked)
+        self.checkbox.setEnabled(enabled)
         layout.addWidget(self.checkbox, alignment=Qt.AlignLeft)
         layout.addWidget(
             QLabel(label_text, parent=self), stretch=1, alignment=Qt.AlignLeft

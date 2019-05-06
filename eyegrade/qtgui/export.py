@@ -66,11 +66,20 @@ class DialogExportGrades(QDialog):
         self.type_combo.addItem(_("Tabs-separated file"))
         self.students_combo = QComboBox(parent=self)
         self.students_combo.addItem(_("All the students in the list"))
-        self.students_combo.addItem(_("Only the students who attended" " the exam"))
+        self.students_combo.addItem(_("Only the students who attended the exam"))
         self.sort_combo = QComboBox(parent=self)
         self.sort_combo.addItem(_("Student list"))
         self.sort_combo.addItem(_("Last name"))
         self.sort_combo.addItem(_("Exam grading sequence"))
+        if not student_groups:
+            if not helper.survey_mode:
+                self.students_combo.addItem(_("All the exams"))
+            else:
+                self.students_combo.addItem(_("All the surveys"))
+            self.students_combo.setCurrentIndex(2)
+            self.students_combo.setEnabled(False)
+            self.sort_combo.setCurrentIndex(2)
+            self.sort_combo.setEnabled(False)
         if len(student_groups) > 1:
             self.groups_combo = QComboBox(parent=self)
             self.groups_combo.addItem(_("All groups (one sheet)"))
@@ -83,7 +92,7 @@ class DialogExportGrades(QDialog):
         self.headers_checkbox = LabelledCheckBox(
             _("Add column headers"), self, checked=True
         )
-        self.export_items = ExportItems(self)
+        self.export_items = ExportItems(helper.survey_mode, len(student_groups), self)
         buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -120,8 +129,10 @@ class DialogExportGrades(QDialog):
                         self.helper.export_group(idx - 2)
                     else:
                         self.helper.export_all_groups(idx == 0)
-                else:
+                elif self.helper.student_groups:
                     self.helper.export_group(0)
+                else:
+                    self.helper.export_all_exams()
                 idx = self.sort_combo.currentIndex()
                 if idx == 0:
                     self.helper.sort_by = export.SortBy.STUDENT_LIST
@@ -157,37 +168,78 @@ class DialogExportGrades(QDialog):
 
 
 class ExportItems(QWidget):
-    def __init__(self, parent):
+    def __init__(self, survey_mode, there_are_students, parent):
         super().__init__(parent=parent)
         self.checkboxes = [
             (
                 "student_id",
-                LabelledCheckBox(_("Student id number"), self, checked=True),
+                LabelledCheckBox(
+                    _("Student id number"),
+                    self,
+                    checked=not survey_mode,
+                    enabled=there_are_students,
+                ),
             ),
-            ("name", LabelledCheckBox(_("Student full name"), self, checked=True)),
+            (
+                "name",
+                LabelledCheckBox(
+                    _("Student full name"),
+                    self,
+                    checked=not survey_mode,
+                    enabled=there_are_students,
+                ),
+            ),
             (
                 "last_name",
-                LabelledCheckBox(_("Student last name"), self, checked=False),
+                LabelledCheckBox(
+                    _("Student last name"),
+                    self,
+                    checked=False,
+                    enabled=there_are_students,
+                ),
             ),
             (
                 "first_name",
-                LabelledCheckBox(_("Student first name"), self, checked=False),
+                LabelledCheckBox(
+                    _("Student first name"),
+                    self,
+                    checked=False,
+                    enabled=there_are_students,
+                ),
             ),
             (
                 "exam_id",
-                LabelledCheckBox(_("Exam sequence number"), self, checked=False),
+                LabelledCheckBox(_("Exam sequence number"), self, checked=survey_mode),
             ),
             ("model", LabelledCheckBox(_("Exam model letter"), self, checked=False)),
             (
                 "correct",
-                LabelledCheckBox(_("Number of correct answers"), self, checked=True),
+                LabelledCheckBox(
+                    _("Number of correct answers"),
+                    self,
+                    checked=not survey_mode,
+                    enabled=not survey_mode,
+                ),
             ),
             (
                 "incorrect",
-                LabelledCheckBox(_("Number of incorrect answers"), self, checked=True),
+                LabelledCheckBox(
+                    _("Number of incorrect answers"),
+                    self,
+                    checked=not survey_mode,
+                    enabled=not survey_mode,
+                ),
             ),
-            ("score", LabelledCheckBox(_("Score"), self, checked=True)),
-            ("answers", LabelledCheckBox(_("List of answers"), self, checked=False)),
+            (
+                "score",
+                LabelledCheckBox(
+                    _("Score"), self, checked=not survey_mode, enabled=not survey_mode
+                ),
+            ),
+            (
+                "answers",
+                LabelledCheckBox(_("List of answers"), self, checked=survey_mode),
+            ),
         ]
         layout = QVBoxLayout(self)
         for column, checkbox in self.checkboxes:

@@ -156,6 +156,7 @@ class GradesExportHelper:
     def __init__(self, exam_config, student_groups):
         self.student_groups = student_groups
         self.num_questions = exam_config.num_questions
+        self.survey_mode = exam_config.survey_mode
         self.columns = []
         self.file_name = None
         self.file_format = None
@@ -164,6 +165,7 @@ class GradesExportHelper:
         self.all_students = None
         self.sort_by = None
         self.add_column_headers = None
+        self.export_by_exam = False
 
     def export_columns(self, keys):
         self.columns = [self._create_column(key) for key in keys]
@@ -171,10 +173,17 @@ class GradesExportHelper:
     def export_group(self, index):
         self.group = self.student_groups[index]
         self.one_sheet = True
+        self.export_by_exam = False
 
     def export_all_groups(self, one_sheet):
         self.group = None
         self.one_sheet = one_sheet
+        self.export_by_exam = False
+
+    def export_all_exams(self):
+        self.group = None
+        self.one_sheet = True
+        self.export_by_exam = True
 
     def data(self, exam):
         data = []
@@ -189,7 +198,9 @@ class GradesExportHelper:
         return data
 
     def iter_groups(self):
-        if self.group is None:
+        if self.export_by_exam:
+            yield (None, "Exams")
+        elif self.group is None:
             if self.one_sheet:
                 yield (None, "Group")
             else:
