@@ -324,8 +324,11 @@ def create_exam():
         output_file = sys.stdout
         config_filename = None
     else:
-        output_file = options.output_file_prefix + "-%s.tex"
         config_filename = options.output_file_prefix + ".eye"
+        if not options.survey_mode:
+            output_file = options.output_file_prefix + "-%s.tex"
+        else:
+            output_file = options.output_file_prefix
 
     # Create and call the exam maker object
     maker = exammaker.ExamMaker(
@@ -356,18 +359,24 @@ def create_exam():
         produce_pdf = False
     if exam is not None:
         maker.set_exam_questions(exam)
-    for model in options.models:
-        produced_filename = maker.create_exam(
-            model, not options.dont_shuffle_again, produce_pdf=produce_pdf
-        )
-        print("Created file:", produced_filename, file=sys.stderr)
-    if options.output_file_prefix is not None:
-        maker.output_file = options.output_file_prefix + "-%s-solutions.tex"
+    if not options.survey_mode:
         for model in options.models:
             produced_filename = maker.create_exam(
-                model, False, with_solution=True, produce_pdf=produce_pdf
+                model, not options.dont_shuffle_again, produce_pdf=produce_pdf
             )
             print("Created file:", produced_filename, file=sys.stderr)
+        if options.output_file_prefix is not None:
+            maker.output_file = options.output_file_prefix + "-%s-solutions.tex"
+            for model in options.models:
+                produced_filename = maker.create_exam(
+                    model, False, with_solution=True, produce_pdf=produce_pdf
+                )
+                print("Created file:", produced_filename, file=sys.stderr)
+    else:
+        produced_filename = maker.create_exam(
+            None, not options.dont_shuffle_again, produce_pdf=produce_pdf
+        )
+        print("Created file:", produced_filename, file=sys.stderr)
     if config_filename is not None:
         maker.save_exam_config()
 

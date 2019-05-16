@@ -175,16 +175,21 @@ class ExamMaker:
            only shuffled if it was not previously shuffled.
 
         """
-        if (
-            model is None
-            or len(model) != 1
-            or ((ord(model) < 65 or ord(model) > 90) and model != "0")
-        ):
-            raise utils.EyegradeException("", "bad_model_value")
+        if not self.survey_mode:
+            if (
+                model is None
+                or len(model) != 1
+                or ((ord(model) < 65 or ord(model) > 90) and model != "0")
+            ):
+                raise utils.EyegradeException("", "bad_model_value")
+        else:
+            if model is None:
+                model = "A"
         replacements = copy.copy(self.replacements)
         answer_table = create_answer_table(
             self.dimensions,
             model,
+            self.survey_mode,
             self.table_width,
             self.table_height,
             self.table_scale,
@@ -230,7 +235,10 @@ class ExamMaker:
             utils.write_to_stdout(exam_text)
             produced_filename = None
         else:
-            produced_filename = self.output_file % model
+            if not self.survey_mode:
+                produced_filename = self.output_file % model
+            else:
+                produced_filename = self.output_file
             utils.write_file(produced_filename, exam_text)
             if produce_pdf:
                 success, output, produced_filename = compile_latex(
@@ -422,6 +430,7 @@ def latex_declarations(with_solution):
 def create_answer_table(
     dimensions,
     model,
+    survey_mode,
     table_width=None,
     table_height=None,
     table_scale=1.0,
@@ -453,7 +462,7 @@ def create_answer_table(
         bits = utils.encode_model(model, num_tables, num_choices)
     else:
         bits = [False] * num_tables * num_choices
-    bits_rows = _create_infobits(bits, num_tables, num_choices)
+    bits_rows = _create_infobits(bits, num_tables, num_choices, survey_mode)
     tables, question_numbers = table_geometry(dimensions)
     rows = _table_top(num_tables, num_choices, compact, table_width, table_height)
     for i, row_geometry in enumerate(tables):
@@ -643,7 +652,7 @@ def _build_question_cell(num_question, num_choices):
     return " & ".join(parts)
 
 
-def _create_infobits(bits, num_tables, num_choices):
+def _create_infobits(bits, num_tables, num_choices, survey_mode):
     column_active = r"\multicolumn{1}{c}{$\blacksquare$}"
     column_inactive = r"\multicolumn{1}{c}{}"
     parts = [[], []]
@@ -653,7 +662,7 @@ def _create_infobits(bits, num_tables, num_choices):
             val = j == 1
             components = [column_inactive]
             for bit in data:
-                if val ^ bit:
+                if not survey_mode and val ^ bit:
                     components.append(column_active)
                 else:
                     components.append(column_inactive)
