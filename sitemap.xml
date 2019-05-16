@@ -7,39 +7,39 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://www.eyegrade.org/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-05-16T14:31:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2013/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2014/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2015/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2016/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2017/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2018/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2019/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
@@ -47,43 +47,43 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/bugfix/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/documentation/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/eyegrade/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/new-features/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/pyqt/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/release/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/requests/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/screenshots/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/videos/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-1.html</loc>
@@ -95,170 +95,170 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-051/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-061/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-062/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-063/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-064/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-03-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-04-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-043-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-044-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-06-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-07-released/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-29T10:22:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/improved-documentation-about-how-to-edit-an-exam-with-latex/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/new-video-tutorial/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/preview-of-the-improved-new-session-dialog/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/release-eyegrade-0.2/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/requests-for-eyegrade-03/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/teaser-of-the-new-pyqt-based-eyegrade-user-interface/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-1/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-2/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-3/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-05-include-part-4/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</loc>
-  <lastmod>2019-03-15T22:26:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.2/</loc>
-  <lastmod>2014-11-11T17:53:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.4/</loc>
-  <lastmod>2015-03-23T12:05:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.5/</loc>
-  <lastmod>2015-06-22T16:42:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.6/</loc>
-  <lastmod>2017-08-02T07:28:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.7/</loc>
-  <lastmod>2019-03-28T23:15:00Z</lastmod>
+  <lastmod>2019-03-29T09:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual/</loc>
-  <lastmod>2017-08-02T07:28:00Z</lastmod>
+  <lastmod>2019-03-29T09:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/documentation/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/download/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-04-01T08:09:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/quick-start-guide/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-04/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-05/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-06/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-for-index/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-1/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-04-01T08:09:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/galleries/screenshots-new-gui-2/</loc>
-  <lastmod>2019-03-27T22:13:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/quick-start-guide/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2019-03-14T09:26:00Z</lastmod>
  </url>
 </urlset>
