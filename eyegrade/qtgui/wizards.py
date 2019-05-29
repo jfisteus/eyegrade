@@ -87,8 +87,9 @@ class NewSessionPageInitial(QWizardPage):
         self.combo = widgets.CustomComboBox(parent=self)
         self.combo.set_items(
             [
-                _("Configure the exam from an existing configuration file"),
-                _("Configure the exam manually"),
+                _("Use an existing configuration file"),
+                _("Configure a exam manually"),
+                _("Configure a survey manually"),
             ]
         )
         self.combo.setCurrentIndex(0)
@@ -99,6 +100,7 @@ class NewSessionPageInitial(QWizardPage):
         layout.addRow(_("Directory"), self.directory)
         layout.addRow(self.combo)
         layout.addRow(self.config_file_label, self.config_file)
+        self.registerField("exam_or_survey_combo", self.combo)
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -214,7 +216,7 @@ class NewSessionPageExamParams(QWizardPage):
         layout = QFormLayout(self)
         self.setLayout(layout)
         self.paramNEIDs = widgets.InputInteger(
-            initial_value=8, min_value=0, max_value=16
+            initial_value=0, min_value=0, max_value=16
         )
         self.registerField("paramNEIDs", self.paramNEIDs)
         self.paramNAlts = widgets.InputInteger(initial_value=3)
@@ -235,12 +237,17 @@ class NewSessionPageExamParams(QWizardPage):
         ## self.paramTPerm.setCurrentIndex(0)
         ## self.registerField("paramTPerm", self.paramTPerm)
         layout.addRow(
-            _("Number of digits of the student ID " "(0 to not scan IDs)"),
-            self.paramNEIDs,
+            _("Number of digits of the student ID (0 to not scan IDs)"), self.paramNEIDs
         )
         layout.addRow(_("Number of choices per question"), self.paramNAlts)
         layout.addRow(_("Number of questions per answer box"), self.paramNCols)
         layout.addRow(_("Number of models of the exam"), self.paramNPerm)
+
+    def initializePage(self):
+        if self.field("exam_or_survey_combo") == 2:
+            # It's a survey instead of an exam:
+            self.paramNPerm.setValue(1)
+            self.paramNPerm.setEnabled(False)
 
     def validatePage(self):
         if not self.paramNEIDs.text():
@@ -269,15 +276,34 @@ class NewSessionPageExamParams(QWizardPage):
             return False
         if self.paramNCols.text().endswith(","):
             self.paramNCols.setText(self.paramNCols.text()[:-1])
-        if not self.paramNPerm.text():
+        if not self.paramNPerm.text() and self.field("exam_or_survey_combo") != 2:
+            # It's an exam but the number of models hasn't been set
             QMessageBox.critical(
                 self, _("Error in form"), _("The number of exam models is empty")
             )
             return False
+        # Create now the exam configuration object
+        exam_config = exams.ExamConfig()
+        exam_config.scores_mode = exams.ExamConfig.SCORES_MODE_NONE
+        # Dimensions descriptor:
+        dimensions = []
+        for num_questions in self.paramNCols.text().split(","):
+            dimensions.append("{},{}".format(self.paramNAlts.text(), num_questions))
+        exam_config.set_dimensions(";".join(dimensions))
+        # Student id length:
+        exam_config.id_num_digits = self.field("paramNEIDs")
+        # Survey mode:
+        if self.field("exam_or_survey_combo") == 2:
+            exam_config.survey_mode = True
+        self.wizard().exam_config = exam_config
         return True
 
     def nextId(self):
-        return WizardNewSession.PageExamAnswers
+        if self.field("exam_or_survey_combo") != 2:
+            # It's an exam: enter solutions now
+            return WizardNewSession.PageExamAnswers
+        # It's a survey:
+        return WizardNewSession.PageStudents
 
 
 class NewSessionPageExamAnswers(QWizardPage):
@@ -360,37 +386,19 @@ class NewSessionPageExamAnswers(QWizardPage):
         return self.total_answers == local_total_answers
 
     def validatePage(self):
-        valid = True
-        msg = ""
         if not self._check_count_answers():
             valid = False
-            msg = _("You haven't entered the correct answer " "for some questions.")
+            QMessageBox.critical(
+                self,
+                _("Error"),
+                _("You haven't entered the correct answer for some questions."),
+            )
         else:
-            try:
-                self.wizard().exam_config = exams.ExamConfig()
-                # dimentions generation:
-                dimensions = []
-                for c in self.paramNCols.split(","):
-                    dimensions.append("%d,%s" % (self.paramNAlts, c))
-                self.wizard().exam_config.set_dimensions(";".join(dimensions))
-                # solutions generation:
-                current_solutions = self._get_values(formated=True)
-                for k, v in current_solutions.items():
-                    self.wizard().exam_config.set_solutions(k, v)
-                # students ids generation:
-                self.wizard().exam_config.id_num_digits = self.field("paramNEIDs")
-            except IOError:
-                valid = False
-                msg = _("The exam configuration file cannot be read.")
-            except Exception as e:
-                valid = False
-                msg = _("The exam configuration file contains errors")
-                if str(e):
-                    msg += ":<br><br>" + str(e)
-                else:
-                    msg += "."
-        if not valid:
-            QMessageBox.critical(self, _("Error"), msg)
+            valid = True
+            # Add solutions to the exam's configuration:
+            current_solutions = self._get_values(formated=True)
+            for model, solutions in current_solutions.items():
+                self.wizard().exam_config.set_solutions(model, solutions)
         return valid
 
     def nextId(self):
