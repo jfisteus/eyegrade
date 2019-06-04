@@ -219,8 +219,9 @@ class OpenFileWidget(QWidget):
             QIcon(utils.resource_path("open_file.svg")), "", parent=self
         )
         self.button.clicked.connect(self._open_dialog)
-        container = LineContainer(self, self.filename_widget, self.button)
-        layout.addWidget(container)
+        layout.addWidget(self.filename_widget)
+        layout.addWidget(self.button)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.last_validated_value = None
 
     def text(self):
