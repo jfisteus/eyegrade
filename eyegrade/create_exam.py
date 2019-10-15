@@ -364,7 +364,8 @@ def create_exam():
             produced_filename = maker.create_exam(
                 model, not options.dont_shuffle_again, produce_pdf=produce_pdf
             )
-            print("Created file:", produced_filename, file=sys.stderr)
+            if produced_filename is not None:
+                print("Created file:", produced_filename, file=sys.stderr)
         if options.output_file_prefix is not None:
             maker.output_file = options.output_file_prefix + "-%s-solutions.tex"
             for model in options.models:

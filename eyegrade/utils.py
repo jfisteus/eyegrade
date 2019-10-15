@@ -429,8 +429,7 @@ def write_to_stdout(unicode_text):
     """Writes a Unicode string in sys.stdout using terminal locale.
 
     """
-    writer = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
-    writer.write(unicode_text)
+    sys.stdout.write(unicode_text)
 
 
 def increment_list(list_):
