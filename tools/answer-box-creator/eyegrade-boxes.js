@@ -28,29 +28,45 @@ var AnswerBoxes = function(num_questions, num_choices) {
     this.draw = function(ctx) {
         var cell_size = GeometryAnalyzer.cell_size(this.geometry, ctx.canvas.width, ctx.canvas.height);
         var top_left_corner = GeometryAnalyzer.top_left_corner(this.geometry, cell_size, ctx.canvas.width, ctx.canvas.height);
+        var num_digits_question_num = ~~(1 + (this.geometry.num_questions - 1) / 10);
+        var first_question_number = 1;
         for (var i = 0; i < this.geometry.num_tables; i++) {
             var extra_bottom_line = this.geometry.questions_per_table[i] < this.geometry.num_rows;
-            var box = new AnswerBox(this.geometry.questions_per_table[i], num_choices, extra_bottom_line);
+            var box = new AnswerBox(this.geometry.questions_per_table[i], num_choices, first_question_number, num_digits_question_num, extra_bottom_line);
             var box_top_left_corner = {
                 x: top_left_corner.x + i * (num_choices + 1) * cell_size.width,
                 y: top_left_corner.y
             };
             box.draw(ctx, box_top_left_corner, cell_size);
+            first_question_number += this.geometry.questions_per_table[i];
         }
     }
 }
 
-var AnswerBox = function(num_questions, num_choices, extra_bottom_line) {
+var AnswerBox = function(num_questions, num_choices, first_question_number, num_digits_question_num, extra_bottom_line) {
     this.num_questions = num_questions;
     this.num_choices = num_choices;
+    this.first_question_number = first_question_number;
+    this.num_digits_question_num = num_digits_question_num;
     this.extra_bottom_line = extra_bottom_line;
 
     this.draw = function(ctx, top_left_corner, cell_size) {
-        ctx.beginPath();
-        var top_y = top_left_corner.y + cell_size.height;
-        var bottom_y = top_y + cell_size.height * this.num_questions;
+        var bottom_right_corner = {
+            x: top_left_corner.x + (this.num_choices + 1) * cell_size.width,
+            y: top_left_corner.y + (this.num_questions + 3) * cell_size.height
+        }
         var left_x = top_left_corner.x + cell_size.width;
         var right_x = left_x + cell_size.width * this.num_choices;
+        var top_y = top_left_corner.y + cell_size.height;
+        var bottom_y = top_y + cell_size.height * this.num_questions;
+        this.draw_lines(ctx, cell_size, left_x, right_x, top_y, bottom_y);
+        this.debug_draw_frame(ctx, top_left_corner, bottom_right_corner);
+        this.draw_question_numbers(ctx, cell_size, top_left_corner);
+        this.draw_choice_letters(ctx, cell_size, top_left_corner);
+    }
+
+    this.draw_lines = function(ctx, cell_size, left_x, right_x, top_y, bottom_y) {
+        ctx.beginPath();
         // Draw vertical lines:
         for (var i = 0; i < this.num_choices + 1; i++) {
             var x = left_x + i * cell_size.width;
@@ -71,6 +87,57 @@ var AnswerBox = function(num_questions, num_choices, extra_bottom_line) {
             ctx.lineTo(right_x, y);
         }
        ctx.stroke();
+    }
+
+    this.draw_question_numbers = function(ctx, cell_size, top_left_corner) {
+        var font_size = this.font_size(cell_size);
+        ctx.textAlign = "right";
+        ctx.font = font_size + "px sans-serif";
+        var offset = {
+            x: ~~(0.9 * cell_size.width),
+            y: ~~(0.9 * cell_size.height)
+        }
+        for (var i = 1; i <= this.num_questions; i++) {
+            var question_num = this.first_question_number + i - 1;
+            var x = top_left_corner.x + offset.x;
+            var y = top_left_corner.y + offset.y + cell_size.height * i;
+            ctx.fillText(question_num.toString(), x, y, 0.8 * cell_size.width);
+        }
+    }
+
+    this.draw_choice_letters = function(ctx, cell_size, top_left_corner) {
+        var font_size = this.font_size(cell_size);
+        ctx.textAlign = "center";
+        ctx.font = font_size + "px sans-serif";
+        var offset = {
+            x: ~~(0.5 * cell_size.width),
+            y: ~~(0.9 * cell_size.height)
+        }
+        for (var i = 1; i <= this.num_choices; i++) {
+            var letter_num = 64 + i; // i=1 for 'A'
+            var x = top_left_corner.x + offset.x + cell_size.width * i;
+            var y = top_left_corner.y + offset.y;
+            ctx.fillText(String.fromCharCode(letter_num), x, y, 0.8 * cell_size.width);
+        }
+    }
+
+    this.debug_draw_frame = function(ctx, top_left_corner, bottom_right_corner) {
+        var previous_style = ctx.strokeStyle;
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        ctx.moveTo(top_left_corner.x, top_left_corner.y);
+        ctx.lineTo(bottom_right_corner.x, top_left_corner.y);
+        ctx.lineTo(bottom_right_corner.x, bottom_right_corner.y);
+        ctx.lineTo(top_left_corner.x, bottom_right_corner.y);
+        ctx.lineTo(top_left_corner.x, top_left_corner.y);
+        ctx.stroke();
+        ctx.strokeStyle = previous_style;
+    }
+
+    this.font_size = function(cell_size) {
+        var size_for_width = ~~(cell_size.width / this.num_digits_question_num);
+        var size_for_height = cell_size.height;
+        return Math.min(size_for_width, size_for_height);
     }
 }
 
@@ -110,6 +177,8 @@ var GeometryAnalyzer = {
 
     fit: function(num_questions, num_choices, num_tables) {
         var g = {};
+        g.num_questions = num_questions;
+        g.num_choices = num_choices;
         g.num_tables = num_tables;
         g.questions_per_table = this.questions_per_table(num_questions, num_tables);
         g.num_rows = Math.max(...g.questions_per_table);
