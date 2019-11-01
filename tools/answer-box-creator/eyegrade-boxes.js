@@ -4,17 +4,17 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
 var draw_answer_box = function() {
     var canvas = document.getElementById('answer_box');
-    var drawing = new AnswerBoxesDrawingContext(canvas);
-    drawing.draw(20, 3);
+    var drawing = new AnswerBoxesDrawingContext(canvas, 20, 4);
+    drawing.draw("A");
 }
 
-var AnswerBoxesDrawingContext = function(canvas) {
+var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.boxes = new AnswerBoxes(num_questions, num_choices);
 
-    this.draw = function(num_questions, num_choices) {
-        var boxes = new AnswerBoxes(num_questions, num_choices);
-        boxes.draw(this.ctx);
+    this.draw = function(model_letter) {
+        this.boxes.draw(this.ctx, model_letter);
     }
 
     this.clear = function() {
@@ -25,11 +25,12 @@ var AnswerBoxesDrawingContext = function(canvas) {
 var AnswerBoxes = function(num_questions, num_choices) {
     this.geometry = GeometryAnalyzer.best_geometry(num_questions, num_choices);
 
-    this.draw = function(ctx) {
+    this.draw = function(ctx, model_letter) {
         var cell_size = GeometryAnalyzer.cell_size(this.geometry, ctx.canvas.width, ctx.canvas.height);
         var top_left_corner = GeometryAnalyzer.top_left_corner(this.geometry, cell_size, ctx.canvas.width, ctx.canvas.height);
         var num_digits_question_num = ~~(1 + (this.geometry.num_questions - 1) / 10);
         var first_question_number = 1;
+        var infobits = this.infobits(model_letter);
         for (var i = 0; i < this.geometry.num_tables; i++) {
             var extra_bottom_line = this.geometry.questions_per_table[i] < this.geometry.num_rows;
             var box = new AnswerBox(this.geometry.questions_per_table[i], num_choices, first_question_number, num_digits_question_num, extra_bottom_line);
@@ -37,10 +38,31 @@ var AnswerBoxes = function(num_questions, num_choices) {
                 x: top_left_corner.x + i * (num_choices + 1) * cell_size.width,
                 y: top_left_corner.y
             };
-            box.draw(ctx, box_top_left_corner, cell_size);
+            var infobits_fragment = infobits.substring(i * num_choices, (i + 1) * num_choices);
+            box.draw(ctx, box_top_left_corner, cell_size, infobits_fragment);
             first_question_number += this.geometry.questions_per_table[i];
         }
     }
+
+    this.infobits = function(model_letter) {
+        var base_code = this.infobits_table[model_letter.charCodeAt(0) - 65];
+        var code = base_code;
+        while (code.length < this.geometry.num_columns) {
+            code += base_code;
+        }
+        return code.substring(0, this.geometry.num_columns);
+    }
+
+    this.infobits_table = [
+        "DDDU",
+        "UDDD",
+        "DUDD",
+        "UUDU",
+        "DDUD",
+        "UDUU",
+        "DUUU",
+        "UUUD"
+    ]
 }
 
 var AnswerBox = function(num_questions, num_choices, first_question_number, num_digits_question_num, extra_bottom_line) {
@@ -50,7 +72,7 @@ var AnswerBox = function(num_questions, num_choices, first_question_number, num_
     this.num_digits_question_num = num_digits_question_num;
     this.extra_bottom_line = extra_bottom_line;
 
-    this.draw = function(ctx, top_left_corner, cell_size) {
+    this.draw = function(ctx, top_left_corner, cell_size, infobits_fragment) {
         var bottom_right_corner = {
             x: top_left_corner.x + (this.num_choices + 1) * cell_size.width,
             y: top_left_corner.y + (this.num_questions + 3) * cell_size.height
@@ -63,6 +85,7 @@ var AnswerBox = function(num_questions, num_choices, first_question_number, num_
         this.debug_draw_frame(ctx, top_left_corner, bottom_right_corner);
         this.draw_question_numbers(ctx, cell_size, top_left_corner);
         this.draw_choice_letters(ctx, cell_size, top_left_corner);
+        this.draw_infobits(ctx, cell_size, top_left_corner, infobits_fragment);
     }
 
     this.draw_lines = function(ctx, cell_size, left_x, right_x, top_y, bottom_y) {
@@ -132,6 +155,23 @@ var AnswerBox = function(num_questions, num_choices, first_question_number, num_
         ctx.lineTo(top_left_corner.x, top_left_corner.y);
         ctx.stroke();
         ctx.strokeStyle = previous_style;
+    }
+
+    this.draw_infobits = function(ctx, cell_size, top_left_corner, infobits_fragment) {
+        var y_up = ~~(top_left_corner.y + (this.num_questions + 1) * cell_size.height + 0.2 * cell_size.height);
+        var y_down = y_up + cell_size.height;
+        var size = ~~(0.6 * cell_size.height);
+        var x_base = ~~(top_left_corner.x + (cell_size.width - size) / 2);
+        for (var i = 0; i < this.num_choices; i++) {
+            var x = x_base + (i + 1) * cell_size.width;
+            var y;
+            if (infobits_fragment.charAt(i) === "U") {
+                y = y_up;
+            } else {
+                y = y_down;
+            }
+            ctx.fillRect(x, y, size, size);
+        }
     }
 
     this.font_size = function(cell_size) {
