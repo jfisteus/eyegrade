@@ -4,19 +4,22 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
 var draw_answer_box = function() {
     var canvas = document.getElementById('answer_box');
-    var drawing = new AnswerBoxesDrawingContext(canvas, 20, 4);
+    var drawing = new AnswerBoxesDrawingContext(canvas, 50, 5, 14);
     drawing.draw("A");
 }
 
 var Defaults = {
     // default cell aspect ratio: cell width / cell height = 1.5
-    cell_ratio: 1.5
+    cell_ratio: 1.5,
+    usable_width: 0.96, // 2% left and right margins
+    usable_height: 0.96, // 2% top and bottom margins
+    id_bottom_line_dist: 0.6 // 1.8 * cell_height above top answer table line
 }
 
-var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices) {
+var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices, num_id_digits) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.boxes = new AnswerBoxes(num_questions, num_choices);
+    this.boxes = new AnswerBoxes(num_questions, num_choices, num_id_digits);
 
     this.draw = function(model_letter) {
         this.boxes.draw(this.ctx, model_letter);
@@ -27,8 +30,8 @@ var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices) {
     }
 }
 
-var AnswerBoxes = function(num_questions, num_choices) {
-    this.geometry = GeometryAnalyzer.best_geometry(num_questions, num_choices);
+var AnswerBoxes = function(num_questions, num_choices, num_id_digits) {
+    this.geometry = GeometryAnalyzer.best_geometry(num_questions, num_choices, num_id_digits);
 
     this.draw = function(ctx, model_letter) {
         var cell_size = this.geometry.cell_size(ctx.canvas.width, ctx.canvas.height);
@@ -46,6 +49,12 @@ var AnswerBoxes = function(num_questions, num_choices) {
             var infobits_fragment = infobits.substring(i * num_choices, (i + 1) * num_choices);
             box.draw(ctx, box_top_left_corner, cell_size, infobits_fragment);
             first_question_number += this.geometry.questions_per_table[i];
+        }
+        if (this.geometry.num_id_digits > 0) {
+            var id_box = new IdBox(this.geometry.num_id_digits);
+            var id_cell_size = this.geometry.id_cell_size(cell_size);
+            var id_top_left_corner = this.geometry.id_top_left_corner(cell_size, id_cell_size, top_left_corner, ctx.canvas.width);
+            id_box.draw(ctx, id_top_left_corner, id_cell_size);
         }
     }
 
@@ -70,6 +79,28 @@ var AnswerBoxes = function(num_questions, num_choices) {
     ]
 }
 
+var IdBox = function(num_id_digits) {
+    this.num_id_digits = num_id_digits;
+
+    this.draw = function(ctx, top_left_corner, id_cell_size) {
+        var bottom_right_corner = {
+            x: top_left_corner.x + this.num_id_digits * id_cell_size.width,
+            y: top_left_corner.y + id_cell_size.height
+        }
+        ctx.beginPath();
+        ctx.moveTo(top_left_corner.x, top_left_corner.y);
+        ctx.lineTo(bottom_right_corner.x, top_left_corner.y);
+        ctx.lineTo(bottom_right_corner.x, bottom_right_corner.y);
+        ctx.lineTo(top_left_corner.x, bottom_right_corner.y);
+        for (var i = 0; i < this.num_id_digits; i++) {
+            var x = top_left_corner.x + i * id_cell_size.width;
+            ctx.moveTo(x, top_left_corner.y);
+            ctx.lineTo(x, bottom_right_corner.y);
+        }
+        ctx.stroke();
+    }
+}
+
 var AnswerBox = function(num_questions, num_choices, first_question_number, num_digits_question_num, extra_bottom_line) {
     this.num_questions = num_questions;
     this.num_choices = num_choices;
@@ -87,10 +118,10 @@ var AnswerBox = function(num_questions, num_choices, first_question_number, num_
         var top_y = top_left_corner.y + cell_size.height;
         var bottom_y = top_y + cell_size.height * this.num_questions;
         this.draw_lines(ctx, cell_size, left_x, right_x, top_y, bottom_y);
-        this.debug_draw_frame(ctx, top_left_corner, bottom_right_corner);
         this.draw_question_numbers(ctx, cell_size, top_left_corner);
         this.draw_choice_letters(ctx, cell_size, top_left_corner);
         this.draw_infobits(ctx, cell_size, top_left_corner, infobits_fragment);
+        //this.debug_draw_frame(ctx, top_left_corner, bottom_right_corner);
     }
 
     this.draw_lines = function(ctx, cell_size, left_x, right_x, top_y, bottom_y) {
@@ -186,8 +217,7 @@ var AnswerBox = function(num_questions, num_choices, first_question_number, num_
     }
 }
 
-var Geometry = function(num_questions, num_choices, num_tables) {
-
+var Geometry = function(num_questions, num_choices, num_tables, num_id_digits) {
     this.compute_cell_ratio = function() {
         var actual_ratio = Defaults.cell_ratio * this.num_columns / this.num_rows;
         // no dimension should be more than 30% larger than the other
@@ -200,6 +230,26 @@ var Geometry = function(num_questions, num_choices, num_tables) {
         } else {
             // The default aspect ratio works fine
             return Defaults.cell_ratio;
+        }
+    }
+
+    this.compute_id_cell_ratio = function() {
+        // By default, square digit cells as heigh as answer table rows (ratio 1.0)
+        // Returns the ratio cell_height / id_cell_height
+        if (this.num_id_digits < 1) {
+            // No id box will be printed
+            return 0.0;
+        }
+        var id_cells_width = this.num_id_digits;
+        var horizontal_lines_width = this.num_columns * this.cell_ratio;
+        var horizontal_ratio = horizontal_lines_width / id_cells_width;
+        if (horizontal_ratio > 1.3) {
+            return 1.3 / horizontal_ratio;
+        } else if (horizontal_ratio < 0.769) {
+            //return horizontal_lines_width / id_cells_width / 0.769;
+            return 0.769 / horizontal_ratio;
+        } else {
+            return 1.0;
         }
     }
 
@@ -227,35 +277,76 @@ var Geometry = function(num_questions, num_choices, num_tables) {
     this.total_rows = this.num_rows + 3; // header line + 2 infobits lines
     this.total_columns = this.num_columns + num_tables; // one question number per table
     this.cell_ratio = this.compute_cell_ratio();
+    this.num_id_digits = num_id_digits;
+    this.id_cell_ratio = this.compute_id_cell_ratio();
 
     this.cell_size = function(canvas_width, canvas_height) {
-        var usable_width = 0.95 * canvas_width; // 2.5% left and right margins
-        var usable_height = 0.95 * canvas_height; // 2.5% top and bottom margin
-        var cell_width = ~~(usable_width / this.total_columns);
-        var cell_height = ~~(cell_width / this.cell_ratio);
-        if (cell_height * this.total_rows > usable_height) {
-            cell_height = ~~(usable_height / this.total_rows);
+        var usable_width = Defaults.usable_width * canvas_width;
+        var usable_height = Defaults.usable_height * canvas_height;
+        var cell_width;
+        var cell_height;
+        // First, adjust width and forget about height
+        if (this.total_columns * this.cell_ratio >= this.num_id_digits * this.id_cell_ratio) {
+            // answer boxes are wider than the id box
+            cell_width = ~~(usable_width / this.total_columns);
+            cell_height = ~~(cell_width / this.cell_ratio);
+        } else {
+            // the id box is wider than answer tables
+            var id_cell_width = ~~(usable_width / this.num_id_digits);
+            cell_height = ~~(this.id_cell_ratio * id_cell_width);
             cell_width = ~~(cell_height * this.cell_ratio);
         }
-        return {
+        // Now, adjust to height if needed
+        var total_height = this.total_rows * cell_height;
+        if (this.num_id_digits > 0) {
+            total_height += Defaults.id_bottom_line_dist * cell_height + ~~(cell_height / this.id_cell_ratio);
+        }
+        if (total_height > usable_height) {
+            var scale_factor = usable_height / total_height;
+            cell_width = ~~(cell_width * scale_factor);
+            cell_height = ~~(cell_height * scale_factor);
+        }
+       return {
             width: cell_width,
             height: cell_height
         };
     }
 
+    this.id_cell_size = function(cell_size) {
+        var side = ~~(cell_size.height / this.id_cell_ratio);
+        return {
+            width: side,
+            height: side
+        }
+    }
+
     this.top_left_corner = function(cell_size, canvas_width, canvas_height) {
+        var tables_height = this.total_rows * cell_size.height;
+        var extra_height;
+        if (this.num_id_digits > 0) {
+            extra_height = ~~(Defaults.id_bottom_line_dist * cell_size.height + cell_size.height / this.id_cell_ratio);
+        } else {
+            extra_height = 0;
+        }
         return {
             x: ~~((canvas_width - cell_size.width * this.total_columns) / 2),
-            y: ~~((canvas_height - cell_size.height * this.total_rows) / 2)
+            y: ~~((canvas_height - tables_height - extra_height) / 2) + extra_height
         };
+    }
+
+    this.id_top_left_corner = function(cell_size, id_cell_size, top_left_corner, canvas_width) {
+        return {
+            x: ~~((canvas_width - id_cell_size.width * this.num_id_digits) / 2),
+            y: top_left_corner.y - ~~(Defaults.id_bottom_line_dist * cell_size.height) - id_cell_size.height
+        }
     }
 }
 
 var GeometryAnalyzer = {
-    best_geometry: function(num_questions, num_choices) {
+    best_geometry: function(num_questions, num_choices, num_id_digits) {
         var geometries = [];
         for (var i = 1; i < 5; i++) {
-            geometries.push(new Geometry(num_questions, num_choices, i));
+            geometries.push(new Geometry(num_questions, num_choices, i, num_id_digits));
         }
         return this.choose_geometry(geometries);
     },
