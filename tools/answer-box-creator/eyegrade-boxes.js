@@ -36,7 +36,7 @@ var AnswerBoxes = function(num_questions, num_choices, num_id_digits) {
     this.draw = function(ctx, model_letter) {
         var cell_size = this.geometry.cell_size(ctx.canvas.width, ctx.canvas.height);
         var top_left_corner = this.geometry.top_left_corner(cell_size, ctx.canvas.width, ctx.canvas.height);
-        var num_digits_question_num = ~~(1 + (this.geometry.num_questions - 1) / 10);
+        var num_digits_question_num = this.compute_num_digits_question_num();
         var first_question_number = 1;
         var infobits = this.infobits(model_letter);
         for (var i = 0; i < this.geometry.num_tables; i++) {
@@ -65,6 +65,16 @@ var AnswerBoxes = function(num_questions, num_choices, num_id_digits) {
             code += base_code;
         }
         return code.substring(0, this.geometry.num_columns);
+    }
+
+    this.compute_num_digits_question_num = function() {
+        if (this.geometry.num_questions < 10) {
+            return 1;
+        } else if (this.geometry.num_questions < 100) {
+            return 2;
+        } else {
+            return 3;
+        }
     }
 
     this.infobits_table = [
