@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
 var draw_answer_box = function() {
     var canvas = document.getElementById('answer_box');
-    var drawing = new AnswerBoxesDrawingContext(canvas, 50, 5, 14);
-    drawing.draw("A");
+    var drawing = new AnswerBoxesDrawingContext(canvas, 50, 5, 14, "Student id:");
+    drawing.draw("A", true);
 }
 
 var Defaults = {
@@ -16,13 +16,13 @@ var Defaults = {
     id_bottom_line_dist: 0.6 // 1.8 * cell_height above top answer table line
 }
 
-var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices, num_id_digits) {
+var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices, num_id_digits, id_box_label) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.boxes = new AnswerBoxes(num_questions, num_choices, num_id_digits);
+    this.boxes = new AnswerBoxes(num_questions, num_choices, num_id_digits, id_box_label);
 
-    this.draw = function(model_letter) {
-        this.boxes.draw(this.ctx, model_letter);
+    this.draw = function(model_letter, print_model_letter) {
+        this.boxes.draw(this.ctx, model_letter, print_model_letter);
     }
 
     this.clear = function() {
@@ -30,10 +30,11 @@ var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices, num
     }
 }
 
-var AnswerBoxes = function(num_questions, num_choices, num_id_digits) {
+var AnswerBoxes = function(num_questions, num_choices, num_id_digits, id_box_label) {
+    this.id_box_label = id_box_label;
     this.geometry = GeometryAnalyzer.best_geometry(num_questions, num_choices, num_id_digits);
 
-    this.draw = function(ctx, model_letter) {
+    this.draw = function(ctx, model_letter, print_model_letter) {
         var cell_size = this.geometry.cell_size(ctx.canvas.width, ctx.canvas.height);
         var top_left_corner = this.geometry.top_left_corner(cell_size, ctx.canvas.width, ctx.canvas.height);
         var num_digits_question_num = this.compute_num_digits_question_num();
@@ -54,7 +55,12 @@ var AnswerBoxes = function(num_questions, num_choices, num_id_digits) {
             var id_box = new IdBox(this.geometry.num_id_digits);
             var id_cell_size = this.geometry.id_cell_size(cell_size);
             var id_top_left_corner = this.geometry.id_top_left_corner(cell_size, id_cell_size, top_left_corner, ctx.canvas.width);
-            id_box.draw(ctx, id_top_left_corner, id_cell_size);
+            id_box.draw(ctx, id_top_left_corner, id_cell_size, this.id_box_label);
+        }
+        if (print_model_letter) {
+            ctx.textAlign = "right";
+            ctx.font = "10 px sans-serif";
+            ctx.fillText(model_letter, ctx.canvas.width - 10, ctx.canvas.height - 10, 8);
         }
     }
 
@@ -92,7 +98,7 @@ var AnswerBoxes = function(num_questions, num_choices, num_id_digits) {
 var IdBox = function(num_id_digits) {
     this.num_id_digits = num_id_digits;
 
-    this.draw = function(ctx, top_left_corner, id_cell_size) {
+    this.draw = function(ctx, top_left_corner, id_cell_size, label) {
         var bottom_right_corner = {
             x: top_left_corner.x + this.num_id_digits * id_cell_size.width,
             y: top_left_corner.y + id_cell_size.height
@@ -108,6 +114,22 @@ var IdBox = function(num_id_digits) {
             ctx.lineTo(x, bottom_right_corner.y);
         }
         ctx.stroke();
+        if (label) {
+            this.draw_label(ctx, top_left_corner, id_cell_size, label);
+        }
+    }
+
+    this.draw_label = function(ctx, top_left_corner, id_cell_size, label) {
+        var font_size = 0.8 * id_cell_size.height;
+        ctx.textAlign = "right";
+        ctx.font = font_size + "px sans-serif";
+        var offset = {
+            x: - ~~(0.3 * id_cell_size.width),
+            y: ~~(0.9 * id_cell_size.height)
+        }
+        var x = top_left_corner.x + offset.x;
+        var y = top_left_corner.y + offset.y;
+        ctx.fillText(label, x, y);
     }
 }
 
