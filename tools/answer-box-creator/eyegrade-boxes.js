@@ -1,11 +1,36 @@
 document.addEventListener('DOMContentLoaded', function(event) {
-    draw_answer_box();
+    document.getElementById("config_form").elements["num_questions"].onchange = form_changed;
+    document.getElementById("config_form").elements["num_choices"].onchange = form_changed;
+    document.getElementById("config_form").elements["num_id_digits"].onchange = form_changed;
+    document.getElementById("config_form").elements["id_box_label"].onchange = form_changed;
+    document.getElementById("config_form").elements["id_box_label"].oninput = form_changed;
+    form_changed();
 })
 
-var draw_answer_box = function() {
+var form_changed = function() {
+    var num_questions = Number(document.getElementById("config_form").elements["num_questions"].value);
+    var num_choices = Number(document.getElementById("config_form").elements["num_choices"].value);
+    var num_id_digits = Number(document.getElementById("config_form").elements["num_id_digits"].value);
+    var id_box_label = document.getElementById("config_form").elements["id_box_label"].value;
+    var exam_structure = {
+        num_questions: num_questions,
+        num_choices: num_choices,
+        num_id_digits: num_id_digits,
+        id_box_label: id_box_label
+    }
+    draw_answer_box(exam_structure);
+}
+
+var draw_answer_box = function(exam_structure) {
     var canvas = document.getElementById('answer_box');
-    var drawing = new AnswerBoxesDrawingContext(canvas, 50, 5, 14, "Student id:");
-    drawing.draw("A", true);
+    drawing_context = new AnswerBoxesDrawingContext(
+        canvas,
+        exam_structure.num_questions,
+        exam_structure.num_choices,
+        exam_structure.num_id_digits,
+        exam_structure.id_box_label);
+    drawing_context.clear();
+    drawing_context.draw("A", true);
 }
 
 var Defaults = {

@@ -8,9 +8,45 @@
             #answer_box {
                 border: 1px solid darkslateblue;
             }
+            .exam_config {
+                display:grid;
+                grid-template-columns: max-content max-content;
+                grid-gap:5px;
+            }
+            .exam_config label {
+                text-align:right;
+            }
+            .exam_config label:after {
+                content: ":";
+            }
+            form {
+                max-width: 640px;
+                margin-bottom: 3em;
+            }
         </style>
     </head>
     <body>
+        <form id="config_form">
+            <fieldset>
+                <legend>Exam structure</legend>
+                <div class="exam_config">
+                    <label for="num_questions">Questions</label>
+                    <input type="number" name="num_questions" value="20" min="3" max="100">
+                    <label for="num_choices">Choices per question</label>
+                    <input type="number" name="num_choices" value="3" min="2" max="6">
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Student id</legend>
+                <label><input type="checkbox" name="read_id"></label> Read student id</label>
+                <div class="exam_config">
+                    <label for="num_id_digits">Number of digits</label>
+                    <input type="number" name="num_id_digits" value="8" min="5" max="16">
+                    <label for="id_box_label">Label</label>
+                    <input type="text" name="id_box_label" value="Id:" maxlength="12">
+                </div>
+            </fieldset>
+        </form>
         <canvas id="answer_box" width="640" height="480"></canvas>
         <script src="eyegrade-boxes.js"></script>
     </body>
