@@ -431,7 +431,7 @@ var Geometry = function(num_questions, num_choices, num_tables, num_id_digits) {
 var GeometryAnalyzer = {
     best_geometry: function(num_questions, num_choices, num_id_digits) {
         var geometries = [];
-        for (var i = 1; i < 5; i++) {
+        for (var i = 1; i < 7; i++) {
             geometries.push(new Geometry(num_questions, num_choices, i, num_id_digits));
         }
         return this.choose_geometry(geometries);
