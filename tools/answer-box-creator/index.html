@@ -6,7 +6,8 @@
         <title>Eyegrade: create answer boxes</title>
         <style>
             #answer_box {
-                border: 1px solid darkslateblue;
+                border: 1px solid black;
+                margin: 3px;
             }
             .exam_config {
                 display:grid;
@@ -21,34 +22,54 @@
             }
             form {
                 max-width: 640px;
-                margin-bottom: 3em;
+                margin-bottom: 1em;
+            }
+            #editor_container {
+                display: flex;
+                flex-wrap: wrap;
             }
         </style>
     </head>
     <body>
-        <form id="config_form">
-            <fieldset>
-                <legend>Exam structure</legend>
-                <div class="exam_config">
-                    <label for="num_questions">Questions</label>
-                    <input type="number" name="num_questions" value="20" min="3" max="100">
-                    <label for="num_choices">Choices per question</label>
-                    <input type="number" name="num_choices" value="3" min="2" max="6">
-                </div>
-                <label><input type="checkbox" name="print_model_letter" checked></label> Show model letter</label>
-            </fieldset>
-            <fieldset>
-                <legend>Student id</legend>
-                <label><input type="checkbox" name="read_id" checked></label> Read student id</label>
-                <div class="exam_config">
-                    <label for="num_id_digits">Number of digits</label>
-                    <input type="number" name="num_id_digits" value="8" min="5" max="16">
-                    <label for="id_box_label">Label</label>
-                    <input type="text" name="id_box_label" value="Id:" maxlength="12">
-                </div>
-            </fieldset>
-        </form>
-        <canvas id="answer_box" width="640" height="480"></canvas>
+        <div id="editor_container">
+            <form id="config_form">
+                <fieldset>
+                    <legend>Exam structure</legend>
+                    <div class="exam_config">
+                        <label for="num_questions">Questions</label>
+                        <input type="number" name="num_questions" value="20" min="3" max="100">
+                        <label for="num_choices">Choices per question</label>
+                        <input type="number" name="num_choices" value="3" min="2" max="6">
+                        <label for="num_models">Number of models</label>
+                        <select name="num_models">
+                            <option value="1" selected>1 model (A)</option>
+                            <option value="2">2 models (A to B)</option>
+                            <option value="3">3 models (A to C)</option>
+                            <option value="4">4 models (A to D)</option>
+                            <option value="5">5 models (A to E)</option>
+                            <option value="6">6 models (A to F)</option>
+                            <option value="7">7 models (A to G)</option>
+                            <option value="8">8 models (A to H)</option>
+                        </select>
+                    </div>
+                    <label><input type="checkbox" name="print_model_letter" checked></label> Show model letter</label>
+                </fieldset>
+                <fieldset>
+                    <legend>Student id</legend>
+                    <label><input type="checkbox" name="read_id" checked></label> Read student id</label>
+                    <div class="exam_config">
+                        <label for="num_id_digits">Number of digits</label>
+                        <input type="number" name="num_id_digits" value="8" min="5" max="16">
+                        <label for="id_box_label">Label</label>
+                        <input type="text" name="id_box_label" value="Id:" maxlength="12">
+                    </div>
+                </fieldset>
+                <input id="download" type="button" value="Download">
+            </form>
+            <canvas id="answer_box" width="640" height="480"></canvas>
+        </div>
         <script src="eyegrade-boxes.js"></script>
+        <script src="jszip.min.js"></script>
+        <script src="FileSaver.js"></script>
     </body>
 </html>

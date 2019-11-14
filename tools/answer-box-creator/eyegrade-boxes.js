@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
     document.getElementById("config_form").elements["id_box_label"].onchange = form_changed;
     document.getElementById("config_form").elements["id_box_label"].oninput = form_changed;
     document.getElementById("config_form").elements["read_id"].onchange = read_id_changed;
+    document.getElementById("download").onclick = download_images;
     form_changed();
 })
 
@@ -50,6 +51,20 @@ var read_id_changed = function() {
     form_changed();
 }
 
+var download_images = function() {
+    var canvas = document.getElementById('answer_box');
+    var data_url = canvas.toDataURL();
+    var png_data = data_url.substring(data_url.indexOf('base64,') + 'base64,'.length);
+    var zip = new JSZip();
+    var img = zip.folder("images");
+    img.file("answer-box-A.png", png_data, {base64: true});
+    zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            // see FileSaver.js
+            saveAs(content, "answer-boxes.zip");
+    });
+}
+
 var draw_answer_box = function(exam_structure) {
     var canvas = document.getElementById('answer_box');
     drawing_context = new AnswerBoxesDrawingContext(
@@ -76,6 +91,9 @@ var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices, num
     this.boxes = new AnswerBoxes(num_questions, num_choices, num_id_digits, id_box_label);
 
     this.draw = function(model_letter, print_model_letter) {
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+        this.ctx.fillStyle = 'black';
         this.boxes.draw(this.ctx, model_letter, print_model_letter);
     }
 
