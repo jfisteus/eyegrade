@@ -1,24 +1,53 @@
 document.addEventListener('DOMContentLoaded', function(event) {
     document.getElementById("config_form").elements["num_questions"].onchange = form_changed;
     document.getElementById("config_form").elements["num_choices"].onchange = form_changed;
+    document.getElementById("config_form").elements["print_model_letter"].onchange = form_changed;
     document.getElementById("config_form").elements["num_id_digits"].onchange = form_changed;
     document.getElementById("config_form").elements["id_box_label"].onchange = form_changed;
     document.getElementById("config_form").elements["id_box_label"].oninput = form_changed;
+    document.getElementById("config_form").elements["read_id"].onchange = read_id_changed;
     form_changed();
 })
+
+var fields_state_read_id = {
+    id_num_digits: 8,
+    id_box_label: "Id:"
+}
 
 var form_changed = function() {
     var num_questions = Number(document.getElementById("config_form").elements["num_questions"].value);
     var num_choices = Number(document.getElementById("config_form").elements["num_choices"].value);
     var num_id_digits = Number(document.getElementById("config_form").elements["num_id_digits"].value);
     var id_box_label = document.getElementById("config_form").elements["id_box_label"].value;
+    var print_model_letter = document.getElementById("config_form").elements["print_model_letter"].checked;
     var exam_structure = {
         num_questions: num_questions,
         num_choices: num_choices,
         num_id_digits: num_id_digits,
-        id_box_label: id_box_label
+        id_box_label: id_box_label,
+        print_model_letter: print_model_letter
     }
     draw_answer_box(exam_structure);
+}
+
+var read_id_changed = function() {
+    var field_num_id_digits = document.getElementById("config_form").elements["num_id_digits"];
+    var field_id_box_label = document.getElementById("config_form").elements["id_box_label"];
+    var read_student_id = document.getElementById("config_form").elements["read_id"].checked;
+    if (read_student_id) {
+        field_num_id_digits.disabled = false;
+        field_id_box_label.disabled = false;
+        field_num_id_digits.value = fields_state_read_id.id_num_digits;
+        field_id_box_label.value = fields_state_read_id.id_box_label;
+    } else {
+        field_num_id_digits.disabled = true;
+        field_id_box_label.disabled = true;
+        fields_state_read_id.id_num_digits = field_num_id_digits.value;
+        fields_state_read_id.id_box_label = field_id_box_label.value;
+        field_num_id_digits.value = 0;
+        field_id_box_label.value = "";
+    }
+    form_changed();
 }
 
 var draw_answer_box = function(exam_structure) {
@@ -30,7 +59,7 @@ var draw_answer_box = function(exam_structure) {
         exam_structure.num_id_digits,
         exam_structure.id_box_label);
     drawing_context.clear();
-    drawing_context.draw("A", true);
+    drawing_context.draw("A", exam_structure.print_model_letter);
 }
 
 var Defaults = {
