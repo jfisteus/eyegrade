@@ -28,6 +28,9 @@
                 display: flex;
                 flex-wrap: wrap;
             }
+            #hidden_canvas {
+                display: none;
+            }
         </style>
     </head>
     <body>
@@ -67,6 +70,16 @@
                 <input id="download" type="button" value="Download">
             </form>
             <canvas id="answer_box" width="640" height="480"></canvas>
+        </div>
+        <div id="hidden_canvas">
+            <canvas id="model_A"  width="640" height="480"></canvas>
+            <canvas id="model_B"  width="640" height="480"></canvas>
+            <canvas id="model_C"  width="640" height="480"></canvas>
+            <canvas id="model_D"  width="640" height="480"></canvas>
+            <canvas id="model_E"  width="640" height="480"></canvas>
+            <canvas id="model_F"  width="640" height="480"></canvas>
+            <canvas id="model_G"  width="640" height="480"></canvas>
+            <canvas id="model_H"  width="640" height="480"></canvas>
         </div>
         <script src="eyegrade-boxes.js"></script>
         <script src="jszip.min.js"></script>

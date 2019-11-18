@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function(event) {
     document.getElementById("config_form").elements["num_questions"].onchange = form_changed;
     document.getElementById("config_form").elements["num_choices"].onchange = form_changed;
+    document.getElementById("config_form").elements["num_models"].onchange = form_changed;
     document.getElementById("config_form").elements["print_model_letter"].onchange = form_changed;
     document.getElementById("config_form").elements["num_id_digits"].onchange = form_changed;
     document.getElementById("config_form").elements["id_box_label"].onchange = form_changed;
@@ -52,12 +53,16 @@ var read_id_changed = function() {
 }
 
 var download_images = function() {
-    var canvas = document.getElementById('answer_box');
-    var data_url = canvas.toDataURL();
-    var png_data = data_url.substring(data_url.indexOf('base64,') + 'base64,'.length);
     var zip = new JSZip();
     var img = zip.folder("images");
-    img.file("answer-box-A.png", png_data, {base64: true});
+    var num_models = get_num_models();
+    for (var i = 0; i < num_models; i++) {
+        var model_letter = String.fromCharCode(65 + i);
+        var canvas = get_canvas(model_letter);
+        var data_url = canvas.toDataURL();
+        var png_data = data_url.substring(data_url.indexOf('base64,') + 'base64,'.length);
+        img.file("answer-box-" + model_letter + ".png", png_data, {base64: true});
+    }
     zip.generateAsync({type:"blob"})
         .then(function(content) {
             // see FileSaver.js
@@ -66,15 +71,27 @@ var download_images = function() {
 }
 
 var draw_answer_box = function(exam_structure) {
-    var canvas = document.getElementById('answer_box');
+    var shown_canvas = document.getElementById('answer_box');
     drawing_context = new AnswerBoxesDrawingContext(
-        canvas,
         exam_structure.num_questions,
         exam_structure.num_choices,
         exam_structure.num_id_digits,
         exam_structure.id_box_label);
-    drawing_context.clear();
-    drawing_context.draw("A", exam_structure.print_model_letter);
+    drawing_context.draw(shown_canvas, "A", exam_structure.print_model_letter);
+    var num_models = get_num_models();
+    for (var i = 0; i < num_models; i++) {
+        var model_letter = String.fromCharCode(65 + i);
+        var canvas = get_canvas(model_letter);
+        drawing_context.draw(canvas, model_letter, exam_structure.print_model_letter);
+    }
+}
+
+var get_canvas = function(model_letter) {
+    return document.getElementById("model_" + model_letter);
+}
+
+var get_num_models = function() {
+    return Number(document.getElementById("config_form").elements["num_models"].value);
 }
 
 var Defaults = {
@@ -85,20 +102,16 @@ var Defaults = {
     id_bottom_line_dist: 0.6 // 1.8 * cell_height above top answer table line
 }
 
-var AnswerBoxesDrawingContext = function(canvas, num_questions, num_choices, num_id_digits, id_box_label) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
+var AnswerBoxesDrawingContext = function(num_questions, num_choices, num_id_digits, id_box_label) {
     this.boxes = new AnswerBoxes(num_questions, num_choices, num_id_digits, id_box_label);
 
-    this.draw = function(model_letter, print_model_letter) {
-        this.ctx.fillStyle = 'white';
-        this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-        this.ctx.fillStyle = 'black';
-        this.boxes.draw(this.ctx, model_letter, print_model_letter);
-    }
-
-    this.clear = function() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.draw = function(canvas, model_letter, print_model_letter) {
+        var ctx = canvas.getContext("2d");
+        //ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'black';
+        this.boxes.draw(ctx, model_letter, print_model_letter);
     }
 }
 
