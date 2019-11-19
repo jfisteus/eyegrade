@@ -6,8 +6,10 @@
         <title>Eyegrade: create answer boxes</title>
         <style>
             #answer_box {
-                border: 1px solid black;
+                border: 2px solid rgb(180, 0, 0);
                 margin: 3px;
+                align-self: center;
+                flex: 0 0 auto;
             }
             .exam_config {
                 display:grid;
@@ -22,7 +24,8 @@
             }
             form {
                 max-width: 640px;
-                margin-bottom: 1em;
+                margin-bottom: 1rem;
+                margin-right: 1rem;
             }
             #editor_container {
                 display: flex;
@@ -30,6 +33,48 @@
             }
             #hidden_canvas {
                 display: none;
+            }
+            #download {
+                background-color: rgb(180, 0, 0);
+                border: 0;
+                color: white;
+                font-family: sans-serif;
+                font-weight: 600;
+                line-height: 1;
+                margin-top: 1.5rem;
+                width: 100%;
+                min-width: 10rem;
+                border-radius: 0.75rem;
+                font-size: 1.2em;
+                letter-spacing: 1px;
+                min-height: 3rem;
+
+                @media (min-width: 37.5em) {
+                    width: auto;
+                    padding-left: 2rem;
+                    padding-right: 2rem;
+                    margin-left: 1rem;
+                    margin-right: 1rem;
+                }
+            }
+            #download:hover {
+                background-color: rgb(220, 0, 0);
+            }
+            #download:active {
+                background-color: rgb(255, 0, 0);
+            }
+            #download:focus {
+                outline: 0;
+            }
+            fieldset {
+                border-color:rgb(180, 0, 0);
+                border-width: 2px;
+                border-radius: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            fieldset legend {
+                color:rgb(180, 0, 0);
+                font-weight: 800;
             }
         </style>
     </head>
@@ -69,7 +114,7 @@
                 </fieldset>
                 <input id="download" type="button" value="Download">
             </form>
-            <canvas id="answer_box" width="640" height="480"></canvas>
+            <canvas id="answer_box" width="448" height="336"></canvas>
         </div>
         <div id="hidden_canvas">
             <canvas id="model_A"  width="640" height="480"></canvas>
