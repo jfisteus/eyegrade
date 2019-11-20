@@ -446,7 +446,9 @@ var Geometry = function(num_questions, num_choices, num_tables, num_id_digits) {
             extra_height = 0;
         }
         return {
-            x: ~~((canvas_width - cell_size.width * this.total_columns) / 2),
+            x: ~~((canvas_width
+                - cell_size.width * (this.total_columns - 1)) / 2
+                - cell_size.width),
             y: ~~((canvas_height - tables_height - extra_height) / 2) + extra_height
         };
     }
