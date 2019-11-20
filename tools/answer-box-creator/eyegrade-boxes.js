@@ -488,3 +488,94 @@ var GeometryAnalyzer = {
         return best_geometry;
     }
 }
+
+var TestBoxesCreator = function(test_configurations) {
+    this.test_configurations = test_configurations;
+    this.drawings = [];
+
+    this.draw = function() {
+        for (var i in this.test_configurations) {
+            var config = this.test_configurations[i];
+            var canvas = this.create_canvas();
+            this.drawings.push({
+                "config": config,
+                "canvas": canvas
+            });
+            this.draw_one(config, canvas);
+        }
+    }
+
+    this.download = function() {
+        var zip = new JSZip();
+        var img = zip.folder("test-images");
+        for (var i in this.drawings) {
+            var config = this.drawings[i].config;
+            var canvas = this.drawings[i].canvas;
+            var data_url = canvas.toDataURL();
+            var png_data = data_url.substring(data_url.indexOf('base64,') + 'base64,'.length);
+            var file_name = "test-box-" + config.num_questions
+                            + "-" + config.num_choices
+                            + "-" + config.num_id_digits
+                            + "-" + config.model_letter;
+            img.file(file_name, png_data, {base64: true});
+        }
+        zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                // see FileSaver.js
+                saveAs(content, "test-answer-boxes.zip");
+        });
+    }
+
+    this.create_canvas = function() {
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("width", 640);
+        canvas.setAttribute("height", 480);
+        document.getElementById("hidden_canvas").appendChild(canvas);
+        return canvas;
+    }
+
+    this.draw_one = function(config, canvas) {
+        var context = new AnswerBoxesDrawingContext(
+            config.num_questions,
+            config.num_choices,
+            config.num_id_digits,
+            config.id_box_label);
+        context.draw(canvas, config.model_letter, config.print_model_letter);
+    }
+}
+
+var download_test_images = function(test_configurations) {
+    var creator = new TestBoxesCreator(test_configurations);
+    creator.draw();
+    creator.download();
+}
+
+var DEFAULT_TEST_IMAGES_CONFIG = [{
+    num_questions: 20,
+    num_choices: 4,
+    model_letter: "A",
+    num_id_digits: 9,
+    id_box_label: "Id:",
+    print_model_letter: true
+}, {
+    num_questions: 10,
+    num_choices: 3,
+    model_letter: "B",
+    num_id_digits: 8,
+    id_box_label: "Id:",
+    print_model_letter: true
+}, {
+    num_questions: 3,
+    num_choices: 3,
+    model_letter: "C",
+    num_id_digits: 9,
+    id_box_label: "Id:",
+    print_model_letter: true
+}, {
+    num_questions: 5,
+    num_choices: 2,
+    model_letter: "A",
+    num_id_digits: 12,
+    id_box_label: "Id:",
+    print_model_letter: true
+}];
