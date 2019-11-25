@@ -761,9 +761,7 @@ class Interface:
 
     def save_capture(self, filename):
         """Saves the current capture and its annotations to the given file."""
-        pixmap = QPixmap(self.window.center_view.size())
-        self.window.center_view.render(pixmap)
-        pixmap.save(filename)
+        self.window.center_view.grab().save(filename)
 
     def display_wait_image(self):
         """Displays the default image instead of a camera capture."""

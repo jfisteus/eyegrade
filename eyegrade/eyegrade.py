@@ -274,7 +274,9 @@ class ProgramManager:
         if not self.exam.decisions.model:
             self.interface.enable_manual_detect(True)
         if self.mode.in_grading():
-            self.interface.run_later(self._store_capture_and_add, delay=100)
+            # Run later so that the widget gets fully painted before being
+            # grabbed and saved:
+            self.interface.run_later(self._store_capture_and_add, delay=0)
 
     def _start_auto_change_detection(self):
         if not self.from_manual_detection:
