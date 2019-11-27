@@ -180,16 +180,18 @@ class ExamCapture:
         cv2.rectangle(self.image_drawn, p0, p1, _color_blue, thickness=-1)
 
     def _draw_answers_solutions(self, score):
-        for answer, solution, status, cells in zip(
+        for answer, question_solutions, status, cells in zip(
             score.answers, score.solutions, score.answer_status, self.answer_cells
         ):
             if status == scoring.QuestionScores.CORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_good)
             elif status == scoring.QuestionScores.INCORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_bad)
-                self._draw_cell_center(cells[solution - 1], _color_dot_bad)
+                for solution in question_solutions:
+                    self._draw_cell_center(cells[solution - 1], _color_dot_bad)
             elif status == scoring.QuestionScores.BLANK:
-                self._draw_cell_center(cells[solution - 1], _color_dot_blank)
+                for solution in question_solutions:
+                    self._draw_cell_center(cells[solution - 1], _color_dot_blank)
             elif status == scoring.QuestionScores.VOID:
                 self._draw_void_question(cells)
 

@@ -164,7 +164,7 @@ class Score:
             elif answer == 0:
                 self.blank += 1
                 self.answer_status.append(QuestionScores.BLANK)
-            elif answer == solution:
+            elif answer in solution:
                 self.correct += 1
                 self.answer_status.append(QuestionScores.CORRECT)
             else:

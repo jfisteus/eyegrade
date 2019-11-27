@@ -35,12 +35,11 @@ class SessionDB:
 
     """
 
-    DB_SCHEMA_VERSION = 4
-    COMPATIBLE_SCHEMAS = (1, 2, 3, 4)
+    DB_SCHEMA_VERSION = 5
+    COMPATIBLE_SCHEMAS = (1, 2, 3, 4, 5)
 
-    ALTERATION_VOID_QUESTION = 1
-    ALTERATION_SET_SOLUTION = 2
-    ALTERATION_ADD_CORRECT = 3
+    GRADING_MODE_ONE_CORRECT = 1
+    GRADING_MODE_MULTI_CORRECT = 2
 
     _table_session = """
         CREATE TABLE Session (
@@ -49,7 +48,8 @@ class SessionDB:
             title TEXT,
             description TEXT,
             dimensions TEXT NOT NULL,
-            scores_mode INT NOT NULL,
+            grading_mode INTEGER NOT NULL,
+            scores_mode INTEGER NOT NULL,
             base_score_correct TEXT,
             base_score_incorrect TEXT,
             base_score_blank TEXT,
@@ -63,12 +63,18 @@ class SessionDB:
         CREATE TABLE Questions (
             model INTEGER NOT NULL,
             question INTEGER NOT NULL,
-            solution INTEGER,
             permutation TEXT,
             score_correct TEXT,
             score_incorrect TEXT,
             score_blank TEXT,
             score_weight TEXT
+        )"""
+
+    _table_solutions = """
+        CREATE TABLE Solutions (
+            model INTEGER NOT NULL,
+            question INTEGER NOT NULL,
+            solution INTEGER
         )"""
 
     _table_exams = """
@@ -142,14 +148,6 @@ class SessionDB:
             rdx INTEGER NOT NULL,
             rdy INTEGER NOT NULL,
             FOREIGN KEY(exam_id) REFERENCES Exams(exam_id)
-        )"""
-
-    _table_alterations = """
-        CREATE TABLE Alterations (
-            type INTEGER NOT NULL,
-            model INTEGER NOT NULL,
-            question INTEGER NOT NULL,
-            choice INTEGER
         )"""
 
     _index_student_id = """
@@ -731,8 +729,6 @@ class SessionDB:
             if row["model"] != model:
                 model = row["model"]
                 models.append(model)
-                model_solutions = []
-                solutions[model] = model_solutions
                 model_permutations = []
                 permutations[model] = model_permutations
                 if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
@@ -741,9 +737,6 @@ class SessionDB:
                 elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
                     model_scores = []
                     scores[model] = model_scores
-            if row["question"] != len(model_solutions):
-                raise utils.EyegradeException("", key="session_invalid")
-            model_solutions.append(row["solution"])
             model_permutations.append(row["permutation"])
             if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 model_weights.append(row["score_weight"])
@@ -754,14 +747,36 @@ class SessionDB:
                 model_scores.append(question_scores)
         for m in models:
             model = _Adapter.dec_model(m)
-            if solutions[m][0] is not None:
-                self.exam_config.set_solutions(model, solutions[m])
+            solutions = self._load_solutions(m)
+            if solutions[0] is not None:
+                self.exam_config.set_solutions(model, solutions)
             if permutations[m][0] is not None:
                 self.exam_config.set_permutations(model, permutations[m])
             if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 self.exam_config.set_question_weights(model, weights[m])
             elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
                 self.exam_config.set_question_scores(model, scores[m])
+
+    def _load_solutions(self, model):
+        solutions = [set() for _ in range(self.exam_config.num_questions)]
+        cursor = self.conn.cursor()
+        if self.schema_version >= 5:
+            query = (
+                "SELECT question, solution "
+                "FROM Solutions "
+                "WHERE model=? ORDER BY question"
+            )
+        else:
+            query = (
+                "SELECT question, solution "
+                "FROM Questions "
+                "WHERE model=? ORDER BY question"
+            )
+        for row in cursor.execute(query, (model,)):
+            solutions[row["question"]].add(row["solution"])
+        # Swap empty solutions by None:
+        solutions = [s if s else None for s in solutions]
+        return solutions
 
     def _update_answer(self, exam_id, question, new_answer, commit=True):
         cursor = self.conn.cursor()
@@ -1032,13 +1047,13 @@ def _create_tables(conn):
     cursor = conn.cursor()
     cursor.execute(SessionDB._table_session)
     cursor.execute(SessionDB._table_questions)
+    cursor.execute(SessionDB._table_solutions)
     cursor.execute(SessionDB._table_exams)
     cursor.execute(SessionDB._table_students)
     cursor.execute(SessionDB._table_student_groups)
     cursor.execute(SessionDB._table_answers)
     cursor.execute(SessionDB._table_answer_cells)
     cursor.execute(SessionDB._table_id_cells)
-    cursor.execute(SessionDB._table_alterations)
     cursor.execute(SessionDB._index_student_id)
 
 
@@ -1053,11 +1068,13 @@ def _save_exam_config(conn, exam_data):
         )
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO Session " "VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO Session "
+        "VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             SessionDB.DB_SCHEMA_VERSION,
             utils.version,
             exam_data.format_dimensions(),
+            SessionDB.GRADING_MODE_ONE_CORRECT,
             exam_data.scores_mode,
             base_scores[0],
             base_scores[1],
@@ -1068,14 +1085,11 @@ def _save_exam_config(conn, exam_data):
             exam_data.capture_pattern,
         ),
     )
-    # Store the question solutions, permutations and scores
+    # Store the question permutations and scores
     data = []
     for model in exam_data.models:
         all_model = exam_data.num_questions * [_Adapter.enc_model(model)]
         all_none = exam_data.num_questions * [None]
-        solutions = exam_data.get_solutions(model)
-        if not solutions:
-            solutions = all_none
         permutations = exam_data.get_permutations(model)
         if permutations:
             permutations = [exam_data.format_permutation(p) for p in permutations]
@@ -1098,7 +1112,6 @@ def _save_exam_config(conn, exam_data):
             zip(
                 all_model,
                 range(exam_data.num_questions),
-                solutions,
                 permutations,
                 scores_c,
                 scores_i,
@@ -1106,7 +1119,17 @@ def _save_exam_config(conn, exam_data):
                 weights,
             )
         )
-    cursor.executemany("INSERT INTO Questions VALUES (?, ?, ?, ?, ?, ?, ?, ?)", data)
+    cursor.executemany("INSERT INTO Questions VALUES (?, ?, ?, ?, ?, ?, ?)", data)
+    # Store question solutions
+    data = []
+    for model in exam_data.models:
+        encoded_model = _Adapter.enc_model(model)
+        solutions = exam_data.get_solutions(model)
+        if solutions:
+            for question, question_solutions in enumerate(solutions):
+                for solution in question_solutions:
+                    data.append((encoded_model, question, solution))
+    cursor.executemany("INSERT INTO Solutions VALUES (?, ?, ?)", data)
 
 
 def _save_student_listings(conn, student_listings):
