@@ -592,7 +592,7 @@ class ExamConfig:
 
 class ExamQuestions:
     def __init__(self):
-        self.questions = []
+        self.questions = QuestionsContainer()
         self.subject = None
         self.degree = None
         self.date = None
@@ -653,7 +653,7 @@ class ExamQuestions:
         """Shuffles questions and options within questions for the given model.
 
         """
-        shuffled, permutations = shuffle(self.questions)
+        shuffled, permutations = self.questions.shuffle()
         self.shuffled_questions[model] = shuffled
         self.permutations[model] = permutations
         for question in self.questions:
@@ -677,6 +677,81 @@ class ExamQuestions:
             solutions.append(1 + answers_perm.index(0))
             permutations.append((qid + 1, utils.increment_list(answers_perm)))
         return solutions, permutations
+
+
+class QuestionsContainer:
+    def __init__(self):
+        self.groups = []
+
+    def __len__(self):
+        return sum(len(group) for group in self.groups)
+
+    def __iter__(self):
+        return self._iterate_questions()
+
+    def __getitem__(self, index):
+        if index < 0:
+            pos = len(self) - index
+        else:
+            pos = index
+        i = 0
+        for group in self.groups:
+            if i + len(group) > pos:
+                return group[pos - i]
+            i += len(group)
+        raise IndexError("QuestionsContainer index out of range: {}".format(index))
+
+    def append(self, element):
+        if isinstance(element, QuestionsGroup):
+            self.groups.append(element)
+        else:
+            self.groups.append(QuestionsGroup([element]))
+
+    def shuffle(self):
+        """Returns a tuple (list of questions, permutations) with data shuffled.
+
+        Permutations is another list with the original position of each
+        question. That is, question shuffled[i] was in the original list in
+        permutations[i] position.
+
+        It returns just a list of questions, without groupings.
+
+        """
+        to_sort = [(random.random(), item) for item in self.groups]
+        questions = []
+        permutations = []
+        for _, group in sorted(to_sort):
+            questions.extend(group.questions)
+            permutations.extend(self._positions(group))
+        return questions, permutations
+
+    def _iterate_questions(self):
+        for group in self.groups:
+            for question in group:
+                yield question
+
+    def _positions(self, group):
+        pos = 0
+        for g in self.groups:
+            if g is group:
+                return list(range(pos, pos + len(g)))
+            else:
+                pos += len(g)
+        raise ValueError("Group not in group container")
+
+
+class QuestionsGroup:
+    def __init__(self, questions):
+        self.questions = questions
+
+    def __len__(self):
+        return len(self.questions)
+
+    def __iter__(self):
+        return iter(self.questions)
+
+    def __getitem__(self, index):
+        return self.questions[index]
 
 
 class Question:
@@ -748,7 +823,7 @@ def shuffle(data):
     to_sort = [(random.random(), item, pos) for pos, item in enumerate(data)]
     shuffled_data = []
     permutations = []
-    for __, item, pos in sorted(to_sort):
+    for _, item, pos in sorted(to_sort):
         shuffled_data.append(item)
         permutations.append(pos)
     return shuffled_data, permutations

@@ -26,7 +26,7 @@ from . import scoring
 
 EyegradeException = utils.EyegradeException
 
-namespace = "http://www.it.uc3m.es/jaf/eyegrade/ns/"
+EYEGRADE_NAMESPACE = "http://www.it.uc3m.es/jaf/eyegrade/ns/"
 text_norm_re = re.compile(r"[\ \t\n]+")
 
 # Register user-friendly error messages
@@ -35,7 +35,7 @@ EyegradeException.register_error(
     "The root element of the exam XML with the questions is expected\n"
     "to be named 'exam' in the Eyegrade namespace. Review the\n"
     "syntax of your exam and namespace declarations.\n"
-    "The Eyegrade namespace is: " + namespace,
+    "The Eyegrade namespace is: " + EYEGRADE_NAMESPACE,
 )
 EyegradeException.register_error(
     "exam_one_choices",
@@ -99,21 +99,25 @@ EyegradeException.register_error(
 def parse_exam(dom_tree):
     assert dom_tree.nodeType == dom.Node.DOCUMENT_NODE
     root = dom_tree.childNodes[0]
-    if get_full_name(root) == (namespace, "exam"):
+    if get_full_name(root) == (EYEGRADE_NAMESPACE, "exam"):
         exam = exams.ExamQuestions()
-        exam.subject = get_element_content(root, namespace, "subject")
-        exam.degree = get_element_content(root, namespace, "degree")
-        exam.date = get_element_content(root, namespace, "date")
-        exam.duration = get_element_content(root, namespace, "duration")
-        exam.title = get_element_content(root, namespace, "title")
+        exam.subject = get_element_content(root, EYEGRADE_NAMESPACE, "subject")
+        exam.degree = get_element_content(root, EYEGRADE_NAMESPACE, "degree")
+        exam.date = get_element_content(root, EYEGRADE_NAMESPACE, "date")
+        exam.duration = get_element_content(root, EYEGRADE_NAMESPACE, "duration")
+        exam.title = get_element_content(root, EYEGRADE_NAMESPACE, "title")
         student_id_length, student_id_label = parse_student_id(root)
         if student_id_length is not None:
             exam.student_id_length = student_id_length
         if student_id_label is not None:
             exam.student_id_label = student_id_label
-        exam.questions = []
-        for node in get_children_by_tag_name(root, namespace, "question"):
-            exam.questions.append(parse_question(node))
+        for node in get_children_by_tag_names(
+            root, EYEGRADE_NAMESPACE, ["question", "group"]
+        ):
+            if node.localName == "question":
+                exam.questions.append(parse_question(node))
+            else:
+                exam.questions.append(parse_group(node))
         scores = parse_scores(root)
         if isinstance(scores, scoring.AutomaticScore):
             exam.scores = scores.compute(exam.num_questions(), exam.num_choices())
@@ -129,7 +133,7 @@ def parse_exam(dom_tree):
 def parse_student_id(root):
     student_id_length = None
     student_id_label = None
-    element_list = get_children_by_tag_name(root, namespace, "studentId")
+    element_list = get_children_by_tag_name(root, EYEGRADE_NAMESPACE, "studentId")
     if len(element_list) == 1:
         student_id_element = element_list[0]
         student_id_length = get_attribute_text(student_id_element, "length")
@@ -145,7 +149,7 @@ def parse_student_id(root):
 
 def parse_scores(root):
     scores = None
-    element_list = get_children_by_tag_name(root, namespace, "scores")
+    element_list = get_children_by_tag_name(root, EYEGRADE_NAMESPACE, "scores")
     if len(element_list) == 1:
         score_element = element_list[0]
         max_score_attr = get_attribute_text(score_element, "maxScore")
@@ -179,28 +183,37 @@ def parse_scores(root):
 def parse_question(question_node):
     question = exams.Question()
     question.text = parse_question_component(question_node, False)
-    choices_list = get_children_by_tag_name(question_node, namespace, "choices")
+    choices_list = get_children_by_tag_name(
+        question_node, EYEGRADE_NAMESPACE, "choices"
+    )
     if len(choices_list) != 1:
         raise EyegradeException("", key="exam_one_choices")
     choices = choices_list[0]
-    for node in get_children_by_tag_name(choices, namespace, "correct"):
+    for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "correct"):
         question.correct_choices.append(parse_question_component(node, True))
-    for node in get_children_by_tag_name(choices, namespace, "incorrect"):
+    for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "incorrect"):
         question.incorrect_choices.append(parse_question_component(node, True))
     return question
+
+
+def parse_group(group_node):
+    questions = []
+    for node in get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "question"):
+        questions.append(parse_question(node))
+    return exams.QuestionsGroup(questions)
 
 
 def parse_question_component(parent_node, is_choice):
     component = exams.QuestionComponent(is_choice)
     if not is_choice:
-        component.text = get_question_text_content(parent_node, namespace)
+        component.text = get_question_text_content(parent_node, EYEGRADE_NAMESPACE)
     else:
         component.text = get_element_content_node(parent_node)
     component.code, code_atts = get_element_content_with_attrs(
-        parent_node, namespace, "code", ["width", "position"]
+        parent_node, EYEGRADE_NAMESPACE, "code", ["width", "position"]
     )
     component.figure, figure_atts = get_element_content_with_attrs(
-        parent_node, namespace, "figure", ["width", "position"]
+        parent_node, EYEGRADE_NAMESPACE, "figure", ["width", "position"]
     )
     if component.code is not None:
         if code_atts[1] is None:
@@ -276,7 +289,7 @@ def get_element_content_with_attrs(parent, namespace, local_name, attr_names):
 
 
 def get_attribute_text(element, attribute_name):
-    value = element.getAttributeNS(namespace, attribute_name)
+    value = element.getAttributeNS(EYEGRADE_NAMESPACE, attribute_name)
     if value != "":
         return text_norm_re.sub(" ", value.strip())
     else:
@@ -284,12 +297,16 @@ def get_attribute_text(element, attribute_name):
 
 
 def get_children_by_tag_name(parent, namespace, local_name):
+    return get_children_by_tag_names(parent, namespace, [local_name])
+
+
+def get_children_by_tag_names(parent, namespace, local_names):
     return [
         e
         for e in parent.childNodes
         if (
             e.nodeType == e.ELEMENT_NODE
-            and e.localName == local_name
+            and e.localName in local_names
             and e.namespaceURI == namespace
         )
     ]
