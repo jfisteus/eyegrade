@@ -6,9 +6,10 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This is the user manual for Eyegrade 0.8.
-Versions of this manual for earlier versions
+This is the user manual for Eyegrade 0.9.
+Versions of this manual for earlier releases
 are available:
+`0.8 <../user-manual-0.7>`_,
 `0.7 <../user-manual-0.7>`_,
 `0.6 <../user-manual-0.6>`_,
 `0.5 <../user-manual-0.5>`_,
@@ -1479,6 +1480,37 @@ such as `ProText <https://www.tug.org/protext/>`_:
 
 Advanced features
 -----------------
+
+Preserving the order of some questions when shuffling
+.......................................................
+
+*(New in Eyegrade 0.9)*
+
+When you use `eyegrade-create` to typeset an exam,
+all the questions of the exam get shuffled by default.
+However, you might want sometimes to keep the order
+of some questions that are related and form a logical sequence.
+In order to do that, just wrap those related questions
+with a `group` element in the XML file that defines the questions,
+such as in the following example:
+
+.. include:: ../sample-files/exam-questions-groups.xml
+   :literal:
+
+Every time the questions in the previous example get shuffled,
+the first three questions (Q1, Q2 and Q3) will be treated as a group,
+and their internal order will be preserved.
+That is, Q1, Q2 and Q3 will appear always together and in this order.
+The same will happen with the last two questions (Q6, Q7).
+Some possible orderings will be:
+
+- Q4, Q1, Q2, Q3, Q5, Q6, Q7
+
+- Q6, Q7, Q1, Q2, Q3, Q5, Q4
+
+- Q5, Q4, Q6, Q7, Q1, Q2, Q3
+
+
 
 Creating the exams in a word processor
 ........................................
