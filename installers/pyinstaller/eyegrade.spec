@@ -30,4 +30,4 @@ exe = EXE(pyz,
           strip=None,
           upx=True,
           console=False,
-          icon='eyegrade/data/eyegrade.ico')
+          icon='../../eyegrade/data/eyegrade.ico')
