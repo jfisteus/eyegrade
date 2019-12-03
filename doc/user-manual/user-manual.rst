@@ -1467,7 +1467,7 @@ that provide a graphical installer,
 such as `ProText <https://www.tug.org/protext/>`_:
 
 #. Download the ProText installer
-   (be aware that the size of the download is about 1.7 GB).
+   (be aware that the size of the download is over 3 GB).
 
 #. From the installer, choose to install MiKTex.
    When you are offered a minimal or full installation,
