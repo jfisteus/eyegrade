@@ -367,7 +367,7 @@ def check_latex():
             subprocess.check_call(
                 ["pdflatex", "-version"], stdout=devnull, stderr=devnull
             )
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             success = False
         else:
             success = True
