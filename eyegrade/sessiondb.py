@@ -17,7 +17,6 @@
 #
 import sqlite3
 import os
-import os.path
 
 from . import utils
 from . import scoring

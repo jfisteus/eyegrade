@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 import gettext
-import os.path
+import os
 
 from PyQt5.QtWidgets import (
     QButtonGroup,
