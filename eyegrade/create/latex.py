@@ -192,7 +192,6 @@ class ExamMaker:
             self.survey_mode,
             self.table_width,
             self.table_height,
-            self.table_scale,
             self.left_to_right_numbering,
         )
         if self.id_box_with_answer_table:
@@ -433,7 +432,6 @@ def create_answer_table(
     survey_mode,
     table_width=None,
     table_height=None,
-    table_scale=1.0,
     left_to_right_numbering=False,
 ):
     """Returns a string with the answer tables of the answer sheet.

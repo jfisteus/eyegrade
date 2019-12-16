@@ -407,29 +407,12 @@ class ExamConfig:
         else:
             return None
 
-    def read(self, filename=None, file_=None, data=None):
-        """Reads exam configuration.
-
-           Either 'filename', 'file_' or 'data' must be provided.
-           'filename' specifies the name of a file to read.  'file_' is
-           a file object instead of a file name.  'data' must be a
-           string that contains the actual content of the config file
-           to be parsed. Only one of them should not be None, although
-           this restriction is not enforced: the first one not to be
-           None, in the same order they are specified in the function,
-           is used.
-
-        """
-        assert (filename is not None) or (file_ is not None) or (data is not None)
+    def read(self, filename):
+        """Reads exam configuration."""
         exam_data = configparser.ConfigParser()
-        if filename is not None:
-            files_read = exam_data.read([filename])
-            if len(files_read) != 1:
-                raise IOError("Exam config file not found: " + filename)
-        elif file_ is not None:
-            exam_data.readfp(file_)
-        elif data is not None:
-            exam_data.readfp(io.BytesIO(data))
+        files_read = exam_data.read([filename])
+        if len(files_read) != 1:
+            raise IOError("Exam config file not found: " + filename)
         try:
             self.id_num_digits = exam_data.getint("exam", "id-num-digits")
         except ValueError:
