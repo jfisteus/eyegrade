@@ -19,10 +19,11 @@ from optparse import OptionParser
 import sys
 
 # Local imports
-from . import utils
-from . import exams
-from . import scoring
-from . import exammaker
+from .. import utils
+from .. import scoring
+from . import latex
+from . import parser
+
 
 EyegradeException = utils.EyegradeException
 
@@ -35,25 +36,25 @@ EyegradeException.register_error(
 
 
 def read_cmd_options():
-    parser = OptionParser(
+    arg_parser = OptionParser(
         usage="usage: %prog [options] <template_filename>",
         version=utils.program_name + " " + utils.version,
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-o",
         "--output-file-prefix",
         dest="output_file_prefix",
         help="store the output in the given file",
         default=None,
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-e",
         "--exam",
         dest="exam_filename",
         default=None,
         help="filename of the questions for the exam",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-q",
         "--num-questions",
         type="int",
@@ -61,7 +62,7 @@ def read_cmd_options():
         help="number of questions",
         default=None,
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-c",
         "--num-choices",
         type="int",
@@ -69,7 +70,7 @@ def read_cmd_options():
         help="number of choices per question",
         default=None,
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-n",
         "--num-tables",
         type="int",
@@ -77,25 +78,27 @@ def read_cmd_options():
         help="number of answer tables",
         default=0,
     )
-    parser.add_option("-d", "--date", dest="date", default=None, help="exam date")
-    parser.add_option(
+    arg_parser.add_option("-d", "--date", dest="date", default=None, help="exam date")
+    arg_parser.add_option(
         "-s", "--subject", dest="subject", default=None, help="subject name"
     )
-    parser.add_option("-g", "--degree", dest="degree", default=None, help="degree name")
-    parser.add_option(
+    arg_parser.add_option(
+        "-g", "--degree", dest="degree", default=None, help="degree name"
+    )
+    arg_parser.add_option(
         "-m",
         "--models",
         dest="models",
         default="A",
         help="concatenation of the model leters to create",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-t", "--duration", dest="duration", default=None, help="exam duration time"
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-l", "--title", dest="title", default=None, help="title of the exam"
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-k",
         "--dont-shuffle-again",
         action="store_true",
@@ -103,14 +106,14 @@ def read_cmd_options():
         default=False,
         help="don't shuffle already shuffled models",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-b",
         "--table-dimensions",
         dest="dimensions",
         default=None,
         help="table dimensions",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-f",
         "--force",
         dest="force_config_overwrite",
@@ -118,28 +121,28 @@ def read_cmd_options():
         default=False,
         help="force removal of the previous .eye exam file",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--cw",
         "--correct-weight",
         dest="correct_weight",
         help="score for correct answers",
         default=None,
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--iw",
         "--incorrect-weight",
         dest="incorrect_weight",
         help="negative score for incorrect answers",
         default=None,
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--id-length",
         type="int",
         dest="student_id_length",
         default=None,
         help="Number of digits of student IDs (0 to disable)",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--id-label",
         type="string",
         dest="student_id_label",
@@ -148,7 +151,7 @@ def read_cmd_options():
     )
     # The -w below is maintained for compatibility; its use is deprecated
     # Use -W instead.
-    parser.add_option(
+    arg_parser.add_option(
         "-w",
         "-W",
         "--table-width",
@@ -157,7 +160,7 @@ def read_cmd_options():
         default=None,
         help="answer table width in cm",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-H",
         "--table-height",
         type="float",
@@ -165,7 +168,7 @@ def read_cmd_options():
         default=None,
         help="answer table height in cm",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-S",
         "--table-scale",
         type="float",
@@ -174,7 +177,7 @@ def read_cmd_options():
         help="scale answer table with respect to default"
         " values > 1.0 for augmenting, < 1.0 for reducing",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "-x",
         "--id-box-width",
         type="float",
@@ -182,61 +185,63 @@ def read_cmd_options():
         default=None,
         help="ID box width in cm",
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--left-to-right-numbering",
         dest="left_to_right_numbering",
         action="store_true",
         default=False,
         help=("number questions from left to right instead of " "up to bottom"),
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--survey-mode",
         dest="survey_mode",
         action="store_true",
         default=False,
         help=("this is a survey instead of an exam"),
     )
-    parser.add_option(
+    arg_parser.add_option(
         "--no-pdf",
         dest="no_pdf",
         action="store_true",
         default=False,
         help=("produce the .tex files instead of PDF"),
     )
-    (options, args) = parser.parse_args()
+    (options, args) = arg_parser.parse_args()
     if len(args) != 1:
-        parser.error("Required parameters expected")
+        arg_parser.error("Required parameters expected")
     options.models = options.models.upper()
     # Either -e is specified, or -q and -c are used
     if not options.exam_filename:
         if options.dimensions is None and (
             options.num_questions is None or options.num_choices is None
         ):
-            parser.error(
+            arg_parser.error(
                 "A file with questions must be given, or options"
                 " -q and -c must be set, or tables dimensions"
                 " must be set."
             )
     else:
         if options.num_questions or options.num_choices:
-            parser.error("Option -e is mutually exclusive with -q and -c")
+            arg_parser.error("Option -e is mutually exclusive with -q and -c")
     # Check student id length 0 <= length <= 16
     if options.student_id_length is not None and (
         options.student_id_length < 0 or options.student_id_length > 16
     ):
-        parser.error(
+        arg_parser.error(
             "The number of digits of student IDs must be "
             "between 0 and 16 (both included)"
         )
     # The scale factor must be greater than 0.1
     if options.table_scale < 0.1:
-        parser.error("The scale factor must be positive and greater or equal" " to 0.1")
+        arg_parser.error(
+            "The scale factor must be positive and greater or equal" " to 0.1"
+        )
     # Check score weights
     if options.correct_weight is not None:
         if options.incorrect_weight is None:
             options.incorrect_weight = 0
     elif options.incorrect_weight is not None:
-        parser.error("The score for correct answers is also needed (--cw)")
+        arg_parser.error("The score for correct answers is also needed (--cw)")
     return options, args
 
 
@@ -249,7 +254,7 @@ def create_exam():
 
     # Take options from the input question files
     if options.exam_filename:
-        exam = exams.read_exam_questions(options.exam_filename)
+        exam = parser.parse_exam(options.exam_filename)
         if exam.subject is not None:
             variables["subject"] = exam.subject
         if exam.degree is not None:
@@ -331,7 +336,7 @@ def create_exam():
             output_file = options.output_file_prefix
 
     # Create and call the exam maker object
-    maker = exammaker.ExamMaker(
+    maker = latex.ExamMaker(
         num_questions,
         num_choices,
         template_filename,
@@ -350,7 +355,7 @@ def create_exam():
         survey_mode=options.survey_mode,
     )
     if not options.no_pdf and options.output_file_prefix is not None:
-        if exammaker.check_latex():
+        if latex.check_latex():
             produce_pdf = True
         else:
             produce_pdf = False

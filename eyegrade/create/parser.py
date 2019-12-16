@@ -16,12 +16,12 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-import xml.dom.minidom as dom
+import xml.dom.minidom
 import re
 
-from . import utils
-from . import exams
-from . import scoring
+from .. import utils
+from . import questions
+from .. import scoring
 
 
 EyegradeException = utils.EyegradeException
@@ -96,11 +96,19 @@ EyegradeException.register_error(
 )
 
 
-def parse_exam(dom_tree):
-    assert dom_tree.nodeType == dom.Node.DOCUMENT_NODE
+def parse_exam(exam_filename):
+    """ Parses the questions of a exam from an XML file."""
+    dom_tree = xml.dom.minidom.parse(exam_filename)
+    # By now, only one parser exists. In the future multiple parsers can
+    # be called from here, to allow multiple data formats.
+    return _parse_tree(dom_tree)
+
+
+def _parse_tree(dom_tree):
+    assert dom_tree.nodeType == xml.dom.minidom.Node.DOCUMENT_NODE
     root = dom_tree.childNodes[0]
     if get_full_name(root) == (EYEGRADE_NAMESPACE, "exam"):
-        exam = exams.ExamQuestions()
+        exam = questions.ExamQuestions()
         exam.subject = get_element_content(root, EYEGRADE_NAMESPACE, "subject")
         exam.degree = get_element_content(root, EYEGRADE_NAMESPACE, "degree")
         exam.date = get_element_content(root, EYEGRADE_NAMESPACE, "date")
@@ -181,7 +189,7 @@ def parse_scores(root):
 
 
 def parse_question(question_node):
-    question = exams.Question()
+    question = questions.Question()
     question.text = parse_question_component(question_node, False)
     choices_list = get_children_by_tag_name(
         question_node, EYEGRADE_NAMESPACE, "choices"
@@ -197,14 +205,14 @@ def parse_question(question_node):
 
 
 def parse_group(group_node):
-    questions = []
+    question_list = []
     for node in get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "question"):
-        questions.append(parse_question(node))
-    return exams.QuestionsGroup(questions)
+        question_list.append(parse_question(node))
+    return questions.QuestionsGroup(question_list)
 
 
 def parse_question_component(parent_node, is_choice):
-    component = exams.QuestionComponent(is_choice)
+    component = questions.QuestionComponent(is_choice)
     if not is_choice:
         component.text = get_question_text_content(parent_node, EYEGRADE_NAMESPACE)
     else:

@@ -22,8 +22,8 @@ import sys
 import subprocess
 import os
 
-from . import utils
-from . import exams
+from .. import utils
+from .. import exams
 
 
 param_min_num_questions = 1
@@ -673,7 +673,7 @@ def _create_infobits(bits, num_tables, num_choices, survey_mode):
 def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
-       'exam' is a exams.ExamQuestions object. Writtes the questions
+       'exam' is a create.questions.ExamQuestions object. It writes the questions
        in their 'shuffled' order. If 'with_solution', correct answers
        are marked in the text.
 

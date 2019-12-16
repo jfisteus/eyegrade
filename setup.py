@@ -59,6 +59,6 @@ setuptools.setup(
     },
     entry_points={
         "gui_scripts": ["eyegrade = eyegrade.eyegrade:main"],
-        "console_scripts": ["eyegrade-create = eyegrade.create_exam:main"],
+        "console_scripts": ["eyegrade-create = eyegrade.create.create:main"],
     },
 )

@@ -19,15 +19,15 @@
 import unittest
 import random
 
-import eyegrade.exams as exams
+import eyegrade.create.questions as questions
 
 
 class TestQuestionsContainer(unittest.TestCase):
     def test_dunder_methods(self):
-        container = exams.QuestionsContainer()
+        container = questions.QuestionsContainer()
         container.append("A")
-        container.append(exams.QuestionsGroup(["B", "C"]))
-        container.append(exams.QuestionsGroup(["D", "E", "F"]))
+        container.append(questions.QuestionsGroup(["B", "C"]))
+        container.append(questions.QuestionsGroup(["D", "E", "F"]))
         container.append("G")
         self.assertEqual(len(container), 7)
         self.assertEqual(list(iter(container)), ["A", "B", "C", "D", "E", "F", "G"])
@@ -39,20 +39,20 @@ class TestQuestionsContainer(unittest.TestCase):
         random.seed(1)
         # the first four calls to random.random() with this seed
         # should return 0.13, 0.85, 0.76, 0.26
-        container = exams.QuestionsContainer()
+        container = questions.QuestionsContainer()
         container.append("A")
-        container.append(exams.QuestionsGroup(["B", "C"]))
-        container.append(exams.QuestionsGroup(["D", "E", "F"]))
+        container.append(questions.QuestionsGroup(["B", "C"]))
+        container.append(questions.QuestionsGroup(["D", "E", "F"]))
         container.append("G")
-        questions, permutations = container.shuffle()
-        self.assertEqual(questions, ["A", "G", "D", "E", "F", "B", "C"])
+        question_list, permutations = container.shuffle()
+        self.assertEqual(question_list, ["A", "G", "D", "E", "F", "B", "C"])
         self.assertEqual(permutations, [0, 6, 3, 4, 5, 1, 2])
 
     def test_positions(self):
-        container = exams.QuestionsContainer()
+        container = questions.QuestionsContainer()
         container.append("A")
-        container.append(exams.QuestionsGroup(["B", "C"]))
-        container.append(exams.QuestionsGroup(["D", "E", "F"]))
+        container.append(questions.QuestionsGroup(["B", "C"]))
+        container.append(questions.QuestionsGroup(["D", "E", "F"]))
         container.append("G")
         self.assertEqual(container._positions(container.groups[0]), [0])
         self.assertEqual(container._positions(container.groups[1]), [1, 2])
