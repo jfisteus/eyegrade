@@ -214,7 +214,10 @@ class Question:
         return self.variations[self.selected_variation[model]].correct_choices
 
     def add_variation(
-        self, text: str, correct_choices: List[str], incorrect_choices: List[str]
+        self,
+        text: "QuestionComponent",
+        correct_choices: List["QuestionComponent"],
+        incorrect_choices: List["QuestionComponent"],
     ) -> None:
         variation = QuestionVariation(text, correct_choices, incorrect_choices)
         if self.variations and not self.variations[0].is_compatible(variation):
@@ -241,14 +244,14 @@ class FixedQuestion(Question):
 
     def __init__(
         self,
-        text: str,
+        text: "QuestionComponent",
         correct_choices: List["QuestionComponent"],
         incorrect_choices: List["QuestionComponent"],
     ):
         super().__init__()
         self.add_variation(text, correct_choices, incorrect_choices)
 
-    def text(self, model: str) -> str:
+    def text(self, model: str) -> "QuestionComponent":
         return self.variations[0].text
 
     def shuffled_choices(self, model: str) -> List["QuestionComponent"]:
@@ -259,7 +262,7 @@ class FixedQuestion(Question):
 
     def add_variation(
         self,
-        text: str,
+        text: "QuestionComponent",
         correct_choices: List["QuestionComponent"],
         incorrect_choices: List["QuestionComponent"],
     ) -> None:
@@ -269,13 +272,13 @@ class FixedQuestion(Question):
 
 
 class QuestionVariation:
-    text: str
+    text: "QuestionComponent"
     correct_choices: List["QuestionComponent"]
     incorrect_choices: List["QuestionComponent"]
 
     def __init__(
         self,
-        text: str,
+        text: "QuestionComponent",
         correct_choices: List["QuestionComponent"],
         incorrect_choices: List["QuestionComponent"],
     ):

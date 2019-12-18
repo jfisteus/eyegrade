@@ -17,7 +17,9 @@
 #
 import gettext
 
-from PyQt5.QtGui import QIcon, QKeySequence, QPixmap
+from typing import List, Tuple, Optional
+
+from PyQt5.QtGui import QIcon, QKeySequence
 
 from PyQt5.QtWidgets import (
     QAction,
@@ -59,7 +61,7 @@ class _WorkerSignalEmitter(QObject):
 class Worker(QRunnable):
     """Generic worker class for spawning a task to other thread."""
 
-    _active_workers = []
+    _active_workers: List["Worker"] = []
     _worker_count = 0
 
     def __init__(self, task):
@@ -97,7 +99,7 @@ class Worker(QRunnable):
 class ActionsManager:
     """Creates and manages the toolbar buttons."""
 
-    _actions_grading_data = [
+    _actions_grading_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("start", "start.svg", _("&Start grading"), []),
         ("stop", "stop.svg", _("S&top grading"), []),
         ("back", "back.svg", _("&Back to session home"), []),
@@ -119,7 +121,7 @@ class ActionsManager:
         ),
     ]
 
-    _actions_session_data = [
+    _actions_session_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("new", "new.svg", _("&New session"), []),
         ("open", "open.svg", _("&Open session"), []),
         ("close", "close.svg", _("&Close session"), [Qt.Key_Escape]),
@@ -127,31 +129,33 @@ class ActionsManager:
         ("exit", "exit.svg", _("&Exit"), []),
     ]
 
-    _actions_exams_data = [
+    _actions_exams_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("search", "search.svg", _("&Search"), []),
         ("students", None, _("S&tudents"), []),
         ("export", "export.svg", _("&Export grades listing"), []),
     ]
 
-    _actions_tools_data = [
+    _actions_tools_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("camera", "camera.svg", _("Select &camera"), []),
         ("export_exam_config", None, _("E&xport exam configuration"), []),
     ]
 
-    _actions_help_data = [
+    _actions_help_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("help", None, _("Online &Help"), []),
         ("website", None, _("&Website"), []),
         ("source", None, _("&Source code at GitHub"), []),
         ("about", None, _("&About"), []),
     ]
 
-    _actions_debug_data = [
+    _actions_debug_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("+show_status", None, _("Show &status"), []),
         ("+lines", None, _("Show &lines"), []),
         ("+processed", None, _("Show &processed image"), []),
     ]
 
-    _actions_experimental = [("+auto_change", None, _("Continue on exam &removal"), [])]
+    _actions_experimental: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
+        ("+auto_change", None, _("Continue on exam &removal"), [])
+    ]
 
     def __init__(self, window):
         """Creates a manager for the given toolbar object."""
