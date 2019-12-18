@@ -128,19 +128,19 @@ class GroupListing:
     def student(self, student_id):
         return self._students_dict.get(student_id, None)
 
-    def add_students(self, students):
-        if students:
+    def add_students(self, student_list):
+        if student_list:
             if self.parent is not None:
-                duplicates = self.parent.find_duplicates(students)
+                duplicates = self.parent.find_duplicates(student_list)
             else:
-                duplicates = self.find_duplicates(students)
+                duplicates = self.find_duplicates(student_list)
             if not duplicates:
-                if students[0].sequence_num is None:
-                    self._update_sequence_num(students)
-                self.students.extend(students)
-                for student in students:
+                if student_list[0].sequence_num is None:
+                    self._update_sequence_num(student_list)
+                self.students.extend(student_list)
+                for student in student_list:
                     student.group_id = self.group.identifier
-                self._students_dict.update({s.student_id: s for s in students})
+                self._students_dict.update({s.student_id: s for s in student_list})
             else:
                 raise DuplicateStudentIdException(duplicates)
 
@@ -227,8 +227,7 @@ class StudentListings:
         for listing in self.listings:
             if listing.group.identifier == group_id:
                 return listing
-        else:
-            raise KeyError(group_id)
+        raise KeyError(group_id)
 
     def find_duplicates(self, students):
         non_duplicates, duplicates = _duplicate_student_ids(students)
@@ -321,6 +320,7 @@ class StudentReader:
 class CSVStudentReader(StudentReader):
     def __init__(self, file_name):
         super().__init__(file_name)
+        self.file = None
 
     def __enter__(self):
         self.file = open(self.file_name, newline="")
@@ -433,7 +433,7 @@ class StudentColumnMap:
         student = Student("", "", "", "", "")
         for i, item in enumerate(row[:num_columns]):
             if self.columns[i] != StudentColumn.UNKNOWN:
-                value = str(row[i])
+                value = str(item)
                 self._check_value(self.columns[i], value)
                 attr_name = ATTR_NAME[self.columns[i]]
                 setattr(student, attr_name, value)
@@ -493,7 +493,7 @@ class StudentColumnMap:
     def guess_map(row):
         column_map = StudentColumnMap(num_columns=len(row))
         for i, item in enumerate(row):
-            value = str(row[i])
+            value = str(item)
             if _re_student_id.match(value):
                 column = StudentColumn.ID
             elif _re_email.match(value):

@@ -834,9 +834,7 @@ class ProgramManager:
         self.sessiondb.store_exam(
             exam.exam_id, exam.capture, exam.decisions, exam.score, store_captures=False
         )
-        self.sessiondb.save_raw_capture(
-            exam.exam_id, exam.capture, exam.decisions.student
-        )
+        self.sessiondb.save_raw_capture(exam.exam_id, exam.capture)
 
     def _store_capture(self, exam):
         self.sessiondb.save_drawn_capture(

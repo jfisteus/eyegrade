@@ -211,7 +211,7 @@ class SessionDB:
             self._store_id_cells(exam_id, exam_capture.id_cells, commit=False)
         self.conn.commit()
         if store_captures:
-            self.save_raw_capture(exam_id, exam_capture, decisions.student)
+            self.save_raw_capture(exam_id, exam_capture)
             self.save_drawn_capture(exam_id, exam_capture, decisions.student)
 
     def remove_exam(self, exam_id):
@@ -223,7 +223,7 @@ class SessionDB:
         cursor.execute("DELETE FROM Exams WHERE exam_id=?", (exam_id,))
         self.conn.commit()
         self.remove_drawn_capture(exam_id, student)
-        self.remove_raw_capture(exam_id, student)
+        self.remove_raw_capture(exam_id)
 
     def update_answer(
         self, exam_id, question, exam_capture, decisions, score, store_captures=True
@@ -564,7 +564,7 @@ class SessionDB:
         else:
             exam_capture.save_image_drawn(drawn_name)
 
-    def save_raw_capture(self, exam_id, exam_capture, student):
+    def save_raw_capture(self, exam_id, exam_capture):
         raw_name = os.path.join(
             self.session_dir, "internal", "raw-{0}.png".format(exam_id)
         )
@@ -585,7 +585,7 @@ class SessionDB:
         if os.path.exists(drawn_name):
             os.remove(drawn_name)
 
-    def remove_raw_capture(self, exam_id, student):
+    def remove_raw_capture(self, exam_id):
         raw_name = os.path.join(
             self.session_dir, "internal", "raw-{0}.png".format(exam_id)
         )

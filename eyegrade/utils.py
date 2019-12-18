@@ -48,7 +48,7 @@ results_file_keys = [
 
 default_capture_pattern = "exam-{student-id}-{seq-number}.png"
 
-# The data_dir variable will be intially none.  The functions in this
+# The data_dir variable will be intially None.  The functions in this
 # module that depend on the data directory will initialize it if
 # needed.
 data_dir = None
@@ -100,7 +100,7 @@ def _read_config():
     utils.config variable.
 
     """
-    config = {
+    conf = {
         "camera-dev": "0",
         "save-filename-pattern": default_capture_pattern,
         "csv-dialect": "tabs",
@@ -122,21 +122,21 @@ def _read_config():
         )
     if "default" in parser.sections():
         for option in parser.options("default"):
-            config[option] = parser.get("default", option)
-    if not config["csv-dialect"] in csv.list_dialects():
-        config["csv-dialect"] = "tabs"
-    if "error-logging" in config and config["error-logging"] == "yes":
-        config["error-logging"] = True
+            conf[option] = parser.get("default", option)
+    if not conf["csv-dialect"] in csv.list_dialects():
+        conf["csv-dialect"] = "tabs"
+    if "error-logging" in conf and conf["error-logging"] == "yes":
+        conf["error-logging"] = True
     else:
-        config["error-logging"] = False
-    config["camera-dev"] = int(config["camera-dev"])
-    if config["default-charset"] == "system-default":
-        config["default-charset"] = locale.getpreferredencoding()
-    if "gui-styles" in config:
-        config["gui-styles"] = tuple(v.strip() for v in config["gui-styles"].split(","))
+        conf["error-logging"] = False
+    conf["camera-dev"] = int(conf["camera-dev"])
+    if conf["default-charset"] == "system-default":
+        conf["default-charset"] = locale.getpreferredencoding()
+    if "gui-styles" in conf:
+        conf["gui-styles"] = tuple(v.strip() for v in conf["gui-styles"].split(","))
     else:
-        config["gui-styles"] = None
-    return config
+        conf["gui-styles"] = None
+    return conf
 
 
 class EyegradeException(Exception):
@@ -394,16 +394,15 @@ def _int_to_bin(n, num_digits, reverse=False):
        that function is different.
 
     """
-    bin = []
+    binary = []
     while n > 0:
-        n, r = divmod(n, 2)
-        bin.append(True if r else False)
-    if len(bin) < num_digits:
-        bin.extend([False] * (num_digits - len(bin)))
+        n, remainder = divmod(n, 2)
+        binary.append(bool(remainder))
+    if len(binary) < num_digits:
+        binary.extend([False] * (num_digits - len(binary)))
     if reverse:
-        return bin
-    else:
-        return bin[::-1]
+        return binary
+    return binary[::-1]
 
 
 def read_file(file_name):
