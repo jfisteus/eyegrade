@@ -17,6 +17,7 @@
 #
 
 import random
+from typing import Dict, List, Optional
 
 from .. import utils
 
@@ -58,9 +59,7 @@ class ExamQuestions:
            it returns the maximum. If there are no exams, it returns None.
 
         """
-        num = [
-            len(q.correct_choices) + len(q.incorrect_choices) for q in self.questions
-        ]
+        num = [q.num_choices for q in self.questions]
         if len(num) > 0:
             return max(num)
         else:
@@ -72,9 +71,7 @@ class ExamQuestions:
         Returns None if the list of questions is empty.
 
         """
-        num = [
-            len(q.correct_choices) + len(q.incorrect_choices) for q in self.questions
-        ]
+        num = [q.num_choices for q in self.questions]
         if len(num) > 0:
             return min(num) == max(num)
         else:
@@ -95,10 +92,8 @@ class ExamQuestions:
         self.shuffled_questions[model] = [
             self.questions[i] for i in self.permutations[model]
         ]
-        for q, p in zip(self.shuffled_questions[model], permutation):
-            choices = q.correct_choices + q.incorrect_choices
-            q.permutations[model] = [i - 1 for i in p[1]]
-            q.shuffled_choices[model] = [choices[i - 1] for i in p[1]]
+        for question, permutation in zip(self.shuffled_questions[model], permutation):
+            question.permutations[model] = [i - 1 for i in permutation[1]]
 
     def solutions_and_permutations(self, model):
         solutions = []
@@ -186,17 +181,125 @@ class QuestionsGroup:
 
 
 class Question:
-    def __init__(self):
-        self.text = None
-        self.correct_choices = []
-        self.incorrect_choices = []
-        self.shuffled_choices = {}
-        self.permutations = {}
+    variations: List["QuestionVariation"]
+    permutations: Dict[str, List[int]]
+    selected_variation: Dict[str, int]
 
-    def shuffle(self, model):
-        shuffled, permutations = shuffle(self.correct_choices + self.incorrect_choices)
-        self.shuffled_choices[model] = shuffled
+    def __init__(self):
+        self.variations = []
+        self.permutations = {}
+        self.selected_variation = {}
+
+    @property
+    def num_choices(self) -> int:
+        if not self.variations:
+            raise ValueError("At least one question variation needed")
+        return self.variations[0].num_choices
+
+    @property
+    def num_correct_choices(self) -> int:
+        if not self.variations:
+            raise ValueError("At least one question variation needed")
+        return self.variations[0].num_correct_choices
+
+    def text(self, model: str) -> "QuestionComponent":
+        return self.variations[self.selected_variation[model]].text
+
+    def shuffled_choices(self, model: str) -> List["QuestionComponent"]:
+        return self.variations[self.selected_variation[model]].shuffled_choices(
+            self.permutations[model]
+        )
+
+    def correct_choices(self, model: str) -> List["QuestionComponent"]:
+        return self.variations[self.selected_variation[model]].correct_choices
+
+    def add_variation(
+        self, text: str, correct_choices: List[str], incorrect_choices: List[str]
+    ) -> None:
+        variation = QuestionVariation(text, correct_choices, incorrect_choices)
+        if self.variations and not self.variations[0].is_compatible(variation):
+            raise utils.EyegradeException("incompatible_variation")
+        self.variations.append(variation)
+
+    def shuffle(self, model: str) -> None:
+        if not self.variations:
+            raise ValueError("Cannot shuffle without at least one variation")
+        to_sort = [(random.random(), pos) for pos in range(self.num_choices)]
+        permutations = []
+        for _, pos in sorted(to_sort):
+            permutations.append(pos)
         self.permutations[model] = permutations
+
+    def select_variation(self, model: str, index: int) -> None:
+        if index < 0 or index >= len(self.variations):
+            raise ValueError("Variation index out of range")
+        self.selected_variation[model] = index
+
+
+class FixedQuestion(Question):
+    """ A question without variations, i.e. just one variation."""
+
+    def __init__(
+        self,
+        text: str,
+        correct_choices: List["QuestionComponent"],
+        incorrect_choices: List["QuestionComponent"],
+    ):
+        super().__init__()
+        self.add_variation(text, correct_choices, incorrect_choices)
+
+    def text(self, model: str) -> str:
+        return self.variations[0].text
+
+    def shuffled_choices(self, model: str) -> List["QuestionComponent"]:
+        return self.variations[0].shuffled_choices(self.permutations[model])
+
+    def correct_choices(self, model: str) -> List["QuestionComponent"]:
+        return self.variations[0].correct_choices
+
+    def add_variation(
+        self,
+        text: str,
+        correct_choices: List["QuestionComponent"],
+        incorrect_choices: List["QuestionComponent"],
+    ) -> None:
+        if self.variations:
+            raise ValueError("Just one variation allowed in FixedQuestion")
+        super().add_variation(text, correct_choices, incorrect_choices)
+
+
+class QuestionVariation:
+    text: str
+    correct_choices: List["QuestionComponent"]
+    incorrect_choices: List["QuestionComponent"]
+
+    def __init__(
+        self,
+        text: str,
+        correct_choices: List["QuestionComponent"],
+        incorrect_choices: List["QuestionComponent"],
+    ):
+        self.text = text
+        self.correct_choices = correct_choices
+        self.incorrect_choices = incorrect_choices
+
+    @property
+    def num_choices(self) -> int:
+        return len(self.correct_choices) + len(self.incorrect_choices)
+
+    @property
+    def num_correct_choices(self) -> int:
+        return len(self.correct_choices)
+
+    def is_compatible(self, other: "QuestionVariation") -> bool:
+        return (
+            self.num_choices == other.num_choices
+            and self.num_correct_choices == other.num_correct_choices
+        )
+
+    def shuffled_choices(self, permutation: List[int]) -> List["QuestionComponent"]:
+        choices = self.correct_choices + self.incorrect_choices
+        return [choices[i] for i in permutation]
 
 
 class QuestionComponent:
@@ -206,7 +309,14 @@ class QuestionComponent:
 
     """
 
-    def __init__(self, in_choice):
+    in_choice: bool
+    text: Optional[str]
+    code: Optional[str]
+    figure: Optional[str]
+    annex_width: Optional[float]
+    annex_pos: Optional[str]
+
+    def __init__(self, in_choice: bool):
         self.in_choice = in_choice
         self.text = None
         self.code = None
@@ -214,7 +324,7 @@ class QuestionComponent:
         self.annex_width = None
         self.annex_pos = None
 
-    def check_is_valid(self):
+    def check_is_valid(self) -> None:
         if self.code is not None and self.figure is not None:
             raise Exception("Code and figure cannot be in the same block")
         if (
@@ -231,20 +341,3 @@ class QuestionComponent:
             raise Exception("Centered code cannot have width")
         if not self.in_choice and self.text is None:
             raise Exception("Questions must have a text")
-
-
-def shuffle(data):
-    """Returns a tuple (list, permutations) with data shuffled.
-
-       Permutations is another list with the original position of each
-       term. That is, shuffled[i] was in the original list in
-       permutations[i] position.
-
-    """
-    to_sort = [(random.random(), item, pos) for pos, item in enumerate(data)]
-    shuffled_data = []
-    permutations = []
-    for _, item, pos in sorted(to_sort):
-        shuffled_data.append(item)
-        permutations.append(pos)
-    return shuffled_data, permutations

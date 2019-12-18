@@ -94,6 +94,11 @@ EyegradeException.register_error(
     "penalize_attribute",
     "The value of the penalize attribute must be either 'true' or 'false'.",
 )
+EyegradeException.register_error(
+    "incompatible_variation",
+    "Variations of the same question must contain "
+    "the same number of correct and incorrect choices.",
+)
 
 
 def parse_exam(exam_filename):
@@ -189,19 +194,20 @@ def parse_scores(root):
 
 
 def parse_question(question_node):
-    question = questions.Question()
-    question.text = parse_question_component(question_node, False)
+    text = parse_question_component(question_node, False)
     choices_list = get_children_by_tag_name(
         question_node, EYEGRADE_NAMESPACE, "choices"
     )
     if len(choices_list) != 1:
         raise EyegradeException("", key="exam_one_choices")
     choices = choices_list[0]
+    correct_choices = []
+    incorrect_choices = []
     for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "correct"):
-        question.correct_choices.append(parse_question_component(node, True))
+        correct_choices.append(parse_question_component(node, True))
     for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "incorrect"):
-        question.incorrect_choices.append(parse_question_component(node, True))
-    return question
+        incorrect_choices.append(parse_question_component(node, True))
+    return questions.FixedQuestion(text, correct_choices, incorrect_choices)
 
 
 def parse_group(group_node):

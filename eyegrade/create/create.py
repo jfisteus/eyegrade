@@ -285,7 +285,7 @@ def create_exam():
                 "All the questions in the exam must have the " "same number of choices"
             )
         for q in exam.questions:
-            if len(q.correct_choices) != 1:
+            if q.num_correct_choices != 1:
                 raise Exception("Questions must have exactly 1 correct choice")
     else:
         exam = None
