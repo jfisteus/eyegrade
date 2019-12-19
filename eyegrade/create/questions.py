@@ -18,12 +18,26 @@
 
 import random
 
-from typing import Dict, List, Optional, Iterator, Tuple
+from typing import Dict, List, Optional, Iterator, Tuple, Union, TYPE_CHECKING
 
 from .. import utils
 
+if TYPE_CHECKING:
+    from .. import scoring
+
 
 class ExamQuestions:
+    questions: "QuestionsContainer"
+    subject: Optional[str]
+    degree: Optional[str]
+    date: Optional[str]
+    duration: Optional[str]
+    student_id_label: Optional[str]
+    shuffled_questions: Dict[str, List["Question"]]
+    permutations: Dict[str, List[int]]
+    scores: Optional[Union["scoring.QuestionScores", "scoring.AutomaticScore"]]
+    _student_id_length: int
+
     def __init__(self):
         self.questions = QuestionsContainer()
         self.subject = None
@@ -32,28 +46,28 @@ class ExamQuestions:
         self.duration = None
         self.student_id_label = None
         self._student_id_length = None
-        self.scores = None
         self.shuffled_questions = {}
         self.permutations = {}
+        self.scores = None
 
     @property
-    def student_id_length(self):
+    def student_id_length(self) -> int:
         return self._student_id_length
 
     @student_id_length.setter
-    def student_id_length(self, length):
-        if length >= 0 and length <= 16:
+    def student_id_length(self, length: int) -> None:
+        if 0 <= length <= 16:
             self._student_id_length = length
         else:
             raise utils.EyegradeException(
                 "Student id length must be bewteen " "0 and 16 (both included)"
             )
 
-    def num_questions(self):
+    def num_questions(self) -> int:
         """Returns the number of questions of the exam."""
         return len(self.questions)
 
-    def num_choices(self):
+    def num_choices(self) -> Optional[int]:
         """Returns the number of choices of the questions.
 
            If not all the questions have the same number of choices,
@@ -61,42 +75,42 @@ class ExamQuestions:
 
         """
         num = [q.num_choices for q in self.questions]
-        if len(num) > 0:
+        if num:
             return max(num)
-        else:
-            return None
+        return None
 
-    def homogeneous_num_choices(self):
+    def homogeneous_num_choices(self) -> Optional[bool]:
         """Returns True if all the questions have the same number of choices.
 
         Returns None if the list of questions is empty.
 
         """
         num = [q.num_choices for q in self.questions]
-        if len(num) > 0:
+        if num:
             return min(num) == max(num)
-        else:
-            return None
+        return None
 
-    def shuffle(self, model):
-        """Shuffles questions and options within questions for the given model.
-
-        """
+    def shuffle(self, model: str) -> None:
+        """Shuffles questions and options within questions for the given model."""
         shuffled, permutations = self.questions.shuffle()
         self.shuffled_questions[model] = shuffled
         self.permutations[model] = permutations
         for question in self.questions:
             question.shuffle(model)
 
-    def set_permutation(self, model, permutation):
-        self.permutations[model] = [p[0] - 1 for p in permutation]
+    def set_permutation(
+        self, model: str, permutations: List[Tuple[int, List[int]]]
+    ) -> None:
+        self.permutations[model] = [p[0] - 1 for p in permutations]
         self.shuffled_questions[model] = [
             self.questions[i] for i in self.permutations[model]
         ]
-        for question, permutation in zip(self.shuffled_questions[model], permutation):
+        for question, permutation in zip(self.shuffled_questions[model], permutations):
             question.permutations[model] = [i - 1 for i in permutation[1]]
 
-    def solutions_and_permutations(self, model):
+    def solutions_and_permutations(
+        self, model: str
+    ) -> Tuple[List[int], List[Tuple[int, List[int]]]]:
         solutions = []
         permutations = []
         for qid in self.permutations[model]:
