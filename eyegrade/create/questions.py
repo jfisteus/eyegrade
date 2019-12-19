@@ -17,7 +17,8 @@
 #
 
 import random
-from typing import Dict, List, Optional
+
+from typing import Dict, List, Optional, Iterator, Tuple
 
 from .. import utils
 
@@ -106,16 +107,18 @@ class ExamQuestions:
 
 
 class QuestionsContainer:
+    groups: List["QuestionsGroup"]
+
     def __init__(self):
         self.groups = []
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum(len(group) for group in self.groups)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["Question"]:
         return self._iterate_questions()
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> "Question":
         if index < 0:
             pos = len(self) - index
         else:
@@ -127,13 +130,13 @@ class QuestionsContainer:
             i += len(group)
         raise IndexError("QuestionsContainer index out of range: {}".format(index))
 
-    def append(self, element):
+    def append(self, element: "QuestionsGroup") -> None:
         if isinstance(element, QuestionsGroup):
             self.groups.append(element)
         else:
             self.groups.append(QuestionsGroup([element]))
 
-    def shuffle(self):
+    def shuffle(self) -> Tuple[List["Question"], List[int]]:
         """Returns a tuple (list of questions, permutations) with data shuffled.
 
         Permutations is another list with the original position of each
@@ -151,12 +154,12 @@ class QuestionsContainer:
             permutations.extend(self._positions(group))
         return questions, permutations
 
-    def _iterate_questions(self):
+    def _iterate_questions(self) -> Iterator["Question"]:
         for group in self.groups:
             for question in group:
                 yield question
 
-    def _positions(self, group):
+    def _positions(self, group: "QuestionsGroup") -> List[int]:
         pos = 0
         for g in self.groups:
             if g is group:
@@ -167,16 +170,18 @@ class QuestionsContainer:
 
 
 class QuestionsGroup:
+    questions: List["Question"]
+
     def __init__(self, questions):
         self.questions = questions
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.questions)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["Question"]:
         return iter(self.questions)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> "Question":
         return self.questions[index]
 
 
