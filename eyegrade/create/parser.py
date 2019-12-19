@@ -99,6 +99,10 @@ EyegradeException.register_error(
     "Variations of the same question must contain "
     "the same number of correct and incorrect choices.",
 )
+EyegradeException.register_error(
+    "incompatible_variation_num_group",
+    "Questions within the same group must contain " "the same number of variations.",
+)
 
 
 def parse_exam(exam_filename):

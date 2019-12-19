@@ -26,6 +26,12 @@ if TYPE_CHECKING:
     from .. import scoring
 
 
+utils.EyegradeException.register_error(
+    "same-variation-selected-group",
+    "The same variation must be selected for questions within the same group.",
+)
+
+
 class ExamQuestions:
     questions: "QuestionsContainer"
     subject: Optional[str]
@@ -98,6 +104,16 @@ class ExamQuestions:
         for question in self.questions:
             question.shuffle(model)
 
+    def shuffle_variations(self, model: str) -> None:
+        """Chooses a variation for each question randomly."""
+        self.questions.shuffle_variations(model)
+
+    def select_variations(self, model: str, variations: List[int]) -> None:
+        self.questions.select_variations(model, variations)
+
+    def selected_variations(self, model) -> List[int]:
+        return [question.selected_variation[model] for question in self.questions]
+
     def set_permutation(
         self, model: str, permutations: List[Tuple[int, List[int]]]
     ) -> None:
@@ -144,7 +160,7 @@ class QuestionsContainer:
             i += len(group)
         raise IndexError("QuestionsContainer index out of range: {}".format(index))
 
-    def append(self, element: "QuestionsGroup") -> None:
+    def append(self, element: Union["QuestionsGroup", "Question"]) -> None:
         if isinstance(element, QuestionsGroup):
             self.groups.append(element)
         else:
@@ -168,6 +184,24 @@ class QuestionsContainer:
             permutations.extend(self._positions(group))
         return questions, permutations
 
+    def shuffle_variations(self, model: str) -> None:
+        """Chooses a variation for each question randomly.
+
+        Variations are chosen group by group:
+        the same variation is chosen for all the questions of each group.
+
+        """
+        for group in self.groups:
+            group.shuffle_variations(model)
+
+    def select_variations(self, model: str, variations: List[int]) -> None:
+        pos = 0
+        for group in self.groups:
+            group_variations = variations[pos : pos + len(group)]
+            if min(group_variations) < max(group_variations):
+                raise utils.EyegradeException("", key="same-variation-selected-group")
+            group.select_variation(model, group_variations[0])
+
     def _iterate_questions(self) -> Iterator["Question"]:
         for group in self.groups:
             for question in group:
@@ -175,19 +209,28 @@ class QuestionsContainer:
 
     def _positions(self, group: "QuestionsGroup") -> List[int]:
         pos = 0
-        for g in self.groups:
-            if g is group:
-                return list(range(pos, pos + len(g)))
+        for other_group in self.groups:
+            if other_group is group:
+                return list(range(pos, pos + len(other_group)))
             else:
-                pos += len(g)
+                pos += len(other_group)
         raise ValueError("Group not in group container")
 
 
 class QuestionsGroup:
     questions: List["Question"]
 
-    def __init__(self, questions):
+    def __init__(self, questions: List["Question"]):
+        if not questions:
+            raise ValueError("Empty QuestionsGroup are not allowed")
         self.questions = questions
+        self._check_number_variations()
+
+    @property
+    def num_variations(self) -> int:
+        # All questions have been checked to have
+        # the same number of variations by the constructor.
+        return self.questions[0].num_variations
 
     def __len__(self) -> int:
         return len(self.questions)
@@ -197,6 +240,25 @@ class QuestionsGroup:
 
     def __getitem__(self, index) -> "Question":
         return self.questions[index]
+
+    def shuffle_variations(self, model: str) -> None:
+        """Chooses a variation for this group randomly.
+
+        All questions get the same variation.
+
+        """
+        variation = random.randrange(self.num_variations)
+        for question in self.questions:
+            question.select_variation(model, variation)
+
+    def select_variation(self, model: str, variation: int) -> None:
+        for question in self.questions:
+            question.select_variation(model, variation)
+
+    def _check_number_variations(self) -> None:
+        num_variations = [question.num_variations for question in self.questions]
+        if min(num_variations) < max(num_variations):
+            raise utils.EyegradeException("", key="incompatible_variation_num_group")
 
 
 class Question:
@@ -221,6 +283,10 @@ class Question:
             raise ValueError("At least one question variation needed")
         return self.variations[0].num_correct_choices
 
+    @property
+    def num_variations(self) -> int:
+        return len(self.variations)
+
     def text(self, model: str) -> "QuestionComponent":
         return self.variations[self.selected_variation[model]].text
 
@@ -240,7 +306,7 @@ class Question:
     ) -> None:
         variation = QuestionVariation(text, correct_choices, incorrect_choices)
         if self.variations and not self.variations[0].is_compatible(variation):
-            raise utils.EyegradeException("incompatible_variation")
+            raise utils.EyegradeException("", key="incompatible_variation")
         self.variations.append(variation)
 
     def shuffle(self, model: str) -> None:
@@ -338,9 +404,9 @@ class QuestionComponent:
     annex_width: Optional[float]
     annex_pos: Optional[str]
 
-    def __init__(self, in_choice: bool):
+    def __init__(self, in_choice: bool, text: Optional[str] = None):
         self.in_choice = in_choice
-        self.text = None
+        self.text = text
         self.code = None
         self.figure = None
         self.annex_width = None
