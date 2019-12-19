@@ -111,6 +111,9 @@ class ExamQuestions:
     def select_variations(self, model: str, variations: List[int]) -> None:
         self.questions.select_variations(model, variations)
 
+    def select_variation(self, model: str, variation: int) -> None:
+        self.select_variations(model, [variation] * self.num_questions())
+
     def selected_variations(self, model) -> List[int]:
         return [question.selected_variation[model] for question in self.questions]
 
@@ -319,8 +322,13 @@ class Question:
         self.permutations[model] = permutations
 
     def select_variation(self, model: str, index: int) -> None:
-        if index < 0 or index >= len(self.variations):
-            raise ValueError("Variation index out of range")
+        if index < 0:
+            raise ValueError("Variation index out of range (negative)")
+        elif index >= len(self.variations):
+            if len(self.variations) == 1:
+                index = 0
+            else:
+                raise ValueError("Variation index out of range")
         self.selected_variation[model] = index
 
 
