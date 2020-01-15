@@ -22,8 +22,8 @@ import sys
 import subprocess
 import os
 
-from . import utils
-from . import exams
+from .. import utils
+from .. import exams
 
 
 param_min_num_questions = 1
@@ -192,7 +192,6 @@ class ExamMaker:
             self.survey_mode,
             self.table_width,
             self.table_height,
-            self.table_scale,
             self.left_to_right_numbering,
         )
         if self.id_box_with_answer_table:
@@ -433,7 +432,6 @@ def create_answer_table(
     survey_mode,
     table_width=None,
     table_height=None,
-    table_scale=1.0,
     left_to_right_numbering=False,
 ):
     """Returns a string with the answer tables of the answer sheet.
@@ -673,7 +671,7 @@ def _create_infobits(bits, num_tables, num_choices, survey_mode):
 def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
-       'exam' is a exams.ExamQuestions object. Writtes the questions
+       'exam' is a create.questions.ExamQuestions object. It writes the questions
        in their 'shuffled' order. If 'with_solution', correct answers
        are marked in the text.
 
@@ -708,36 +706,38 @@ def format_question(question, model, with_solution=False):
     if model == "0":
         choices = question.correct_choices + question.incorrect_choices
     else:
-        choices = question.shuffled_choices[model]
+        choices = question.shuffled_choices(model)
     if (
-        question.text.figure is not None or question.text.code is not None
-    ) and question.text.annex_pos == "right":
-        width_right = question.text.annex_width + param_table_sep
+        question.text(model).figure is not None or question.text(model).code is not None
+    ) and question.text(model).annex_pos == "right":
+        width_right = question.text(model).annex_width + param_table_sep
         width_left = 1 - width_right - param_table_margin
         data.append(
             "\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}"
             "p{%f\\textwidth}}\n" % (width_left, width_right)
         )
     data.append(r"\item ")
-    data.extend(format_question_component(question.text))
+    data.extend(format_question_component(question.text(model)))
     data.append("\n  \\begin{enumerate}[(a)]\n")
     for choice in choices:
         data.append(r"    \item ")
-        if with_solution and choice in question.correct_choices:
+        if with_solution and choice in question.correct_choices(model):
             data[-1] = data[-1] + r" \textbf{***} "
         data.extend(format_question_component(choice))
         data.append("\n")
     data.append("\n  \\end{enumerate}\n")
     if (
-        question.text.figure is not None or question.text.code is not None
-    ) and question.text.annex_pos == "right":
+        question.text(model).figure is not None or question.text(model).code is not None
+    ) and question.text(model).annex_pos == "right":
         data.append("&\n")
-        if question.text.figure is not None:
+        if question.text(model).figure is not None:
             data.extend(
-                write_figure(question.text.figure, question.text.annex_width, True)
+                write_figure(
+                    question.text(model).figure, question.text(model).annex_width, True
+                )
             )
-        elif question.text.code is not None:
-            data.extend(write_code(question.text.code))
+        elif question.text(model).code is not None:
+            data.extend(write_code(question.text(model).code))
         data.append("\\\\\n\\end{tabular}\n")
     return data
 

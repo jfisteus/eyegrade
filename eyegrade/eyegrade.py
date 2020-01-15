@@ -40,7 +40,8 @@ if (
     and not os.getenv("LC_ALL")
 ):
     lang, enc = locale.getdefaultlocale()
-    os.environ["LANG"] = lang
+    if lang is not None:
+        os.environ["LANG"] = lang
 
 t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext

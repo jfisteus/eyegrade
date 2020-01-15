@@ -24,12 +24,14 @@ import sys
 import re
 import contextlib
 
+from typing import Dict
+
 
 program_name = "eyegrade"
 web_location = "https://www.eyegrade.org/"
 source_location = "https://github.com/jfisteus/eyegrade"
 help_location = "https://www.eyegrade.org/doc/user-manual/"
-version = "0.9.dev1"
+version = "0.9.dev2"
 
 re_model_letter = re.compile("[0a-zA-Z]")
 
@@ -148,8 +150,8 @@ class EyegradeException(Exception):
 
     """
 
-    _error_messages = {}
-    _short_messages = {}
+    _error_messages: Dict[str, str] = {}
+    _short_messages: Dict[str, str] = {}
 
     def __init__(self, message, key=None, format_params=None):
         """Creates a new exception.
