@@ -25,6 +25,12 @@ from . import scoring
 from . import students
 
 
+utils.EyegradeException.register_error(
+    "exam-config-parse-error",
+    "A parsing error occurred in the exam configuration file.",
+)
+
+
 class Exam:
     def __init__(
         self,
@@ -176,6 +182,7 @@ class ExamConfig:
             self.dimensions = []
             self.num_options = []
             self.permutations = {}
+            self.variations = {}
             self.models = []
             self.scores = {}
             self.base_scores = None
@@ -201,6 +208,7 @@ class ExamConfig:
             self.id_num_digits,
             self.dimensions,
             self.permutations,
+            self.variations,
             self.models,
             self.scores,
             self.base_scores,
@@ -256,6 +264,25 @@ class ExamConfig:
         """
         if model in self.permutations:
             return self.permutations[model]
+        else:
+            return None
+
+    def set_variations(self, model, variations):
+        if not isinstance(variations, list):
+            variations = self._parse_variations(variations)
+        if len(variations) != self.num_questions:
+            raise ValueError("Variations with incorrect number of questions")
+        self.variations[model] = variations
+        self.add_model(model)
+
+    def get_variations(self, model):
+        """Returns the variations for the given model.
+
+        If there are no variations for this model, it returns None.
+
+        """
+        if model in self.variations:
+            return self.variations[model]
         else:
             return None
 
@@ -420,19 +447,28 @@ class ExamConfig:
         self.set_dimensions(exam_data.get("exam", "dimensions"))
         has_solutions = exam_data.has_section("solutions")
         has_permutations = exam_data.has_section("permutations")
+        has_variations = exam_data.has_section("variations")
         self.solutions = {}
         self.permutations = {}
+        self.variations = {}
         self.models = []
         if has_solutions:
             for key, value in exam_data.items("solutions"):
                 if not self.re_model.match(key):
-                    raise Exception("Incorrect key in exam config: " + key)
+                    raise utils.EyegradeException(
+                        "Incorrect key in exam config: " + key,
+                        key="exam-config-parse-error",
+                    )
                 model = key[-1].upper()
                 self.set_solutions(model, value)
                 if has_permutations:
                     key = "permutations-" + model
                     value = exam_data.get("permutations", key)
                     self.set_permutations(model, value)
+                if has_variations:
+                    key = "variations-" + model
+                    value = exam_data.get("variations", key)
+                    self.set_variations(model, value)
         has_correct_weight = exam_data.has_option("exam", "correct-weight")
         has_incorrect_weight = exam_data.has_option("exam", "incorrect-weight")
         has_blank_weight = exam_data.has_option("exam", "blank-weight")
@@ -460,8 +496,9 @@ class ExamConfig:
             self.base_scores = None
             self.scores_mode = ExamConfig.SCORES_MODE_NONE
         else:
-            raise Exception(
-                "Exam config must contain correct and incorrect weight or none"
+            raise utils.EyegradeException(
+                "Exam config must contain correct and incorrect weight or none",
+                key="exam-config-parse-error",
             )
         if exam_data.has_option("exam", "left-to-right-numbering"):
             self.left_to_right_numbering = exam_data.getboolean(
@@ -512,6 +549,13 @@ class ExamConfig:
                         model, self.format_permutations(model)
                     )
                 )
+        if self.variations:
+            data.append("")
+            data.append("[variations]")
+            for model in sorted(self.models):
+                data.append(
+                    "variations-{0}: {1}".format(model, self.format_variations(model))
+                )
         if (
             self.scores_mode == ExamConfig.SCORES_MODE_WEIGHTS
             and self.scores
@@ -546,26 +590,35 @@ class ExamConfig:
         num_question, options = permutation
         return "%d{%s}" % (num_question, ",".join([str(n) for n in options]))
 
+    def format_variations(self, model):
+        return "/".join([str(variation) for variation in self.variations[model]])
+
     def format_weights(self, model):
         return ",".join([s.format_weight() for s in self.scores[model]])
 
     def _parse_solutions(self, solutions_str):
         pieces = solutions_str.split("/")
         if len(pieces) != self.num_questions:
-            raise Exception("Wrong number of solutions")
+            raise utils.EyegradeException(
+                "Wrong number of solutions", key="exam-config-parse-error"
+            )
         return [self._parse_question_solution(piece) for piece in pieces]
 
     def _parse_question_solution(self, text):
         pieces = text.split(",")
         if not pieces:
-            raise Exception("Wrong number of solutions to a question")
+            raise utils.EyegradeException(
+                "Wrong number of solutions to a question", key="exam-config-parse-error"
+            )
         return set(int(p) for p in pieces)
 
     def _parse_permutations(self, permutations_str):
         permutations = []
         pieces = permutations_str.split("/")
         if len(pieces) != self.num_questions:
-            raise Exception("Wrong number of permutations")
+            raise utils.EyegradeException(
+                "Wrong number of permutations", key="exam-config-parse-error"
+            )
         for i, piece in enumerate(pieces):
             permutations.append(self._parse_permutation(piece, i))
         return permutations
@@ -575,11 +628,23 @@ class ExamConfig:
         num_question = int(splitted[0])
         options = [int(p) for p in splitted[1][:-1].split(",")]
         if len(options) > self.num_options[question_number]:
-            raise Exception("Wrong number of options in permutation")
+            raise utils.EyegradeException(
+                "Wrong number of options in permutation", key="exam-config-parse-error"
+            )
         return (num_question, options)
+
+    def _parse_variations(self, variations_str):
+        pieces = variations_str.split("/")
+        if len(pieces) != self.num_questions:
+            raise utils.EyegradeException(
+                "Wrong number of variation items", key="exam-config-parse-error"
+            )
+        return [int(variation) for variation in pieces]
 
     def _parse_weights(self, weights_str):
         pieces = weights_str.split(",")
         if len(pieces) != self.num_questions:
-            raise Exception("Wrong number of weight items")
+            raise utils.EyegradeException(
+                "Wrong number of weight items", key="exam-config-parse-error"
+            )
         return [p for p in pieces]

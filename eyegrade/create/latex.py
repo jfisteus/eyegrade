@@ -215,9 +215,15 @@ class ExamMaker:
                         )
                         self.exam_config.solutions[model] = solutions
                         self.exam_config.permutations[model] = permutations
+                        self.exam_config.variations[
+                            model
+                        ] = self.exam_questions.selected_variations(model)
                 else:
-                    p = self.exam_config.permutations[model]
-                    self.exam_questions.set_permutation(model, p)
+                    permutations = self.exam_config.permutations[model]
+                    self.exam_questions.set_permutation(model, permutations)
+                    if model in self.exam_config.variations:
+                        variations = self.exam_config.variations[model]
+                        self.exam_questions.select_variations(model, variations)
             replacements["questions"] = format_questions(
                 self.exam_questions, model, with_solution
             )

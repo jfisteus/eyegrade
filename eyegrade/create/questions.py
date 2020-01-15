@@ -101,10 +101,11 @@ class ExamQuestions:
         shuffled, permutations = self.questions.shuffle()
         self.shuffled_questions[model] = shuffled
         self.permutations[model] = permutations
+        self._shuffle_variations(model)
         for question in self.questions:
             question.shuffle(model)
 
-    def shuffle_variations(self, model: str) -> None:
+    def _shuffle_variations(self, model: str) -> None:
         """Chooses a variation for each question randomly."""
         self.questions.shuffle_variations(model)
 
@@ -115,7 +116,10 @@ class ExamQuestions:
         self.select_variations(model, [variation] * self.num_questions())
 
     def selected_variations(self, model) -> List[int]:
-        return [question.selected_variation[model] for question in self.questions]
+        return [
+            question.selected_variation[model]
+            for question in self.shuffled_questions[model]
+        ]
 
     def set_permutation(
         self, model: str, permutations: List[Tuple[int, List[int]]]
