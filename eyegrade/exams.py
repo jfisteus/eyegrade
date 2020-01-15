@@ -16,7 +16,6 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-import io
 import os
 import re
 import configparser
@@ -44,7 +43,7 @@ class Exam:
         self.score = scoring.Score(decisions.answers, solutions, question_scores)
         rank = self.rank_students()
         self.decisions.set_students_rank(rank)
-        if len(rank) > 0:
+        if rank:
             self.decisions.set_student(rank[0])
         self.sessiondb = sessiondb
 
@@ -175,6 +174,7 @@ class ExamConfig:
             self.solutions = {}
             self.id_num_digits = 0
             self.dimensions = []
+            self.num_options = []
             self.permutations = {}
             self.models = []
             self.scores = {}
@@ -239,7 +239,7 @@ class ExamConfig:
     def set_permutations(self, model, permutations):
         if not isinstance(permutations, list):
             permutations = self._parse_permutations(permutations)
-        elif len(permutations) > 0 and isinstance(permutations[0], str):
+        elif permutations and isinstance(permutations[0], str):
             permutations = [
                 self._parse_permutation(p, i) for i, p in enumerate(permutations)
             ]
@@ -350,7 +350,7 @@ class ExamConfig:
         It returns False if there are no scores set for at least one model.
 
         """
-        if len(self.scores) > 0:
+        if self.scores:
             # We only need to check one list of scores
             return all(s.weight == 1 for s in next(iter(self.scores.values())))
         else:
@@ -370,8 +370,8 @@ class ExamConfig:
             self.scores_mode = ExamConfig.SCORES_MODE_INDIVIDUAL
         elif self.scores_mode != ExamConfig.SCORES_MODE_INDIVIDUAL:
             raise ValueError("Invalid scores mode at set_question_scores")
-        for s in scores:
-            if s.weight != 1:
+        for score in scores:
+            if score.weight != 1:
                 raise ValueError("Only weight 1 scores allowed")
         self._set_question_scores_internal(model, scores)
 
@@ -402,7 +402,7 @@ class ExamConfig:
 
         """
         choices = [dim[0] for dim in self.dimensions]
-        if len(choices) > 0:
+        if choices:
             return max(choices)
         else:
             return None
@@ -438,14 +438,16 @@ class ExamConfig:
         has_blank_weight = exam_data.has_option("exam", "blank-weight")
         self.scores = {}
         if has_correct_weight and has_incorrect_weight:
-            cw = exam_data.get("exam", "correct-weight")
-            iw = exam_data.get("exam", "incorrect-weight")
+            correct_weight = exam_data.get("exam", "correct-weight")
+            incorrect_weight = exam_data.get("exam", "incorrect-weight")
             if has_blank_weight:
-                bw = exam_data.get("exam", "blank-weight")
+                blank_weight = exam_data.get("exam", "blank-weight")
             else:
-                bw = 0
+                blank_weight = 0
             self.scores_mode = ExamConfig.SCORES_MODE_WEIGHTS
-            base_scores = scoring.QuestionScores(cw, iw, bw)
+            base_scores = scoring.QuestionScores(
+                correct_weight, incorrect_weight, blank_weight
+            )
             if not exam_data.has_section("question-score-weights"):
                 self.set_base_scores(base_scores, same_weights=True)
             else:
@@ -494,14 +496,14 @@ class ExamConfig:
             data.append(
                 "blank-weight: {0}".format(self.base_scores.format_blank_score())
             )
-        if len(self.solutions) > 0:
+        if self.solutions:
             data.append("")
             data.append("[solutions]")
             for model in sorted(self.models):
                 data.append(
                     "model-{0}: {1}".format(model, self.format_solutions(model))
                 )
-        if len(self.permutations) > 0:
+        if self.permutations:
             data.append("")
             data.append("[permutations]")
             for model in sorted(self.models):
@@ -512,7 +514,7 @@ class ExamConfig:
                 )
         if (
             self.scores_mode == ExamConfig.SCORES_MODE_WEIGHTS
-            and len(self.scores)
+            and self.scores
             and not self.all_weights_are_one()
         ):
             # If all the scores are equal, there is no need to specify weights
@@ -547,21 +549,21 @@ class ExamConfig:
     def format_weights(self, model):
         return ",".join([s.format_weight() for s in self.scores[model]])
 
-    def _parse_solutions(self, s):
-        pieces = s.split("/")
+    def _parse_solutions(self, solutions_str):
+        pieces = solutions_str.split("/")
         if len(pieces) != self.num_questions:
             raise Exception("Wrong number of solutions")
         return [self._parse_question_solution(piece) for piece in pieces]
 
     def _parse_question_solution(self, text):
         pieces = text.split(",")
-        if len(pieces) < 1:
+        if not pieces:
             raise Exception("Wrong number of solutions to a question")
         return set(int(p) for p in pieces)
 
-    def _parse_permutations(self, s):
+    def _parse_permutations(self, permutations_str):
         permutations = []
-        pieces = s.split("/")
+        pieces = permutations_str.split("/")
         if len(pieces) != self.num_questions:
             raise Exception("Wrong number of permutations")
         for i, piece in enumerate(pieces):
@@ -576,8 +578,8 @@ class ExamConfig:
             raise Exception("Wrong number of options in permutation")
         return (num_question, options)
 
-    def _parse_weights(self, s):
-        pieces = s.split(",")
+    def _parse_weights(self, weights_str):
+        pieces = weights_str.split(",")
         if len(pieces) != self.num_questions:
             raise Exception("Wrong number of weight items")
         return [p for p in pieces]
