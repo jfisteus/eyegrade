@@ -303,7 +303,7 @@ class TestExamConfigScores(unittest.TestCase):
 class TestScore(unittest.TestCase):
     def testScoreNoScores(self):
         answers = [0, 1, 2, 3, 0, 1]
-        solutions = [1, 1, 3, 3, 4, 1]
+        solutions = [{1}, {1}, {3}, {3}, {4}, {1}]
         question_scores = None
         score = scoring.Score(answers, solutions, question_scores)
         self.assertEqual(score.correct, 3)
@@ -314,7 +314,7 @@ class TestScore(unittest.TestCase):
 
     def testScoreEqualScores(self):
         answers = [0, 1, 2, 3, 0, 1]
-        solutions = [1, 1, 3, 3, 4, 1]
+        solutions = [{1}, {1}, {3}, {3}, {4}, {1}]
         base_score = scoring.QuestionScores("1", "1/2", "0")
         question_scores = 6 * [base_score]
         score = scoring.Score(answers, solutions, question_scores)
@@ -326,7 +326,7 @@ class TestScore(unittest.TestCase):
 
     def testScoreDifferentScores(self):
         answers = [0, 1, 2, 3, 0, 1]
-        solutions = [1, 1, 3, 3, 4, 1]
+        solutions = [{1}, {1}, {3}, {3}, {4}, {1}]
         base_score = scoring.QuestionScores("1", "1/2", "0")
         question_scores = [
             base_score,
@@ -345,7 +345,7 @@ class TestScore(unittest.TestCase):
 
     def testScoreError(self):
         answers = [0, 1, 2, 3, 0, 1]
-        solutions = [1, 1, 3, 3, 4, 1]
+        solutions = [{1}, {1}, {3}, {3}, {4}, {1}]
         base_score = scoring.QuestionScores("1", "1/2", "0")
         question_scores = [
             base_score,
@@ -357,6 +357,18 @@ class TestScore(unittest.TestCase):
         self.assertRaises(
             ValueError, scoring.Score, answers, solutions, question_scores
         )
+
+    def testScoreMultipleCorrect(self):
+        answers = [1, 1, 2, 3, 2, 1]
+        solutions = [{1}, {1}, {2, 3}, {3}, {4}, {1}]
+        base_score = scoring.QuestionScores("1", "0", "0")
+        question_scores = 6 * [base_score]
+        score = scoring.Score(answers, solutions, question_scores)
+        self.assertEqual(score.correct, 5)
+        self.assertEqual(score.incorrect, 1)
+        self.assertEqual(score.blank, 0)
+        self.assertEqual(score.score, 5.0)
+        self.assertEqual(score.max_score, 6.0)
 
 
 if __name__ == "__main__":

@@ -370,7 +370,7 @@ class NewSessionPageExamAnswers(QWizardPage):
         for k, v in self.radioGroups.items():
             answer = dict()
             for ak, av in v.items():
-                answer[ak] = abs(int(av.checkedId())) - 1
+                answer[ak] = set({abs(int(av.checkedId())) - 1})
             if formated:
                 answer = list(answer.values())
             response[k] = answer

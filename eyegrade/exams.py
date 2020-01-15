@@ -530,7 +530,12 @@ class ExamConfig:
         return ";".join(["%d,%d" % (cols, rows) for cols, rows in self.dimensions])
 
     def format_solutions(self, model):
-        return "/".join([str(n) for n in self.solutions[model]])
+        return "/".join(
+            [self._format_question_solutions(n) for n in self.solutions[model]]
+        )
+
+    def _format_question_solutions(self, question_solution):
+        return ",".join(str(s) for s in question_solution)
 
     def format_permutations(self, model):
         return "/".join([self.format_permutation(p) for p in self.permutations[model]])
@@ -546,7 +551,13 @@ class ExamConfig:
         pieces = s.split("/")
         if len(pieces) != self.num_questions:
             raise Exception("Wrong number of solutions")
-        return [int(num) for num in pieces]
+        return [self._parse_question_solution(piece) for piece in pieces]
+
+    def _parse_question_solution(self, text):
+        pieces = text.split(",")
+        if len(pieces) < 1:
+            raise Exception("Wrong number of solutions to a question")
+        return set(int(p) for p in pieces)
 
     def _parse_permutations(self, s):
         permutations = []
