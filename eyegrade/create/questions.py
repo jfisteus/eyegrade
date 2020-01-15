@@ -18,7 +18,7 @@
 
 import random
 
-from typing import Dict, List, Optional, Iterator, Tuple, Union, TYPE_CHECKING
+from typing import Dict, List, Set, Optional, Iterator, Tuple, Union, TYPE_CHECKING
 
 from .. import utils
 
@@ -129,12 +129,12 @@ class ExamQuestions:
 
     def solutions_and_permutations(
         self, model: str
-    ) -> Tuple[List[int], List[Tuple[int, List[int]]]]:
+    ) -> Tuple[List[Set[int]], List[Tuple[int, List[int]]]]:
         solutions = []
         permutations = []
         for qid in self.permutations[model]:
             answers_perm = self.questions[qid].permutations[model]
-            solutions.append(1 + answers_perm.index(0))
+            solutions.append({1 + answers_perm.index(0)})
             permutations.append((qid + 1, utils.increment_list(answers_perm)))
         return solutions, permutations
 
