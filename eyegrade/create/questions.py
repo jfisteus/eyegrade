@@ -36,6 +36,7 @@ class ExamQuestions:
     questions: "QuestionsContainer"
     subject: Optional[str]
     degree: Optional[str]
+    title: Optional[str]
     date: Optional[str]
     duration: Optional[str]
     student_id_label: Optional[str]
@@ -48,6 +49,7 @@ class ExamQuestions:
         self.questions = QuestionsContainer()
         self.subject = None
         self.degree = None
+        self.title = None
         self.date = None
         self.duration = None
         self.student_id_label = None
@@ -410,7 +412,7 @@ class QuestionComponent:
     """
 
     in_choice: bool
-    text: Optional[str]
+    text: Optional[Union[str, List[Tuple[str, Optional[str]]]]]
     code: Optional[str]
     figure: Optional[str]
     annex_width: Optional[float]

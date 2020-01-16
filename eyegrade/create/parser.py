@@ -19,9 +19,14 @@
 import xml.dom.minidom
 import re
 
+from typing import List, Iterable, Optional, Tuple, Union, TYPE_CHECKING
+
 from .. import utils
 from . import questions
 from .. import scoring
+
+if TYPE_CHECKING:
+    import xml.dom
 
 
 EyegradeException = utils.EyegradeException
@@ -105,7 +110,7 @@ EyegradeException.register_error(
 )
 
 
-def parse_exam(exam_filename):
+def parse_exam(exam_filename: str) -> questions.ExamQuestions:
     """ Parses the questions of a exam from an XML file."""
     dom_tree = xml.dom.minidom.parse(exam_filename)
     # By now, only one parser exists. In the future multiple parsers can
@@ -113,7 +118,7 @@ def parse_exam(exam_filename):
     return _parse_tree(dom_tree)
 
 
-def _parse_tree(dom_tree):
+def _parse_tree(dom_tree: xml.dom.minidom.Element) -> questions.ExamQuestions:
     assert dom_tree.nodeType == xml.dom.minidom.Node.DOCUMENT_NODE
     root = dom_tree.childNodes[0]
     if get_full_name(root) == (EYEGRADE_NAMESPACE, "exam"):
@@ -147,25 +152,30 @@ def _parse_tree(dom_tree):
     return exam
 
 
-def parse_student_id(root):
+def parse_student_id(
+    root: xml.dom.minidom.Element
+) -> Tuple[Optional[int], Optional[str]]:
     student_id_length = None
     student_id_label = None
     element_list = get_children_by_tag_name(root, EYEGRADE_NAMESPACE, "studentId")
     if len(element_list) == 1:
         student_id_element = element_list[0]
-        student_id_length = get_attribute_text(student_id_element, "length")
+        student_id_length_str = get_attribute_text(student_id_element, "length")
         student_id_label = get_attribute_text(student_id_element, "label")
-        try:
-            student_id_length = int(student_id_length)
-        except ValueError:
-            raise EyegradeException("", key="student_id_number_format")
+        if student_id_length_str is not None:
+            try:
+                student_id_length = int(student_id_length_str)
+            except ValueError:
+                raise EyegradeException("", key="student_id_number_format")
     elif len(element_list) > 1:
         raise EyegradeException("", key="duplicate_studentid_element")
     return student_id_length, student_id_label
 
 
-def parse_scores(root):
-    scores = None
+def parse_scores(
+    root: xml.dom.minidom.Element,
+) -> Optional[Union[scoring.AutomaticScore, scoring.QuestionScores]]:
+    scores: Optional[Union[scoring.AutomaticScore, scoring.QuestionScores]] = None
     element_list = get_children_by_tag_name(root, EYEGRADE_NAMESPACE, "scores")
     if len(element_list) == 1:
         score_element = element_list[0]
@@ -186,8 +196,8 @@ def parse_scores(root):
             scores = scoring.AutomaticScore(max_score_attr, penalize)
         elif correct_attr is not None:
             if incorrect_attr is None:
-                incorrect_attr = 0
-            scores = scoring.QuestionScores(correct_attr, incorrect_attr, 0)
+                incorrect_attr = "0"
+            scores = scoring.QuestionScores(correct_attr, incorrect_attr, "0")
         elif incorrect_attr is not None:
             raise EyegradeException("", key="score_correct_needed")
         else:
@@ -197,7 +207,7 @@ def parse_scores(root):
     return scores
 
 
-def parse_question(question_node):
+def parse_question(question_node: xml.dom.minidom.Element) -> questions.Question:
     text = parse_question_component(question_node, False)
     choices_list = get_children_by_tag_name(
         question_node, EYEGRADE_NAMESPACE, "choices"
@@ -214,14 +224,16 @@ def parse_question(question_node):
     return questions.FixedQuestion(text, correct_choices, incorrect_choices)
 
 
-def parse_group(group_node):
+def parse_group(group_node: xml.dom.minidom.Element) -> questions.QuestionsGroup:
     question_list = []
     for node in get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "question"):
         question_list.append(parse_question(node))
     return questions.QuestionsGroup(question_list)
 
 
-def parse_question_component(parent_node, is_choice):
+def parse_question_component(
+    parent_node: xml.dom.minidom.Element, is_choice: bool
+) -> questions.QuestionComponent:
     component = questions.QuestionComponent(is_choice)
     if not is_choice:
         component.text = get_question_text_content(parent_node, EYEGRADE_NAMESPACE)
@@ -258,7 +270,9 @@ def parse_question_component(parent_node, is_choice):
     return component
 
 
-def get_question_text_content(parent, namespace):
+def get_question_text_content(
+    parent: xml.dom.minidom.Element, namespace: str
+) -> List[Tuple[str, Optional[str]]]:
     parts = []
     node_list = get_children_by_tag_name(parent, namespace, "text")
     if len(node_list) == 1:
@@ -271,54 +285,71 @@ def get_question_text_content(parent, namespace):
                     parts.append(("code", get_text(node.childNodes, False)))
                 else:
                     raise EyegradeException("Unknown element: " + node.localName)
-    elif len(node_list) == 0:
+    elif not node_list:
         raise EyegradeException("", key="missing_text")
-    elif len(node_list) > 1:
+    else:
         raise EyegradeException("", key="duplicate_text")
     return parts
 
 
-def get_element_content(parent, namespace, local_name):
+def get_element_content(
+    parent: xml.dom.minidom.Element, namespace: str, local_name: str
+) -> Optional[str]:
+    content: Optional[str]
     node_list = get_children_by_tag_name(parent, namespace, local_name)
-    if len(node_list) == 1:
-        return get_text(node_list[0].childNodes)
-    elif len(node_list) == 0:
-        return None
-    elif len(node_list) > 1:
+    if not node_list:
+        content = None
+    elif len(node_list) == 1:
+        content = get_text(node_list[0].childNodes)
+    else:
         raise EyegradeException("Duplicate element: " + local_name)
+    return content
 
 
-def get_element_content_node(element_node):
+def get_element_content_node(element_node: xml.dom.minidom.Element) -> Optional[str]:
     return get_text(element_node.childNodes, False)
 
 
-def get_element_content_with_attrs(parent, namespace, local_name, attr_names):
+def get_element_content_with_attrs(
+    parent: xml.dom.minidom.Element,
+    namespace: str,
+    local_name: str,
+    attr_names: Iterable[str],
+) -> Tuple[Optional[str], List[Optional[str]]]:
+    content: Optional[str]
+    att_vals: List[Optional[str]]
     node_list = get_children_by_tag_name(parent, namespace, local_name)
-    if len(node_list) == 1:
-        normalize = True if local_name != "code" else False
+    if not node_list:
+        content = None
+        att_vals = []
+    elif len(node_list) == 1:
+        content = get_text(node_list[0].childNodes, local_name != "code")
         att_vals = []
         for att in attr_names:
             att_vals.append(get_attribute_text(node_list[0], att))
-        return (get_text(node_list[0].childNodes, normalize), att_vals)
-    elif len(node_list) == 0:
-        return None, None
     elif len(node_list) > 1:
         raise EyegradeException("Duplicate element: " + local_name)
+    return content, att_vals
 
 
-def get_attribute_text(element, attribute_name):
+def get_attribute_text(
+    element: xml.dom.minidom.Element, attribute_name: str
+) -> Optional[str]:
     value = element.getAttributeNS(EYEGRADE_NAMESPACE, attribute_name)
     if value != "":
         return text_norm_re.sub(" ", value.strip())
-    else:
-        return None
+    return None
 
 
-def get_children_by_tag_name(parent, namespace, local_name):
+def get_children_by_tag_name(
+    parent: xml.dom.minidom.Element, namespace: str, local_name: str
+) -> List[xml.dom.minidom.Element]:
     return get_children_by_tag_names(parent, namespace, [local_name])
 
 
-def get_children_by_tag_names(parent, namespace, local_names):
+def get_children_by_tag_names(
+    parent: xml.dom.minidom.Element, namespace: str, local_names: Iterable[str]
+) -> List[xml.dom.minidom.Element]:
     return [
         e
         for e in parent.childNodes
@@ -330,26 +361,26 @@ def get_children_by_tag_names(parent, namespace, local_names):
     ]
 
 
-def get_text(node_list, normalize=True):
+def get_text(
+    node_list: xml.dom.minicompat.NodeList, normalize: bool = True
+) -> Optional[str]:
     data = []
     for node in node_list:
         if node.nodeType == node.TEXT_NODE:
             data.append(node.data)
-    if len(data) > 0:
+    if data:
         text = "".join(data)
         if normalize:
             return text_norm_re.sub(" ", text.strip())
-        else:
-            return text
-    else:
-        return None
+        return text
+    return None
 
 
-def get_full_name(element):
+def get_full_name(element: xml.dom.minidom.Element) -> Tuple[str, str]:
     """Returns a tuple with (namespace, local_name) for the given element."""
     return (element.namespaceURI, element.localName)
 
 
-def printable_name(element):
+def printable_name(element: xml.dom.minidom.Element) -> str:
     """Returns a string 'namespace:local_name' for the given element."""
-    return "%s:%s" % (element.namespaceURI, element.localName)
+    return "{}:{}".format(element.namespaceURI, element.localName)
