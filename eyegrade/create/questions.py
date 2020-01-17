@@ -307,13 +307,7 @@ class Question:
     def correct_choices(self, model: str) -> List["QuestionComponent"]:
         return self.variations[self.selected_variation[model]].correct_choices
 
-    def add_variation(
-        self,
-        text: "QuestionComponent",
-        correct_choices: List["QuestionComponent"],
-        incorrect_choices: List["QuestionComponent"],
-    ) -> None:
-        variation = QuestionVariation(text, correct_choices, incorrect_choices)
+    def add_variation(self, variation: "QuestionVariation") -> None:
         if self.variations and not self.variations[0].is_compatible(variation):
             raise utils.EyegradeException("", key="incompatible_variation")
         self.variations.append(variation)
@@ -341,14 +335,9 @@ class Question:
 class FixedQuestion(Question):
     """ A question without variations, i.e. just one variation."""
 
-    def __init__(
-        self,
-        text: "QuestionComponent",
-        correct_choices: List["QuestionComponent"],
-        incorrect_choices: List["QuestionComponent"],
-    ):
+    def __init__(self, variation: "QuestionVariation"):
         super().__init__()
-        self.add_variation(text, correct_choices, incorrect_choices)
+        self.add_variation(variation)
 
     def text(self, model: str) -> "QuestionComponent":
         return self.variations[0].text
@@ -359,15 +348,10 @@ class FixedQuestion(Question):
     def correct_choices(self, model: str) -> List["QuestionComponent"]:
         return self.variations[0].correct_choices
 
-    def add_variation(
-        self,
-        text: "QuestionComponent",
-        correct_choices: List["QuestionComponent"],
-        incorrect_choices: List["QuestionComponent"],
-    ) -> None:
+    def add_variation(self, variation: "QuestionVariation") -> None:
         if self.variations:
             raise ValueError("Just one variation allowed in FixedQuestion")
-        super().add_variation(text, correct_choices, incorrect_choices)
+        super().add_variation(variation)
 
 
 class QuestionVariation:
@@ -412,7 +396,7 @@ class QuestionComponent:
     """
 
     in_choice: bool
-    text: Optional[Union[str, List[Tuple[str, Optional[str]]]]]
+    text: Optional[Union[str, List[Tuple[str, str]]]]
     code: Optional[str]
     figure: Optional[str]
     annex_width: Optional[float]

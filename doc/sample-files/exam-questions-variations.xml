@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
+      xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+  <subject>Set theory</subject>
+  <degree>Mathematics</degree>
+  <title>Final examination</title>
+  <date>January 1st, 2020</date>
+  <duration>10 min.</duration>
+  <studentId eye:label="ID" eye:length="8" />
+  <scores eye:maxScore="100" eye:penalize="false" />
+
+  <question>
+    <!-- Q1 -->
+    <variation>
+      <text>
+        Given the set $A = \{a, b, c, d\}$,
+        what's its cardinality?
+      </text>
+      <choices>
+        <correct>4</correct>
+        <incorrect>3</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </variation>
+    <variation>
+      <text>
+        Given the set $A = \{x, y, z\}$,
+        what's its cardinality?
+      </text>
+      <choices>
+        <correct>3</correct>
+        <incorrect>4</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </variation>
+  </question>
+
+  <question>
+    <!-- Q2 -->
+    <variation_params>
+      <variation>
+        <param eye:name="setA">\{a, b, c, d\}</param>
+        <param eye:name="correct">$\{a, d\}$</param>
+        <param eye:name="incorrect1">$\{a, b, c, d, f\}$</param>
+        <param eye:name="incorrect2">$\{f\}$</param>
+      </variation>
+      <variation>
+        <param eye:name="setA">\{b, d, e, f\}</param>
+        <param eye:name="correct">$\{d, f\}$</param>
+        <param eye:name="incorrect1">$\{a, b, d, e, f\}$</param>
+        <param eye:name="incorrect2">$\{a\}$</param>
+      </variation>
+    </variation_params>
+    <text>
+      What's the intersection of {{setA}} with $\{d, f, a\}$?
+    </text>
+    <choices>
+      <correct>{{correct}}</correct>
+      <incorrect>{{incorrect1}}</incorrect>
+      <incorrect>{{incorrect2}}</incorrect>
+    </choices>
+  </question>
+
+  <group>
+    <variations>
+      <variation>
+        <param eye:name="equation">$2x + 3 = 7$</param>
+        <param eye:name="x">2</param>
+        <param eye:name="xIncorrect1">-2</param>
+        <param eye:name="xIncorrect2">0</param>
+        <param eye:name="equiv1">$2x - 4 = 0$</param>
+        <param eye:name="equiv2">$x + 3 = 3$</param>
+        <param eye:name="equiv3">$2x + 10 = 0$</param>
+      </variation>
+      <variation>
+        <param eye:name="equation">$3x + 2 = 11$</param>
+        <param eye:name="x">3</param>
+        <param eye:name="xIncorrect1">-3</param>
+        <param eye:name="xIncorrect2">0</param>
+        <param eye:name="equiv1">$3x - 9 = 0$</param>
+        <param eye:name="equiv2">$x + 2 = 2$</param>
+        <param eye:name="equiv3">$3x + 13 = 0$</param>
+      </variation>
+    </variations>
+    <question>
+      <text>
+        What's the solution to the equation {{equation}}?
+      </text>
+      <choices>
+        <correct>$x={{x}}$</correct>
+        <incorrect>$x={{xIncorrect1}}$</incorrect>
+        <incorrect>$x={{xIncorrect2}}$</incorrect>
+      </choices>
+    </question>
+    <question>
+      <text>
+        The equation of the previous question is equivalent to:
+      </text>
+      <choices>
+        <correct>$x={{x}}$</correct>
+        <incorrect>$x={{xIncorrect1}}$</incorrect>
+        <incorrect>$x={{xIncorrect2}}$</incorrect>
+      </choices>
+    </question>
+  </group>
+
+  <question>
+    <!-- Q5 -->
+    <text>
+      The powerset of a set $A$ is:
+    </text>
+    <choices>
+      <correct>
+        The set whose elements are all the possible subsets of $A$.
+      </correct>
+      <incorrect>
+        The cartesian product $A \times A$.
+      </incorrect>
+      <incorrect>
+        The set $A \cup A$.
+      </incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <!-- Q6 -->
+    <text>
+      The set of all natural numbers is often denoted with:
+    </text>
+    <choices>
+      <correct>
+        $\mathbb{N}$
+      </correct>
+      <incorrect>
+        $\mathbb{R}$
+      </incorrect>
+      <incorrect>
+        $\mathbb{Z}$
+      </incorrect>
+    </choices>
+  </question>
+</exam>

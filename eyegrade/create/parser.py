@@ -22,8 +22,9 @@ import re
 from typing import List, Iterable, Optional, Tuple, Union, TYPE_CHECKING
 
 from .. import utils
-from . import questions
 from .. import scoring
+from . import questions
+from . import parametric
 
 if TYPE_CHECKING:
     import xml.dom
@@ -106,7 +107,18 @@ EyegradeException.register_error(
 )
 EyegradeException.register_error(
     "incompatible_variation_num_group",
-    "Questions within the same group must contain " "the same number of variations.",
+    "Questions within the same group must contain the same number of variations.",
+)
+EyegradeException.register_error(
+    "incompatible_variations_declarations",
+    "Incompatible elements within the same question: <variation> and <variation_params>",
+)
+EyegradeException.register_error(
+    "multiple_variation_params",
+    "At most one <variation_params> element per question is allowed",
+)
+EyegradeException.register_error(
+    "missing_param_name", "Missing 'eye:name' attribute in <param> element"
 )
 
 
@@ -153,7 +165,7 @@ def _parse_tree(dom_tree: xml.dom.minidom.Element) -> questions.ExamQuestions:
 
 
 def parse_student_id(
-    root: xml.dom.minidom.Element
+    root: xml.dom.minidom.Element,
 ) -> Tuple[Optional[int], Optional[str]]:
     student_id_length = None
     student_id_label = None
@@ -208,9 +220,38 @@ def parse_scores(
 
 
 def parse_question(question_node: xml.dom.minidom.Element) -> questions.Question:
-    text = parse_question_component(question_node, False)
+    question: questions.Question
+    variation_nodes = get_children_by_tag_name(
+        question_node, EYEGRADE_NAMESPACE, "variation"
+    )
+    variation_params_nodes = get_children_by_tag_name(
+        question_node, EYEGRADE_NAMESPACE, "variation_params"
+    )
+    if variation_nodes and variation_params_nodes:
+        raise EyegradeException("", key="incompatible_variations_declarations")
+    if len(variation_params_nodes) > 1:
+        raise EyegradeException("", key="multiple_variation_params")
+    if variation_nodes:
+        question = questions.Question()
+        for node in variation_nodes:
+            question.add_variation(parse_question_variation(node))
+    elif variation_params_nodes:
+        question = parametric.ParametricQuestion(
+            parse_question_variation(question_node)
+        )
+        for parameter_set in parse_variation_params_node(variation_params_nodes[0]):
+            question.add_parameter_set(parameter_set)
+    else:
+        question = questions.FixedQuestion(parse_question_variation(question_node))
+    return question
+
+
+def parse_question_variation(
+    variation_node: xml.dom.minidom.Element,
+) -> questions.QuestionVariation:
+    text = parse_question_component(variation_node, False)
     choices_list = get_children_by_tag_name(
-        question_node, EYEGRADE_NAMESPACE, "choices"
+        variation_node, EYEGRADE_NAMESPACE, "choices"
     )
     if len(choices_list) != 1:
         raise EyegradeException("", key="exam_one_choices")
@@ -221,7 +262,7 @@ def parse_question(question_node: xml.dom.minidom.Element) -> questions.Question
         correct_choices.append(parse_question_component(node, True))
     for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "incorrect"):
         incorrect_choices.append(parse_question_component(node, True))
-    return questions.FixedQuestion(text, correct_choices, incorrect_choices)
+    return questions.QuestionVariation(text, correct_choices, incorrect_choices)
 
 
 def parse_group(group_node: xml.dom.minidom.Element) -> questions.QuestionsGroup:
@@ -270,9 +311,33 @@ def parse_question_component(
     return component
 
 
+def parse_variation_params_node(
+    node: xml.dom.minidom.Element
+) -> List[parametric.ParameterSet]:
+    parameter_sets = []
+    for variation_node in get_children_by_tag_name(
+        node, EYEGRADE_NAMESPACE, "variation"
+    ):
+        parameter_sets.append(parse_parameter_set(variation_node))
+    return parameter_sets
+
+
+def parse_parameter_set(node: xml.dom.minidom.Element) -> parametric.ParameterSet:
+    parameter_set = parametric.ParameterSet()
+    for parameter_node in get_children_by_tag_name(node, EYEGRADE_NAMESPACE, "param"):
+        name = get_attribute_text(parameter_node, "name")
+        if name is None:
+            raise EyegradeException("", key="missing_param_name")
+        value = get_element_content_node(parameter_node)
+        if value is None:
+            value = ""
+        parameter_set.add_parameter(name, value)
+    return parameter_set
+
+
 def get_question_text_content(
     parent: xml.dom.minidom.Element, namespace: str
-) -> List[Tuple[str, Optional[str]]]:
+) -> List[Tuple[str, str]]:
     parts = []
     node_list = get_children_by_tag_name(parent, namespace, "text")
     if len(node_list) == 1:
