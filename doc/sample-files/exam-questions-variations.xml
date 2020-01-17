@@ -64,7 +64,7 @@
   </question>
 
   <group>
-    <variations>
+    <variation_params>
       <variation>
         <param eye:name="equation">$2x + 3 = 7$</param>
         <param eye:name="x">2</param>
@@ -83,8 +83,9 @@
         <param eye:name="equiv2">$x + 2 = 2$</param>
         <param eye:name="equiv3">$3x + 13 = 0$</param>
       </variation>
-    </variations>
+    </variation_params>
     <question>
+      <!-- Q3 -->
       <text>
         What's the solution to the equation {{equation}}?
       </text>
@@ -95,13 +96,14 @@
       </choices>
     </question>
     <question>
+      <!-- Q4 -->
       <text>
         The equation of the previous question is equivalent to:
       </text>
       <choices>
-        <correct>$x={{x}}$</correct>
-        <incorrect>$x={{xIncorrect1}}$</incorrect>
-        <incorrect>$x={{xIncorrect2}}$</incorrect>
+        <correct>{{equiv1}}</correct>
+        <incorrect>{{equiv2}}</incorrect>
+        <incorrect>{{equiv3}}</incorrect>
       </choices>
     </question>
   </group>

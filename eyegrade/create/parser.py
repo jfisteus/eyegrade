@@ -224,23 +224,15 @@ def parse_question(question_node: xml.dom.minidom.Element) -> questions.Question
     variation_nodes = get_children_by_tag_name(
         question_node, EYEGRADE_NAMESPACE, "variation"
     )
-    variation_params_nodes = get_children_by_tag_name(
-        question_node, EYEGRADE_NAMESPACE, "variation_params"
-    )
-    if variation_nodes and variation_params_nodes:
+    parameter_sets = parse_parameter_sets(question_node)
+    if variation_nodes and parameter_sets:
         raise EyegradeException("", key="incompatible_variations_declarations")
-    if len(variation_params_nodes) > 1:
-        raise EyegradeException("", key="multiple_variation_params")
     if variation_nodes:
         question = questions.Question()
         for node in variation_nodes:
             question.add_variation(parse_question_variation(node))
-    elif variation_params_nodes:
-        question = parametric.ParametricQuestion(
-            parse_question_variation(question_node)
-        )
-        for parameter_set in parse_variation_params_node(variation_params_nodes[0]):
-            question.add_parameter_set(parameter_set)
+    elif parameter_sets:
+        question = parse_parametric_question(question_node, parameter_sets)
     else:
         question = questions.FixedQuestion(parse_question_variation(question_node))
     return question
@@ -265,10 +257,38 @@ def parse_question_variation(
     return questions.QuestionVariation(text, correct_choices, incorrect_choices)
 
 
+def parse_parametric_question(
+    node: xml.dom.minidom.Element, parameter_sets: List[parametric.ParameterSet]
+) -> parametric.ParametricQuestion:
+    question = parametric.ParametricQuestion(parse_question_variation(node))
+    for parameter_set in parameter_sets:
+        question.add_parameter_set(parameter_set)
+    return question
+
+
+def parse_parameter_sets(
+    parent: xml.dom.minidom.Element
+) -> List[parametric.ParameterSet]:
+    variation_params_nodes = get_children_by_tag_name(
+        parent, EYEGRADE_NAMESPACE, "variation_params"
+    )
+    if variation_params_nodes:
+        if len(variation_params_nodes) > 1:
+            raise EyegradeException("", key="multiple_variation_params")
+        return parse_variation_params_node(variation_params_nodes[0])
+    else:
+        return []
+
+
 def parse_group(group_node: xml.dom.minidom.Element) -> questions.QuestionsGroup:
-    question_list = []
+    question_list: List[questions.Question] = []
+    parameter_sets = parse_parameter_sets(group_node)
     for node in get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "question"):
-        question_list.append(parse_question(node))
+        if not parameter_sets:
+            question = parse_question(node)
+        else:
+            question = parse_parametric_question(node, parameter_sets)
+        question_list.append(question)
     return questions.QuestionsGroup(question_list)
 
 
@@ -312,7 +332,7 @@ def parse_question_component(
 
 
 def parse_variation_params_node(
-    node: xml.dom.minidom.Element
+    node: xml.dom.minidom.Element,
 ) -> List[parametric.ParameterSet]:
     parameter_sets = []
     for variation_node in get_children_by_tag_name(

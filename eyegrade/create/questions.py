@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 utils.EyegradeException.register_error(
-    "same-variation-selected-group",
+    "same_variation_selected_group",
     "The same variation must be selected for questions within the same group.",
 )
 
@@ -112,7 +112,9 @@ class ExamQuestions:
         self.questions.shuffle_variations(model)
 
     def select_variations(self, model: str, variations: List[int]) -> None:
-        self.questions.select_variations(model, variations)
+        for question, variation in zip(self.shuffled_questions[model], variations):
+            question.select_variation(model, variation)
+        self.questions.check_variations(model)
 
     def select_variation(self, model: str, variation: int) -> None:
         self.select_variations(model, [variation] * self.num_questions())
@@ -203,13 +205,13 @@ class QuestionsContainer:
         for group in self.groups:
             group.shuffle_variations(model)
 
-    def select_variations(self, model: str, variations: List[int]) -> None:
-        pos = 0
+    def check_variations(self, model: str) -> None:
         for group in self.groups:
-            group_variations = variations[pos : pos + len(group)]
-            if min(group_variations) < max(group_variations):
-                raise utils.EyegradeException("", key="same-variation-selected-group")
-            group.select_variation(model, group_variations[0])
+            variations = [
+                question.selected_variation[model] for question in group.questions
+            ]
+            if min(variations) < max(variations):
+                raise utils.EyegradeException("", key="same_variation_selected_group")
 
     def _iterate_questions(self) -> Iterator["Question"]:
         for group in self.groups:
@@ -263,6 +265,11 @@ class QuestionsGroup:
     def select_variation(self, model: str, variation: int) -> None:
         for question in self.questions:
             question.select_variation(model, variation)
+
+    def __str__(self):
+        return (
+            f"<QuestionGroup: {len(self)} questions, {self.num_variations} variations>"
+        )
 
     def _check_number_variations(self) -> None:
         num_variations = [question.num_variations for question in self.questions]
