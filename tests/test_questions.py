@@ -24,7 +24,11 @@ import eyegrade.create.questions as questions
 
 class _FixedQuestion(questions.FixedQuestion):
     def __init__(self, text):
-        super().__init__(questions.QuestionComponent(False, text=text), [], [])
+        super().__init__(
+            questions.QuestionVariation(
+                questions.QuestionComponent(False, text=text), [], []
+            )
+        )
 
 
 class TestQuestionsContainer(unittest.TestCase):
