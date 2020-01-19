@@ -167,7 +167,9 @@ class ExamMaker:
             raise Exception("Incorrect number of questions")
         self.exam_questions = exam
 
-    def create_exam(self, model, shuffle, with_solution=False, produce_pdf=False):
+    def create_exam(
+        self, model, shuffle, variation=None, with_solution=False, produce_pdf=False
+    ):
         """Creates a new exam.
 
            'shuffle' must be a boolean. If True, the exam is shuffled
@@ -208,7 +210,7 @@ class ExamMaker:
                     or model not in self.exam_config.permutations
                     or (model in self.exam_config.permutations and shuffle)
                 ):
-                    self.exam_questions.shuffle(model)
+                    self.exam_questions.shuffle(model, variation=variation)
                     if self.exam_config is not None:
                         solutions, permutations = self.exam_questions.solutions_and_permutations(
                             model

@@ -210,6 +210,13 @@ def read_cmd_options():
         default=False,
         help=("produce the .tex files instead of PDF"),
     )
+    arg_parser.add_argument(
+        "--variation",
+        type=int,
+        dest="variation",
+        help="select the same variation for all questions (set 1 for the first variation)",
+        default=None,
+    )
     args = arg_parser.parse_args()
     args.models = args.models.upper()
     # Either -e is specified, or -q and -c are used
@@ -331,6 +338,11 @@ def create_exam():
             output_file = args.output_file_prefix + "-%s.tex"
         else:
             output_file = args.output_file_prefix
+    if args.variation is None:
+        variation = None
+    else:
+        # Variations in cmd agrs begin at 1. Internally, they begin at 0.
+        variation = args.variation - 1
 
     # Create and call the exam maker object
     maker = latex.ExamMaker(
@@ -364,7 +376,10 @@ def create_exam():
     if not args.survey_mode:
         for model in args.models:
             produced_filename = maker.create_exam(
-                model, not args.dont_shuffle_again, produce_pdf=produce_pdf
+                model,
+                not args.dont_shuffle_again,
+                variation=variation,
+                produce_pdf=produce_pdf,
             )
             if produced_filename is not None:
                 print("Created file:", produced_filename, file=sys.stderr)
@@ -377,7 +392,10 @@ def create_exam():
                 print("Created file:", produced_filename, file=sys.stderr)
     else:
         produced_filename = maker.create_exam(
-            None, not args.dont_shuffle_again, produce_pdf=produce_pdf
+            None,
+            not args.dont_shuffle_again,
+            variation=variation,
+            produce_pdf=produce_pdf,
         )
         print("Created file:", produced_filename, file=sys.stderr)
     if config_filename is not None:

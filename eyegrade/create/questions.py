@@ -31,6 +31,10 @@ utils.EyegradeException.register_error(
     "The same variation must be selected for questions within the same group.",
 )
 
+utils.EyegradeException.register_error(
+    "variation_index_out_of_range", "A variation index out of range was specified."
+)
+
 
 class ExamQuestions:
     questions: "QuestionsContainer"
@@ -98,12 +102,15 @@ class ExamQuestions:
             return min(num) == max(num)
         return None
 
-    def shuffle(self, model: str) -> None:
+    def shuffle(self, model: str, variation: Optional[int] = None) -> None:
         """Shuffles questions and options within questions for the given model."""
         shuffled, permutations = self.questions.shuffle()
         self.shuffled_questions[model] = shuffled
         self.permutations[model] = permutations
-        self._shuffle_variations(model)
+        if variation is None:
+            self._shuffle_variations(model)
+        else:
+            self.select_variation(model, variation)
         for question in self.questions:
             question.shuffle(model)
 
@@ -330,12 +337,18 @@ class Question:
 
     def select_variation(self, model: str, index: int) -> None:
         if index < 0:
-            raise ValueError("Variation index out of range (negative)")
+            raise utils.EyegradeException(
+                f"Expected a value between 1 and the number of variations, got {index + 1}",
+                key="variation_index_out_of_range",
+            )
         elif index >= len(self.variations):
             if len(self.variations) == 1:
                 index = 0
             else:
-                raise ValueError("Variation index out of range")
+                raise utils.EyegradeException(
+                    f"Expected a value between 1 and the number of variations, got {index + 1}",
+                    key="variation_index_out_of_range",
+                )
         self.selected_variation[model] = index
 
 
