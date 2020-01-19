@@ -63,6 +63,7 @@ class SessionDB:
             model INTEGER NOT NULL,
             question INTEGER NOT NULL,
             permutation TEXT,
+            variation INTEGER,
             score_correct TEXT,
             score_incorrect TEXT,
             score_blank TEXT,
@@ -717,6 +718,7 @@ class SessionDB:
         scores_mode = self.exam_config.scores_mode
         solutions = {}
         permutations = {}
+        variations = {}
         scores = {}
         if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
             weights = {}
@@ -730,6 +732,9 @@ class SessionDB:
                 models.append(model)
                 model_permutations = []
                 permutations[model] = model_permutations
+                if self.schema_version >= 5:
+                    model_variations = []
+                    variations[model] = model_variations
                 if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                     model_weights = []
                     weights[model] = model_weights
@@ -737,6 +742,8 @@ class SessionDB:
                     model_scores = []
                     scores[model] = model_scores
             model_permutations.append(row["permutation"])
+            if self.schema_version >= 5:
+                model_variations.append(row["variation"])
             if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 model_weights.append(row["score_weight"])
             elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
@@ -751,6 +758,8 @@ class SessionDB:
                 self.exam_config.set_solutions(model, solutions)
             if permutations[m][0] is not None:
                 self.exam_config.set_permutations(model, permutations[m])
+            if m in variations:
+                self.exam_config.set_variations(model, variations[m])
             if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 self.exam_config.set_question_weights(model, weights[m])
             elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
@@ -1089,11 +1098,15 @@ def _save_exam_config(conn, exam_data):
     for model in exam_data.models:
         all_model = exam_data.num_questions * [_Adapter.enc_model(model)]
         all_none = exam_data.num_questions * [None]
+        all_zero = exam_data.num_questions * [0]
         permutations = exam_data.get_permutations(model)
         if permutations:
             permutations = [exam_data.format_permutation(p) for p in permutations]
         else:
             permutations = all_none
+        variations = exam_data.get_variations(model)
+        if not variations:
+            variations = all_zero
         if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
             weights = all_none
             scores_c = [s.format_correct_score() for s in exam_data.scores[model]]
@@ -1112,13 +1125,14 @@ def _save_exam_config(conn, exam_data):
                 all_model,
                 range(exam_data.num_questions),
                 permutations,
+                variations,
                 scores_c,
                 scores_i,
                 scores_b,
                 weights,
             )
         )
-    cursor.executemany("INSERT INTO Questions VALUES (?, ?, ?, ?, ?, ?, ?)", data)
+    cursor.executemany("INSERT INTO Questions VALUES (?, ?, ?, ?, ?, ?, ?, ?)", data)
     # Store question solutions
     data = []
     for model in exam_data.models:
