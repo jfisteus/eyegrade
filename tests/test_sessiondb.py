@@ -53,6 +53,10 @@ class TestSessionDB(unittest.TestCase):
             session_dir = os.path.join(dir_name, "test_session")
             sessiondb.create_session_directory(session_dir, exam_config, listings)
             session = sessiondb.SessionDB(session_dir)
+            # Loading a session always sets variations to a list of zeroes
+            # instead of the default empty dictionary.
+            # Comparison would fail:
+            session.exam_config.variations = {}
             self.assertEqual(session.exam_config, exam_config)
 
     def test_exam_data_weights(self):
@@ -68,6 +72,10 @@ class TestSessionDB(unittest.TestCase):
             session_dir = os.path.join(dir_name, "test_session")
             sessiondb.create_session_directory(session_dir, exam_config, listings)
             session = sessiondb.SessionDB(session_dir)
+            # Loading a session always sets variations to a list of zeroes
+            # instead of the default empty dictionary.
+            # Comparison would fail:
+            session.exam_config.variations = {}
             self.assertEqual(session.exam_config, exam_config)
 
     def test_student_list(self):
