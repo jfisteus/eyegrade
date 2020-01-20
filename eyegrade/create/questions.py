@@ -44,6 +44,7 @@ class ExamQuestions:
     date: Optional[str]
     duration: Optional[str]
     student_id_label: Optional[str]
+    shuffled_groups: Dict[str, List["QuestionsGroup"]]
     shuffled_questions: Dict[str, List["Question"]]
     permutations: Dict[str, List[int]]
     scores: Optional[Union["scoring.QuestionScores", "scoring.AutomaticScore"]]
@@ -58,6 +59,7 @@ class ExamQuestions:
         self.duration = None
         self.student_id_label = None
         self._student_id_length = None
+        self.shuffled_groups = {}
         self.shuffled_questions = {}
         self.permutations = {}
         self.scores = None
@@ -104,8 +106,9 @@ class ExamQuestions:
 
     def shuffle(self, model: str, variation: Optional[int] = None) -> None:
         """Shuffles questions and options within questions for the given model."""
-        shuffled, permutations = self.questions.shuffle()
-        self.shuffled_questions[model] = shuffled
+        shuffled_groups, shuffled_questions, permutations = self.questions.shuffle()
+        self.shuffled_groups[model] = shuffled_groups
+        self.shuffled_questions[model] = shuffled_questions
         self.permutations[model] = permutations
         if variation is None:
             self._shuffle_variations(model)
@@ -139,6 +142,7 @@ class ExamQuestions:
         self.shuffled_questions[model] = [
             self.questions[i] for i in self.permutations[model]
         ]
+        self.shuffled_groups[model] = self._group_order(self.permutations[model])
         for question, permutation in zip(self.shuffled_questions[model], permutations):
             question.permutations[model] = [i - 1 for i in permutation[1]]
 
@@ -152,6 +156,19 @@ class ExamQuestions:
             solutions.append({1 + answers_perm.index(0)})
             permutations.append((qid + 1, utils.increment_list(answers_perm)))
         return solutions, permutations
+
+    def _group_order(self, permutations: List[int]) -> List["QuestionsGroup"]:
+        """Computes group order from a permutations list."""
+        group_for_question = {}
+        i = 0
+        for group in self.questions.groups:
+            group_for_question[i] = group
+            i += len(group)
+        shuffled_groups = []
+        for question in permutations:
+            if question in group_for_question:
+                shuffled_groups.append(group_for_question[question])
+        return shuffled_groups
 
 
 class QuestionsContainer:
@@ -184,7 +201,7 @@ class QuestionsContainer:
         else:
             self.groups.append(QuestionsGroup([element]))
 
-    def shuffle(self) -> Tuple[List["Question"], List[int]]:
+    def shuffle(self) -> Tuple[List["QuestionsGroup"], List["Question"], List[int]]:
         """Returns a tuple (list of questions, permutations) with data shuffled.
 
         Permutations is another list with the original position of each
@@ -195,12 +212,14 @@ class QuestionsContainer:
 
         """
         to_sort = [(random.random(), item) for item in self.groups]
+        groups = []
         questions = []
         permutations = []
         for _, group in sorted(to_sort):
+            groups.append(group)
             questions.extend(group.questions)
             permutations.extend(self._positions(group))
-        return questions, permutations
+        return groups, questions, permutations
 
     def shuffle_variations(self, model: str) -> None:
         """Chooses a variation for each question randomly.

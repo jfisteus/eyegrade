@@ -687,18 +687,29 @@ def format_questions(exam, model, with_solution=False):
     data = []
     if exam.num_questions() > 0:
         if model == "0":
-            questions = exam.questions
+            groups = exam.questions.groups
         else:
-            questions = exam.shuffled_questions[model]
-        data.append("\\begin{enumerate}[1.-]\n")
-        for question in questions:
-            data.append("\\vspace{2mm}\n")
-            data.extend(format_question(question, model, with_solution))
-            data.append("\n")
-        data.append("\\end{enumerate}\n")
+            groups = exam.shuffled_groups[model]
+        counter = 0
+        for group in groups:
+            if len(group) > 1:
+                data.append("\\[ \\overbrace{\\hspace{0.8\\textwidth}} \\]\n")
+                data.append("\\vspace{-2em}")
+            data.append("\\begin{enumerate}[1.-]\n")
+            data.append("\\setcounter{enumi}{" + str(counter) + "}")
+            for question in group:
+                data.append("\\vspace{2mm}\n")
+                data.extend(format_question(question, model, with_solution))
+                data.append("\n")
+            data.append("\\end{enumerate}\n")
+            if len(group) > 1:
+                data.append("\\vspace{-1.5em}")
+                data.append("\\[ \\underbrace{\\hspace{0.8\\textwidth}} \\]\n")
+                data.append("\\vspace{0.5em}")
+            counter += len(group)
         if model != "0":
             data.append("\n\n% solutions: ")
-            solutions, __ = exam.solutions_and_permutations(model)
+            solutions, _ = exam.solutions_and_permutations(model)
             data.append(" ".join([str(n) for n in solutions]))
             data.append("\n")
     return "".join(data)

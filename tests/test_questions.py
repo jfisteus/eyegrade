@@ -68,7 +68,7 @@ class TestQuestionsContainer(unittest.TestCase):
             )
         )
         container.append(_FixedQuestion("G"))
-        question_list, permutations = container.shuffle()
+        _, question_list, permutations = container.shuffle()
         self.assertEqual(
             _extract_text(question_list), ["A", "G", "D", "E", "F", "B", "C"]
         )
