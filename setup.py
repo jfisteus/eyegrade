@@ -2,10 +2,8 @@ import os
 import sys
 import setuptools
 
-if sys.version_info[0] < 3 or (sys.version[0] == 3 and sys.version[1] < 6):
-    print(
-        "eyegrade does not run in legacy python versions: " "use python 3.6 or later."
-    )
+if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 6):
+    print("eyegrade does not run in legacy python versions: use python 3.6 or later.")
     sys.exit(1)
 
 # read the contents of the README file
@@ -35,7 +33,7 @@ setuptools.setup(
     package_data={
         "eyegrade": ["data/*", "data/svm/*", "data/locale/*/LC_MESSAGES/eyegrade.mo"]
     },
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=requirements,
     test_suite="tests.get_tests",
     classifiers=[
