@@ -12,11 +12,13 @@
   <scores eye:maxScore="100" eye:penalize="false" />
 
   <group>
+    <text>
+      Given the set $A = \{a, b, c, d\}$:
+    </text>
     <question>
       <!-- Q1 -->
       <text>
-        Given the set $A = \{a, b, c, d\}$,
-        what's its cardinality?
+        What's the cardinality of $A$?
       </text>
       <choices>
         <correct>4</correct>

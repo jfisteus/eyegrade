@@ -49,6 +49,24 @@ class ParametricQuestion(questions.Question):
         super().add_variation(parameter_set.apply_to(self.question_pattern))
 
 
+class ParametricGroupCommonComponent(questions.GroupCommonComponent):
+    """Group common component with parametric variations."""
+
+    component_pattern: questions.QuestionComponent
+    parameter_sets: List["ParameterSet"]
+
+    def __init__(self, component_pattern: questions.QuestionComponent) -> None:
+        super().__init__()
+        self.component_pattern = component_pattern
+        self.parameter_sets = []
+
+    def add_parameter_set(self, parameter_set: "ParameterSet"):
+        self.parameter_sets.append(parameter_set)
+        super().add_variation(
+            parameter_set.apply_to_question_component(self.component_pattern)
+        )
+
+
 class ParameterSet:
     """Container for a set of name/value parameters."""
 
@@ -63,18 +81,18 @@ class ParameterSet:
     def apply_to(
         self, question_pattern: questions.QuestionVariation
     ) -> questions.QuestionVariation:
-        text = self._apply_to_question_component(question_pattern.text)
+        text = self.apply_to_question_component(question_pattern.text)
         correct_choices = [
-            self._apply_to_question_component(choice)
+            self.apply_to_question_component(choice)
             for choice in question_pattern.correct_choices
         ]
         incorrect_choices = [
-            self._apply_to_question_component(choice)
+            self.apply_to_question_component(choice)
             for choice in question_pattern.incorrect_choices
         ]
         return questions.QuestionVariation(text, correct_choices, incorrect_choices)
 
-    def _apply_to_question_component(
+    def apply_to_question_component(
         self, component: questions.QuestionComponent
     ) -> questions.QuestionComponent:
         replaced = questions.QuestionComponent(component.in_choice)
@@ -94,8 +112,7 @@ class ParameterSet:
     def _apply_to_text_part(self, part: Tuple[str, str]) -> Tuple[str, str]:
         if part[0] == "text":
             return ("text", self._apply_to_text(part[1]))
-        else:
-            return part
+        return part
 
     def _apply_to_text(self, text: str) -> str:
         replaced: List[str]

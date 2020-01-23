@@ -141,9 +141,11 @@ class ExamMaker:
         self.table_scale = table_scale
         self.id_box_width = id_box_width
         if table_width is None and table_height is None:
-            self.table_width, self.table_height, self.id_box_width = (
-                self._compute_table_size()
-            )
+            (
+                self.table_width,
+                self.table_height,
+                self.id_box_width,
+            ) = self._compute_table_size()
         else:
             self.table_width = table_width
             self.table_height = table_height
@@ -212,9 +214,10 @@ class ExamMaker:
                 ):
                     self.exam_questions.shuffle(model, variation=variation)
                     if self.exam_config is not None:
-                        solutions, permutations = self.exam_questions.solutions_and_permutations(
-                            model
-                        )
+                        (
+                            solutions,
+                            permutations,
+                        ) = self.exam_questions.solutions_and_permutations(model)
                         self.exam_config.solutions[model] = solutions
                         self.exam_config.permutations[model] = permutations
                         self.exam_config.variations[
@@ -692,20 +695,9 @@ def format_questions(exam, model, with_solution=False):
             groups = exam.shuffled_groups[model]
         counter = 0
         for group in groups:
-            if len(group) > 1:
-                data.append("\\[ \\overbrace{\\hspace{0.8\\textwidth}} \\]\n")
-                data.append("\\vspace{-2em}")
-            data.append("\\begin{enumerate}[1.-]\n")
-            data.append("\\setcounter{enumi}{" + str(counter) + "}")
-            for question in group:
-                data.append("\\vspace{2mm}\n")
-                data.extend(format_question(question, model, with_solution))
-                data.append("\n")
-            data.append("\\end{enumerate}\n")
-            if len(group) > 1:
-                data.append("\\vspace{-1.5em}")
-                data.append("\\[ \\underbrace{\\hspace{0.8\\textwidth}} \\]\n")
-                data.append("\\vspace{0.5em}")
+            data.extend(
+                format_group(group, model, counter, with_solution=with_solution)
+            )
             counter += len(group)
         if model != "0":
             data.append("\n\n% solutions: ")
@@ -713,6 +705,38 @@ def format_questions(exam, model, with_solution=False):
             data.append(" ".join([str(n) for n in solutions]))
             data.append("\n")
     return "".join(data)
+
+
+def format_group(group, model, question_counter, with_solution=False):
+    data = []
+    if group.common_text is not None:
+        common_component = group.common_text.component(model)
+    else:
+        common_component = None
+    if len(group) > 1:
+        data.append("\n\\vspace{0.1cm}\n")
+        data.append("\\[ \\overbrace{\\hspace{0.8\\textwidth}} \\]\n")
+        if common_component is None:
+            data.append("\n\\vspace{-0.5cm}\n")
+    if common_component is not None:
+        right_block = _right_block_selected(common_component)
+        if right_block:
+            data.append(_start_right_block(common_component))
+        data.extend(format_question_component(common_component))
+        if right_block:
+            data.extend(_end_right_block(common_component))
+    data.append("\\begin{enumerate}[1.-]\n")
+    data.append("\\setcounter{enumi}{" + str(question_counter) + "}")
+    for question in group:
+        data.append("\\vspace{2mm}\n")
+        data.extend(format_question(question, model, with_solution))
+        data.append("\n")
+    data.append("\\end{enumerate}\n")
+    if len(group) > 1:
+        data.append("\n\\vspace{-0.8cm}\n")
+        data.append("\\[ \\underbrace{\\hspace{0.8\\textwidth}} \\]\n")
+        data.append("\n\\vspace{0.1cm}\n")
+    return data
 
 
 def format_question(question, model, with_solution=False):
@@ -726,17 +750,12 @@ def format_question(question, model, with_solution=False):
         choices = question.correct_choices + question.incorrect_choices
     else:
         choices = question.shuffled_choices(model)
-    if (
-        question.text(model).figure is not None or question.text(model).code is not None
-    ) and question.text(model).annex_pos == "right":
-        width_right = question.text(model).annex_width + param_table_sep
-        width_left = 1 - width_right - param_table_margin
-        data.append(
-            "\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}"
-            "p{%f\\textwidth}}\n" % (width_left, width_right)
-        )
+    text_component = question.text(model)
+    right_block = _right_block_selected(text_component)
+    if right_block:
+        data.append(_start_right_block(text_component))
     data.append(r"\item ")
-    data.extend(format_question_component(question.text(model)))
+    data.extend(format_question_component(text_component))
     data.append("\n  \\begin{enumerate}[(a)]\n")
     for choice in choices:
         data.append(r"    \item ")
@@ -745,19 +764,36 @@ def format_question(question, model, with_solution=False):
         data.extend(format_question_component(choice))
         data.append("\n")
     data.append("\n  \\end{enumerate}\n")
-    if (
-        question.text(model).figure is not None or question.text(model).code is not None
-    ) and question.text(model).annex_pos == "right":
-        data.append("&\n")
-        if question.text(model).figure is not None:
-            data.extend(
-                write_figure(
-                    question.text(model).figure, question.text(model).annex_width, True
-                )
+    if right_block:
+        data.extend(_end_right_block(text_component))
+    return data
+
+
+def _right_block_selected(question_component):
+    return (
+        question_component.figure is not None or question_component.code is not None
+    ) and question_component.annex_pos == "right"
+
+
+def _start_right_block(question_component):
+    width_right = question_component.annex_width + param_table_sep
+    width_left = 1 - width_right - param_table_margin
+    return (
+        "\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}p{%f\\textwidth}}\n"
+    ) % (width_left, width_right)
+
+
+def _end_right_block(question_component):
+    data = ["&\n"]
+    if question_component.figure is not None:
+        data.extend(
+            write_figure(
+                question_component.figure, question_component.annex_width, True
             )
-        elif question.text(model).code is not None:
-            data.extend(write_code(question.text(model).code))
-        data.append("\\\\\n\\end{tabular}\n")
+        )
+    elif question_component.code is not None:
+        data.extend(write_code(question_component.code))
+    data.append("\\\\\n\\end{tabular}\n")
     return data
 
 

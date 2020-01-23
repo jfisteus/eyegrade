@@ -122,8 +122,15 @@ class ExamQuestions:
         self.questions.shuffle_variations(model)
 
     def select_variations(self, model: str, variations: List[int]) -> None:
+        if self.shuffled_groups is None:
+            raise ValueError("Permutations muct be set before variations")
         for question, variation in zip(self.shuffled_questions[model], variations):
             question.select_variation(model, variation)
+        # Select variations for groups also:
+        i = 0
+        for group in self.shuffled_groups[model]:
+            group.select_variation(model, variations[i])
+            i += len(group)
         self.questions.check_variations(model)
 
     def select_variation(self, model: str, variation: int) -> None:
@@ -249,18 +256,23 @@ class QuestionsContainer:
         for other_group in self.groups:
             if other_group is group:
                 return list(range(pos, pos + len(other_group)))
-            else:
-                pos += len(other_group)
+            pos += len(other_group)
         raise ValueError("Group not in group container")
 
 
 class QuestionsGroup:
     questions: List["Question"]
+    common_text: Optional["GroupCommonComponent"]
 
-    def __init__(self, questions: List["Question"]):
+    def __init__(
+        self,
+        questions: List["Question"],
+        common_text: Optional["GroupCommonComponent"] = None,
+    ):
         if not questions:
             raise ValueError("Empty QuestionsGroup are not allowed")
         self.questions = questions
+        self.common_text = common_text
         self._check_number_variations()
 
     @property
@@ -278,19 +290,24 @@ class QuestionsGroup:
     def __getitem__(self, index) -> "Question":
         return self.questions[index]
 
+    def get_common_text(self, model: str) -> Optional["QuestionComponent"]:
+        if self.common_text is not None:
+            return self.common_text.component(model)
+        return None
+
     def shuffle_variations(self, model: str) -> None:
         """Chooses a variation for this group randomly.
 
         All questions get the same variation.
 
         """
-        variation = random.randrange(self.num_variations)
-        for question in self.questions:
-            question.select_variation(model, variation)
+        self.select_variation(model, random.randrange(self.num_variations))
 
     def select_variation(self, model: str, variation: int) -> None:
         for question in self.questions:
             question.select_variation(model, variation)
+        if self.common_text is not None:
+            self.common_text.select_variation(model, variation)
 
     def __str__(self):
         return (
@@ -298,9 +315,70 @@ class QuestionsGroup:
         )
 
     def _check_number_variations(self) -> None:
-        num_variations = [question.num_variations for question in self.questions]
-        if min(num_variations) < max(num_variations):
+        num_variations_per_question = [
+            question.num_variations for question in self.questions
+        ]
+        num_variations = min(num_variations_per_question)
+        if num_variations < max(num_variations_per_question):
             raise utils.EyegradeException("", key="incompatible_variation_num_group")
+        if self.common_text is not None:
+            num_common_text_variations = self.common_text.num_variations
+            if (
+                num_common_text_variations > 1
+                and num_common_text_variations != num_variations
+            ):
+                raise utils.EyegradeException(
+                    "", key="incompatible_variation_num_group"
+                )
+
+
+class GroupCommonComponent:
+    variations: List["QuestionComponent"]
+    selected_variation: Dict[str, int]
+
+    def __init__(self):
+        self.variations = []
+        self.selected_variation = {}
+
+    @property
+    def num_variations(self) -> int:
+        return len(self.variations)
+
+    def component(self, model: str) -> "QuestionComponent":
+        return self.variations[self.selected_variation[model]]
+
+    def add_variation(self, variation: "QuestionComponent") -> None:
+        self.variations.append(variation)
+
+    def select_variation(self, model: str, index: int) -> None:
+        if index < 0:
+            raise utils.EyegradeException(
+                f"Expected a value between 1 and the number of variations, got {index + 1}",
+                key="variation_index_out_of_range",
+            )
+        if index >= len(self.variations):
+            if len(self.variations) == 1:
+                index = 0
+            else:
+                raise utils.EyegradeException(
+                    f"Expected a value between 1 and the number of variations, got {index + 1}",
+                    key="variation_index_out_of_range",
+                )
+        self.selected_variation[model] = index
+
+
+class FixedGroupCommonComponent(GroupCommonComponent):
+    def __init__(self, common_component: "QuestionComponent"):
+        super().__init__()
+        self.add_variation(common_component)
+
+    def component(self, model: str) -> "QuestionComponent":
+        return self.variations[0]
+
+    def add_variation(self, variation: "QuestionComponent") -> None:
+        if self.variations:
+            raise ValueError("Just one variation allowed in FixedGroupCommonComponent")
+        super().add_variation(variation)
 
 
 class Question:
@@ -360,7 +438,7 @@ class Question:
                 f"Expected a value between 1 and the number of variations, got {index + 1}",
                 key="variation_index_out_of_range",
             )
-        elif index >= len(self.variations):
+        if index >= len(self.variations):
             if len(self.variations) == 1:
                 index = 0
             else:

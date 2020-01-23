@@ -64,52 +64,63 @@
   </question>
 
   <group>
-    <variation_params>
-      <variation>
-        <param eye:name="equation">$2x + 3 = 7$</param>
-        <param eye:name="x">2</param>
-        <param eye:name="xIncorrect1">-2</param>
-        <param eye:name="xIncorrect2">0</param>
-        <param eye:name="equiv1">$2x - 4 = 0$</param>
-        <param eye:name="equiv2">$x + 3 = 3$</param>
-        <param eye:name="equiv3">$2x + 10 = 0$</param>
-      </variation>
-      <variation>
-        <param eye:name="equation">$3x + 2 = 11$</param>
-        <param eye:name="x">3</param>
-        <param eye:name="xIncorrect1">-3</param>
-        <param eye:name="xIncorrect2">0</param>
-        <param eye:name="equiv1">$3x - 9 = 0$</param>
-        <param eye:name="equiv2">$x + 2 = 2$</param>
-        <param eye:name="equiv3">$3x + 13 = 0$</param>
-      </variation>
-    </variation_params>
     <common>
-      <text>
-        Consider the equation {{equation}}:
-      </text>
+      <variation>
+        <text>
+          Consider the equation $2x + 3 = 7$:
+        </text>
+      </variation>
+      <variation>
+        <text>
+          Consider the equation $3x + 2 = 11$:
+        </text>
+      </variation>
     </common>
     <question>
       <!-- Q3 -->
-      <text>
-        What's the solution to the equation?
-      </text>
-      <choices>
-        <correct>$x={{x}}$</correct>
-        <incorrect>$x={{xIncorrect1}}$</incorrect>
-        <incorrect>$x={{xIncorrect2}}$</incorrect>
-      </choices>
+      <variation>
+        <text>
+          What's the solution to the equation?
+        </text>
+        <choices>
+          <correct>$x=2$</correct>
+          <incorrect>$x=-2$</incorrect>
+          <incorrect>$x=0$</incorrect>
+        </choices>
+      </variation>
+      <variation>
+        <text>
+          What's the solution to the equation?
+        </text>
+        <choices>
+          <correct>$x=3$</correct>
+          <incorrect>$x=-3$</incorrect>
+          <incorrect>$x=0$</incorrect>
+        </choices>
+      </variation>
     </question>
     <question>
       <!-- Q4 -->
-      <text>
-        The equation is equivalent to:
-      </text>
-      <choices>
-        <correct>{{equiv1}}</correct>
-        <incorrect>{{equiv2}}</incorrect>
-        <incorrect>{{equiv3}}</incorrect>
-      </choices>
+      <variation>
+        <text>
+          The equation is equivalent to:
+        </text>
+        <choices>
+          <correct>$2x - 4 = 0$</correct>
+          <incorrect>$x + 3 = 3$</incorrect>
+          <incorrect>$2x + 10 = 0$</incorrect>
+        </choices>
+      </variation>
+      <variation>
+        <text>
+          The equation is equivalent to:
+        </text>
+        <choices>
+          <correct>$3x - 9 = 0$</correct>
+          <incorrect>$x + 2 = 2$</incorrect>
+          <incorrect>$3x + 13 = 0$</incorrect>
+        </choices>
+      </variation>
     </question>
   </group>
 

@@ -69,8 +69,8 @@ EyegradeException.register_error(
 )
 EyegradeException.register_error(
     "duplicate_text",
-    "Questions must contain exactly one 'text' element.",
-    "Multiple text elements in a question.",
+    "Questions must contain exactly one 'text' element, and groups one 'common' element.",
+    "Multiple text elements in a question or common elements in a group.",
 )
 EyegradeException.register_error(
     "score_correct_needed",
@@ -267,7 +267,7 @@ def parse_parametric_question(
 
 
 def parse_parameter_sets(
-    parent: xml.dom.minidom.Element
+    parent: xml.dom.minidom.Element,
 ) -> List[parametric.ParameterSet]:
     variation_params_nodes = get_children_by_tag_name(
         parent, EYEGRADE_NAMESPACE, "variation_params"
@@ -276,20 +276,54 @@ def parse_parameter_sets(
         if len(variation_params_nodes) > 1:
             raise EyegradeException("", key="multiple_variation_params")
         return parse_variation_params_node(variation_params_nodes[0])
-    else:
-        return []
+    return []
 
 
 def parse_group(group_node: xml.dom.minidom.Element) -> questions.QuestionsGroup:
     question_list: List[questions.Question] = []
+    common_text: Optional[questions.GroupCommonComponent]
     parameter_sets = parse_parameter_sets(group_node)
+    common_text = _parse_group_common(group_node, parameter_sets)
     for node in get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "question"):
         if not parameter_sets:
             question = parse_question(node)
         else:
             question = parse_parametric_question(node, parameter_sets)
         question_list.append(question)
-    return questions.QuestionsGroup(question_list)
+    return questions.QuestionsGroup(question_list, common_text=common_text)
+
+
+def _parse_group_common(
+    group_node: xml.dom.minidom.Element, parameter_sets: List[parametric.ParameterSet]
+) -> Optional[questions.GroupCommonComponent]:
+    common_text: Optional[questions.GroupCommonComponent]
+    element_list = get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "common")
+    if len(element_list) == 1:
+        common_node = element_list[0]
+        variation_nodes = get_children_by_tag_name(
+            common_node, EYEGRADE_NAMESPACE, "variation"
+        )
+        if variation_nodes and parameter_sets:
+            raise EyegradeException("", key="incompatible_variations_declarations")
+        if variation_nodes:
+            common_text = questions.GroupCommonComponent()
+            for node in variation_nodes:
+                common_text.add_variation(parse_question_component(node, False))
+        elif parameter_sets:
+            common_text = parametric.ParametricGroupCommonComponent(
+                parse_question_component(common_node, False)
+            )
+            for parameter_set in parameter_sets:
+                common_text.add_parameter_set(parameter_set)
+        else:
+            common_text = questions.FixedGroupCommonComponent(
+                parse_question_component(common_node, False)
+            )
+    elif not element_list:
+        common_text = None
+    elif len(element_list) > 1:
+        raise EyegradeException("", key="duplicate_text")
+    return common_text
 
 
 def parse_question_component(
