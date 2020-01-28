@@ -809,7 +809,7 @@ def format_question_component(component):
                 elif part[0] == "code":
                     data.extend(write_code(part[1]))
     if component.figure is not None and component.annex_pos == "center":
-        data.extend(write_figure(component.figure, component.annex_width, False))
+        data.extend(write_figure(component.figure, component.annex_width, True))
     elif component.code is not None and component.annex_pos == "center":
         data.extend(write_code(component.code))
     return data

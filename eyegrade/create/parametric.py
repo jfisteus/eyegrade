@@ -96,8 +96,6 @@ class ParameterSet:
         self, component: questions.QuestionComponent
     ) -> questions.QuestionComponent:
         replaced = questions.QuestionComponent(component.in_choice)
-        replaced.code = component.code
-        replaced.figure = component.figure
         replaced.annex_width = component.annex_width
         replaced.annex_pos = component.annex_pos
         text = component.text
@@ -107,6 +105,10 @@ class ParameterSet:
             replaced.text = self._apply_to_text(text)
         else:
             replaced.text = [self._apply_to_text_part(part) for part in text]
+        if component.code is not None:
+            replaced.code = self._apply_to_text(component.code)
+        if component.figure is not None:
+            replaced.figure = self._apply_to_text(component.figure)
         return replaced
 
     def _apply_to_text_part(self, part: Tuple[str, str]) -> Tuple[str, str]:

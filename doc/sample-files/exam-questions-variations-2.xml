@@ -3,8 +3,8 @@
 <exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
       xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
 
-  <subject>Set theory</subject>
-  <degree>Mathematics</degree>
+  <subject>Mathematics</subject>
+  <degree>Bachelor's Degree in Mathematics</degree>
   <title>Final examination</title>
   <date>January 1st, 2020</date>
   <duration>10 min.</duration>
@@ -159,4 +159,31 @@
       </incorrect>
     </choices>
   </question>
+
+  <question>
+    <!-- Q7 -->
+    <variation>
+      <text>
+        The triangle of the following figure is:
+      </text>
+      <figure eye:width="0.2" eye:position="right">triangle-right.pdf</figure>
+      <choices>
+        <correct>A right triangle.</correct>
+        <incorrect>An acute triangle.</incorrect>
+        <incorrect>An obtuse triangle.</incorrect>
+      </choices>
+    </variation>
+    <variation>
+      <text>
+        The triangle of the following figure is:
+      </text>
+      <figure eye:width="0.2" eye:position="right">triangle-acute.pdf</figure>
+      <choices>
+        <correct>An acute triangle.</correct>
+        <incorrect>A right triangle.</incorrect>
+        <incorrect>An obtuse triangle.</incorrect>
+      </choices>
+    </variation>
+  </question>
+
 </exam>
