@@ -1335,6 +1335,101 @@ A student that answers randomly would be an average of 10/3 correct answers
 and 20/3 incorrect answers, for a final score of 10 * 10 / 3 - 5 * 20 / 3 = 0.
 
 
+Question groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting from Eyegrade 0.9, you can group interdependent questions.
+Grouped questions will be shown always in the same order you defined them.
+That is, they won't be shuffled within their group,
+but the group itself will be shuffled with respect to other single questions
+and groups in the exam.
+
+In addition, groups allow you to define, optionally,
+a piece of text and a figure or a piece of code,
+which will be shown before the first question of the group.
+They are intended to show common information that applies to all
+the questions of the group.
+
+A question group is defined in your XML document
+by using the `<group>` tag where you would normally
+place just single questions.
+The questions that compose that group are defined
+in the usual way with `<question>` tags
+inside the `<group>` tag.
+The following example shows how to define a group::
+
+  <?xml version="1.0" encoding="UTF-8"?>
+
+  <exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
+        xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+    <subject>Set theory</subject>
+    (...)
+    <group>
+      <text>
+        Given the set $A = \{a, b, c, d\}$:
+      </text>
+      <question>
+        <text>
+          What's the cardinality of $A$?
+        </text>
+        <choices>
+          <correct>4</correct>
+          <incorrect>3</incorrect>
+          <incorrect>$\infty$</incorrect>
+        </choices>
+      </question>
+
+      <question>
+        <text>
+          What's the intersection of $A$ with $\{d, f, a\}$?
+        </text>
+        <choices>
+          <correct>$\{a, d\}$</correct>
+          <incorrect>$\{a, b, c, d, f\}$</incorrect>
+          <incorrect>$\{b, c\}$</incorrect>
+        </choices>
+      </question>
+
+      <question>
+        <text>
+          And the union of $A$ with $\{d, f, a\}$?
+        </text>
+        <choices>
+          <correct>$\{a, b, c, d, f\}$</correct>
+          <incorrect>$\{a, d\}$</incorrect>
+          <incorrect>$\{a, b, c, d, d, f, a\}$</incorrect>
+        </choices>
+      </question>
+    </group>
+
+    <question>
+      <text>
+        The powerset of a set $A$ is:
+      </text>
+      <choices>
+        <correct>
+          The set whose elements are all the possible subsets of $A$.
+        </correct>
+        <incorrect>
+          The cartesian product $A \times A$.
+        </incorrect>
+        <incorrect>
+          The set $A \cup A$.
+        </incorrect>
+      </choices>
+    </question>
+
+    (...)
+  </exam>
+
+In the example above, the first three questions will always
+appear in exactly that order.
+The fourth question, and other questions or groups you define,
+would be shuffled and appear before or after these three questions.
+A visual hint that these questions form a group will also be shown,
+so that students know where groups begin and end.
+
 
 
 Editing the LaTeX template
