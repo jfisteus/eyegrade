@@ -9,7 +9,7 @@ Eyegrade User Manual
 This is the user manual for Eyegrade 0.9.
 Versions of this manual for earlier releases
 are available:
-`0.8 <../user-manual-0.7>`_,
+`0.8 <../user-manual-0.8>`_,
 `0.7 <../user-manual-0.7>`_,
 `0.6 <../user-manual-0.6>`_,
 `0.5 <../user-manual-0.5>`_,
@@ -63,15 +63,15 @@ or place the binaries inside a directory that is already in your `PATH`.
 For example, if you want to place the binaries
 inside `/usr/local/bin`, which is usually in your `PATH`::
 
-  tar xavf eyegrade-0.8-linux-bin.tgz
-  sudo cp eyegrade-0.8-linux-bin/eyegrade /usr/local/bin
-  sudo cp eyegrade-0.8-linux-bin/eyegrade-create /usr/local/bin
+  tar xavf eyegrade-0.9-linux-bin.tgz
+  sudo cp eyegrade-0.9-linux-bin/eyegrade /usr/local/bin
+  sudo cp eyegrade-0.9-linux-bin/eyegrade-create /usr/local/bin
 
 
 Installation through `pipx` within your user's account
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check that your Linux system has Python 3.6 or 3.7 installed
+Check that your Linux system has Python 3.6, 3.7 or 3.8 installed
 by running::
 
   python3 --version
@@ -168,19 +168,22 @@ in which to check and build an installer.
 Volunteers to support Eyegrade on Mac OS X are welcome.
 
 
-Upgrading from Eyegrade 0.7 to Eyegrade 0.8
+Upgrading from Eyegrade 0.8 to Eyegrade 0.9
 ......................................................................
 
-In Linux systems, just replace the binaries of Eyegrade 0.7
+In Linux systems, just replace the binaries of Eyegrade 0.8
 with the new ones.
-In Windows, you can uninstall Eyegrade 0.7
+In Windows, you can uninstall Eyegrade 0.8
 using the *Add/remove programs* feature.
 
-Eyegrade 0.8 is backwards-compatible with grading sessions
+Eyegrade 0.9 is backwards-compatible with grading sessions
 created with Eyegrade 0.3 and later versions.
 
 The main changes of the most recent versions are described in the following
 blog posts:
+
+- `Eyegrade 0.9 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-09-released.html>`_
 
 - `Eyegrade 0.8 released
   <http://www.eyegrade.org/blog/posts/eyegrade-08-released.html>`_
