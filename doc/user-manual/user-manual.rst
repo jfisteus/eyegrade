@@ -1335,100 +1335,6 @@ A student that answers randomly would be an average of 10/3 correct answers
 and 20/3 incorrect answers, for a final score of 10 * 10 / 3 - 5 * 20 / 3 = 0.
 
 
-Question groups
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Starting from Eyegrade 0.9, you can group interdependent questions.
-Grouped questions will be shown always in the same order you defined them.
-That is, they won't be shuffled within their group,
-but the group itself will be shuffled with respect to other single questions
-and groups in the exam.
-
-In addition, groups allow you to define, optionally,
-a piece of text and a figure or a piece of code,
-which will be shown before the first question of the group.
-They are intended to show common information that applies to all
-the questions of the group.
-
-A question group is defined in your XML document
-by using the `<group>` tag where you would normally
-place just single questions.
-The questions that compose that group are defined
-in the usual way with `<question>` tags
-inside the `<group>` tag.
-The following example shows how to define a group::
-
-  <?xml version="1.0" encoding="UTF-8"?>
-
-  <exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
-        xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
-
-    <subject>Set theory</subject>
-    (...)
-    <group>
-      <text>
-        Given the set $A = \{a, b, c, d\}$:
-      </text>
-      <question>
-        <text>
-          What's the cardinality of $A$?
-        </text>
-        <choices>
-          <correct>4</correct>
-          <incorrect>3</incorrect>
-          <incorrect>$\infty$</incorrect>
-        </choices>
-      </question>
-
-      <question>
-        <text>
-          What's the intersection of $A$ with $\{d, f, a\}$?
-        </text>
-        <choices>
-          <correct>$\{a, d\}$</correct>
-          <incorrect>$\{a, b, c, d, f\}$</incorrect>
-          <incorrect>$\{b, c\}$</incorrect>
-        </choices>
-      </question>
-
-      <question>
-        <text>
-          And the union of $A$ with $\{d, f, a\}$?
-        </text>
-        <choices>
-          <correct>$\{a, b, c, d, f\}$</correct>
-          <incorrect>$\{a, d\}$</incorrect>
-          <incorrect>$\{a, b, c, d, d, f, a\}$</incorrect>
-        </choices>
-      </question>
-    </group>
-
-    <question>
-      <text>
-        The powerset of a set $A$ is:
-      </text>
-      <choices>
-        <correct>
-          The set whose elements are all the possible subsets of $A$.
-        </correct>
-        <incorrect>
-          The cartesian product $A \times A$.
-        </incorrect>
-        <incorrect>
-          The set $A \cup A$.
-        </incorrect>
-      </choices>
-    </question>
-
-    (...)
-  </exam>
-
-In the example above, the first three questions will always
-appear in exactly that order.
-The fourth question, and other questions or groups you define,
-would be shuffled and appear before or after these three questions.
-A visual hint that these questions form a group will also be shown,
-so that students know where groups begin and end.
 
 
 
@@ -1573,6 +1479,272 @@ such as `ProText <https://www.tug.org/protext/>`_:
 
 #. You probably won't need to install TeXstudio,
    which is also offered by the installer.
+
+
+
+Advanced exam editing
+..........................
+
+
+Question groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting from Eyegrade 0.9, you can group interdependent questions.
+Grouped questions will be shown always in the same order you defined them.
+That is, they won't be shuffled within their group,
+but the group itself will be shuffled with respect to other single questions
+and groups in the exam.
+
+In addition, groups allow you to define, optionally,
+a piece of text and a figure or a piece of code,
+which will be shown before the first question of the group.
+They are intended to show common information that applies to all
+the questions of the group.
+
+A question group is defined in your XML document
+by using the `<group>` tag where you would normally
+place just single questions.
+The questions that compose that group are defined
+in the usual way with `<question>` tags
+inside the `<group>` tag.
+The following example shows how to define a group::
+
+  <?xml version="1.0" encoding="UTF-8"?>
+
+  <exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
+        xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+    <subject>Set theory</subject>
+    (...)
+    <group>
+      <text>
+        Given the set $A = \{a, b, c, d\}$:
+      </text>
+      <question>
+        <text>
+          What's the cardinality of $A$?
+        </text>
+        <choices>
+          <correct>4</correct>
+          <incorrect>3</incorrect>
+          <incorrect>$\infty$</incorrect>
+        </choices>
+      </question>
+
+      <question>
+        <text>
+          What's the intersection of $A$ with $\{d, f, a\}$?
+        </text>
+        <choices>
+          <correct>$\{a, d\}$</correct>
+          <incorrect>$\{a, b, c, d, f\}$</incorrect>
+          <incorrect>$\{b, c\}$</incorrect>
+        </choices>
+      </question>
+
+      <question>
+        <text>
+          And the union of $A$ with $\{d, f, a\}$?
+        </text>
+        <choices>
+          <correct>$\{a, b, c, d, f\}$</correct>
+          <incorrect>$\{a, d\}$</incorrect>
+          <incorrect>$\{a, b, c, d, d, f, a\}$</incorrect>
+        </choices>
+      </question>
+    </group>
+
+    <question>
+      <text>
+        The powerset of a set $A$ is:
+      </text>
+      <choices>
+        <correct>
+          The set whose elements are all the possible subsets of $A$.
+        </correct>
+        <incorrect>
+          The cartesian product $A \times A$.
+        </incorrect>
+        <incorrect>
+          The set $A \cup A$.
+        </incorrect>
+      </choices>
+    </question>
+
+    (...)
+  </exam>
+
+In the example above, the first three questions will always
+appear in exactly that order.
+The fourth question, and other questions or groups you define,
+would be shuffled and appear before or after these three questions.
+A visual hint that these questions form a group will also be shown,
+so that students know where groups begin and end.
+
+
+
+Questions with variations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes you may want slightly different variations of the same question
+to appear in different models of the exam.
+For example, a question that asks the student to solve a linear equation
+could be defined with two variations,
+each one with a slightly different equation to solve.
+
+There are two ways of defining question variations.
+The first one consists in
+writing the different variations as full questions,
+like shown below::
+
+  <question>
+    <variation>
+      <text>
+        Given the set $A = \{a, b, c, d\}$,
+        what's its cardinality?
+      </text>
+      <choices>
+        <correct>4</correct>
+        <incorrect>3</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </variation>
+    <variation>
+      <text>
+        Given the set $A = \{x, y, z\}$,
+        what's its cardinality?
+      </text>
+      <choices>
+        <correct>3</correct>
+        <incorrect>4</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </variation>
+  </question>
+
+The second one consists in writing a question template
+based on some parameters,
+and defining different values for those parameters in each variation::
+
+  <question>
+    <variation_params>
+      <variation>
+        <param eye:name="setA">\{a, b, c, d\}</param>
+        <param eye:name="correct">$\{a, d\}$</param>
+        <param eye:name="incorrect1">$\{a, b, c, d, f\}$</param>
+        <param eye:name="incorrect2">$\{f\}$</param>
+      </variation>
+      <variation>
+        <param eye:name="setA">\{b, d, e, f\}</param>
+        <param eye:name="correct">$\{d, f\}$</param>
+        <param eye:name="incorrect1">$\{a, b, d, e, f\}$</param>
+        <param eye:name="incorrect2">$\{a\}$</param>
+      </variation>
+    </variation_params>
+    <text>
+      What's the intersection of {{setA}} with $\{d, f, a\}$?
+    </text>
+    <choices>
+      <correct>{{correct}}</correct>
+      <incorrect>{{incorrect1}}</incorrect>
+      <incorrect>{{incorrect2}}</incorrect>
+    </choices>
+  </question>
+
+When a model of the exam is shuffled,
+a variation will be randomly and independently chosen
+for every question containing variations.
+This is the default behavior of the `eyegrade-create` command.
+
+Note that questions contained within groups are an exception:
+as explained below,
+the same variation will be chosen for all the questions in the same group.
+However, different variations might be chosen
+for questions in different groups of the same exam model.
+
+Alternatively to letting the system choose variations randomly,
+you can force a given variation number to be chosen
+for all the questions and groups in a given model.
+For example,
+the commands below choose the first variation of every question
+for models A and B,
+and the second variation for models C and D::
+
+  eyegrade-create -e exam-questions.xml -m AB template.tex -o exam --variation=1
+  eyegrade-create -e exam-questions.xml -m CD template.tex -o exam --variation=2
+
+If you use the `--variation` argument to choose a variation number,
+all the questions with variations
+are expected to contain at least that number of variations.
+For example, if you set `--variation=3` to choose the third variation,
+all the questions must either no variations
+or at least three variations.
+
+
+Question groups with variations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your questions belong to a group, you either define separate questions,
+each one defining its own variations,
+or define parameters at the group level,
+and use them through the questions of that group::
+
+  <group>
+    <variation_params>
+      <variation>
+        <param eye:name="equation">$2x + 3 = 7$</param>
+        <param eye:name="x">2</param>
+        <param eye:name="xIncorrect1">-2</param>
+        <param eye:name="xIncorrect2">0</param>
+        <param eye:name="equiv1">$2x - 4 = 0$</param>
+        <param eye:name="equiv2">$x + 3 = 3$</param>
+        <param eye:name="equiv3">$2x + 10 = 0$</param>
+      </variation>
+      <variation>
+        <param eye:name="equation">$3x + 2 = 11$</param>
+        <param eye:name="x">3</param>
+        <param eye:name="xIncorrect1">-3</param>
+        <param eye:name="xIncorrect2">0</param>
+        <param eye:name="equiv1">$3x - 9 = 0$</param>
+        <param eye:name="equiv2">$x + 2 = 2$</param>
+        <param eye:name="equiv3">$3x + 13 = 0$</param>
+      </variation>
+    </variation_params>
+    <common>
+      <text>
+        Consider the equation {{equation}}:
+      </text>
+    </common>
+    <question>
+      <text>
+        What's the solution to the equation?
+      </text>
+      <choices>
+        <correct>$x={{x}}$</correct>
+        <incorrect>$x={{xIncorrect1}}$</incorrect>
+        <incorrect>$x={{xIncorrect2}}$</incorrect>
+      </choices>
+    </question>
+    <question>
+      <text>
+        The equation is equivalent to:
+      </text>
+      <choices>
+        <correct>{{equiv1}}</correct>
+        <incorrect>{{equiv2}}</incorrect>
+        <incorrect>{{equiv3}}</incorrect>
+      </choices>
+    </question>
+  </group>
+
+Note that, for a given exam model,
+the same variation will be chosen for all the questions in the group.
+Because of that,
+all the questions belonging to the same group must contain either
+no variations or the same number of variations.
+For example, the group defined above contains questions with two variations.
+If you add more questions to the group,
+they must contain two variations or no variation at all.
 
 
 
