@@ -26,15 +26,15 @@ from .. import utils
 from .. import exams
 
 
-param_min_num_questions = 1
+PARAM_MIN_NUM_QUESTIONS = 1
 
 # For formatting questions
-param_table_sep = 0.05
-param_table_margin = 0.1
+PARAM_TABLE_SEP = 0.05
+PARAM_TABLE_MARGIN = 0.1
 
 # Numbers of questions in which the number of tables is changed
-param_table_limits = [8, 24, 55]
-re_split_template = re.compile("{{([^{}]+)}}")
+PARAM_TABLE_LMITS = [8, 24, 55]
+RE_SPLIT_TEMPLATE = re.compile("{{([^{}]+)}}")
 
 # Register user-friendly error messages
 utils.EyegradeException.register_error(
@@ -62,7 +62,7 @@ utils.EyegradeException.register_error(
 )
 utils.EyegradeException.register_error(
     "too_few_questions",
-    short_message="At least %d question(s) needed" % param_min_num_questions,
+    short_message="At least %d question(s) needed" % PARAM_MIN_NUM_QUESTIONS,
 )
 utils.EyegradeException.register_error(
     "too_few_choices", short_message="At least 2 choices per question needed"
@@ -106,7 +106,7 @@ class ExamMaker:
         self.num_questions = num_questions
         self.num_choices = num_choices
         template = utils.read_file(template_filename)
-        self.parts = re_split_template.split(template)
+        self.parts = RE_SPLIT_TEMPLATE.split(template)
         self.left_to_right_numbering = left_to_right_numbering
         self.survey_mode = survey_mode
         self.output_file = output_file
@@ -392,8 +392,8 @@ def compile_latex(latex_file, remove_tex=False):
             output = subprocess.check_output(
                 ["pdflatex", "-interaction=nonstopmode", name], stderr=subprocess.STDOUT
             )
-        except subprocess.CalledProcessError as e:
-            output = e.output
+        except subprocess.CalledProcessError as exc:
+            output = exc.output
             success = False
             produced_filename = None
         except OSError:
@@ -459,13 +459,13 @@ def create_answer_table(
        bottom).
 
     """
-    if len(dimensions) == 0:
+    if not dimensions:
         raise Exception("No tables defined in dimensions")
     compact = True
     num_choices = dimensions[0][0]
     num_tables = len(dimensions)
-    for d in dimensions:
-        if d[0] != num_choices:
+    for dimension in dimensions:
+        if dimension[0] != num_choices:
             raise utils.EyegradeException("", "same_num_choices")
     if model != "0":
         bits = utils.encode_model(model, num_tables, num_choices)
@@ -537,7 +537,7 @@ def compute_table_dimensions(num_questions, num_choices, num_tables):
        the pair (num_cols, num_rows) for each table.
 
     """
-    if num_questions < param_min_num_questions:
+    if num_questions < PARAM_MIN_NUM_QUESTIONS:
         raise utils.EyegradeException("", key="too_few_questions")
     if num_choices < 2:
         raise utils.EyegradeException("", key="too_few_choices")
@@ -581,7 +581,7 @@ def table_geometry(dimensions):
 def _choose_num_tables(num_questions):
     """Returns a good number of tables for the given number of questions."""
     num_tables = 1
-    for numq in param_table_limits:
+    for numq in PARAM_TABLE_LMITS:
         if numq >= num_questions:
             break
         else:
@@ -594,8 +594,7 @@ def _horizontal_line(row_geometry, num_choices, compact):
     num_empty_columns = 1 if not compact else 0
     first = 2
     extra_line = max(row_geometry) > 0 or -1 in row_geometry
-    for i in range(0, len(row_geometry)):
-        geometry = row_geometry[i]
+    for geometry in row_geometry:
         if geometry > 0 or geometry == -1 or extra_line:
             parts.append(r"\cline{%d-%d}" % (first, first + num_choices - 1))
         first += 1 + num_empty_columns + num_choices
@@ -776,8 +775,8 @@ def _right_block_selected(question_component):
 
 
 def _start_right_block(question_component):
-    width_right = question_component.annex_width + param_table_sep
-    width_left = 1 - width_right - param_table_margin
+    width_right = question_component.annex_width + PARAM_TABLE_SEP
+    width_left = 1 - width_right - PARAM_TABLE_MARGIN
     return (
         "\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}p{%f\\textwidth}}\n"
     ) % (width_left, width_right)
