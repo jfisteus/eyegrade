@@ -48,17 +48,17 @@ download the following example files
 within the *Examples* entry in Eyegrade's start menu):
 
 - An example exam in PDF format:
-  `exam-A.pdf <doc/sample-files/exam-A.pdf>`_
+  `exam-A.pdf <../doc/sample-files/exam-A.pdf>`_
 
 - The exam configuration file,
   which tells Eyegrade about the exam
   (number of questions, correct answer to each question, etc.):
-  `exam.eye <doc/sample-files/exam.eye>`_
+  `exam.eye <../doc/sample-files/exam.eye>`_
 
 - The student list, which helps Eyegrade detect the student id
   (it's easier to correctly detect the id when the student list
   is closed):
-  `student-list.csv <doc/sample-files/student-list.csv>`_
+  `student-list.csv <../doc/sample-files/student-list.csv>`_
 
 Print a copy of the exam in PDF format
 and mark your answers to the questions with a cross.
