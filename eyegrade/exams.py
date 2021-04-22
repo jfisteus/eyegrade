@@ -275,6 +275,9 @@ class ExamConfig:
         self.variations[model] = variations
         self.add_model(model)
 
+    def set_default_variations(self, model):
+        self.set_variations(model, [0] * self.num_questions)
+
     def get_variations(self, model):
         """Returns the variations for the given model.
 
@@ -469,6 +472,8 @@ class ExamConfig:
                     key = "variations-" + model
                     value = exam_data.get("variations", key)
                     self.set_variations(model, value)
+                else:
+                    self.set_default_variations(model)
         has_correct_weight = exam_data.has_option("exam", "correct-weight")
         has_incorrect_weight = exam_data.has_option("exam", "incorrect-weight")
         has_blank_weight = exam_data.has_option("exam", "blank-weight")
