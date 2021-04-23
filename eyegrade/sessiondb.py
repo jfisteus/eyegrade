@@ -1098,15 +1098,12 @@ def _save_exam_config(conn, exam_data):
     for model in exam_data.models:
         all_model = exam_data.num_questions * [_Adapter.enc_model(model)]
         all_none = exam_data.num_questions * [None]
-        all_zero = exam_data.num_questions * [0]
         permutations = exam_data.get_permutations(model)
         if permutations:
             permutations = [exam_data.format_permutation(p) for p in permutations]
         else:
             permutations = all_none
         variations = exam_data.get_variations(model)
-        if not variations:
-            variations = all_zero
         if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
             weights = all_none
             scores_c = [s.format_correct_score() for s in exam_data.scores[model]]

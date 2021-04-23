@@ -208,7 +208,7 @@ class ExamConfig:
             self.id_num_digits,
             self.dimensions,
             self.permutations,
-            self.variations,
+            self.get_all_variations(),
             self.models,
             self.scores,
             self.base_scores,
@@ -275,19 +275,30 @@ class ExamConfig:
         self.variations[model] = variations
         self.add_model(model)
 
-    def set_default_variations(self, model):
-        self.set_variations(model, [0] * self.num_questions)
-
     def get_variations(self, model):
         """Returns the variations for the given model.
 
-        If there are no variations for this model, it returns None.
+        If there are no variations for this model, it returns the default
+        ones instead of None.
 
         """
         if model in self.variations:
             return self.variations[model]
         else:
-            return None
+            return [0] * self.num_questions
+
+    def get_all_variations(self):
+        """Returns variations for all the registered models.
+
+        The difference with respect to just accessing the variations attribute
+        is that, when no variations are declared at all or for some models,
+        the default variations are returned instead of None.
+
+        """
+        variations = {}
+        for model in self.models:
+            variations[model] = self.get_variations(model)
+        return variations
 
     def set_dimensions(self, dimensions):
         self.dimensions, self.num_options = utils.parse_dimensions(dimensions)
@@ -472,8 +483,6 @@ class ExamConfig:
                     key = "variations-" + model
                     value = exam_data.get("variations", key)
                     self.set_variations(model, value)
-                else:
-                    self.set_default_variations(model)
         has_correct_weight = exam_data.has_option("exam", "correct-weight")
         has_incorrect_weight = exam_data.has_option("exam", "incorrect-weight")
         has_blank_weight = exam_data.has_option("exam", "blank-weight")
@@ -596,7 +605,7 @@ class ExamConfig:
         return "%d{%s}" % (num_question, ",".join([str(n) for n in options]))
 
     def format_variations(self, model):
-        return "/".join([str(variation) for variation in self.variations[model]])
+        return "/".join([str(variation) for variation in self.get_variations(model)])
 
     def format_weights(self, model):
         return ",".join([s.format_weight() for s in self.scores[model]])
