@@ -1517,9 +1517,11 @@ The following example shows how to define a group::
     <subject>Set theory</subject>
     (...)
     <group>
-      <text>
-        Given the set $A = \{a, b, c, d\}$:
-      </text>
+      <common>
+        <text>
+          Given the set $A = \{a, b, c, d\}$:
+        </text>
+      </common>
       <question>
         <text>
           What's the cardinality of $A$?
@@ -1580,7 +1582,14 @@ The fourth question, and other questions or groups you define,
 would be shuffled and appear before or after these three questions.
 A visual hint that these questions form a group will also be shown,
 so that students know where groups begin and end.
-
+Additionally,
+as you can see in the example above,
+you can set an optional common section
+for a question group,
+in which you can insert text, code or a picture
+the same way you would do in the statement of a normal question.
+They will be displayed in the exam before the first question
+of the exam.
 
 
 Questions with variations

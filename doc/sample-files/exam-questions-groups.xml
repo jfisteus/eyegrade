@@ -12,9 +12,11 @@
   <scores eye:maxScore="100" eye:penalize="false" />
 
   <group>
-    <text>
-      Given the set $A = \{a, b, c, d\}$:
-    </text>
+    <common>
+      <text>
+        Given the set $A = \{a, b, c, d\}$:
+      </text>
+    </common>
     <question>
       <!-- Q1 -->
       <text>
