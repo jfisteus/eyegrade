@@ -353,7 +353,7 @@ class GroupCommonComponent:
     def select_variation(self, model: str, index: int) -> None:
         if index < 0:
             raise utils.EyegradeException(
-                f"Expected a value between 1 and the number of variations, got {index + 1}",
+                f"Variations: expected a value between 1 and {self.num_variations}, got {index + 1}",
                 key="variation_index_out_of_range",
             )
         if index >= len(self.variations):
@@ -361,7 +361,7 @@ class GroupCommonComponent:
                 index = 0
             else:
                 raise utils.EyegradeException(
-                    f"Expected a value between 1 and the number of variations, got {index + 1}",
+                    f"Variations: expected a value between 1 and {self.num_variations}, got {index + 1}",
                     key="variation_index_out_of_range",
                 )
         self.selected_variation[model] = index
@@ -411,9 +411,14 @@ class Question:
         return self.variations[self.selected_variation[model]].text
 
     def shuffled_choices(self, model: str) -> List["QuestionComponent"]:
+        if model == "0":
+            return self.choices(model)
         return self.variations[self.selected_variation[model]].shuffled_choices(
             self.permutations[model]
         )
+
+    def choices(self, model: str) -> List["QuestionComponent"]:
+        return self.variations[self.selected_variation[model]].choices()
 
     def correct_choices(self, model: str) -> List["QuestionComponent"]:
         return self.variations[self.selected_variation[model]].correct_choices
@@ -435,7 +440,7 @@ class Question:
     def select_variation(self, model: str, index: int) -> None:
         if index < 0:
             raise utils.EyegradeException(
-                f"Expected a value between 1 and the number of variations, got {index + 1}",
+                f"Variations: expected a value between 1 and {self.num_variations}, got {index + 1}",
                 key="variation_index_out_of_range",
             )
         if index >= len(self.variations):
@@ -443,7 +448,7 @@ class Question:
                 index = 0
             else:
                 raise utils.EyegradeException(
-                    f"Expected a value between 1 and the number of variations, got {index + 1}",
+                    f"Variations: expected a value between 1 and {self.num_variations}, got {index + 1}",
                     key="variation_index_out_of_range",
                 )
         self.selected_variation[model] = index
@@ -460,7 +465,12 @@ class FixedQuestion(Question):
         return self.variations[0].text
 
     def shuffled_choices(self, model: str) -> List["QuestionComponent"]:
+        if model == "0":
+            return self.choices(model)
         return self.variations[0].shuffled_choices(self.permutations[model])
+
+    def choices(self, model: str) -> List["QuestionComponent"]:
+        return self.variations[0].choices()
 
     def correct_choices(self, model: str) -> List["QuestionComponent"]:
         return self.variations[0].correct_choices
@@ -503,6 +513,9 @@ class QuestionVariation:
     def shuffled_choices(self, permutation: List[int]) -> List["QuestionComponent"]:
         choices = self.correct_choices + self.incorrect_choices
         return [choices[i] for i in permutation]
+
+    def choices(self) -> List["QuestionComponent"]:
+        return self.correct_choices + self.incorrect_choices
 
 
 class QuestionComponent:

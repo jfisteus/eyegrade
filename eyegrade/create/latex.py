@@ -707,6 +707,28 @@ def format_questions(exam, model, with_solution=False):
 
 
 def format_group(group, model, question_counter, with_solution=False):
+    if model != "0":
+        data = format_group_variation(
+            group, model, question_counter, with_solution=with_solution
+        )
+    else:
+        # Model 0: present all the variations
+        data = []
+        for variation in range(group.num_variations):
+            group.select_variation(model, variation)
+            if group.num_variations > 1:
+                data.extend(
+                    f"\\vspace{{0.8cm}}\\noindent\\emph{{[var. {variation + 1}]}}\n"
+                )
+            data.extend(
+                format_group_variation(
+                    group, model, question_counter, with_solution=with_solution
+                )
+            )
+    return data
+
+
+def format_group_variation(group, model, question_counter, with_solution=False):
     data = []
     if group.common_text is not None:
         common_component = group.common_text.component(model)
@@ -745,10 +767,7 @@ def format_question(question, model, with_solution=False):
 
     """
     data = []
-    if model == "0":
-        choices = question.correct_choices + question.incorrect_choices
-    else:
-        choices = question.shuffled_choices(model)
+    choices = question.shuffled_choices(model)
     text_component = question.text(model)
     right_block = _right_block_selected(text_component)
     if right_block:
