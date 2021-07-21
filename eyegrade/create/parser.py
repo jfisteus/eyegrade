@@ -103,7 +103,8 @@ EyegradeException.register_error(
 EyegradeException.register_error(
     "incompatible_variation",
     "Variations of the same question must contain "
-    "the same number of correct and incorrect choices.",
+    "the same number of correct and incorrect choices. "
+    "Fixed choices must appear at the same positions.",
 )
 EyegradeException.register_error(
     "incompatible_variation_num_group",
@@ -120,6 +121,7 @@ EyegradeException.register_error(
 EyegradeException.register_error(
     "missing_param_name", "Missing 'eye:name' attribute in <param> element"
 )
+EyegradeException.register_error("bad_fix_value", "Bad value for eye:fix attribute")
 
 
 def parse_exam(exam_filename: str) -> questions.ExamQuestions:
@@ -250,11 +252,36 @@ def parse_question_variation(
     choices = choices_list[0]
     correct_choices = []
     incorrect_choices = []
+    fix_first: List[int] = []
+    fix_last: List[int] = []
+    counter = 0
     for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "correct"):
         correct_choices.append(parse_question_component(node, True))
+        read_fix_attr(node, fix_first, fix_last, counter)
+        counter += 1
     for node in get_children_by_tag_name(choices, EYEGRADE_NAMESPACE, "incorrect"):
         incorrect_choices.append(parse_question_component(node, True))
-    return questions.QuestionVariation(text, correct_choices, incorrect_choices)
+        read_fix_attr(node, fix_first, fix_last, counter)
+        counter += 1
+    return questions.QuestionVariation(
+        text, correct_choices, incorrect_choices, fix_first, fix_last
+    )
+
+
+def read_fix_attr(
+    node: xml.dom.minidom.Element, fix_first: List[int], fix_last: List[int], index: int
+) -> None:
+    value = get_attribute_text(node, "fix")
+    if not value:
+        pass
+    elif value == "first":
+        fix_first.append(index)
+    elif value == "last":
+        fix_last.append(index)
+    else:
+        raise EyegradeException(
+            f"Got '{value}' but expected 'first' or 'last'", key="bad_fix_value"
+        )
 
 
 def parse_parametric_question(

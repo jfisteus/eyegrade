@@ -26,7 +26,7 @@ class _FixedQuestion(questions.FixedQuestion):
     def __init__(self, text):
         super().__init__(
             questions.QuestionVariation(
-                questions.QuestionComponent(False, text=text), [], []
+                questions.QuestionComponent(False, text=text), [], [], [], []
             )
         )
 

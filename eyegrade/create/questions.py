@@ -431,11 +431,7 @@ class Question:
     def shuffle(self, model: str) -> None:
         if not self.variations:
             raise ValueError("Cannot shuffle without at least one variation")
-        to_sort = [(random.random(), pos) for pos in range(self.num_choices)]
-        permutations = []
-        for _, pos in sorted(to_sort):
-            permutations.append(pos)
-        self.permutations[model] = permutations
+        self.permutations[model] = self.variations[0].shuffle()
 
     def select_variation(self, model: str, index: int) -> None:
         if index < 0:
@@ -485,16 +481,22 @@ class QuestionVariation:
     text: "QuestionComponent"
     correct_choices: List["QuestionComponent"]
     incorrect_choices: List["QuestionComponent"]
+    fix_first: List[int]
+    fix_last: List[int]
 
     def __init__(
         self,
         text: "QuestionComponent",
         correct_choices: List["QuestionComponent"],
         incorrect_choices: List["QuestionComponent"],
+        fix_first: List[int],
+        fix_last: List[int],
     ):
         self.text = text
         self.correct_choices = correct_choices
         self.incorrect_choices = incorrect_choices
+        self.fix_first = fix_first
+        self.fix_last = fix_last
 
     @property
     def num_choices(self) -> int:
@@ -508,6 +510,8 @@ class QuestionVariation:
         return (
             self.num_choices == other.num_choices
             and self.num_correct_choices == other.num_correct_choices
+            and self.fix_first == other.fix_first
+            and self.fix_last == other.fix_last
         )
 
     def shuffled_choices(self, permutation: List[int]) -> List["QuestionComponent"]:
@@ -516,6 +520,19 @@ class QuestionVariation:
 
     def choices(self) -> List["QuestionComponent"]:
         return self.correct_choices + self.incorrect_choices
+
+    def shuffle(self) -> List[int]:
+        to_sort = [(random.random(), pos) for pos in range(self.num_choices)]
+        for pos in self.fix_first:
+            # They will always be first when sorted
+            to_sort[pos] = (-1.0, pos)
+        for pos in self.fix_last:
+            # They will always be last when sorted
+            to_sort[pos] = (2.0, pos)
+        permutations = []
+        for _, pos in sorted(to_sort):
+            permutations.append(pos)
+        return permutations
 
 
 class QuestionComponent:

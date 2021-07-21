@@ -90,7 +90,13 @@ class ParameterSet:
             self.apply_to_question_component(choice)
             for choice in question_pattern.incorrect_choices
         ]
-        return questions.QuestionVariation(text, correct_choices, incorrect_choices)
+        return questions.QuestionVariation(
+            text,
+            correct_choices,
+            incorrect_choices,
+            question_pattern.fix_first,
+            question_pattern.fix_last,
+        )
 
     def apply_to_question_component(
         self, component: questions.QuestionComponent

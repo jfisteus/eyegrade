@@ -170,7 +170,7 @@
     <choices>
       <correct>{{correct}}</correct>
       <incorrect>{{incorrect1}}</incorrect>
-      <incorrect>An obtuse triangle.</incorrect>
+      <incorrect eye:fix="last">None of the previous options is correct.</incorrect>
     </choices>
   </question>
 </exam>
