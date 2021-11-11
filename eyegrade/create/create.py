@@ -387,7 +387,11 @@ def create_exam():
             maker.output_file = args.output_file_prefix + "-%s-solutions.tex"
             for model in args.models:
                 produced_filename = maker.create_exam(
-                    model, False, with_solution=True, produce_pdf=produce_pdf
+                    model,
+                    False,
+                    with_solution=True,
+                    variation=variation,
+                    produce_pdf=produce_pdf,
                 )
                 print("Created file:", produced_filename, file=sys.stderr)
     else:

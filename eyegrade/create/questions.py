@@ -136,11 +136,21 @@ class ExamQuestions:
     def select_variation(self, model: str, variation: int) -> None:
         self.select_variations(model, [variation] * self.num_questions())
 
-    def selected_variations(self, model) -> List[int]:
+    def selected_variations(self, model: str) -> List[int]:
         return [
             question.selected_variation[model]
             for question in self.shuffled_questions[model]
         ]
+
+    def selected_variation(self, model: str) -> Optional[int]:
+        variations = []
+        for question in self.shuffled_questions[model]:
+            if len(question.variations) > 1:
+                variations.append(question.selected_variation[model])
+        if variations and min(variations) == max(variations):
+            return variations[0]
+        else:
+            return None
 
     def set_permutation(
         self, model: str, permutations: List[Tuple[int, List[int]]]
