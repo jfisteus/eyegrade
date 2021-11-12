@@ -235,11 +235,11 @@ class ExamMaker:
         replacements["answer-table"] = answer_table
         replacements["model"] = model
         replacements["declarations"] = latex_declarations(with_solution)
-        selected_variation = self.exam_questions.selected_variation(model)
-        if selected_variation is not None:
-            replacements["variation"] = str(selected_variation + 1)
-        else:
-            replacements["variation"] = "0"
+        replacements["variation"] = "0"
+        if model != "0":
+            selected_variation = self.exam_questions.selected_variation(model)
+            if selected_variation is not None:
+                replacements["variation"] = str(selected_variation + 1)
 
         # Replacement keys are in odd positions of self.parts
         replaced = len(self.parts) * [None]
