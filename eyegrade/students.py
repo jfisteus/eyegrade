@@ -339,14 +339,16 @@ class CSVStudentReader(StudentReader):
 class XLSXStudentReader(StudentReader):
     def __init__(self, file_name):
         super().__init__(file_name)
+        self.workbook = None
+        self.iterator = None
 
     def __enter__(self):
-        workbook = openpyxl.load_workbook(self.file_name)
-        self.iterator = self.iter_rows(workbook.active)
+        self.workbook = openpyxl.load_workbook(self.file_name, read_only=True)
+        self.iterator = self.iter_rows(self.workbook.active)
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        pass
+        self.workbook.close()
 
     def iter_rows(self, work_sheet):
         for row in work_sheet.iter_rows():
