@@ -153,8 +153,9 @@ class Exam:
 
     def _id_rank(self, student, scores):
         rank = 0.0
-        for i, digit in enumerate(student.student_id):
-            rank += scores[i][int(digit)]
+        if len(scores) == len(student.student_id):
+            for i, digit in enumerate(student.student_id):
+                rank += scores[i][int(digit)]
         return rank
 
 
