@@ -20,6 +20,8 @@ import os
 import re
 import configparser
 
+from typing import Union
+
 from . import utils
 from . import scoring
 from . import students
@@ -226,8 +228,22 @@ class ExamConfig:
         if not isinstance(solutions, list):
             solutions = self._parse_solutions(solutions)
         if len(solutions) != self.num_questions:
-            raise ValueError("Solutions with incorrect number of questions")
-        self.solutions[model] = solutions
+            raise utils.EyegradeException(
+                "Incorrect number of solutions (got {}, expected {}) for model {}.".format(
+                    len(solutions), self.num_questions, model
+                ),
+                key="exam-config-parse-error",
+            )
+        for solution_set, num_options in zip(solutions, self.num_options):
+            for solution in solution_set:
+                if solution < 1 or solution > num_options:
+                    raise utils.EyegradeException(
+                        "Solution out of range for model {} (got {}, expected between 1 and {}).".format(
+                            model, solution, num_options
+                        ),
+                        key="exam-config-parse-error",
+                    )
+            self.solutions[model] = solutions
         self.add_model(model)
 
     def get_solutions(self, model):
@@ -450,11 +466,14 @@ class ExamConfig:
             return None
 
     def read(self, filename):
-        """Reads exam configuration."""
         exam_data = configparser.ConfigParser()
         files_read = exam_data.read([filename])
         if len(files_read) != 1:
             raise IOError("Exam config file not found: " + filename)
+        self._read_config_parser(exam_data)
+
+    def _read_config_parser(self, exam_data: configparser.ConfigParser):
+        """Reads exam configuration."""
         try:
             self.id_num_digits = exam_data.getint("exam", "id-num-digits")
         except ValueError:
@@ -491,6 +510,7 @@ class ExamConfig:
         if has_correct_weight and has_incorrect_weight:
             correct_weight = exam_data.get("exam", "correct-weight")
             incorrect_weight = exam_data.get("exam", "incorrect-weight")
+            blank_weight: Union[str, int]
             if has_blank_weight:
                 blank_weight = exam_data.get("exam", "blank-weight")
             else:
@@ -512,7 +532,7 @@ class ExamConfig:
             self.scores_mode = ExamConfig.SCORES_MODE_NONE
         else:
             raise utils.EyegradeException(
-                "Exam config must contain correct and incorrect weight or none",
+                "Exam config must contain correct and incorrect weight or none.",
                 key="exam-config-parse-error",
             )
         if exam_data.has_option("exam", "left-to-right-numbering"):

@@ -179,7 +179,7 @@ class EyegradeException(Exception):
                 parts.append("\n\n")
                 parts.append(EyegradeException._error_messages[key])
             parts.append("\n")
-            self.full_message = "".join(parts)
+            self.full_message = " ".join(parts)
             super().__init__(self.full_message)
         else:
             self.full_message = None
