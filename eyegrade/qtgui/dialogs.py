@@ -268,7 +268,7 @@ class DialogAbout(QDialog):
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
-             (c) 2010-2018 Jesús Arias Fisteus and contributors<br>
+             (c) 2010-2021 Jesús Arias Fisteus and contributors<br>
              <a href='{3}'>{3}</a> <br>
              <a href='{4}'>{4}</a>
 
