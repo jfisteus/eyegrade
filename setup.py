@@ -16,7 +16,7 @@ requirements = ["opencv-python", "openpyxl", "PyQt5"]
 
 setuptools.setup(
     name="eyegrade",
-    version="0.9.dev2",
+    version="0.9rc1",
     description="Grade MCQ exams with a webcam",
     long_description=long_description,
     long_description_content_type="text/markdown",
