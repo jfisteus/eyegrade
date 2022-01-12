@@ -106,7 +106,7 @@ class DialogCameraSelection(QDialog):
 
     """
 
-    capture_period = 0.1
+    capture_period = 100
     camera_error = pyqtSignal()
 
     def __init__(self, capture_context, parent):
