@@ -29,6 +29,9 @@ jobs:
     - name: Lint with mypy
       run: |
         mypy --ignore-missing-imports eyegrade/*.py eyegrade/*/*.py tests/*.py
+    - name: Check Black formatting
+      run: |
+        black . --check
     - name: Test with unittest
       run: |
         python -m unittest discover tests
