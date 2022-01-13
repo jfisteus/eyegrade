@@ -348,8 +348,9 @@ class ProgramManager:
         Continuation of work is done at `_after_change_detection`.
 
         """
-        if not self.mode.in_review_from_grading() or not self.interface.is_action_checked(
-            ("tools", "auto_change")
+        if (
+            not self.mode.in_review_from_grading()
+            or not self.interface.is_action_checked(("tools", "auto_change"))
         ):
             return
         self.detection_context.dump_buffer(1.0)
@@ -373,8 +374,9 @@ class ProgramManager:
             # This needs to be investigated: this case should never
             # happen, but I saw it happen...
             return
-        if not self.mode.in_review_from_grading() or not self.interface.is_action_checked(
-            ("tools", "auto_change")
+        if (
+            not self.mode.in_review_from_grading()
+            or not self.interface.is_action_checked(("tools", "auto_change"))
         ):
             return
         exam_removed = False

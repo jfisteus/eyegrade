@@ -207,7 +207,7 @@ class NewSessionPageStudents(QWizardPage):
 
 
 class NewSessionPageExamParams(QWizardPage):
-    """ Wizard's page that ask for the params of the test """
+    """Wizard's page that ask for the params of the test"""
 
     def __init__(self):
         super().__init__()
@@ -512,7 +512,7 @@ class NewSessionPageScores(QWizardPage):
     def validatePage(self):
         """Called by QWizardPage to check the values of this page.
 
-           Checks the values and consolidates them if valid.
+        Checks the values and consolidates them if valid.
         """
         if self.current_mode == 0:
             valid = self._consolidate_no_scores()

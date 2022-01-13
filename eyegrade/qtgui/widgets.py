@@ -231,7 +231,7 @@ class OpenFileWidget(QWidget):
         self.filename_widget.setText(filename)
 
     def setEnabled(self, enabled):
-        """ Toggle enabled status of this widget.
+        """Toggle enabled status of this widget.
 
         If the widget is disabled, the validated status
         is forced to True with the statement
@@ -491,9 +491,7 @@ class InputComboBox(QComboBox):
 
 
 class ScoreWeightsTableModel(QAbstractTableModel):
-    """ Table for editing score weight values.
-
-    """
+    """Table for editing score weight values."""
 
     def __init__(self, exam_config, parent=None):
         super().__init__(parent=parent)
