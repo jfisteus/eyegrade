@@ -1,7 +1,6 @@
 In order to create a single-file Linux executable file:
 
-1.- Install pyinstaller with pip (note that version 3.2 didn't work
-for me because of a bug. I had to install version 3.1 instead).
+1.- Install pyinstaller with pip.
 
 2.- Check that six and packaging are also installed. The should have
 been installed with pyinstaller automatically, but I've seen the
@@ -14,7 +13,7 @@ pyinstaller installers/pyinstaller/eyegrade.spec
 pyinstaller installers/pyinstaller/eyegrade-create.spec
 
 The executable files eyegrade and eyegrade-create will appear inside
-the "build" directory.
+the "dist" directory.
 
 Note that according to:
 
