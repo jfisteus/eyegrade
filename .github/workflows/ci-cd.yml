@@ -2,7 +2,7 @@ name: Eyegrade CI/CD
 
 on:
   push:
-    branches: [ "development", "release-0.9" ]
+    branches: [ "development", "master", "release-0.9" ]
   pull_request:
     branches: [ $default-branch ]
 
