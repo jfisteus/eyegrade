@@ -1367,6 +1367,9 @@ exam:
 - `{{answer-table}}`: replaced by the table in which students mark out
   their answers.
 - `{{questions}}`: replaced by the questions of the exam.
+- `{{variation}}`: the exam variation selected for this exam.
+  Its value is "0" if no variation has been selected,
+  or "1", "2", etc. if a variation has been selected.
 
 Note that a template is highly reusable for different exams and
 subjects.
@@ -1484,6 +1487,35 @@ such as `ProText <https://www.tug.org/protext/>`_:
 
 Advanced exam editing
 ..........................
+
+
+Fixing the position of a choice
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choices can be prevented from being randomly ordered
+with the `eye:fix` attribute,
+which can take the values "first" (to fix a choice as the first one)
+and "last" (to fix a choice as the last one).
+For example::
+
+  <question>
+    <text>
+      What is Python?
+    </text>
+    <choices>
+      <correct>A programming language</correct>
+      <incorrect>A computer manufacturer</incorrect>
+      <incorrect>A kind of tree</incorrect>
+      <incorrect eye:fix="last">None of the options above is correct.</incorrect>
+    </choices>
+  </question>
+
+If more than one choice are fixed first or last,
+the choices fixed *first* will appear at the beginning,
+in the same order they are declared in the XML file,
+and the choices fixed *last* will appear at the end,
+also in the same order they are declared in the XML file.
+
 
 
 Question groups
