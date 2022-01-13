@@ -28,6 +28,7 @@ from . import parametric
 
 if TYPE_CHECKING:
     import xml.dom
+    import xml.dom.minicompat
 
 
 EyegradeException = utils.EyegradeException
@@ -522,7 +523,9 @@ def get_text(
     return None
 
 
-def get_full_name(element: xml.dom.minidom.Element) -> Tuple[str, str]:
+def get_full_name(
+    element: xml.dom.minidom.Element
+) -> Tuple[Optional[str], Optional[str]]:
     """Returns a tuple with (namespace, local_name) for the given element."""
     return (element.namespaceURI, element.localName)
 
