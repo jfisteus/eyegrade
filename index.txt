@@ -40,11 +40,11 @@ or go to the `downloads page <download/>`__.
 **[Jan 25, 2018]**
 A user from Vietnam has contributed with a nice video tutorial.
 It's linked from the `documentation page <documentation.html>`__.
-See the `blog post <blog/posts/new-video-tutorial.html>`__.
+See the `blog post <blog/posts/new-video-tutorial/>`__.
 
 **[Jul 26, 2017]**
 Eyegrade 0.7 has been released!
-See the `blog post <blog/posts/eyegrade-07-released.html>`__
+See the `blog post <blog/posts/eyegrade-07-released/>`__
 or go to the `downloads page <blog/posts/download.html>`__.
 
 
