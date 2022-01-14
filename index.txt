@@ -39,7 +39,7 @@ or go to the `downloads page <download/>`__.
 
 **[Jan 25, 2018]**
 A user from Vietnam has contributed with a nice video tutorial.
-It's linked from the `documentation page <documentation.html>`__.
+It's linked from the `documentation page <documentation/>`__.
 See the `blog post <blog/posts/new-video-tutorial/>`__.
 
 **[Jul 26, 2017]**
