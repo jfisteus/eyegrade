@@ -1,5 +1,4 @@
 flake8
 black
-pre-commit
 pyinstaller>=3.6
 mypy

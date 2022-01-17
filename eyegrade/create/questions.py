@@ -84,8 +84,8 @@ class ExamQuestions:
     def num_choices(self) -> Optional[int]:
         """Returns the number of choices of the questions.
 
-           If not all the questions have the same number of choices,
-           it returns the maximum. If there are no exams, it returns None.
+        If not all the questions have the same number of choices,
+        it returns the maximum. If there are no exams, it returns None.
 
         """
         num = [q.num_choices for q in self.questions]
@@ -461,7 +461,7 @@ class Question:
 
 
 class FixedQuestion(Question):
-    """ A question without variations, i.e. just one variation."""
+    """A question without variations, i.e. just one variation."""
 
     def __init__(self, variation: "QuestionVariation"):
         super().__init__()
@@ -548,7 +548,7 @@ class QuestionVariation:
 class QuestionComponent:
     """A piece of text and optional figure or code.
 
-       Represents both the text of a question and its choices.
+    Represents both the text of a question and its choices.
 
     """
 

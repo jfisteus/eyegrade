@@ -100,7 +100,7 @@ class ExamMaker:
         survey_mode=False,
     ):
         """
-           Class able to create exams. One object is enough for all models.
+        Class able to create exams. One object is enough for all models.
 
         """
         self.num_questions = num_questions
@@ -174,9 +174,9 @@ class ExamMaker:
     ):
         """Creates a new exam.
 
-           'shuffle' must be a boolean. If True, the exam is shuffled
-           again even if it was previously shuffled. If False, it is
-           only shuffled if it was not previously shuffled.
+        'shuffle' must be a boolean. If True, the exam is shuffled
+        again even if it was previously shuffled. If False, it is
+        only shuffled if it was not previously shuffled.
 
         """
         if not self.survey_mode:
@@ -421,7 +421,7 @@ def compile_latex(latex_file, remove_tex=False):
 
 def latex_declarations(with_solution):
     """Returns the list of declarations to be set in the preamble
-       of the LaTeX output.
+    of the LaTeX output.
 
     """
     data = [
@@ -452,16 +452,16 @@ def create_answer_table(
 ):
     """Returns a string with the answer tables of the answer sheet.
 
-       Tables are LaTeX-formatted. 'dimensions' specifies the geometry
-       of the tables. 'model' is a one letter string with the name of
-       the model, or '0' for the un-shuffled exam. 'table_width' is
-       the desired width of the answer table, in cm. None for the
-       default width. 'table_height' is the desired height in cm. None
-       for the default. If only one of height and width is defined,
-       the other will keep the aspect ratio. 'left_to_right_numbering'
-       set to True makes cell numbers to grow from left to right
-       instead of from up to bottom. The default is False (up to
-       bottom).
+    Tables are LaTeX-formatted. 'dimensions' specifies the geometry
+    of the tables. 'model' is a one letter string with the name of
+    the model, or '0' for the un-shuffled exam. 'table_width' is
+    the desired width of the answer table, in cm. None for the
+    default width. 'table_height' is the desired height in cm. None
+    for the default. If only one of height and width is defined,
+    the other will keep the aspect ratio. 'left_to_right_numbering'
+    set to True makes cell numbers to grow from left to right
+    instead of from up to bottom. The default is False (up to
+    bottom).
 
     """
     if not dimensions:
@@ -500,9 +500,7 @@ def create_answer_table(
 
 
 def create_id_box(label, num_digits, box_width=None):
-    """Creates the ID box given a label to show and number of digits.
-
-    """
+    """Creates the ID box given a label to show and number of digits."""
     parts = [r"\begin{center}", r"\Large"]
     if box_width is not None:
         parts.append(r"\resizebox{%fcm}{!}{" % box_width)
@@ -520,10 +518,10 @@ def create_id_box(label, num_digits, box_width=None):
 def id_num_digits(parts):
     """Returns the tuple (label, number of digits) for the ID box.
 
-       Receives the splitted text of the template for the exam, which
-       may contain a key like 'id-box(9,NIA)' in an odd position, in
-       which NIA is the label and 9 the number of digits. If the key
-       does not exist in the template, returns (0, None).
+    Receives the splitted text of the template for the exam, which
+    may contain a key like 'id-box(9,NIA)' in an odd position, in
+    which NIA is the label and 9 the number of digits. If the key
+    does not exist in the template, returns (0, None).
 
     """
     # Replacement keys are in odd positions of the list
@@ -538,8 +536,8 @@ def id_num_digits(parts):
 def compute_table_dimensions(num_questions, num_choices, num_tables):
     """Computes and returns dimensions for answer tables.
 
-       The result is a list of tuples in which each element contains
-       the pair (num_cols, num_rows) for each table.
+    The result is a list of tuples in which each element contains
+    the pair (num_cols, num_rows) for each table.
 
     """
     if num_questions < PARAM_MIN_NUM_QUESTIONS:
@@ -686,9 +684,9 @@ def _create_infobits(bits, num_tables, num_choices, survey_mode):
 def format_questions(exam, model, with_solution=False):
     """Returns the questions of 'exam' formatted in LaTeX, as a string.
 
-       'exam' is a create.questions.ExamQuestions object. It writes the questions
-       in their 'shuffled' order. If 'with_solution', correct answers
-       are marked in the text.
+    'exam' is a create.questions.ExamQuestions object. It writes the questions
+    in their 'shuffled' order. If 'with_solution', correct answers
+    are marked in the text.
 
     """
     data = []
@@ -768,7 +766,7 @@ def format_group_variation(group, model, question_counter, with_solution=False):
 def format_question(question, model, with_solution=False):
     """Returns a latex formatted question, as a list of strings.
 
-       If 'with_solution', correct answers are marked in the text.
+    If 'with_solution', correct answers are marked in the text.
 
     """
     data = []

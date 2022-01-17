@@ -28,6 +28,7 @@ from . import parametric
 
 if TYPE_CHECKING:
     import xml.dom
+    import xml.dom.minicompat
 
 
 EyegradeException = utils.EyegradeException
@@ -125,7 +126,7 @@ EyegradeException.register_error("bad_fix_value", "Bad value for eye:fix attribu
 
 
 def parse_exam(exam_filename: str) -> questions.ExamQuestions:
-    """ Parses the questions of a exam from an XML file."""
+    """Parses the questions of a exam from an XML file."""
     dom_tree = xml.dom.minidom.parse(exam_filename)
     # By now, only one parser exists. In the future multiple parsers can
     # be called from here, to allow multiple data formats.
@@ -522,7 +523,9 @@ def get_text(
     return None
 
 
-def get_full_name(element: xml.dom.minidom.Element) -> Tuple[str, str]:
+def get_full_name(
+    element: xml.dom.minidom.Element,
+) -> Tuple[Optional[str], Optional[str]]:
     """Returns a tuple with (namespace, local_name) for the given element."""
     return (element.namespaceURI, element.localName)
 

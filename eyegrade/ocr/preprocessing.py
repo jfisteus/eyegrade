@@ -65,9 +65,7 @@ class FeatureExtractor:
 
 
 class CrossesFeatureExtractor(FeatureExtractor):
-    """Feature extractor for crosses.
-
-    """
+    """Feature extractor for crosses."""
 
     def __init__(self, dim=28):
         super().__init__(dim=dim)

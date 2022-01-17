@@ -163,9 +163,9 @@ class Exam:
 
 class ExamConfig:
     """Class for representing exam configuration. Once an instance has
-       been created and data loaded, access directly to the attributes
-       to get the data. The constructor reads data from a file. See
-       doc/exam-data.sample for an example of such a file."""
+    been created and data loaded, access directly to the attributes
+    to get the data. The constructor reads data from a file. See
+    doc/exam-data.sample for an example of such a file."""
 
     SCORES_MODE_NONE = 1
     SCORES_MODE_WEIGHTS = 2
@@ -175,7 +175,7 @@ class ExamConfig:
 
     def __init__(self, filename=None, capture_pattern=None):
         """Loads data from file if 'filename' is not None. Otherwise,
-           default values are assigned to the attributes."""
+        default values are assigned to the attributes."""
         if filename is not None:
             self.read(filename=filename)
         else:

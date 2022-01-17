@@ -627,7 +627,7 @@ class PreviewWidget(QWidget):
 
 
 class StudentsTableModel(QAbstractTableModel):
-    """ Table for showing a student list."""
+    """Table for showing a student list."""
 
     _headers = {
         students.StudentColumn.SEQUENCE_NUM: "#",

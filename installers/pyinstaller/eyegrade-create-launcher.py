@@ -1,3 +1,3 @@
-from eyegrade import create_exam
+from eyegrade.create import create
 
-create_exam.main()
+create.main()

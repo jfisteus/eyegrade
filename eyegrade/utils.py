@@ -31,7 +31,7 @@ program_name = "eyegrade"
 web_location = "https://www.eyegrade.org/"
 source_location = "https://github.com/jfisteus/eyegrade"
 help_location = "https://www.eyegrade.org/doc/user-manual/"
-version = "0.9.dev2"
+version = "0.9"
 
 re_model_letter = re.compile("[0a-zA-Z]")
 
@@ -329,12 +329,12 @@ def _permute_answers(answers, permutation):
 def encode_model(model, num_tables, num_answers):
     """Given the letter of the model, returns the infobits pattern.
 
-       It is formatted as an array of booleans string where the pos. 0
-       is the one that goes in the column of the table at the left.
-       The length of the string is 'num_tables' * 'num_answers', where
-       'num_tables' is the number of answer tables and 'num_tables'
-       the number of answers per question. The 'model' must be a
-       capital ASCII letter.
+    It is formatted as an array of booleans string where the pos. 0
+    is the one that goes in the column of the table at the left.
+    The length of the string is 'num_tables' * 'num_answers', where
+    'num_tables' is the number of answer tables and 'num_tables'
+    the number of answers per question. The 'model' must be a
+    capital ASCII letter.
 
     """
     if len(model) != 1 or model < "A" or model > "Z":
@@ -356,10 +356,10 @@ def encode_model(model, num_tables, num_answers):
 def decode_model(bit_list, accept_model_0=False):
     """Given the bits that encode the model, returns the associated letter.
 
-       It decoding/checksum fails, None is returned. The list of bits must
-       be a list of boolean variables.
+    It decoding/checksum fails, None is returned. The list of bits must
+    be a list of boolean variables.
 
-       The special model 0 is not valid unless `accept_model_0` is set.
+    The special model 0 is not valid unless `accept_model_0` is set.
 
     """
     # x3 = x0 ^ x1 ^ not x2; x0-x3 == x4-x7 == x8-x11 == ...
@@ -386,14 +386,14 @@ def decode_model(bit_list, accept_model_0=False):
 def _int_to_bin(n, num_digits, reverse=False):
     """Returns the binary representation of a number as a list of booleans.
 
-       If the number of digits is less than 'num_digits', it is
-       completed with False in the most-significative side. If
-       'reverse' is True returns the least significative bit in the
-       first position of the string.
+    If the number of digits is less than 'num_digits', it is
+    completed with False in the most-significative side. If
+    'reverse' is True returns the least significative bit in the
+    first position of the string.
 
-       There is a bin() function in python >= 2.6, but by now we want
-       the program to be compatible with 2.5. Anyway, the behaviour of
-       that function is different.
+    There is a bin() function in python >= 2.6, but by now we want
+    the program to be compatible with 2.5. Anyway, the behaviour of
+    that function is different.
 
     """
     binary = []
@@ -408,9 +408,7 @@ def _int_to_bin(n, num_digits, reverse=False):
 
 
 def read_file(file_name):
-    """Return the contents of a file as a Unicode string using terminal locale.
-
-    """
+    """Return the contents of a file as a Unicode string using terminal locale."""
     file_ = codecs.open(file_name, "r", config["default-charset"])
     data = file_.read()
     file_.close()
@@ -418,25 +416,19 @@ def read_file(file_name):
 
 
 def write_file(file_name, unicode_text):
-    """Writes a Unicode string in a file using terminal locale.
-
-    """
+    """Writes a Unicode string in a file using terminal locale."""
     file_ = codecs.open(file_name, "w", config["default-charset"])
     file_.write(unicode_text)
     file_.close()
 
 
 def write_to_stdout(unicode_text):
-    """Writes a Unicode string in sys.stdout using terminal locale.
-
-    """
+    """Writes a Unicode string in sys.stdout using terminal locale."""
     sys.stdout.write(unicode_text)
 
 
 def increment_list(list_):
-    """Adds one to every element in a list of integers. Returns a new list.
-
-    """
+    """Adds one to every element in a list of integers. Returns a new list."""
     return [n + 1 for n in list_]
 
 

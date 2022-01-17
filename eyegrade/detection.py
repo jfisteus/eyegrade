@@ -409,7 +409,7 @@ class ExamDetector:
 
 
 class ImageTransformer:
-    """ Apply transformations to the image captured by the webcam.
+    """Apply transformations to the image captured by the webcam.
 
     Available transformations are: flipping around the x axis, the y axis or both.
 
@@ -428,7 +428,7 @@ class ImageTransformer:
         self.transformation = transformation
 
     def transform(self, image):
-        """ Apply the configured transformation to an image and return a new image.
+        """Apply the configured transformation to an image and return a new image.
 
         In case of the identity transformation, a reference to the same image is returned
         (it isn't copied into a new image).
@@ -442,8 +442,8 @@ class ImageTransformer:
 
 
 class ExamDetectorContext:
-    """ Class intended for persistency of data accross several
-        ExamCapture objects.
+    """Class intended for persistency of data accross several
+    ExamCapture objects.
 
     """
 
@@ -453,7 +453,7 @@ class ExamDetectorContext:
         fixed_hough_threshold=None,
         image_transformer=ImageTransformer(ImageTransformer.IDENTITY),
     ):
-        """ Creates a new camera capture context.
+        """Creates a new camera capture context.
 
         A default initial camera can be specified with `camera_id` (an
         integer). Pass -1 (the default value) for letting this object
@@ -509,8 +509,8 @@ class ExamDetectorContext:
     def next_camera(self):
         """Selects the next camera available.
 
-           Note that changing camera does not seem to work currently
-           in OpenCV, at least in Linux.
+        Note that changing camera does not seem to work currently
+        in OpenCV, at least in Linux.
 
         """
 
@@ -524,7 +524,7 @@ class ExamDetectorContext:
             return False
 
     def apply_image_transfomer(self, image_transfomer):
-        """ Use the given image tranformer from now on."""
+        """Use the given image tranformer from now on."""
         self.image_transformer = image_transfomer
 
     def lock_threshold(self):
@@ -689,7 +689,7 @@ def detect_lines(image, hough_threshold):
 
 
 def detect_directions(lines):
-    """ Group lines into axes.
+    """Group lines into axes.
 
     Parameters:
     - lines: a list of tuples (rho, theta) sorted from smaller to bigger
@@ -722,7 +722,7 @@ def detect_directions(lines):
 
 
 def detect_boxes(lines, dimensions):
-    """ Classify lines in two groups: horizontal and vertical lines.
+    """Classify lines in two groups: horizontal and vertical lines.
 
     Parameters:
     - lines: a list of tuples (rho, theta) sorted from smaller to bigger
@@ -768,12 +768,12 @@ def detect_boxes(lines, dimensions):
 def filter_axes(axes, image_width, image_height, read_id):
     """Filters out lines near borders and lines too close to other lines.
 
-       - axes: [(vlines_angle, vlines), (hlines_angle, hlines)]
-       - image_width, image_height: image size
-       - read_id: True if the id must be read
+    - axes: [(vlines_angle, vlines), (hlines_angle, hlines)]
+    - image_width, image_height: image size
+    - read_id: True if the id must be read
 
-       Returns a new axes object with updated lines if success or
-       the lines without collapsing if not.
+    Returns a new axes object with updated lines if success or
+    the lines without collapsing if not.
 
     """
     # First, filter out lines too close to image borders
@@ -817,11 +817,11 @@ def filter_axes(axes, image_width, image_height, read_id):
 def collapse_lines_angles(lines, horizontal):
     """Collapses lines that are close together.
 
-       Receives the list of pairs of lines (rho, theta),
-       and whether lines are horizontal or not.
+    Receives the list of pairs of lines (rho, theta),
+    and whether lines are horizontal or not.
 
-       Returns the lines or None if the expected number of
-       lines is not matched.
+    Returns the lines or None if the expected number of
+    lines is not matched.
 
     """
     if len(lines) < 2:
@@ -1298,9 +1298,9 @@ def process_box_corners(points, dimensions):
 def construct_box(outer_corners, num_columns, num_rows):
     """Returns the corners of all the cells in a box.
 
-       'outer_corners' is a 4-tuple with the coordinates of the outer
-       corners of the box: (left-up, right-up, left-bottom,
-       right-bottom).
+    'outer_corners' is a 4-tuple with the coordinates of the outer
+    corners of the box: (left-up, right-up, left-bottom,
+    right-bottom).
 
     """
     plu, pru, pld, prd = outer_corners
@@ -1324,8 +1324,8 @@ def construct_box(outer_corners, num_columns, num_rows):
 
 def fix_box_if_needed(box_corners):
     """Due to a bug, sometimes corners were not properly detected.
-       This code will be kept for a while. It can be removed later the
-       error does not happen anymore."""
+    This code will be kept for a while. It can be removed later the
+    error does not happen anymore."""
     plu, pru, pld, prd = box_corners
     if plu[1] > pld[1]:
         plu, pld = pld, plu
