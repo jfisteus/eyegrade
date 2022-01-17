@@ -4,26 +4,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Eyegrade 0.8 released! | Eyegrade</title>
+<title>Eyegrade 0.9 released! | Eyegrade</title>
 <link href="../../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="http://www.eyegrade.org/blog/posts/eyegrade-08-released/">
+<link rel="canonical" href="http://www.eyegrade.org/blog/posts/eyegrade-09-released/">
 <!--[if lt IE 9]><script src="../../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Jesús Arias Fisteus">
-<link rel="prev" href="../new-video-tutorial/" title="New video tutorial" type="text/html">
-<link rel="next" href="../eyegrade-09-released/" title="Eyegrade 0.9 released!" type="text/html">
+<link rel="prev" href="../eyegrade-08-released/" title="Eyegrade 0.8 released!" type="text/html">
 <meta property="og:site_name" content="Eyegrade">
-<meta property="og:title" content="Eyegrade 0.8 released!">
-<meta property="og:url" content="http://www.eyegrade.org/blog/posts/eyegrade-08-released/">
-<meta property="og:description" content="Eyegrade 0.8 has been released!
-This release includes several changes from the point of view
-of the final user:
+<meta property="og:title" content="Eyegrade 0.9 released!">
+<meta property="og:url" content="http://www.eyegrade.org/blog/posts/eyegrade-09-released/">
+<meta property="og:description" content="Eyegrade 0.9 has been released!
+This release includes new features for creating exams:
 
-A new dialog to import and manage student lists.
-Ability to import student lists from E">
+Questions can be grouped,
+so that questions within a group keep their relative order.
+The group gets shuffled as">
 <meta property="og:type" content="article">
-<meta property="article:published_time" content="2019-03-29T10:11:38Z">
+<meta property="article:published_time" content="2022-01-16T17:35:00+01:00">
 <meta property="article:tag" content="eyegrade">
 <meta property="article:tag" content="release">
 </head>
@@ -86,7 +85,7 @@ navbar-dark bg-dark
         <!--Body content-->
         
         
-<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Eyegrade 0.8 released!</a></h1>
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Eyegrade 0.9 released!</a></h1>
 
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
@@ -94,11 +93,11 @@ navbar-dark bg-dark
             </span></p>
             <p class="dateline">
             <a href="." rel="bookmark">
-            <time class="published dt-published" datetime="2019-03-29T10:11:38Z" itemprop="datePublished" title="2019-03-29 10:11">2019-03-29 10:11</time></a>
+            <time class="published dt-published" datetime="2022-01-16T17:35:00+01:00" itemprop="datePublished" title="2022-01-16 17:35">2022-01-16 17:35</time></a>
             </p>
                 <p class="commentline">
         
-    <a href="#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-08-released.html">Comments</a>
+    <a href="#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-09-released.html">Comments</a>
 
 
             
@@ -110,28 +109,45 @@ navbar-dark bg-dark
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
     <div>
-<p>Eyegrade 0.8 has been released!
-This release includes several changes from the point of view
-of the final user:</p>
+<p>Eyegrade 0.9 has been released!
+This release includes new features for creating exams:</p>
 <ul class="simple">
-<li>A new dialog to import and manage student lists.</li>
-<li>Ability to import student lists from Excel (.xlsx) files.</li>
-<li>Ability to export exam results to Excel (.xlsx) files.</li>
+<li>Questions can be grouped,
+so that questions within a group keep their relative order.
+The group gets shuffled as a block with the rest of groups
+and questions that don't belong to any group.
+Check how to group questions
+at <a class="reference external" href="../../../doc/user-manual/#question-groups">the user guide</a>.</li>
+<li>It's possible to define questions with several variations,
+so that variations are randomly selected for each model of the exam.
+Each variation can be defined as a whole question,
+or all the variations can be defined once
+with a dependency on some parameters.
+The values of those parameters would define the variation.
+It's also possible to assign a specific variation to a model,
+instead of letting it be randomly assigned.
+Check how to define variations
+at <a class="reference external" href="../../../doc/user-manual/#questions-with-variations">the user guide</a>.</li>
+<li>Choices can be fixed to be always
+at the first or last position of the question.
+The rest of choices of the question get shuffled.
+Check how to fix choice positions
+at <a class="reference external" href="../../../doc/user-manual/#fixing-the-position-of-a-choice">the user guide</a>.</li>
 </ul>
-<p>Other changes include:</p>
-<ul class="simple">
-<li>Port to Python 3 (3.5 or later). Python 2 is no longer supported.</li>
-<li>Port to OpenCV 3 and 4. OpenCV 2.4 is no longer supported.</li>
-<li>Port to Qt/PyQt 5. Qt/PyQt 4 are no longer supported.</li>
-<li>A new Windows installer build with <a class="reference external" href="https://pybee.org/project/projects/tools/briefcase/">briefcase</a> and the <a class="reference external" href="http://wixtoolset.org/">WiX Toolset</a>).</li>
-<li>Some major code refactorings.</li>
-<li>Some bugfixes.</li>
-</ul>
-<p>Installation procedures have been changed.
-Check the new
+<p>Another new feature is the possibility to flip
+the webcam image, either horizontally or vertically.
+This is done from the camera selection dialog.
+The reason for this feature is that a user reported
+that in their system the image appeared flipped,
+making it impossible to grade exams.
+This features allows users to reversed that
+when that happens.</p>
+<p>As always, this version includes
+bug fixes and code refactoring.</p>
+<p>Check the
 <a class="reference external" href="../../../quick-start-guide/">quick start guide</a>
-for instructions,
-also accessible from the
+for instructions on how to install and try this new version,
+or read the new version of the user guide at the
 <a class="reference external" href="../../../documentation/">documentation page</a>.</p>
 <p>Access the binary files for this release
 at the <a class="reference external" href="../../../download/">downloads page</a>.</p>
@@ -143,10 +159,7 @@ at the <a class="reference external" href="../../../download/">downloads page</a
         </ul>
 <ul class="pager hidden-print">
 <li class="previous">
-                <a href="../new-video-tutorial/" rel="prev" title="New video tutorial">Previous post</a>
-            </li>
-            <li class="next">
-                <a href="../eyegrade-09-released/" rel="next" title="Eyegrade 0.9 released!">Next post</a>
+                <a href="../eyegrade-08-released/" rel="prev" title="Eyegrade 0.8 released!">Previous post</a>
             </li>
         </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
         
@@ -154,9 +167,9 @@ at the <a class="reference external" href="../../../download/">downloads page</a
         <div id="disqus_thread"></div>
         <script>
         var disqus_shortname ="eyegrade",
-            disqus_url="http://www.eyegrade.org/blog/posts/eyegrade-08-released/",
-        disqus_title="Eyegrade 0.8 released!",
-        disqus_identifier="cache/posts/eyegrade-08-released.html",
+            disqus_url="http://www.eyegrade.org/blog/posts/eyegrade-09-released/",
+        disqus_title="Eyegrade 0.9 released!",
+        disqus_identifier="cache/posts/eyegrade-09-released.html",
         disqus_config = function () {
             this.language = "en";
         };

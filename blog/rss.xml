@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 29 Mar 2019 14:25:56 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade</title><link>http://www.eyegrade.org/</link><description>Blog for the free software tool Eyegrade</description><atom:link href="http://www.eyegrade.org/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 17 Jan 2022 16:34:30 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.9 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-09-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.9 has been released!
+This release includes new features for creating exams:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Questions can be grouped,
+so that questions within a group keep their relative order.
+The group gets shuffled as a block with the rest of groups
+and questions that don't belong to any group.
+Check how to group questions
+at &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#question-groups"&gt;the user guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;It's possible to define questions with several variations,
+so that variations are randomly selected for each model of the exam.
+Each variation can be defined as a whole question,
+or all the variations can be defined once
+with a dependency on some parameters.
+The values of those parameters would define the variation.
+It's also possible to assign a specific variation to a model,
+instead of letting it be randomly assigned.
+Check how to define variations
+at &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#questions-with-variations"&gt;the user guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Choices can be fixed to be always
+at the first or last position of the question.
+The rest of choices of the question get shuffled.
+Check how to fix choice positions
+at &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#fixing-the-position-of-a-choice"&gt;the user guide&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Another new feature is the possibility to flip
+the webcam image, either horizontally or vertically.
+This is done from the camera selection dialog.
+The reason for this feature is that a user reported
+that in their system the image appeared flipped,
+making it impossible to grade exams.
+This features allows users to reversed that
+when that happens.&lt;/p&gt;
+&lt;p&gt;As always, this version includes
+bug fixes and code refactoring.&lt;/p&gt;
+&lt;p&gt;Check the
+&lt;a class="reference external" href="http://www.eyegrade.org/quick-start-guide/"&gt;quick start guide&lt;/a&gt;
+for instructions on how to install and try this new version,
+or read the new version of the user guide at the
+&lt;a class="reference external" href="http://www.eyegrade.org/documentation/"&gt;documentation page&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Access the binary files for this release
+at the &lt;a class="reference external" href="http://www.eyegrade.org/download/"&gt;downloads page&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-09-released/</guid><pubDate>Sun, 16 Jan 2022 16:35:00 GMT</pubDate></item><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
 This release includes several changes from the point of view
 of the final user:&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -155,46 +196,4 @@ Additionally,
 it allows Eyegrade to open the session
 even when such an exam made its way into the session database.&lt;/p&gt;
 &lt;p&gt;As always, you can update with &lt;tt class="docutils literal"&gt;git pull&lt;/tt&gt;
-if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-051/</guid><pubDate>Wed, 22 Apr 2015 22:51:00 GMT</pubDate></item><item><title>What will eyegrade 0.6 include? (part 1)</title><link>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though version 0.5 was released just a couple of weeks ago,
-the next release, 0.6, is approaching.
-As I did with the previous release,
-I'll blog about the new features it will include
-as they are more or less ready.&lt;/p&gt;
-&lt;p&gt;The first feature I'd like to talk about
-is a new subsystem for recognizing handwritten digits,
-which replaces the one that I wrote in the early days of Eyegrade.
-&lt;a class="reference external" href="https://github.com/rarguelloF"&gt;Rodrigo Argüello&lt;/a&gt;,
-a former student of mine
-at &lt;a class="reference external" href="http://www.uc3m.es/"&gt;Universidad Carlos III de Madrid&lt;/a&gt;,
-volunteered to improve the previous system with a
-&lt;a class="reference external" href="http://en.wikipedia.org/wiki/Machine_learning"&gt;machine learning&lt;/a&gt;
-based solution.
-More specifically,
-he used a &lt;a class="reference external" href="http://en.wikipedia.org/wiki/Support_vector_machine"&gt;support vector machine (SVM)&lt;/a&gt;.
-The machine is trained by showing it lots of samples of each digit,
-and telling it which digit each sample represents.
-Once trained,
-you can show an image of a digit to it,
-and it will answer with the digit it considers
-the best match for the image.&lt;/p&gt;
-&lt;p&gt;Rodrigo tried with several strategies
-before finally integrating one into Eyegrade.
-Our first tests in real scenarios show that,
-under conditions in which the former system failed
-approximately once for every 6 student identifications,
-the new system fails approximately once for every 20.
-I believe it is a big step forward.
-Many thanks to Rodrigo for his great contribution,
-and to Roberto for sending us tons of samples
-for training and testing the new system.&lt;/p&gt;
-&lt;p&gt;Removing the old digit recognition system
-provides a second benefit:
-the &lt;em&gt;tre&lt;/em&gt; library is no longer needed.
-The fact that it wasn't a pure Python library,
-and that it doesn't seem to be widely used from Python,
-was a headache for deploying the Windows version,
-and complicated the installation procedure in Linux a little bit.
-If everything goes as planned,
-you can expect a greatly simplified installation procedure,
-especially for Windows users.
-More on this topic on my next post.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>new-features</category><guid>http://www.eyegrade.org/blog/posts/what-will-eyegrade-06-include-part-1/</guid><pubDate>Fri, 03 Apr 2015 20:42:00 GMT</pubDate></item></channel></rss>
+if you installed Eyegrade through &lt;em&gt;git&lt;/em&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/bugfix-release-051/</guid><pubDate>Wed, 22 Apr 2015 22:51:00 GMT</pubDate></item></channel></rss>

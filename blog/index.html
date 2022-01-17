@@ -72,7 +72,69 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/eyegrade-08-released/" class="u-url">Eyegrade 0.8 released!</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/eyegrade-09-released/" class="u-url">Eyegrade 0.9 released!</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Jesús Arias Fisteus
+            </span></p>
+            <p class="dateline">
+            <a href="posts/eyegrade-09-released/" rel="bookmark">
+            <time class="published dt-published" datetime="2022-01-16T17:35:00+01:00" itemprop="datePublished" title="2022-01-16 17:35">2022-01-16 17:35</time></a>
+            </p>
+                <p class="commentline">
+        
+    <a href="posts/eyegrade-09-released/#disqus_thread" data-disqus-identifier="cache/posts/eyegrade-09-released.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="e-content entry-content">
+    <div>
+<p>Eyegrade 0.9 has been released!
+This release includes new features for creating exams:</p>
+<ul class="simple">
+<li>Questions can be grouped,
+so that questions within a group keep their relative order.
+The group gets shuffled as a block with the rest of groups
+and questions that don't belong to any group.
+Check how to group questions
+at <a class="reference external" href="../doc/user-manual/#question-groups">the user guide</a>.</li>
+<li>It's possible to define questions with several variations,
+so that variations are randomly selected for each model of the exam.
+Each variation can be defined as a whole question,
+or all the variations can be defined once
+with a dependency on some parameters.
+The values of those parameters would define the variation.
+It's also possible to assign a specific variation to a model,
+instead of letting it be randomly assigned.
+Check how to define variations
+at <a class="reference external" href="../doc/user-manual/#questions-with-variations">the user guide</a>.</li>
+<li>Choices can be fixed to be always
+at the first or last position of the question.
+The rest of choices of the question get shuffled.
+Check how to fix choice positions
+at <a class="reference external" href="../doc/user-manual/#fixing-the-position-of-a-choice">the user guide</a>.</li>
+</ul>
+<p>Another new feature is the possibility to flip
+the webcam image, either horizontally or vertically.
+This is done from the camera selection dialog.
+The reason for this feature is that a user reported
+that in their system the image appeared flipped,
+making it impossible to grade exams.
+This features allows users to reversed that
+when that happens.</p>
+<p>As always, this version includes
+bug fixes and code refactoring.</p>
+<p>Check the
+<a class="reference external" href="../quick-start-guide/">quick start guide</a>
+for instructions on how to install and try this new version,
+or read the new version of the user guide at the
+<a class="reference external" href="../documentation/">documentation page</a>.</p>
+<p>Access the binary files for this release
+at the <a class="reference external" href="../download/">downloads page</a>.</p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/eyegrade-08-released/" class="u-url">Eyegrade 0.8 released!</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Jesús Arias Fisteus
@@ -415,69 +477,6 @@ it allows Eyegrade to open the session
 even when such an exam made its way into the session database.</p>
 <p>As always, you can update with <tt class="docutils literal">git pull</tt>
 if you installed Eyegrade through <em>git</em>.</p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-06-include-part-1/" class="u-url">What will eyegrade 0.6 include? (part 1)</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Jesús Arias Fisteus
-            </span></p>
-            <p class="dateline">
-            <a href="posts/what-will-eyegrade-06-include-part-1/" rel="bookmark">
-            <time class="published dt-published" datetime="2015-04-03T20:42:00Z" itemprop="datePublished" title="2015-04-03 20:42">2015-04-03 20:42</time></a>
-            </p>
-                <p class="commentline">
-        
-    <a href="posts/what-will-eyegrade-06-include-part-1/#disqus_thread" data-disqus-identifier="cache/posts/what-will-eyegrade-06-include-part-1.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="e-content entry-content">
-    <div>
-<p>Even though version 0.5 was released just a couple of weeks ago,
-the next release, 0.6, is approaching.
-As I did with the previous release,
-I'll blog about the new features it will include
-as they are more or less ready.</p>
-<p>The first feature I'd like to talk about
-is a new subsystem for recognizing handwritten digits,
-which replaces the one that I wrote in the early days of Eyegrade.
-<a class="reference external" href="https://github.com/rarguelloF">Rodrigo Argüello</a>,
-a former student of mine
-at <a class="reference external" href="http://www.uc3m.es/">Universidad Carlos III de Madrid</a>,
-volunteered to improve the previous system with a
-<a class="reference external" href="http://en.wikipedia.org/wiki/Machine_learning">machine learning</a>
-based solution.
-More specifically,
-he used a <a class="reference external" href="http://en.wikipedia.org/wiki/Support_vector_machine">support vector machine (SVM)</a>.
-The machine is trained by showing it lots of samples of each digit,
-and telling it which digit each sample represents.
-Once trained,
-you can show an image of a digit to it,
-and it will answer with the digit it considers
-the best match for the image.</p>
-<p>Rodrigo tried with several strategies
-before finally integrating one into Eyegrade.
-Our first tests in real scenarios show that,
-under conditions in which the former system failed
-approximately once for every 6 student identifications,
-the new system fails approximately once for every 20.
-I believe it is a big step forward.
-Many thanks to Rodrigo for his great contribution,
-and to Roberto for sending us tons of samples
-for training and testing the new system.</p>
-<p>Removing the old digit recognition system
-provides a second benefit:
-the <em>tre</em> library is no longer needed.
-The fact that it wasn't a pure Python library,
-and that it doesn't seem to be widely used from Python,
-was a headache for deploying the Windows version,
-and complicated the installation procedure in Linux a little bit.
-If everything goes as planned,
-you can expect a greatly simplified installation procedure,
-especially for Windows users.
-More on this topic on my next post.</p>
 </div>
     </div>
     </article>

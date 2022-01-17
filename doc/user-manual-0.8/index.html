@@ -169,84 +169,75 @@ code, tt {
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="auto-toc simple">
-<li><a class="reference internal" href="#installing-eyegrade" id="id8">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
-<li><a class="reference internal" href="#installation-on-gnu-linux" id="id9">1.1&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
-<li><a class="reference internal" href="#installation-in-binary-format-from-a-tarball-file" id="id10">1.1.1&nbsp;&nbsp;&nbsp;Installation in binary format from a tarball file</a></li>
-<li><a class="reference internal" href="#installation-through-pipx-within-your-user-s-account" id="id11">1.1.2&nbsp;&nbsp;&nbsp;Installation through <cite>pipx</cite> within your user's account</a></li>
+<li><a class="reference internal" href="#installing-eyegrade" id="id7">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installation-on-gnu-linux" id="id8">1.1&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a><ul class="auto-toc">
+<li><a class="reference internal" href="#installation-in-binary-format-from-a-tarball-file" id="id9">1.1.1&nbsp;&nbsp;&nbsp;Installation in binary format from a tarball file</a></li>
+<li><a class="reference internal" href="#installation-through-pipx-within-your-user-s-account" id="id10">1.1.2&nbsp;&nbsp;&nbsp;Installation through <cite>pipx</cite> within your user's account</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#installation-on-microsoft-windows" id="id12">1.2&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></li>
-<li><a class="reference internal" href="#installation-on-mac-os-x" id="id13">1.3&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></li>
-<li><a class="reference internal" href="#upgrading-from-eyegrade-0-8-to-eyegrade-0-9" id="id14">1.4&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.8 to Eyegrade 0.9</a></li>
+<li><a class="reference internal" href="#installation-on-microsoft-windows" id="id11">1.2&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></li>
+<li><a class="reference internal" href="#installation-on-mac-os-x" id="id12">1.3&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></li>
+<li><a class="reference internal" href="#upgrading-from-eyegrade-0-7-to-eyegrade-0-8" id="id13">1.4&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.7 to Eyegrade 0.8</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#grading-exams" id="id15">2&nbsp;&nbsp;&nbsp;Grading Exams</a><ul class="auto-toc">
-<li><a class="reference internal" href="#launching-eyegrade" id="id16">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></li>
-<li><a class="reference internal" href="#manual-configuration-of-the-exam" id="id17">2.2&nbsp;&nbsp;&nbsp;Manual configuration of the exam</a></li>
-<li><a class="reference internal" href="#student-lists" id="id18">2.3&nbsp;&nbsp;&nbsp;Student lists</a></li>
-<li><a class="reference internal" href="#the-session-directory" id="id19">2.4&nbsp;&nbsp;&nbsp;The session directory</a></li>
-<li><a class="reference internal" href="#scores" id="id20">2.5&nbsp;&nbsp;&nbsp;Scores</a><ul class="auto-toc">
-<li><a class="reference internal" href="#same-score-for-all-the-questions" id="id21">2.5.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></li>
-<li><a class="reference internal" href="#base-score-plus-per-question-weight" id="id22">2.5.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></li>
+<li><a class="reference internal" href="#grading-exams" id="id14">2&nbsp;&nbsp;&nbsp;Grading Exams</a><ul class="auto-toc">
+<li><a class="reference internal" href="#launching-eyegrade" id="id15">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></li>
+<li><a class="reference internal" href="#manual-configuration-of-the-exam" id="id16">2.2&nbsp;&nbsp;&nbsp;Manual configuration of the exam</a></li>
+<li><a class="reference internal" href="#student-lists" id="id17">2.3&nbsp;&nbsp;&nbsp;Student lists</a></li>
+<li><a class="reference internal" href="#the-session-directory" id="id18">2.4&nbsp;&nbsp;&nbsp;The session directory</a></li>
+<li><a class="reference internal" href="#scores" id="id19">2.5&nbsp;&nbsp;&nbsp;Scores</a><ul class="auto-toc">
+<li><a class="reference internal" href="#same-score-for-all-the-questions" id="id20">2.5.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></li>
+<li><a class="reference internal" href="#base-score-plus-per-question-weight" id="id21">2.5.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#application-modes" id="id23">2.6&nbsp;&nbsp;&nbsp;Application modes</a></li>
-<li><a class="reference internal" href="#the-grading-mode" id="id24">2.7&nbsp;&nbsp;&nbsp;The grading mode</a></li>
-<li><a class="reference internal" href="#the-review-mode" id="id25">2.8&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
-<li><a class="reference internal" href="#modifying-student-answers" id="id26">2.8.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
-<li><a class="reference internal" href="#modifying-the-student-id" id="id27">2.8.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
+<li><a class="reference internal" href="#application-modes" id="id22">2.6&nbsp;&nbsp;&nbsp;Application modes</a></li>
+<li><a class="reference internal" href="#the-grading-mode" id="id23">2.7&nbsp;&nbsp;&nbsp;The grading mode</a></li>
+<li><a class="reference internal" href="#the-review-mode" id="id24">2.8&nbsp;&nbsp;&nbsp;The review mode</a><ul class="auto-toc">
+<li><a class="reference internal" href="#modifying-student-answers" id="id25">2.8.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></li>
+<li><a class="reference internal" href="#modifying-the-student-id" id="id26">2.8.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#the-manual-detection-mode" id="id28">2.9&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
+<li><a class="reference internal" href="#the-manual-detection-mode" id="id27">2.9&nbsp;&nbsp;&nbsp;The manual detection mode</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#processing-student-grades" id="id29">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
-<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id30">3.1&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></li>
-<li><a class="reference internal" href="#output-within-the-session-directory" id="id31">3.2&nbsp;&nbsp;&nbsp;Output within the session directory</a></li>
+<li><a class="reference internal" href="#processing-student-grades" id="id28">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a><ul class="auto-toc">
+<li><a class="reference internal" href="#exporting-a-listing-of-scores" id="id29">3.1&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></li>
+<li><a class="reference internal" href="#output-within-the-session-directory" id="id30">3.2&nbsp;&nbsp;&nbsp;Output within the session directory</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#editing-exams" id="id32">4&nbsp;&nbsp;&nbsp;Editing exams</a><ul class="auto-toc">
-<li><a class="reference internal" href="#editing-the-questions-of-the-exam" id="id33">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a><ul class="auto-toc">
-<li><a class="reference internal" href="#inserting-pictures" id="id34">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></li>
-<li><a class="reference internal" href="#inserting-blocks-of-code" id="id35">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></li>
-<li><a class="reference internal" href="#configuring-student-id-detection" id="id36">4.1.3&nbsp;&nbsp;&nbsp;Configuring student id detection</a></li>
-<li><a class="reference internal" href="#configuring-scores" id="id37">4.1.4&nbsp;&nbsp;&nbsp;Configuring scores</a></li>
+<li><a class="reference internal" href="#editing-exams" id="id31">4&nbsp;&nbsp;&nbsp;Editing exams</a><ul class="auto-toc">
+<li><a class="reference internal" href="#editing-the-questions-of-the-exam" id="id32">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a><ul class="auto-toc">
+<li><a class="reference internal" href="#inserting-pictures" id="id33">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></li>
+<li><a class="reference internal" href="#inserting-blocks-of-code" id="id34">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></li>
+<li><a class="reference internal" href="#configuring-student-id-detection" id="id35">4.1.3&nbsp;&nbsp;&nbsp;Configuring student id detection</a></li>
+<li><a class="reference internal" href="#configuring-scores" id="id36">4.1.4&nbsp;&nbsp;&nbsp;Configuring scores</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#editing-the-latex-template" id="id38">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></li>
-<li><a class="reference internal" href="#creating-the-pdf-files" id="id39">4.3&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
-<li><a class="reference internal" href="#installing-the-latex-system" id="id40">4.4&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
-<li><a class="reference internal" href="#advanced-exam-editing" id="id41">4.5&nbsp;&nbsp;&nbsp;Advanced exam editing</a><ul class="auto-toc">
-<li><a class="reference internal" href="#fixing-the-position-of-a-choice" id="id42">4.5.1&nbsp;&nbsp;&nbsp;Fixing the position of a choice</a></li>
-<li><a class="reference internal" href="#question-groups" id="id43">4.5.2&nbsp;&nbsp;&nbsp;Question groups</a></li>
-<li><a class="reference internal" href="#questions-with-variations" id="id44">4.5.3&nbsp;&nbsp;&nbsp;Questions with variations</a></li>
-<li><a class="reference internal" href="#question-groups-with-variations" id="id45">4.5.4&nbsp;&nbsp;&nbsp;Question groups with variations</a></li>
+<li><a class="reference internal" href="#editing-the-latex-template" id="id37">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></li>
+<li><a class="reference internal" href="#creating-the-pdf-files" id="id38">4.3&nbsp;&nbsp;&nbsp;Creating the PDF files</a></li>
+<li><a class="reference internal" href="#installing-the-latex-system" id="id39">4.4&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#advanced-features" id="id46">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
-<li><a class="reference internal" href="#preserving-the-order-of-some-questions-when-shuffling" id="id47">5.1&nbsp;&nbsp;&nbsp;Preserving the order of some questions when shuffling</a></li>
-<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id48">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
-<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id49">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
-<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id50">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
+<li><a class="reference internal" href="#advanced-features" id="id40">5&nbsp;&nbsp;&nbsp;Advanced features</a><ul class="auto-toc">
+<li><a class="reference internal" href="#creating-the-exams-in-a-word-processor" id="id41">5.1&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></li>
+<li><a class="reference internal" href="#manually-editing-the-eye-file" id="id42">5.2&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></li>
+<li><a class="reference internal" href="#automatic-detection-of-exam-removal" id="id43">5.3&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p>This is the user manual for Eyegrade 0.9.
-Versions of this manual for earlier releases
+<p>This is the user manual for Eyegrade 0.8.
+Versions of this manual for earlier versions
 are available:
-<a class="reference external" href="../user-manual-0.8">0.8</a>,
 <a class="reference external" href="../user-manual-0.7">0.7</a>,
 <a class="reference external" href="../user-manual-0.6">0.6</a>,
 <a class="reference external" href="../user-manual-0.5">0.5</a>,
 <a class="reference external" href="../user-manual-0.4">0.4</a>,
 <a class="reference external" href="../user-manual-0.2">0.2</a>.</p>
 <div class="section" id="installing-eyegrade">
-<h1><a class="toc-backref" href="#id8">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h1>
+<h1><a class="toc-backref" href="#id7">1&nbsp;&nbsp;&nbsp;Installing Eyegrade</a></h1>
 <div class="section" id="installation-on-gnu-linux">
-<h2><a class="toc-backref" href="#id9">1.1&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a></h2>
+<h2><a class="toc-backref" href="#id8">1.1&nbsp;&nbsp;&nbsp;Installation on GNU/Linux</a></h2>
 <p>We propose several ways to get Eyegrade running,
 so that you can choose the one that better fits your needs
 and experience in Linux systems:</p>
@@ -265,7 +256,7 @@ The installation procedure is a little bit more complex,
 but in our opinion it's totally worth it
 if you already have Python 3.6 or 3.7.</p>
 <div class="section" id="installation-in-binary-format-from-a-tarball-file">
-<h3><a class="toc-backref" href="#id10">1.1.1&nbsp;&nbsp;&nbsp;Installation in binary format from a tarball file</a></h3>
+<h3><a class="toc-backref" href="#id9">1.1.1&nbsp;&nbsp;&nbsp;Installation in binary format from a tarball file</a></h3>
 <p>Eyegrade for Linux is distributed as a tarball file
 containing the executable files
 <cite>eyegrade</cite> (its main program)
@@ -281,14 +272,14 @@ or place the binaries inside a directory that is already in your <cite>PATH</cit
 For example, if you want to place the binaries
 inside <cite>/usr/local/bin</cite>, which is usually in your <cite>PATH</cite>:</p>
 <pre class="literal-block">
-tar xavf eyegrade-0.9-linux-bin.tgz
-sudo cp eyegrade-0.9-linux-bin/eyegrade /usr/local/bin
-sudo cp eyegrade-0.9-linux-bin/eyegrade-create /usr/local/bin
+tar xavf eyegrade-0.8-linux-bin.tgz
+sudo cp eyegrade-0.8-linux-bin/eyegrade /usr/local/bin
+sudo cp eyegrade-0.8-linux-bin/eyegrade-create /usr/local/bin
 </pre>
 </div>
 <div class="section" id="installation-through-pipx-within-your-user-s-account">
-<h3><a class="toc-backref" href="#id11">1.1.2&nbsp;&nbsp;&nbsp;Installation through <cite>pipx</cite> within your user's account</a></h3>
-<p>Check that your Linux system has Python 3.6, 3.7 or 3.8 installed
+<h3><a class="toc-backref" href="#id10">1.1.2&nbsp;&nbsp;&nbsp;Installation through <cite>pipx</cite> within your user's account</a></h3>
+<p>Check that your Linux system has Python 3.6 or 3.7 installed
 by running:</p>
 <pre class="literal-block">
 python3 --version
@@ -341,7 +332,7 @@ eyegrade-create --version
 </div>
 </div>
 <div class="section" id="installation-on-microsoft-windows">
-<h2><a class="toc-backref" href="#id12">1.2&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></h2>
+<h2><a class="toc-backref" href="#id11">1.2&nbsp;&nbsp;&nbsp;Installation on Microsoft Windows</a></h2>
 <p>Download and install
 <a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=48145">Microsoft's Visual C++ Redistributable for Visual Studio 2015</a>.</p>
 <p>Then,
@@ -368,7 +359,7 @@ positioned in a directory called <em>Eyegrade</em>.
 Close the file manager window in that case and proceed again.</p>
 </div>
 <div class="section" id="installation-on-mac-os-x">
-<h2><a class="toc-backref" href="#id13">1.3&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></h2>
+<h2><a class="toc-backref" href="#id12">1.3&nbsp;&nbsp;&nbsp;Installation on Mac OS X</a></h2>
 <p>Unfortunately, I cannot provide support for Mac OS X.
 I'm confident that Eyegrade should work on that platform out of the box
 or with some minimal changes,
@@ -376,18 +367,17 @@ but I don't own a computer
 in which to check and build an installer.
 Volunteers to support Eyegrade on Mac OS X are welcome.</p>
 </div>
-<div class="section" id="upgrading-from-eyegrade-0-8-to-eyegrade-0-9">
-<h2><a class="toc-backref" href="#id14">1.4&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.8 to Eyegrade 0.9</a></h2>
-<p>In Linux systems, just replace the binaries of Eyegrade 0.8
+<div class="section" id="upgrading-from-eyegrade-0-7-to-eyegrade-0-8">
+<h2><a class="toc-backref" href="#id13">1.4&nbsp;&nbsp;&nbsp;Upgrading from Eyegrade 0.7 to Eyegrade 0.8</a></h2>
+<p>In Linux systems, just replace the binaries of Eyegrade 0.7
 with the new ones.
-In Windows, you can uninstall Eyegrade 0.8
+In Windows, you can uninstall Eyegrade 0.7
 using the <em>Add/remove programs</em> feature.</p>
-<p>Eyegrade 0.9 is backwards-compatible with grading sessions
+<p>Eyegrade 0.8 is backwards-compatible with grading sessions
 created with Eyegrade 0.3 and later versions.</p>
 <p>The main changes of the most recent versions are described in the following
 blog posts:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-09-released.html">Eyegrade 0.9 released</a></li>
 <li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-08-released.html">Eyegrade 0.8 released</a></li>
 <li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-07-released.html">Eyegrade 0.7 released</a></li>
 <li><a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-06-released.html">Eyegrade 0.6 released</a></li>
@@ -398,7 +388,7 @@ blog posts:</p>
 </div>
 </div>
 <div class="section" id="grading-exams">
-<h1><a class="toc-backref" href="#id15">2&nbsp;&nbsp;&nbsp;Grading Exams</a></h1>
+<h1><a class="toc-backref" href="#id14">2&nbsp;&nbsp;&nbsp;Grading Exams</a></h1>
 <p>If it is the first time you run Eyegrade,
 it is recommended to go first through the
 <a class="reference external" href="http://www.eyegrade.org/quick-start-guide">Quick start guide</a>.
@@ -418,7 +408,7 @@ detect student IDs.</li>
 <li>The exams to grade.</li>
 </ul>
 <div class="section" id="launching-eyegrade">
-<h2><a class="toc-backref" href="#id16">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></h2>
+<h2><a class="toc-backref" href="#id15">2.1&nbsp;&nbsp;&nbsp;Launching Eyegrade</a></h2>
 <p>If it is the first time you use Eyegrade,
 you can try it with the sample file <tt class="docutils literal"><span class="pre">exam-A.pdf</span></tt>
 located inside the directory <tt class="docutils literal">examples</tt> of your installation
@@ -478,7 +468,7 @@ point, Eyegrade should show the answers it has detected. Read the
 following sections for further instructions.</p>
 </div>
 <div class="section" id="manual-configuration-of-the-exam">
-<h2><a class="toc-backref" href="#id17">2.2&nbsp;&nbsp;&nbsp;Manual configuration of the exam</a></h2>
+<h2><a class="toc-backref" href="#id16">2.2&nbsp;&nbsp;&nbsp;Manual configuration of the exam</a></h2>
 <p>If you choose to edit your exams with a word processor
 instead of using the LaTeX-based system that Eyegrade provides,
 you'll need to enter the exam configuration manually.
@@ -534,7 +524,7 @@ With this file you can create new sessions
 with exactly the same configuration.</p>
 </div>
 <div class="section" id="student-lists">
-<h2><a class="toc-backref" href="#id18">2.3&nbsp;&nbsp;&nbsp;Student lists</a></h2>
+<h2><a class="toc-backref" href="#id17">2.3&nbsp;&nbsp;&nbsp;Student lists</a></h2>
 <p>The accuracy in the detection of the student identity
 improves dramatically when you supply
 the list of ids of the students in your class,
@@ -648,7 +638,7 @@ cannot be removed:</p>
 <img alt="Group management." src="images/students-dialog-groups.png" />
 </div>
 <div class="section" id="the-session-directory">
-<h2><a class="toc-backref" href="#id19">2.4&nbsp;&nbsp;&nbsp;The session directory</a></h2>
+<h2><a class="toc-backref" href="#id18">2.4&nbsp;&nbsp;&nbsp;The session directory</a></h2>
 <p>A grading session in Eyegrade represents the grading of a specific
 exam for a group of students. For example, you would grade the exams
 for the final exam of all your students in the subject <em>Computer
@@ -666,7 +656,7 @@ session you want to open. When you open the session, you can continue
 grading new exams that belong to that session.</p>
 </div>
 <div class="section" id="scores">
-<h2><a class="toc-backref" href="#id20">2.5&nbsp;&nbsp;&nbsp;Scores</a></h2>
+<h2><a class="toc-backref" href="#id19">2.5&nbsp;&nbsp;&nbsp;Scores</a></h2>
 <p>Eyegrade can compute the scores of the exams.
 When you create a new session, you can select
 in the last page of the wizard one
@@ -693,7 +683,7 @@ when you assign a weight of 0 to a question,
 it does not contribute to the score of the exam.</li>
 </ul>
 <div class="section" id="same-score-for-all-the-questions">
-<h3><a class="toc-backref" href="#id21">2.5.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></h3>
+<h3><a class="toc-backref" href="#id20">2.5.1&nbsp;&nbsp;&nbsp;Same score for all the questions</a></h3>
 <p>When you select this option,
 all the questions count the same in the score of the exam.
 Eyegrade counts the number of correct, incorrect and blank answers,
@@ -725,7 +715,7 @@ This way, the expected score for an exam with random answers
 is zero.</p>
 </div>
 <div class="section" id="base-score-plus-per-question-weight">
-<h3><a class="toc-backref" href="#id22">2.5.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></h3>
+<h3><a class="toc-backref" href="#id21">2.5.2&nbsp;&nbsp;&nbsp;Base score plus per-question weight</a></h3>
 <p>When you select this option for computing scores,
 not all the questions are awarded the same score.
 Important questions may get bigger scores than less important ones.
@@ -788,7 +778,7 @@ or the count of correct and incorrect questions:</p>
 </div>
 </div>
 <div class="section" id="application-modes">
-<h2><a class="toc-backref" href="#id23">2.6&nbsp;&nbsp;&nbsp;Application modes</a></h2>
+<h2><a class="toc-backref" href="#id22">2.6&nbsp;&nbsp;&nbsp;Application modes</a></h2>
 <p>At a given instant, the application is in one of these modes:</p>
 <ul class="simple">
 <li><em>No session mode</em>: no session is open. You can open an existing
@@ -825,7 +815,7 @@ back to the <em>no session mode</em> with the <em>Close session</em> command in 
 <em>Session</em> menu.</p>
 </div>
 <div class="section" id="the-grading-mode">
-<h2><a class="toc-backref" href="#id24">2.7&nbsp;&nbsp;&nbsp;The grading mode</a></h2>
+<h2><a class="toc-backref" href="#id23">2.7&nbsp;&nbsp;&nbsp;The grading mode</a></h2>
 <p>In the <em>grading mode</em>, you have to get the camera to point to the answer table
 of the exam, including, if present, the id box above it and the small squares
 at the bottom.</p>
@@ -859,7 +849,7 @@ detection mode</a>.</li>
 </ul>
 </div>
 <div class="section" id="the-review-mode">
-<h2><a class="toc-backref" href="#id25">2.8&nbsp;&nbsp;&nbsp;The review mode</a></h2>
+<h2><a class="toc-backref" href="#id24">2.8&nbsp;&nbsp;&nbsp;The review mode</a></h2>
 <p>In the <em>review mode</em> you can review and, if necessary, fix the
 information detected by Eyegrade in the current exam. You can do it on
 both the answers given by the student to each question and the
@@ -927,7 +917,7 @@ command is allowed only when the system failed to recognize the
 geometry of the answer tables. See <a class="reference internal" href="#the-manual-detection-mode">The manual detection mode</a>.</li>
 </ul>
 <div class="section" id="modifying-student-answers">
-<h3><a class="toc-backref" href="#id26">2.8.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
+<h3><a class="toc-backref" href="#id25">2.8.1&nbsp;&nbsp;&nbsp;Modifying student answers</a></h3>
 <p>The optical recognition system of Eyegrade may fail sometimes, due to
 its own limitations, or students filling their exams in messy ways.
 Sometimes, Eyegrade shows a cell in the answer table as marked when it
@@ -945,7 +935,7 @@ to clear it. In both cases, Eyegrade will compute the scores again and
 immediately update the information on the screen.</p>
 </div>
 <div class="section" id="modifying-the-student-id">
-<h3><a class="toc-backref" href="#id27">2.8.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
+<h3><a class="toc-backref" href="#id26">2.8.2&nbsp;&nbsp;&nbsp;Modifying the student id</a></h3>
 <p>Normally, you should provide Eyegrade with the list of class, because
 detection of student ids performs much better in that case. When
 scanning the id in an exam, Eyegrade sorts ids of the students in
@@ -970,7 +960,7 @@ The only mandatory field is this dialog is the student id number:</p>
 </div>
 </div>
 <div class="section" id="the-manual-detection-mode">
-<h2><a class="toc-backref" href="#id28">2.9&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
+<h2><a class="toc-backref" href="#id27">2.9&nbsp;&nbsp;&nbsp;The manual detection mode</a></h2>
 <p>In some rare occasions, Eyegrade may not be able to detect the answer
 tables. In those cases, you can enter the <em>manual detection mode</em> from
 the <em>grading mode</em> (and also from the <em>review mode</em> if you entered that
@@ -1003,7 +993,7 @@ the bottom.</p>
 </div>
 </div>
 <div class="section" id="processing-student-grades">
-<h1><a class="toc-backref" href="#id29">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
+<h1><a class="toc-backref" href="#id28">3&nbsp;&nbsp;&nbsp;Processing Student Grades</a></h1>
 <p>The easiest  way to get the scores of your students
 once you've graded the exam is <a class="reference internal" href="#exporting-a-listing-of-scores">Exporting a listing of scores</a>.
 You'll get a spreadsheet that you can open with Microsoft Excel,
@@ -1013,7 +1003,7 @@ within the session directory,
 including a snapshot of each graded exam.
 See <a class="reference internal" href="#output-within-the-session-directory">Output within the session directory</a> for more information.</p>
 <div class="section" id="exporting-a-listing-of-scores">
-<h2><a class="toc-backref" href="#id30">3.1&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
+<h2><a class="toc-backref" href="#id29">3.1&nbsp;&nbsp;&nbsp;Exporting a listing of scores</a></h2>
 <p>You will probably want to export your listing of scores in order to
 import it into the grade-book, spreadsheet, etc. you use.
 This can be done from the user interface (menu <em>Exams /
@@ -1056,7 +1046,7 @@ file will be saved.  The proper filename extension
 if you type a name without extension.</p>
 </div>
 <div class="section" id="output-within-the-session-directory">
-<h2><a class="toc-backref" href="#id31">3.2&nbsp;&nbsp;&nbsp;Output within the session directory</a></h2>
+<h2><a class="toc-backref" href="#id30">3.2&nbsp;&nbsp;&nbsp;Output within the session directory</a></h2>
 <p>The output produced by Eyegrade within the session directory
 consists mainly of the following files:</p>
 <ul class="simple">
@@ -1107,7 +1097,7 @@ that best fits your needs.</p>
 </div>
 </div>
 <div class="section" id="editing-exams">
-<h1><a class="toc-backref" href="#id32">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
+<h1><a class="toc-backref" href="#id31">4&nbsp;&nbsp;&nbsp;Editing exams</a></h1>
 <p>Although you can use any software of your preference to typeset the
 exams, Eyegrade provides a module for doing that
 in combination with the LaTeX document preparation system.</p>
@@ -1130,7 +1120,7 @@ inside its <cite>doc/sample-files</cite> directory
 If you don't have it in your system,
 follow the instructions in <a class="reference internal" href="#installing-the-latex-system">Installing the LaTeX system</a>.</p>
 <div class="section" id="editing-the-questions-of-the-exam">
-<h2><a class="toc-backref" href="#id33">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a></h2>
+<h2><a class="toc-backref" href="#id32">4.1&nbsp;&nbsp;&nbsp;Editing the questions of the exam</a></h2>
 <p>You need to typeset your questions in an XML document.
 You may use your favorite text editor for that.</p>
 <p>At the beginning of the file
@@ -1184,7 +1174,7 @@ and preserving spacing.</li>
       &lt;correct&gt;A programming language&lt;/correct&gt;
       &lt;incorrect&gt;A computer manufacturer&lt;/incorrect&gt;
       &lt;incorrect&gt;A kind of tree&lt;/incorrect&gt;
-      &lt;incorrect eye:fix=&quot;last&quot;&gt;None of the options above is correct.&lt;/incorrect&gt;
+      &lt;incorrect&gt;Who knows!&lt;/incorrect&gt;
     &lt;/choices&gt;
   &lt;/question&gt;
 
@@ -1396,7 +1386,7 @@ or typewriter font:</p>
 &lt;/question&gt;
 </pre>
 <div class="section" id="inserting-pictures">
-<h3><a class="toc-backref" href="#id34">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></h3>
+<h3><a class="toc-backref" href="#id33">4.1.1&nbsp;&nbsp;&nbsp;Inserting pictures</a></h3>
 <p>For inserting a picture in the statement of the question,
 you use the <cite>&lt;figure&gt;</cite> tag.
 Its file name must be provided within
@@ -1441,7 +1431,7 @@ and the <cite>eye:position</cite> attribute must not be used:</p>
 </pre>
 </div>
 <div class="section" id="inserting-blocks-of-code">
-<h3><a class="toc-backref" href="#id35">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></h3>
+<h3><a class="toc-backref" href="#id34">4.1.2&nbsp;&nbsp;&nbsp;Inserting blocks of code</a></h3>
 <p>For inserting a block of code in the statement of the question,
 you use the <cite>&lt;code&gt;</cite> tag.
 The code itself is given within the <cite>&lt;code&gt;</cite> and <cite>&lt;/code&gt;</cite> tags.
@@ -1482,7 +1472,7 @@ and neither attribute can be used:</p>
 </pre>
 </div>
 <div class="section" id="configuring-student-id-detection">
-<h3><a class="toc-backref" href="#id36">4.1.3&nbsp;&nbsp;&nbsp;Configuring student id detection</a></h3>
+<h3><a class="toc-backref" href="#id35">4.1.3&nbsp;&nbsp;&nbsp;Configuring student id detection</a></h3>
 <p>If you want Eyegrade to detect student ids,
 you can provide a <cite>studentId</cite> element as shown in the example
 at <a class="reference internal" href="#editing-the-questions-of-the-exam">Editing the questions of the exam</a>.
@@ -1499,7 +1489,7 @@ if you don't want Eyegrade to detect student ids.
 The student id box won't appear in the exam in that case.</p>
 </div>
 <div class="section" id="configuring-scores">
-<h3><a class="toc-backref" href="#id37">4.1.4&nbsp;&nbsp;&nbsp;Configuring scores</a></h3>
+<h3><a class="toc-backref" href="#id36">4.1.4&nbsp;&nbsp;&nbsp;Configuring scores</a></h3>
 <p>You can optionally provide within the questions file
 the score to be awarded for correct answers
 and the score to be detracted for wrong answers
@@ -1556,7 +1546,7 @@ and 20/3 incorrect answers, for a final score of 10 * 10 / 3 - 5 * 20 / 3 = 0.</
 </div>
 </div>
 <div class="section" id="editing-the-latex-template">
-<h2><a class="toc-backref" href="#id38">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></h2>
+<h2><a class="toc-backref" href="#id37">4.2&nbsp;&nbsp;&nbsp;Editing the LaTeX template</a></h2>
 <p>In addition to the questions of the exam,
 you'll need a LaTeX template.
 It allows you to design the front page of the exam
@@ -1594,7 +1584,7 @@ Duration: {{duration}}
 \vspace{0.5cm}
 
 \emph{There is only one correct answer for each multiple choice
-  question.  Score for correct answers:  {{score_correct}}.
+  question.  Score por correct answers:  {{score_correct}}.
   Penalty for wrong answers: {{score_incorrect}} points.}
 
 \vspace{0.5cm}
@@ -1671,15 +1661,12 @@ has a different ordering for questions and choices within questions.</li>
 <li><cite>{{answer-table}}</cite>: replaced by the table in which students mark out
 their answers.</li>
 <li><cite>{{questions}}</cite>: replaced by the questions of the exam.</li>
-<li><cite>{{variation}}</cite>: the exam variation selected for this exam.
-Its value is &quot;0&quot; if no variation has been selected,
-or &quot;1&quot;, &quot;2&quot;, etc. if a variation has been selected.</li>
 </ul>
 <p>Note that a template is highly reusable for different exams and
 subjects.</p>
 </div>
 <div class="section" id="creating-the-pdf-files">
-<h2><a class="toc-backref" href="#id39">4.3&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
+<h2><a class="toc-backref" href="#id38">4.3&nbsp;&nbsp;&nbsp;Creating the PDF files</a></h2>
 <p>Once the exam file and the template have been created,
 the <cite>eyegrade-create</cite> program parses them and generates the exam in PDF format,
 provided that LaTeX is installed and available in your system's <cite>PATH</cite>
@@ -1759,7 +1746,7 @@ eyegrade-create -e exam-questions.xml -m A template.tex -o exam -S 1.5
 </pre>
 </div>
 <div class="section" id="installing-the-latex-system">
-<h2><a class="toc-backref" href="#id40">4.4&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
+<h2><a class="toc-backref" href="#id39">4.4&nbsp;&nbsp;&nbsp;Installing the LaTeX system</a></h2>
 <p>LaTeX is included in the repositories of the major Linux distributions.
 In Debian and Ubuntu you can simply
 install the package <cite>texlive-latex-recommended</cite>:</p>
@@ -1771,7 +1758,7 @@ that provide a graphical installer,
 such as <a class="reference external" href="https://www.tug.org/protext/">ProText</a>:</p>
 <ol class="arabic simple">
 <li>Download the ProText installer
-(be aware that the size of the download is over 3 GB).</li>
+(be aware that the size of the download is about 1.7 GB).</li>
 <li>From the installer, choose to install MiKTex.
 When you are offered a minimal or full installation,
 the minimal one is enough.</li>
@@ -1779,454 +1766,11 @@ the minimal one is enough.</li>
 which is also offered by the installer.</li>
 </ol>
 </div>
-<div class="section" id="advanced-exam-editing">
-<h2><a class="toc-backref" href="#id41">4.5&nbsp;&nbsp;&nbsp;Advanced exam editing</a></h2>
-<div class="section" id="fixing-the-position-of-a-choice">
-<h3><a class="toc-backref" href="#id42">4.5.1&nbsp;&nbsp;&nbsp;Fixing the position of a choice</a></h3>
-<p>Choices can be prevented from being randomly ordered
-with the <cite>eye:fix</cite> attribute,
-which can take the values &quot;first&quot; (to fix a choice as the first one)
-and &quot;last&quot; (to fix a choice as the last one).
-For example:</p>
-<pre class="literal-block">
-&lt;question&gt;
-  &lt;text&gt;
-    What is Python?
-  &lt;/text&gt;
-  &lt;choices&gt;
-    &lt;correct&gt;A programming language&lt;/correct&gt;
-    &lt;incorrect&gt;A computer manufacturer&lt;/incorrect&gt;
-    &lt;incorrect&gt;A kind of tree&lt;/incorrect&gt;
-    &lt;incorrect eye:fix=&quot;last&quot;&gt;None of the options above is correct.&lt;/incorrect&gt;
-  &lt;/choices&gt;
-&lt;/question&gt;
-</pre>
-<p>If more than one choice are fixed first or last,
-the choices fixed <em>first</em> will appear at the beginning,
-in the same order they are declared in the XML file,
-and the choices fixed <em>last</em> will appear at the end,
-also in the same order they are declared in the XML file.</p>
-</div>
-<div class="section" id="question-groups">
-<h3><a class="toc-backref" href="#id43">4.5.2&nbsp;&nbsp;&nbsp;Question groups</a></h3>
-<p>Starting from Eyegrade 0.9, you can group interdependent questions.
-Grouped questions will be shown always in the same order you defined them.
-That is, they won't be shuffled within their group,
-but the group itself will be shuffled with respect to other single questions
-and groups in the exam.</p>
-<p>In addition, groups allow you to define, optionally,
-a piece of text and a figure or a piece of code,
-which will be shown before the first question of the group.
-They are intended to show common information that applies to all
-the questions of the group.</p>
-<p>A question group is defined in your XML document
-by using the <cite>&lt;group&gt;</cite> tag where you would normally
-place just single questions.
-The questions that compose that group are defined
-in the usual way with <cite>&lt;question&gt;</cite> tags
-inside the <cite>&lt;group&gt;</cite> tag.
-The following example shows how to define a group:</p>
-<pre class="literal-block">
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-
-&lt;exam xmlns=&quot;http://www.it.uc3m.es/jaf/eyegrade/ns/&quot;
-      xmlns:eye=&quot;http://www.it.uc3m.es/jaf/eyegrade/ns/&quot;&gt;
-
-  &lt;subject&gt;Set theory&lt;/subject&gt;
-  (...)
-  &lt;group&gt;
-    &lt;common&gt;
-      &lt;text&gt;
-        Given the set $A = \{a, b, c, d\}$:
-      &lt;/text&gt;
-    &lt;/common&gt;
-    &lt;question&gt;
-      &lt;text&gt;
-        What's the cardinality of $A$?
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;4&lt;/correct&gt;
-        &lt;incorrect&gt;3&lt;/incorrect&gt;
-        &lt;incorrect&gt;$\infty$&lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-
-    &lt;question&gt;
-      &lt;text&gt;
-        What's the intersection of $A$ with $\{d, f, a\}$?
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;$\{a, d\}$&lt;/correct&gt;
-        &lt;incorrect&gt;$\{a, b, c, d, f\}$&lt;/incorrect&gt;
-        &lt;incorrect&gt;$\{b, c\}$&lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-
-    &lt;question&gt;
-      &lt;text&gt;
-        And the union of $A$ with $\{d, f, a\}$?
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;$\{a, b, c, d, f\}$&lt;/correct&gt;
-        &lt;incorrect&gt;$\{a, d\}$&lt;/incorrect&gt;
-        &lt;incorrect&gt;$\{a, b, c, d, d, f, a\}$&lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-  &lt;/group&gt;
-
-  &lt;question&gt;
-    &lt;text&gt;
-      The powerset of a set $A$ is:
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;
-        The set whose elements are all the possible subsets of $A$.
-      &lt;/correct&gt;
-      &lt;incorrect&gt;
-        The cartesian product $A \times A$.
-      &lt;/incorrect&gt;
-      &lt;incorrect&gt;
-        The set $A \cup A$.
-      &lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/question&gt;
-
-  (...)
-&lt;/exam&gt;
-</pre>
-<p>In the example above, the first three questions will always
-appear in exactly that order.
-The fourth question, and other questions or groups you define,
-would be shuffled and appear before or after these three questions.
-A visual hint that these questions form a group will also be shown,
-so that students know where groups begin and end.
-Additionally,
-as you can see in the example above,
-you can set an optional common section
-for a question group,
-in which you can insert text, code or a picture
-the same way you would do in the statement of a normal question.
-They will be displayed in the exam before the first question
-of the exam.</p>
-</div>
-<div class="section" id="questions-with-variations">
-<h3><a class="toc-backref" href="#id44">4.5.3&nbsp;&nbsp;&nbsp;Questions with variations</a></h3>
-<p>Sometimes you may want slightly different variations of the same question
-to appear in different models of the exam.
-For example, a question that asks the student to solve a linear equation
-could be defined with two variations,
-each one with a slightly different equation to solve.</p>
-<p>There are two ways of defining question variations.
-The first one consists in
-writing the different variations as full questions,
-like shown below:</p>
-<pre class="literal-block">
-&lt;question&gt;
-  &lt;variation&gt;
-    &lt;text&gt;
-      Given the set $A = \{a, b, c, d\}$,
-      what's its cardinality?
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;4&lt;/correct&gt;
-      &lt;incorrect&gt;3&lt;/incorrect&gt;
-      &lt;incorrect&gt;$\infty$&lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/variation&gt;
-  &lt;variation&gt;
-    &lt;text&gt;
-      Given the set $A = \{x, y, z\}$,
-      what's its cardinality?
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;3&lt;/correct&gt;
-      &lt;incorrect&gt;4&lt;/incorrect&gt;
-      &lt;incorrect&gt;$\infty$&lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/variation&gt;
-&lt;/question&gt;
-</pre>
-<p>The second one consists in writing a question template
-based on some parameters,
-and defining different values for those parameters in each variation:</p>
-<pre class="literal-block">
-&lt;question&gt;
-  &lt;variation_params&gt;
-    &lt;variation&gt;
-      &lt;param eye:name=&quot;setA&quot;&gt;\{a, b, c, d\}&lt;/param&gt;
-      &lt;param eye:name=&quot;correct&quot;&gt;$\{a, d\}$&lt;/param&gt;
-      &lt;param eye:name=&quot;incorrect1&quot;&gt;$\{a, b, c, d, f\}$&lt;/param&gt;
-      &lt;param eye:name=&quot;incorrect2&quot;&gt;$\{f\}$&lt;/param&gt;
-    &lt;/variation&gt;
-    &lt;variation&gt;
-      &lt;param eye:name=&quot;setA&quot;&gt;\{b, d, e, f\}&lt;/param&gt;
-      &lt;param eye:name=&quot;correct&quot;&gt;$\{d, f\}$&lt;/param&gt;
-      &lt;param eye:name=&quot;incorrect1&quot;&gt;$\{a, b, d, e, f\}$&lt;/param&gt;
-      &lt;param eye:name=&quot;incorrect2&quot;&gt;$\{a\}$&lt;/param&gt;
-    &lt;/variation&gt;
-  &lt;/variation_params&gt;
-  &lt;text&gt;
-    What's the intersection of {{setA}} with $\{d, f, a\}$?
-  &lt;/text&gt;
-  &lt;choices&gt;
-    &lt;correct&gt;{{correct}}&lt;/correct&gt;
-    &lt;incorrect&gt;{{incorrect1}}&lt;/incorrect&gt;
-    &lt;incorrect&gt;{{incorrect2}}&lt;/incorrect&gt;
-  &lt;/choices&gt;
-&lt;/question&gt;
-</pre>
-<p>When a model of the exam is shuffled,
-a variation will be randomly and independently chosen
-for every question containing variations.
-This is the default behavior of the <cite>eyegrade-create</cite> command.</p>
-<p>Note that questions contained within groups are an exception:
-as explained below,
-the same variation will be chosen for all the questions in the same group.
-However, different variations might be chosen
-for questions in different groups of the same exam model.</p>
-<p>Alternatively to letting the system choose variations randomly,
-you can force a given variation number to be chosen
-for all the questions and groups in a given model.
-For example,
-the commands below choose the first variation of every question
-for models A and B,
-and the second variation for models C and D:</p>
-<pre class="literal-block">
-eyegrade-create -e exam-questions.xml -m AB template.tex -o exam --variation=1
-eyegrade-create -e exam-questions.xml -m CD template.tex -o exam --variation=2
-</pre>
-<p>If you use the <cite>--variation</cite> argument to choose a variation number,
-all the questions with variations
-are expected to contain at least that number of variations.
-For example, if you set <cite>--variation=3</cite> to choose the third variation,
-all the questions must either no variations
-or at least three variations.</p>
-</div>
-<div class="section" id="question-groups-with-variations">
-<h3><a class="toc-backref" href="#id45">4.5.4&nbsp;&nbsp;&nbsp;Question groups with variations</a></h3>
-<p>If your questions belong to a group, you either define separate questions,
-each one defining its own variations,
-or define parameters at the group level,
-and use them through the questions of that group:</p>
-<pre class="literal-block">
-&lt;group&gt;
-  &lt;variation_params&gt;
-    &lt;variation&gt;
-      &lt;param eye:name=&quot;equation&quot;&gt;$2x + 3 = 7$&lt;/param&gt;
-      &lt;param eye:name=&quot;x&quot;&gt;2&lt;/param&gt;
-      &lt;param eye:name=&quot;xIncorrect1&quot;&gt;-2&lt;/param&gt;
-      &lt;param eye:name=&quot;xIncorrect2&quot;&gt;0&lt;/param&gt;
-      &lt;param eye:name=&quot;equiv1&quot;&gt;$2x - 4 = 0$&lt;/param&gt;
-      &lt;param eye:name=&quot;equiv2&quot;&gt;$x + 3 = 3$&lt;/param&gt;
-      &lt;param eye:name=&quot;equiv3&quot;&gt;$2x + 10 = 0$&lt;/param&gt;
-    &lt;/variation&gt;
-    &lt;variation&gt;
-      &lt;param eye:name=&quot;equation&quot;&gt;$3x + 2 = 11$&lt;/param&gt;
-      &lt;param eye:name=&quot;x&quot;&gt;3&lt;/param&gt;
-      &lt;param eye:name=&quot;xIncorrect1&quot;&gt;-3&lt;/param&gt;
-      &lt;param eye:name=&quot;xIncorrect2&quot;&gt;0&lt;/param&gt;
-      &lt;param eye:name=&quot;equiv1&quot;&gt;$3x - 9 = 0$&lt;/param&gt;
-      &lt;param eye:name=&quot;equiv2&quot;&gt;$x + 2 = 2$&lt;/param&gt;
-      &lt;param eye:name=&quot;equiv3&quot;&gt;$3x + 13 = 0$&lt;/param&gt;
-    &lt;/variation&gt;
-  &lt;/variation_params&gt;
-  &lt;common&gt;
-    &lt;text&gt;
-      Consider the equation {{equation}}:
-    &lt;/text&gt;
-  &lt;/common&gt;
-  &lt;question&gt;
-    &lt;text&gt;
-      What's the solution to the equation?
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;$x={{x}}$&lt;/correct&gt;
-      &lt;incorrect&gt;$x={{xIncorrect1}}$&lt;/incorrect&gt;
-      &lt;incorrect&gt;$x={{xIncorrect2}}$&lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/question&gt;
-  &lt;question&gt;
-    &lt;text&gt;
-      The equation is equivalent to:
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;{{equiv1}}&lt;/correct&gt;
-      &lt;incorrect&gt;{{equiv2}}&lt;/incorrect&gt;
-      &lt;incorrect&gt;{{equiv3}}&lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/question&gt;
-&lt;/group&gt;
-</pre>
-<p>Note that, for a given exam model,
-the same variation will be chosen for all the questions in the group.
-Because of that,
-all the questions belonging to the same group must contain either
-no variations or the same number of variations.
-For example, the group defined above contains questions with two variations.
-If you add more questions to the group,
-they must contain two variations or no variation at all.</p>
-</div>
-</div>
 </div>
 <div class="section" id="advanced-features">
-<h1><a class="toc-backref" href="#id46">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
-<div class="section" id="preserving-the-order-of-some-questions-when-shuffling">
-<h2><a class="toc-backref" href="#id47">5.1&nbsp;&nbsp;&nbsp;Preserving the order of some questions when shuffling</a></h2>
-<p><em>(New in Eyegrade 0.9)</em></p>
-<p>When you use <cite>eyegrade-create</cite> to typeset an exam,
-all the questions of the exam get shuffled by default.
-However, you might want sometimes to keep the order
-of some questions that are related and form a logical sequence.
-In order to do that, just wrap those related questions
-with a <cite>group</cite> element in the XML file that defines the questions,
-such as in the following example:</p>
-<pre class="literal-block">
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-
-&lt;exam xmlns=&quot;http://www.it.uc3m.es/jaf/eyegrade/ns/&quot;
-      xmlns:eye=&quot;http://www.it.uc3m.es/jaf/eyegrade/ns/&quot;&gt;
-
-  &lt;subject&gt;Set theory&lt;/subject&gt;
-  &lt;degree&gt;Mathematics&lt;/degree&gt;
-  &lt;title&gt;Final examination&lt;/title&gt;
-  &lt;date&gt;January 1st, 2020&lt;/date&gt;
-  &lt;duration&gt;10 min.&lt;/duration&gt;
-  &lt;studentId eye:label=&quot;ID&quot; eye:length=&quot;8&quot; /&gt;
-  &lt;scores eye:maxScore=&quot;100&quot; eye:penalize=&quot;false&quot; /&gt;
-
-  &lt;group&gt;
-    &lt;common&gt;
-      &lt;text&gt;
-        Given the set $A = \{a, b, c, d\}$:
-      &lt;/text&gt;
-    &lt;/common&gt;
-    &lt;question&gt;
-      &lt;!-- Q1 --&gt;
-      &lt;text&gt;
-        What's the cardinality of $A$?
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;4&lt;/correct&gt;
-        &lt;incorrect&gt;3&lt;/incorrect&gt;
-        &lt;incorrect&gt;$\infty$&lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-
-    &lt;question&gt;
-      &lt;!-- Q2 --&gt;
-      &lt;text&gt;
-        What's the intersection of $A$ with $\{d, f, a\}$?
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;$\{a, d\}$&lt;/correct&gt;
-        &lt;incorrect&gt;$\{a, b, c, d, f\}$&lt;/incorrect&gt;
-        &lt;incorrect&gt;$\{b, c\}$&lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-
-    &lt;question&gt;
-      &lt;!-- Q3 --&gt;
-      &lt;text&gt;
-        And the union of $A$ with $\{d, f, a\}$?
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;$\{a, b, c, d, f\}$&lt;/correct&gt;
-        &lt;incorrect&gt;$\{a, d\}$&lt;/incorrect&gt;
-        &lt;incorrect&gt;$\{a, b, c, d, d, f, a\}$&lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-  &lt;/group&gt;
-
-  &lt;question&gt;
-    &lt;!-- Q4 --&gt;
-    &lt;text&gt;
-      The powerset of a set $A$ is:
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;
-        The set whose elements are all the possible subsets of $A$.
-      &lt;/correct&gt;
-      &lt;incorrect&gt;
-        The cartesian product $A \times A$.
-      &lt;/incorrect&gt;
-      &lt;incorrect&gt;
-        The set $A \cup A$.
-      &lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/question&gt;
-
-  &lt;question&gt;
-    &lt;!-- Q5 --&gt;
-    &lt;text&gt;
-      The set of all natural numbers is often denoted with:
-    &lt;/text&gt;
-    &lt;choices&gt;
-      &lt;correct&gt;
-        $\mathbb{N}$
-      &lt;/correct&gt;
-      &lt;incorrect&gt;
-        $\mathbb{R}$
-      &lt;/incorrect&gt;
-      &lt;incorrect&gt;
-        $\mathbb{Z}$
-      &lt;/incorrect&gt;
-    &lt;/choices&gt;
-  &lt;/question&gt;
-
-  &lt;group&gt;
-    &lt;question&gt;
-      &lt;!-- Q6 --&gt;
-      &lt;text&gt;
-        The symbol $\emptyset$ represents:
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;
-          The empty set.
-        &lt;/correct&gt;
-        &lt;incorrect&gt;
-          Any set with infinite elements.
-        &lt;/incorrect&gt;
-        &lt;incorrect&gt;
-          The set of all the possible finite sets.
-        &lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-
-    &lt;question&gt;
-      &lt;!-- Q7 --&gt;
-      &lt;text&gt;
-        And its cardinality is:
-      &lt;/text&gt;
-      &lt;choices&gt;
-        &lt;correct&gt;
-          Zero.
-        &lt;/correct&gt;
-        &lt;incorrect&gt;
-          Infinite.
-        &lt;/incorrect&gt;
-        &lt;incorrect&gt;
-          Undefined.
-        &lt;/incorrect&gt;
-      &lt;/choices&gt;
-    &lt;/question&gt;
-  &lt;/group&gt;
-&lt;/exam&gt;
-
-</pre>
-<p>Every time the questions in the previous example get shuffled,
-the first three questions (Q1, Q2 and Q3) will be treated as a group,
-and their internal order will be preserved.
-That is, Q1, Q2 and Q3 will appear always together and in this order.
-The same will happen with the last two questions (Q6, Q7).
-Some possible orderings will be:</p>
-<ul class="simple">
-<li>Q4, Q1, Q2, Q3, Q5, Q6, Q7</li>
-<li>Q6, Q7, Q1, Q2, Q3, Q5, Q4</li>
-<li>Q5, Q4, Q6, Q7, Q1, Q2, Q3</li>
-</ul>
-</div>
+<h1><a class="toc-backref" href="#id40">5&nbsp;&nbsp;&nbsp;Advanced features</a></h1>
 <div class="section" id="creating-the-exams-in-a-word-processor">
-<h2><a class="toc-backref" href="#id48">5.2&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
+<h2><a class="toc-backref" href="#id41">5.1&nbsp;&nbsp;&nbsp;Creating the exams in a word processor</a></h2>
 <p>The current prototype of Eyegrade require users to know LaTex in order
 to personalize exam templates. This section explains an alternative
 way to create exams compatible with Eyegrade in a word processor such
@@ -2360,7 +1904,7 @@ they should be placed from left to right:</p>
 </table>
 </div>
 <div class="section" id="manually-editing-the-eye-file">
-<h2><a class="toc-backref" href="#id49">5.3&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
+<h2><a class="toc-backref" href="#id42">5.2&nbsp;&nbsp;&nbsp;Manually editing the .eye file</a></h2>
 <p>The files that store the configuration of an exam and the correct
 answer for each question are stored with a <cite>.eye</cite> extension. An example
 is shown below:</p>
@@ -2374,13 +1918,10 @@ incorrect-weight: 0
 blank-weight: 0
 
 [solutions]
-model-A: 1/1/3/2/2/3/3/4/4/3/4/3/1/4
+model-A: 3/3/3/2/4/4/3/4/1/2/2/2/1/3
 
 [permutations]
-permutations-A: 2{1,4,3,2}/3{1,3,4,2}/14{3,4,1,2}/8{3,1,2,4}/4{2,1,4,3}/1{3,2,1,4}/13{4,3,1,2}/10{4,3,2,1}/7{4,2,3,1}/6{3,2,1,4}/12{3,2,4,1}/9{2,3,1,4}/5{1,2,4,3}/11{3,4,2,1}
-
-[variations]
-variations-A: 0/0/0/0/0/0/0/0/0/0/0/0/0/0
+permutations-A: 8{3,2,1,4}/1{3,4,1,2}/7{3,2,1,4}/10{2,1,4,3}/2{2,3,4,1}/14{4,3,2,1}/5{4,2,1,3}/12{3,4,2,1}/13{1,4,2,3}/6{4,1,3,2}/11{3,1,2,4}/9{2,1,3,4}/4{1,4,2,3}/3{3,4,1,2}
 
 </pre>
 </blockquote>
@@ -2426,7 +1967,7 @@ probably want to just remove this section from the file, unless you
 need some of the above-mentioned functions.</p>
 </div>
 <div class="section" id="automatic-detection-of-exam-removal">
-<h2><a class="toc-backref" href="#id50">5.4&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
+<h2><a class="toc-backref" href="#id43">5.3&nbsp;&nbsp;&nbsp;Automatic detection of exam removal</a></h2>
 <p>If the camera in your setup is fixed, that is, you place an exam below
 the camera, review it, remove it and place the next exam, you may want
 Eyegrade to detect that you have removed the exam instead of having to

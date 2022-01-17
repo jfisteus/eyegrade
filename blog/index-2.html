@@ -73,7 +73,70 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/eyegrade-05-released/" class="u-url">Eyegrade 0.5 released!</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/what-will-eyegrade-06-include-part-1/" class="u-url">What will eyegrade 0.6 include? (part 1)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Jesús Arias Fisteus
+            </span></p>
+            <p class="dateline">
+            <a href="posts/what-will-eyegrade-06-include-part-1/" rel="bookmark">
+            <time class="published dt-published" datetime="2015-04-03T20:42:00Z" itemprop="datePublished" title="2015-04-03 20:42">2015-04-03 20:42</time></a>
+            </p>
+                <p class="commentline">
+        
+    <a href="posts/what-will-eyegrade-06-include-part-1/#disqus_thread" data-disqus-identifier="cache/posts/what-will-eyegrade-06-include-part-1.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="e-content entry-content">
+    <div>
+<p>Even though version 0.5 was released just a couple of weeks ago,
+the next release, 0.6, is approaching.
+As I did with the previous release,
+I'll blog about the new features it will include
+as they are more or less ready.</p>
+<p>The first feature I'd like to talk about
+is a new subsystem for recognizing handwritten digits,
+which replaces the one that I wrote in the early days of Eyegrade.
+<a class="reference external" href="https://github.com/rarguelloF">Rodrigo Argüello</a>,
+a former student of mine
+at <a class="reference external" href="http://www.uc3m.es/">Universidad Carlos III de Madrid</a>,
+volunteered to improve the previous system with a
+<a class="reference external" href="http://en.wikipedia.org/wiki/Machine_learning">machine learning</a>
+based solution.
+More specifically,
+he used a <a class="reference external" href="http://en.wikipedia.org/wiki/Support_vector_machine">support vector machine (SVM)</a>.
+The machine is trained by showing it lots of samples of each digit,
+and telling it which digit each sample represents.
+Once trained,
+you can show an image of a digit to it,
+and it will answer with the digit it considers
+the best match for the image.</p>
+<p>Rodrigo tried with several strategies
+before finally integrating one into Eyegrade.
+Our first tests in real scenarios show that,
+under conditions in which the former system failed
+approximately once for every 6 student identifications,
+the new system fails approximately once for every 20.
+I believe it is a big step forward.
+Many thanks to Rodrigo for his great contribution,
+and to Roberto for sending us tons of samples
+for training and testing the new system.</p>
+<p>Removing the old digit recognition system
+provides a second benefit:
+the <em>tre</em> library is no longer needed.
+The fact that it wasn't a pure Python library,
+and that it doesn't seem to be widely used from Python,
+was a headache for deploying the Windows version,
+and complicated the installation procedure in Linux a little bit.
+If everything goes as planned,
+you can expect a greatly simplified installation procedure,
+especially for Windows users.
+More on this topic on my next post.</p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/eyegrade-05-released/" class="u-url">Eyegrade 0.5 released!</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Jesús Arias Fisteus

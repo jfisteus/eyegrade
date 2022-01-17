@@ -15,8 +15,8 @@ Latest version
 ---------------
 
 The latest available version is
-**Eyegrade 0.8.1**,
-which was released on March 29, 2019.
+**Eyegrade 0.9**,
+which was released on January 17, 2022.
 
 
 .. class:: alert alert-info sidebar
@@ -32,6 +32,11 @@ News
 | `Read more news at the blog <blog/index.html>`_
 
 
+**[Jan 17, 2022]**
+Eyegrade 0.9 has been released!
+See the `blog post <blog/posts/eyegrade-09-released/>`__
+or go to the `downloads page <download/>`__.
+
 **[Mar 29, 2019]**
 Eyegrade 0.8.1 has been released!
 See the `blog post <blog/posts/eyegrade-08-released/>`__
@@ -41,11 +46,6 @@ or go to the `downloads page <download/>`__.
 A user from Vietnam has contributed with a nice video tutorial.
 It's linked from the `documentation page <documentation/>`__.
 See the `blog post <blog/posts/new-video-tutorial/>`__.
-
-**[Jul 26, 2017]**
-Eyegrade 0.7 has been released!
-See the `blog post <blog/posts/eyegrade-07-released/>`__
-or go to the `downloads page <blog/posts/download.html>`__.
 
 
 

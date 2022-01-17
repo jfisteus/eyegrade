@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 29 Mar 2019 14:25:56 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
+<?xml-stylesheet type="text/xsl" href="../../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Eyegrade (Posts about release)</title><link>http://www.eyegrade.org/</link><description></description><atom:link href="http://www.eyegrade.org/blog/categories/release.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 17 Jan 2022 16:34:30 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Eyegrade 0.9 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-09-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.9 has been released!
+This release includes new features for creating exams:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Questions can be grouped,
+so that questions within a group keep their relative order.
+The group gets shuffled as a block with the rest of groups
+and questions that don't belong to any group.
+Check how to group questions
+at &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#question-groups"&gt;the user guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;It's possible to define questions with several variations,
+so that variations are randomly selected for each model of the exam.
+Each variation can be defined as a whole question,
+or all the variations can be defined once
+with a dependency on some parameters.
+The values of those parameters would define the variation.
+It's also possible to assign a specific variation to a model,
+instead of letting it be randomly assigned.
+Check how to define variations
+at &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#questions-with-variations"&gt;the user guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Choices can be fixed to be always
+at the first or last position of the question.
+The rest of choices of the question get shuffled.
+Check how to fix choice positions
+at &lt;a class="reference external" href="http://www.eyegrade.org/doc/user-manual/#fixing-the-position-of-a-choice"&gt;the user guide&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Another new feature is the possibility to flip
+the webcam image, either horizontally or vertically.
+This is done from the camera selection dialog.
+The reason for this feature is that a user reported
+that in their system the image appeared flipped,
+making it impossible to grade exams.
+This features allows users to reversed that
+when that happens.&lt;/p&gt;
+&lt;p&gt;As always, this version includes
+bug fixes and code refactoring.&lt;/p&gt;
+&lt;p&gt;Check the
+&lt;a class="reference external" href="http://www.eyegrade.org/quick-start-guide/"&gt;quick start guide&lt;/a&gt;
+for instructions on how to install and try this new version,
+or read the new version of the user guide at the
+&lt;a class="reference external" href="http://www.eyegrade.org/documentation/"&gt;documentation page&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Access the binary files for this release
+at the &lt;a class="reference external" href="http://www.eyegrade.org/download/"&gt;downloads page&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-09-released/</guid><pubDate>Sun, 16 Jan 2022 16:35:00 GMT</pubDate></item><item><title>Eyegrade 0.8 released!</title><link>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;Eyegrade 0.8 has been released!
 This release includes several changes from the point of view
 of the final user:&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -180,21 +221,4 @@ by executing the command
 Although Eyegrade 0.5 is able to work
 with sessions created by the previous versions of Eyegrade,
 those previous versions don't work
-with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item><item><title>Eyegrade 0.4.4 released</title><link>http://www.eyegrade.org/blog/posts/eyegrade-044-released/</link><dc:creator>Jesús Arias Fisteus</dc:creator><description>&lt;div&gt;&lt;p&gt;I've just released Eyegrade 0.4.4.
-This version fixes a bug introduced by
-&lt;a class="reference external" href="http://www.eyegrade.org/blog/posts/eyegrade-044-released/eyegrade-043-released.html"&gt;the bugfix of version 0.4.3&lt;/a&gt;.
-Version 0.4.3 solved the problem for
-the older versions of Python,
-but inadvertently introduced exactly the same problem
-for the newer versions,
-which were previously unaffected.
-I've reverted the erroneous fix
-and solved the problem
-&lt;a class="reference external" href="https://github.com/jfisteus/eyegrade/commit/e03da3762e748913db89e6470b3fe85b02f367df"&gt;in a better way&lt;/a&gt;.
-This new version should be able to export grades
-in any 2.6 and 2.7 version of Python,
-both Windows and Linux.&lt;/p&gt;
-&lt;p&gt;This is the only change with respect to version 0.4.3.&lt;/p&gt;
-&lt;p&gt;As always, if you have installed Eyegrade through &lt;em&gt;git&lt;/em&gt;,
-you can easily update the program by executing the command
-&lt;em&gt;git pull&lt;/em&gt; from inside the directory in which Eyegrade is installed.&lt;/p&gt;&lt;/div&gt;</description><category>bugfix</category><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-044-released/</guid><pubDate>Fri, 28 Nov 2014 17:46:54 GMT</pubDate></item></channel></rss>
+with sessions created by Eyegrade 0.5.&lt;/p&gt;&lt;/div&gt;</description><category>eyegrade</category><category>release</category><guid>http://www.eyegrade.org/blog/posts/eyegrade-05-released/</guid><pubDate>Mon, 23 Mar 2015 18:39:00 GMT</pubDate></item></channel></rss>

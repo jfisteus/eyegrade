@@ -11,7 +11,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/</loc>
-  <lastmod>2019-03-31T06:17:00Z</lastmod>
+  <lastmod>2022-01-17T16:05:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/2013/</loc>
@@ -42,8 +42,12 @@
   <lastmod>2019-03-31T06:17:00Z</lastmod>
  </url>
  <url>
+  <loc>http://www.eyegrade.org/blog/2022/</loc>
+  <lastmod>2022-01-17T16:05:00Z</lastmod>
+ </url>
+ <url>
   <loc>http://www.eyegrade.org/blog/archive.html</loc>
-  <lastmod>2022-01-14T17:41:00Z</lastmod>
+  <lastmod>2022-01-17T16:05:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/categories/</loc>
@@ -91,7 +95,7 @@
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/index-2.html</loc>
-  <lastmod>2022-01-14T17:41:00Z</lastmod>
+  <lastmod>2022-01-17T16:05:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/bugfix-release-051/</loc>
@@ -144,6 +148,10 @@
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-08-released/</loc>
   <lastmod>2019-03-31T06:17:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/blog/posts/eyegrade-09-released/</loc>
+  <lastmod>2022-01-17T16:05:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/blog/posts/eyegrade-moved-to-a-new-location/</loc>
@@ -212,6 +220,10 @@
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual-0.7/</loc>
   <lastmod>2019-03-28T23:15:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://www.eyegrade.org/doc/user-manual-0.8/</loc>
+  <lastmod>2022-01-17T16:05:00Z</lastmod>
  </url>
  <url>
   <loc>http://www.eyegrade.org/doc/user-manual/</loc>

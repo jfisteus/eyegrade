@@ -5,16 +5,15 @@
 Latest stable release:
 -----------------------
 
-The latest stable release is Eyegrade 0.8.1.
+The latest stable release is Eyegrade 0.9.
 The recommended way of installation,
 depending on your operating system, is:
 
 - Windows installer:
-  `eyegrade-0.8.1.msi <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8.1/eyegrade-0.8.1.msi>`_
-  (you'll need to install `Microsoft's Visual C++ Redistributable for Visual Studio 2015 <https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_ first).
+  `eyegrade-setup-0.9.exe <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.9/eyegrade-setup-0.9.exe>`_
 
 - Linux portable binary files:
-  `eyegrade-0.8.1-bin-linux.tar.gz <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.8.1/eyegrade-0.8.1-bin-linux.tar.gz>`_
+  `eyegrade-0.9-bin-linux.tar.gz <https://github.com/jfisteus/eyegrade/releases/download/eyegrade-0.9/eyegrade-0.9-bin-linux.tar.gz>`_
   (these binaries should be compatible with any reasonably recent distribution,
   more or less from 2016 or more recent).
 
@@ -39,16 +38,16 @@ On Windows, you can verify the checksum of the installer
 from a command-line console
 by entering the following command::
 
-  certUtil -hashfile eyegrade-0.8.1.msi SHA512
+  certUtil -hashfile eyegrade-setup-0.9.exe SHA512
 
 On Linux, run::
 
-  sha512sum eyegrade-0.8.1-bin-linux.tar.gz
+  sha512sum eyegrade-0.9-bin-linux.tar.gz
 
 SHA-512 checksums::
 
-  d1fa2d4565d3de50c9944e31b8f3dbc382c880c6097c755ffea715e67c5bbb7bf5218a200e1fd3284182c7780c13ce45952058c8e51ad83e3b6c52ca15f73dba  eyegrade-0.8.1.msi
-  1d96e71561e6f59a4f0cd0f4a457926d6850db285d76521dd2c5f2a1346675f57f2bcfba2972c414c8dbff167b10e280ab22e4ba45454da61336ddb7644fa5f8  eyegrade-0.8.1-bin-linux.tar.gz
+  65b55fad6bfe4b3ae22da5bed2af6bd265e230b8d240e4dde581d62781f87cb5baf6ae4a4c4d3a5d4d1ea4dad4eb48c9af668a39e663787d7d2debc958d4860e  eyegrade-setup-0.9.exe
+  f374a9af7c32b2ca862902d03797b01895170cb36077b91ba89e7c48d26732828ebbd11a6ff20261ecfbe003b732f38585101e20c80e19faf6c5663deda92ccc  eyegrade-0.9-bin-linux.tar.gz
 
 
 Installation through pip:
@@ -56,7 +55,7 @@ Installation through pip:
 
 If you are familiar with the Python ecosystem,
 you can try to get Eyegrade from PyPI instead.
-Install Python 3.5 or a later release.
+Install Python 3.6 or a later release.
 Then, run::
 
     python3 -m pip install eyegrade
@@ -67,7 +66,9 @@ as explained in the `user guide <../doc/user-manual/#installing-eyegrade>`_.
 Earlier releases:
 -------------------
 
-Go to `Release 0.7 <https://github.com/jfisteus/eyegrade/releases/tag/eyegrade-0.7>`_.
+- `Release 0.8.1 <https://github.com/jfisteus/eyegrade/releases/tag/eyegrade-0.8.1>`_.
+
+- `Release 0.7 <https://github.com/jfisteus/eyegrade/releases/tag/eyegrade-0.7>`_.
 
 
 License:
@@ -89,7 +90,7 @@ To download it through git::
   git clone https://github.com/jfisteus/eyegrade.git
 
 In order to run the program from its sources,
-you'll need Python 3.5 or a later version.
+you'll need Python 3.6 or a later version.
 
 
 Contribute!
