@@ -11,7 +11,7 @@
 
 ;--------------------------------
 ;General
-  !define VERSION "0.8.1"
+  !define VERSION "0.9"
   !define EYEGRADE_DIR "..\.."
 
   ;Name and file
@@ -72,15 +72,15 @@
   LangString MsgEyegradeRunning ${LANG_ENGLISH} \
              "Eyegrade is running. Please, close it and try again. If you have any file explorer window in a directory called Eyegrade, close it too"
   LangString MsgEyegradeRunning ${LANG_SPANISH} \
-             "Eyegrade se está ejecutando. Por favor, ciérrelo y vuélvalo a intentar. Si tiene algún explorador de ficheros en una carpeta llamada Eyegrade, ciérrelo también" 
+             "Eyegrade se estï¿½ ejecutando. Por favor, ciï¿½rrelo y vuï¿½lvalo a intentar. Si tiene algï¿½n explorador de ficheros en una carpeta llamada Eyegrade, ciï¿½rrelo tambiï¿½n"
   LangString MsgEyegradeRunning ${LANG_GALICIAN} \
-             "Eyegrade estase a executar. Por favor, cérreo e volva intentalo. Se ten algun explorador de ficheiros aberto nunha carpeta chamada Eyegrade, cérrea tamén" 
+             "Eyegrade estase a executar. Por favor, cï¿½rreo e volva intentalo. Se ten algun explorador de ficheiros aberto nunha carpeta chamada Eyegrade, cï¿½rrea tamï¿½n"
   LangString MsgRunEyegrade ${LANG_ENGLISH} \
              "Run Eyegrade when finished"
   LangString MsgRunEyegrade ${LANG_SPANISH} \
              "Ejecutar Eyegrade al finalizar"
   LangString MsgRunEyegrade ${LANG_GALICIAN} \
-             "Executar Eyegrade ó rematar"
+             "Executar Eyegrade ï¿½ rematar"
 
 ;--------------------------------
 ;Installer Sections

@@ -29,7 +29,6 @@ from ..ocr import sample
 
 
 class LabeledDigit:
-
     def __init__(self, digit, image_file, corners, identifier=None):
         self.digit = digit
         self.image_file = image_file
@@ -42,7 +41,7 @@ class LabeledDigit:
     def __str__(self):
         data = [self.image_file, str(self.digit)]
         data.extend(str(n) for n in self.corners.reshape(8).tolist())
-        return '\t'.join(data)
+        return "\t".join(data)
 
     def crop(self):
         original = images.load_image(self.image_file)
@@ -51,13 +50,15 @@ class LabeledDigit:
         cropped = samp.crop()
         total = cropped.image.shape[0] * cropped.image.shape[1]
         active = sum(sum(cropped.image > 0))
-        if (active / total >= 0.01):
-            cropped_file_path = 'digit-{0}-{1}.png'.format(self.digit,
-                                                           self.identifier)
+        if active / total >= 0.01:
+            cropped_file_path = "digit-{0}-{1}.png".format(self.digit, self.identifier)
             cv2.imwrite(cropped_file_path, cropped.image)
-            cropped_digit = LabeledDigit(self.digit, cropped_file_path,
-                                         cropped.corners,
-                                         identifier=self.identifier)
+            cropped_digit = LabeledDigit(
+                self.digit,
+                cropped_file_path,
+                cropped.corners,
+                identifier=self.identifier,
+            )
         else:
             cropped_digit = None
         return cropped_digit
@@ -66,10 +67,10 @@ class LabeledDigit:
 def process_session(labeled_digits, session_path):
     session = sessiondb.SessionDB(session_path)
     for exam in session.exams_iterator():
-        image_file = session.get_raw_capture_path(exam['exam_id'])
-        cells = session._read_id_cells(exam['exam_id'])
-        if exam['student_id'] and len(exam['student_id']) == len(cells):
-            for digit, cell in zip(exam['student_id'], cells):
+        image_file = session.get_raw_capture_path(exam["exam_id"])
+        cells = session._read_id_cells(exam["exam_id"])
+        if exam["student_id"] and len(exam["student_id"]) == len(cells):
+            for digit, cell in zip(exam["student_id"], cells):
                 corners = np.array([cell.plu, cell.pru, cell.pld, cell.prd])
                 labeled_digit = LabeledDigit(int(digit), image_file, corners)
                 cropped_digit = labeled_digit.crop()
@@ -79,10 +80,11 @@ def process_session(labeled_digits, session_path):
 
 
 def dump_digit_list(labeled_digits):
-    with open('digits.txt', 'a') as f:
+    with open("digits.txt", "a") as f:
         for digit in range(10):
             for labeled_digit in labeled_digits[digit]:
                 print(str(labeled_digit), file=f)
+
 
 def _initialize_digits_dict():
     labeled_digits = {}
@@ -90,13 +92,15 @@ def _initialize_digits_dict():
         labeled_digits[i] = []
     return labeled_digits
 
+
 def main():
     logging.basicConfig(level=logging.INFO)
     labeled_digits = _initialize_digits_dict()
     for session_path in sys.argv[1:]:
-        logging.info('Processing session {}'.format(session_path))
+        logging.info("Processing session {}".format(session_path))
         process_session(labeled_digits, session_path)
     dump_digit_list(labeled_digits)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2018 Jesus Arias Fisteus
+# Copyright (C) 2010-2021 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@ class _MockExamDetector(detection.ExamDetector):
     def __init__(self, dimensions):
         self.dimensions = dimensions
         self.status = {
-            'lines': False,
-            'boxes': False,
-            'cells': False,
-            'infobits': False,
-            'id-box-hlines': False,
-            'id-box': False,
+            "lines": False,
+            "boxes": False,
+            "cells": False,
+            "infobits": False,
+            "id-box-hlines": False,
+            "id-box": False,
         }
         self.success = False
         self.options = detection.ExamDetector.default_options
@@ -40,25 +40,25 @@ class _MockExamDetector(detection.ExamDetector):
     def _decide_cells(self, answer_cells):
         return None
 
+
 def _mock_read_infobits(image, corner_matrixes):
-        return [False, True, False, False, False, True]
+    return [False, True, False, False, False, True]
+
 
 detection.read_infobits = _mock_read_infobits
 
 
-
 class TestDetection(unittest.TestCase):
-
     def _get_test_file_path(self, filename):
         dirname = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(dirname, filename)
 
     def test_detect_capture(self):
-        image_path = self._get_test_file_path('capture.png')
+        image_path = self._get_test_file_path("capture.png")
         options = detection.ExamDetector.get_default_options()
-        options['capture-from-file'] = True
-        options['capture-raw-file'] = image_path
-        dimensions = ((3, 5), )
+        options["capture-from-file"] = True
+        options["capture-raw-file"] = image_path
+        dimensions = ((3, 5),)
         for th in (170, 180, 190):
             context = detection.ExamDetectorContext(fixed_hough_threshold=th)
             detector = detection.ExamDetector(dimensions, context, options)
@@ -75,13 +75,13 @@ class TestDetection(unittest.TestCase):
         self.assertEqual(len(detector.decisions.model), 1)
 
     def test_detect_capture_with_id(self):
-        image_path = self._get_test_file_path('capture.png')
+        image_path = self._get_test_file_path("capture.png")
         options = detection.ExamDetector.get_default_options()
-        options['capture-from-file'] = True
-        options['capture-raw-file'] = image_path
-        options['read-id'] = True
-        options['id-num-digits'] = 9
-        dimensions = ((3, 5), )
+        options["capture-from-file"] = True
+        options["capture-raw-file"] = image_path
+        options["read-id"] = True
+        options["id-num-digits"] = 9
+        dimensions = ((3, 5),)
         for th in (170, 180, 190):
             context = detection.ExamDetectorContext(fixed_hough_threshold=th)
             detector = detection.ExamDetector(dimensions, context, options)
@@ -102,14 +102,13 @@ class TestDetection(unittest.TestCase):
             (117, 332),
             (259, 325),
             (312, 323),
-            (458, 317)
+            (458, 317),
         ]
         dimensions = [(3, 5), (3, 5)]
         detector = _MockExamDetector(dimensions)
         self.assertTrue(detector.detect_manual(manual_points))
         self.assertTrue(detector.success)
-        corner_matrixes = detection.process_box_corners(manual_points,
-                                                        dimensions)
+        corner_matrixes = detection.process_box_corners(manual_points, dimensions)
         # There are two answer boxes
         self.assertEqual(len(corner_matrixes), 2)
         # There are 5 + 1 = 6 lines in each answer box
@@ -136,6 +135,5 @@ class TestDetection(unittest.TestCase):
         manual_points[0], manual_points[4] = manual_points[4], manual_points[0]
         manual_points[3], manual_points[7] = manual_points[7], manual_points[3]
         self.assertTrue(detector.detect_manual(manual_points))
-        corner_matrixes_2 = detection.process_box_corners(manual_points,
-                                                          dimensions)
+        corner_matrixes_2 = detection.process_box_corners(manual_points, dimensions)
         self.assertEqual(corner_matrixes, corner_matrixes_2)

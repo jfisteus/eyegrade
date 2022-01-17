@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2018 Jesus Arias Fisteus
+# Copyright (C) 2010-2021 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,8 +57,9 @@ class CellGeometry:
 
 
 class ExamDecisions:
-    def __init__(self, success, answers, detected_id, id_scores, model=None,
-                 infobits=None):
+    def __init__(
+        self, success, answers, detected_id, id_scores, model=None, infobits=None
+    ):
         self.success = success
         self.answers = answers
         self.detected_id = detected_id
@@ -118,7 +119,7 @@ class ExamCapture:
         Returns (num_question, num_choice) or None if no cell corresponds.
 
         """
-        min_dst = float('inf')
+        min_dst = float("inf")
         num_question = None
         num_choice = None
         closest_cell = None
@@ -168,7 +169,7 @@ class ExamCapture:
                 self._draw_answers_no_solutions(score)
 
     def _draw_status_bar(self):
-        x0 = images.width(self.image_drawn) - 60
+        x0 = images.get_width(self.image_drawn) - 60
         y0 = 10
         width = 50
         height = 20
@@ -179,17 +180,18 @@ class ExamCapture:
         cv2.rectangle(self.image_drawn, p0, p1, _color_blue, thickness=-1)
 
     def _draw_answers_solutions(self, score):
-        for answer, solution, status, cells in zip(score.answers,
-                                                   score.solutions,
-                                                   score.answer_status,
-                                                   self.answer_cells):
+        for answer, question_solutions, status, cells in zip(
+            score.answers, score.solutions, score.answer_status, self.answer_cells
+        ):
             if status == scoring.QuestionScores.CORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_good)
             elif status == scoring.QuestionScores.INCORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_bad)
-                self._draw_cell_center(cells[solution - 1], _color_dot_bad)
+                for solution in question_solutions:
+                    self._draw_cell_center(cells[solution - 1], _color_dot_bad)
             elif status == scoring.QuestionScores.BLANK:
-                self._draw_cell_center(cells[solution - 1], _color_dot_blank)
+                for solution in question_solutions:
+                    self._draw_cell_center(cells[solution - 1], _color_dot_blank)
             elif status == scoring.QuestionScores.VOID:
                 self._draw_void_question(cells)
 
@@ -206,8 +208,9 @@ class ExamCapture:
         cv2.circle(self.image_drawn, cell.center, 4, color, thickness=-1)
 
     def _draw_void_question(self, cells):
-        cv2.line(self.image_drawn, cells[0].center, cells[-1].center,
-                 _color_bad, thickness=3)
+        cv2.line(
+            self.image_drawn, cells[0].center, cells[-1].center, _color_bad, thickness=3
+        )
 
 
 def save_image(filename, image):

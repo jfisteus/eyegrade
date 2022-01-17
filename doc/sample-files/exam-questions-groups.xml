@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
+      xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+  <subject>Set theory</subject>
+  <degree>Mathematics</degree>
+  <title>Final examination</title>
+  <date>January 1st, 2020</date>
+  <duration>10 min.</duration>
+  <studentId eye:label="ID" eye:length="8" />
+  <scores eye:maxScore="100" eye:penalize="false" />
+
+  <group>
+    <common>
+      <text>
+        Given the set $A = \{a, b, c, d\}$:
+      </text>
+    </common>
+    <question>
+      <!-- Q1 -->
+      <text>
+        What's the cardinality of $A$?
+      </text>
+      <choices>
+        <correct>4</correct>
+        <incorrect>3</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </question>
+
+    <question>
+      <!-- Q2 -->
+      <text>
+        What's the intersection of $A$ with $\{d, f, a\}$?
+      </text>
+      <choices>
+        <correct>$\{a, d\}$</correct>
+        <incorrect>$\{a, b, c, d, f\}$</incorrect>
+        <incorrect>$\{b, c\}$</incorrect>
+      </choices>
+    </question>
+
+    <question>
+      <!-- Q3 -->
+      <text>
+        And the union of $A$ with $\{d, f, a\}$?
+      </text>
+      <choices>
+        <correct>$\{a, b, c, d, f\}$</correct>
+        <incorrect>$\{a, d\}$</incorrect>
+        <incorrect>$\{a, b, c, d, d, f, a\}$</incorrect>
+      </choices>
+    </question>
+  </group>
+
+  <question>
+    <!-- Q4 -->
+    <text>
+      The powerset of a set $A$ is:
+    </text>
+    <choices>
+      <correct>
+        The set whose elements are all the possible subsets of $A$.
+      </correct>
+      <incorrect>
+        The cartesian product $A \times A$.
+      </incorrect>
+      <incorrect>
+        The set $A \cup A$.
+      </incorrect>
+    </choices>
+  </question>
+
+  <question>
+    <!-- Q5 -->
+    <text>
+      The set of all natural numbers is often denoted with:
+    </text>
+    <choices>
+      <correct>
+        $\mathbb{N}$
+      </correct>
+      <incorrect>
+        $\mathbb{R}$
+      </incorrect>
+      <incorrect>
+        $\mathbb{Z}$
+      </incorrect>
+    </choices>
+  </question>
+
+  <group>
+    <question>
+      <!-- Q6 -->
+      <text>
+        The symbol $\emptyset$ represents:
+      </text>
+      <choices>
+        <correct>
+          The empty set.
+        </correct>
+        <incorrect>
+          Any set with infinite elements.
+        </incorrect>
+        <incorrect>
+          The set of all the possible finite sets.
+        </incorrect>
+      </choices>
+    </question>
+
+    <question>
+      <!-- Q7 -->
+      <text>
+        And its cardinality is:
+      </text>
+      <choices>
+        <correct>
+          Zero.
+        </correct>
+        <incorrect>
+          Infinite.
+        </incorrect>
+        <incorrect>
+          Undefined.
+        </incorrect>
+      </choices>
+    </question>
+  </group>
+</exam>

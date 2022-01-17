@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2018 Jesus Arias Fisteus
+# Copyright (C) 2010-2021 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 import gettext
-import os.path
+import os
 
 from PyQt5.QtWidgets import (
     QButtonGroup,
@@ -45,7 +45,7 @@ from .. import utils
 from .. import scoring
 from .. import exams
 
-t = gettext.translation('eyegrade', utils.locale_dir(), fallback=True)
+t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
 
 
@@ -56,37 +56,51 @@ class NewSessionPageInitial(QWizardPage):
     the exam config file.
 
     """
+
     def __init__(self, config_filename=None):
         super().__init__()
-        self.setTitle(_('Directory and exam configuration'))
-        self.setSubTitle(_('Select or create an empty directory in which you '
-                           'want to store the session '
-                           'and configure the exam from a file or manually.'))
-        self.directory = widgets.OpenFileWidget(self, select_directory=True,
-                            title=_('Select or create an empty directory'),
-                            check_file_function=self._check_directory)
-        self.config_file = widgets.OpenFileWidget(self,
-                            title=_('Select the exam configuration file'),
-                            name_filter=FileNameFilters.exam_config,
-                            check_file_function=self._check_exam_config_file)
+        self.setTitle(_("Directory and exam configuration"))
+        self.setSubTitle(
+            _(
+                "Select or create an empty directory in which you "
+                "want to store the session "
+                "and configure the exam from a file or manually."
+            )
+        )
+        self.directory = widgets.OpenFileWidget(
+            self,
+            select_directory=True,
+            title=_("Select or create an empty directory"),
+            check_file_function=self._check_directory,
+        )
+        self.config_file = widgets.OpenFileWidget(
+            self,
+            title=_("Select the exam configuration file"),
+            name_filter=FileNameFilters.exam_config,
+            check_file_function=self._check_exam_config_file,
+        )
         if config_filename is not None:
             self.config_file.set_text(config_filename)
-        self.registerField('directory*', self.directory.filename_widget)
+        self.registerField("directory*", self.directory.filename_widget)
         if config_filename is None:
-            self.registerField('config_file', self.config_file.filename_widget)
+            self.registerField("config_file", self.config_file.filename_widget)
         self.combo = widgets.CustomComboBox(parent=self)
-        self.combo.set_items([
-            _('Configure the exam from an existing configuration file'),
-            _('Configure the exam manually'),
-        ])
+        self.combo.set_items(
+            [
+                _("Use an existing configuration file"),
+                _("Configure a exam manually"),
+                _("Configure a survey manually"),
+            ]
+        )
         self.combo.setCurrentIndex(0)
         self.combo.currentIndexChanged.connect(self._update_combo)
-        self.config_file_label = QLabel(_('Exam configuration file'))
+        self.config_file_label = QLabel(_("Exam configuration file"))
         layout = QFormLayout(self)
         self.setLayout(layout)
-        layout.addRow(_('Directory'), self.directory)
+        layout.addRow(_("Directory"), self.directory)
         layout.addRow(self.combo)
         layout.addRow(self.config_file_label, self.config_file)
+        self.registerField("exam_or_survey_combo", self.combo)
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page."""
@@ -100,8 +114,9 @@ class NewSessionPageInitial(QWizardPage):
             else:
                 ok_config = True
             if ok_dir and ok_config:
-                self.wizard().exam_config = \
-                            exams.ExamConfig(filename=self.config_file.text())
+                self.wizard().exam_config = exams.ExamConfig(
+                    filename=self.config_file.text()
+                )
                 return True
             else:
                 return False
@@ -110,40 +125,42 @@ class NewSessionPageInitial(QWizardPage):
 
     def _check_directory(self, dir_name):
         valid = True
-        msg = ''
+        msg = ""
         if not os.path.isdir(dir_name):
             valid = False
-            msg = _('The directory does not exist or is not a directory.')
+            msg = _("The directory does not exist or is not a directory.")
         else:
             dir_content = os.listdir(dir_name)
             if dir_content:
                 valid = False
-                msg = _('The directory is not empty. '
-                        'Choose another directory or create a new one.')
+                msg = _(
+                    "The directory is not empty. "
+                    "Choose another directory or create a new one."
+                )
         return valid, msg
 
     def _check_exam_config_file(self, file_name):
         valid = True
-        msg = ''
+        msg = ""
         if not os.path.exists(file_name):
             valid = False
-            msg = _('The exam configuration file does not exist.')
+            msg = _("The exam configuration file does not exist.")
         elif not os.path.isfile(file_name):
             valid = False
-            msg = _('The exam configuration file is not a regular file.')
+            msg = _("The exam configuration file is not a regular file.")
         else:
             try:
                 exams.ExamConfig(filename=file_name)
             except IOError:
                 valid = False
-                msg = _('The exam configuration file cannot be read.')
+                msg = _("The exam configuration file cannot be read.")
             except Exception as e:
                 valid = False
-                msg = _('The exam configuration file contains errors')
+                msg = _("The exam configuration file contains errors")
                 if str(e):
-                    msg += ':<br><br>' + str(e)
+                    msg += ":<br><br>" + str(e)
                 else:
-                    msg += '.'
+                    msg += "."
         self.wizard().exam_config_reset()
         return valid, msg
 
@@ -155,7 +172,7 @@ class NewSessionPageInitial(QWizardPage):
         else:
             self.config_file.setEnabled(False)
             self.config_file_label.setEnabled(False)
-            self.config_file.set_text('')
+            self.config_file.set_text("")
 
     def nextId(self):
         if self.combo.currentIndex() == 0:
@@ -169,11 +186,15 @@ class NewSessionPageStudents(QWizardPage):
 
     def __init__(self):
         super().__init__()
-        self.setTitle(_('Student list'))
-        self.setSubTitle(_('You can import your student list '
-                           'from Excel XLSX files and CSV files. '
-                           'Students can optionally be placed '
-                           'into separate student groups.'))
+        self.setTitle(_("Student list"))
+        self.setSubTitle(
+            _(
+                "You can import your student list "
+                "from Excel XLSX files and CSV files. "
+                "Students can optionally be placed "
+                "into separate student groups."
+            )
+        )
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         tabs = students.StudentGroupsTabs(self)
@@ -186,21 +207,25 @@ class NewSessionPageStudents(QWizardPage):
 
 
 class NewSessionPageExamParams(QWizardPage):
-    """ Wizard's page that ask for the params of the test """
+    """Wizard's page that ask for the params of the test"""
+
     def __init__(self):
         super().__init__()
-        self.setTitle(_('Configuration of exam params'))
-        self.setSubTitle(_('Enter the configuration parameters of the exam'))
+        self.setTitle(_("Configuration of exam params"))
+        self.setSubTitle(_("Enter the configuration parameters of the exam"))
         layout = QFormLayout(self)
         self.setLayout(layout)
         self.paramNEIDs = widgets.InputInteger(
-            initial_value=8, min_value=0, max_value=16)
+            initial_value=0, min_value=0, max_value=16
+        )
         self.registerField("paramNEIDs", self.paramNEIDs)
         self.paramNAlts = widgets.InputInteger(initial_value=3)
         self.registerField("paramNAlts", self.paramNAlts)
-        self.paramNCols = widgets.InputCustomPattern(fixed_size=250,
-                                          regex=r'[1-9][0-9]?(\,[1-9][0-9]?)+',
-                                          placeholder=_('num,num,...'))
+        self.paramNCols = widgets.InputCustomPattern(
+            fixed_size=250,
+            regex=r"[1-9][0-9]?(\,[1-9][0-9]?)+",
+            placeholder=_("num,num,..."),
+        )
         self.registerField("paramNCols", self.paramNCols)
         self.paramNPerm = widgets.InputInteger(min_value=1, initial_value=2)
         self.registerField("paramNPerm", self.paramNPerm)
@@ -211,48 +236,81 @@ class NewSessionPageExamParams(QWizardPage):
         ## ])
         ## self.paramTPerm.setCurrentIndex(0)
         ## self.registerField("paramTPerm", self.paramTPerm)
-        layout.addRow(_('Number of digits of the student ID '
-                        '(0 to not scan IDs)'),
-                      self.paramNEIDs)
-        layout.addRow(_('Number of choices per question'),
-                      self.paramNAlts)
-        layout.addRow(_('Number of questions per answer box'),
-                      self.paramNCols)
-        layout.addRow(_('Number of models of the exam'),
-                      self.paramNPerm)
+        layout.addRow(
+            _("Number of digits of the student ID (0 to not scan IDs)"), self.paramNEIDs
+        )
+        layout.addRow(_("Number of choices per question"), self.paramNAlts)
+        layout.addRow(_("Number of questions per answer box"), self.paramNCols)
+        layout.addRow(_("Number of models of the exam"), self.paramNPerm)
+
+    def initializePage(self):
+        if self.field("exam_or_survey_combo") == 2:
+            # It's a survey instead of an exam:
+            self.paramNPerm.setValue(1)
+            self.paramNPerm.setEnabled(False)
 
     def validatePage(self):
         if not self.paramNEIDs.text():
-            QMessageBox.critical(self, _('Error in form'),
-                _('The number of digits of the student id is empty'))
+            QMessageBox.critical(
+                self,
+                _("Error in form"),
+                _("The number of digits of the student id is empty"),
+            )
             return False
         if not self.paramNAlts.text():
-            QMessageBox.critical(self, _('Error in form'),
-                _('The number of choices per question is empty'))
+            QMessageBox.critical(
+                self,
+                _("Error in form"),
+                _("The number of choices per question is empty"),
+            )
             return False
         if not self.paramNCols.text():
-            QMessageBox.critical(self, _('Error in form'),
-                _('The number of questions per answer box is empty.'
-                  ' Enter a comma-separated list of natural numbers.'))
+            QMessageBox.critical(
+                self,
+                _("Error in form"),
+                _(
+                    "The number of questions per answer box is empty."
+                    " Enter a comma-separated list of natural numbers."
+                ),
+            )
             return False
-        if self.paramNCols.text().endswith(','):
+        if self.paramNCols.text().endswith(","):
             self.paramNCols.setText(self.paramNCols.text()[:-1])
-        if not self.paramNPerm.text():
-            QMessageBox.critical(self, _('Error in form'),
-                _('The number of exam models is empty'))
+        if not self.paramNPerm.text() and self.field("exam_or_survey_combo") != 2:
+            # It's an exam but the number of models hasn't been set
+            QMessageBox.critical(
+                self, _("Error in form"), _("The number of exam models is empty")
+            )
             return False
+        # Create now the exam configuration object
+        exam_config = exams.ExamConfig()
+        exam_config.scores_mode = exams.ExamConfig.SCORES_MODE_NONE
+        # Dimensions descriptor:
+        dimensions = []
+        for num_questions in self.paramNCols.text().split(","):
+            dimensions.append("{},{}".format(self.paramNAlts.text(), num_questions))
+        exam_config.set_dimensions(";".join(dimensions))
+        # Student id length:
+        exam_config.id_num_digits = self.field("paramNEIDs")
+        # Survey mode:
+        if self.field("exam_or_survey_combo") == 2:
+            exam_config.survey_mode = True
+        self.wizard().exam_config = exam_config
         return True
 
     def nextId(self):
-        return WizardNewSession.PageExamAnswers
+        if self.field("exam_or_survey_combo") != 2:
+            # It's an exam: enter solutions now
+            return WizardNewSession.PageExamAnswers
+        # It's a survey:
+        return WizardNewSession.PageStudents
 
 
 class NewSessionPageExamAnswers(QWizardPage):
-
     def __init__(self):
         super().__init__()
-        self.setTitle(_('Selection of correct answers'))
-        self.setSubTitle(_('Select the correct answers for each exam model'))
+        self.setTitle(_("Selection of correct answers"))
+        self.setSubTitle(_("Select the correct answers for each exam model"))
         layout = QFormLayout()
         self.setLayout(layout)
         self.tabs = QTabWidget()
@@ -265,9 +323,11 @@ class NewSessionPageExamAnswers(QWizardPage):
         new_paramNAlts = self.field("paramNAlts")
         new_paramNCols = self.field("paramNCols")
         new_paramNPerm = self.field("paramNPerm")
-        if (new_paramNAlts != self.paramNAlts
+        if (
+            new_paramNAlts != self.paramNAlts
             or new_paramNCols != self.paramNCols
-            or new_paramNPerm != self.paramNPerm):
+            or new_paramNPerm != self.paramNPerm
+        ):
             self.paramNAlts = new_paramNAlts
             self.paramNCols = new_paramNCols
             self.paramNPerm = new_paramNPerm
@@ -284,33 +344,33 @@ class NewSessionPageExamAnswers(QWizardPage):
             mygroupbox.setWidget(QWidget())
             mygroupbox.setWidgetResizable(True)
             myform = QHBoxLayout(mygroupbox.widget())
-            cols = self.paramNCols.split(',')
+            cols = self.paramNCols.split(",")
             ansID = 0
             radioGroupList = {}
             for col in cols:
                 mygroupboxCol = QGroupBox()
                 myformCol = QFormLayout()
                 mygroupboxCol.setLayout(myformCol)
-                for y in range(int(col)):
+                for __ in range(int(col)):
                     ansID += 1
                     radioGroupList[ansID] = QButtonGroup()
                     layoutRow = QHBoxLayout()
                     for j in range(self.paramNAlts):
-                        myradio = QRadioButton(chr(97+j).upper())
+                        myradio = QRadioButton(chr(97 + j).upper())
                         layoutRow.addWidget(myradio)
                         radioGroupList[ansID].addButton(myradio)
-                    self.total_answers  += 1
+                    self.total_answers += 1
                     myformCol.addRow(str(ansID), layoutRow)
                 myform.addWidget(mygroupboxCol)
-            self.radioGroups[chr(97+x).upper()] = radioGroupList
-            self.tabs.addTab(mygroupbox, _('Model ') + chr(97+x).upper())
+            self.radioGroups[chr(97 + x).upper()] = radioGroupList
+            self.tabs.addTab(mygroupbox, _("Model ") + chr(97 + x).upper())
 
     def _get_values(self, formated=False):
         response = dict()
         for k, v in self.radioGroups.items():
             answer = dict()
             for ak, av in v.items():
-                answer[ak] = abs(int(av.checkedId())) - 1
+                answer[ak] = set({abs(int(av.checkedId())) - 1})
             if formated:
                 answer = list(answer.values())
             response[k] = answer
@@ -323,42 +383,22 @@ class NewSessionPageExamAnswers(QWizardPage):
             for a in v:
                 if a != 0:
                     local_total_answers += 1
-        return (self.total_answers == local_total_answers)
+        return self.total_answers == local_total_answers
 
     def validatePage(self):
-        valid = True
-        msg = ''
         if not self._check_count_answers():
             valid = False
-            msg = _('You haven\'t entered the correct answer '
-                    'for some questions.')
+            QMessageBox.critical(
+                self,
+                _("Error"),
+                _("You haven't entered the correct answer for some questions."),
+            )
         else:
-            try:
-                self.wizard().exam_config = exams.ExamConfig()
-                # dimentions generation:
-                dimensions = []
-                for c in self.paramNCols.split(','):
-                    dimensions.append("%d,%s" % (self.paramNAlts, c))
-                self.wizard().exam_config.set_dimensions(';'.join(dimensions))
-                # solutions generation:
-                current_solutions = self._get_values(formated=True)
-                for k, v in current_solutions.items():
-                    self.wizard().exam_config.set_solutions(k, v)
-                # students ids generation:
-                self.wizard().exam_config.id_num_digits = \
-                    self.field("paramNEIDs")
-            except IOError:
-                valid = False
-                msg = _('The exam configuration file cannot be read.')
-            except Exception as e:
-                valid = False
-                msg = _('The exam configuration file contains errors')
-                if str(e):
-                    msg += ':<br><br>' + str(e)
-                else:
-                    msg += '.'
-        if not valid:
-            QMessageBox.critical(self, _('Error'), msg)
+            valid = True
+            # Add solutions to the exam's configuration:
+            current_solutions = self._get_values(formated=True)
+            for model, solutions in current_solutions.items():
+                self.wizard().exam_config.set_solutions(model, solutions)
         return valid
 
     def nextId(self):
@@ -367,12 +407,17 @@ class NewSessionPageExamAnswers(QWizardPage):
 
 class NewSessionPageScores(QWizardPage):
     """Page of WizardNewSession that asks for the scores for answers."""
+
     def __init__(self):
         super().__init__()
-        self.setTitle(_('Scores for correct and incorrect answers'))
-        self.setSubTitle(_('Enter the scores of correct and incorrect '
-                           'answers. The program will compute scores based '
-                           'on them. Setting these scores is optional.'))
+        self.setTitle(_("Scores for correct and incorrect answers"))
+        self.setSubTitle(
+            _(
+                "Enter the scores of correct and incorrect "
+                "answers. The program will compute scores based "
+                "on them. Setting these scores is optional."
+            )
+        )
         form_widget = QWidget(parent=self)
         table_widget = QWidget(parent=self)
         main_layout = QVBoxLayout(self)
@@ -385,22 +430,24 @@ class NewSessionPageScores(QWizardPage):
         main_layout.addWidget(table_widget)
         main_layout.setAlignment(table_widget, Qt.AlignHCenter)
         self.combo = widgets.CustomComboBox(parent=self)
-        self.combo.set_items([
-            _('No scores'),
-            _('Same score for all the questions'),
-            _('Base score plus per-question weight'),
-        ])
+        self.combo.set_items(
+            [
+                _("No scores"),
+                _("Same score for all the questions"),
+                _("Base score plus per-question weight"),
+            ]
+        )
         self.combo.currentIndexChanged.connect(self._update_combo)
         self.correct_score = widgets.InputScore(is_positive=True)
-        correct_score_label = QLabel(_('Score for correct answers'))
-        incorrect_score_label = QLabel(_('Score for incorrect answers'))
-        blank_score_label = QLabel(_('Score for blank answers'))
+        correct_score_label = QLabel(_("Score for correct answers"))
+        incorrect_score_label = QLabel(_("Score for incorrect answers"))
+        blank_score_label = QLabel(_("Score for blank answers"))
         self.incorrect_score = widgets.InputScore(is_positive=False)
         self.blank_score = widgets.InputScore(is_positive=False)
-        self.button_reset = QPushButton(_('Reset question weights'))
-        button_defaults = QPushButton(_('Compute default scores'))
+        self.button_reset = QPushButton(_("Reset question weights"))
+        button_defaults = QPushButton(_("Compute default scores"))
         self.weights_table = widgets.CustomTableView()
-        weights_table_label = QLabel(_('Per-question score weights:'))
+        weights_table_label = QLabel(_("Per-question score weights:"))
         form_layout.addRow(self.combo)
         form_layout.addRow(correct_score_label, self.correct_score)
         form_layout.addRow(incorrect_score_label, self.incorrect_score)
@@ -416,25 +463,30 @@ class NewSessionPageScores(QWizardPage):
         self.button_reset.clicked.connect(self._reset_weights)
         button_defaults.clicked.connect(self._compute_default_values)
         self.base_score_widgets = [
-            self.correct_score, correct_score_label,
-            self.incorrect_score, incorrect_score_label,
-            self.blank_score, blank_score_label,
+            self.correct_score,
+            correct_score_label,
+            self.incorrect_score,
+            incorrect_score_label,
+            self.blank_score,
+            blank_score_label,
             button_defaults,
         ]
-        self.weights_widgets = [
-            self.weights_table, weights_table_label,
-        ]
+        self.weights_widgets = [self.weights_table, weights_table_label]
         self.current_mode = None
 
     def initializePage(self):
         """Loads the values from the exam config, if any."""
         exam_config = self.wizard().exam_config
-        self.weights_table.setModel(widgets.ScoreWeightsTableModel( \
-                                                 exam_config, parent=self))
+        self.weights_table.setModel(
+            widgets.ScoreWeightsTableModel(exam_config, parent=self)
+        )
         self.weights_table.model().dataChanged.connect(self._weights_changed)
         self.weights_table.adjust_size()
-        if (not self.correct_score.text() and not self.correct_score.text()
-            and not self.blank_score.text()):
+        if (
+            not self.correct_score.text()
+            and not self.correct_score.text()
+            and not self.blank_score.text()
+        ):
             # Change values only if they have not been set manually
             scores = exam_config.base_scores
             if scores is not None:
@@ -460,7 +512,7 @@ class NewSessionPageScores(QWizardPage):
     def validatePage(self):
         """Called by QWizardPage to check the values of this page.
 
-           Checks the values and consolidates them if valid.
+        Checks the values and consolidates them if valid.
         """
         if self.current_mode == 0:
             valid = self._consolidate_no_scores()
@@ -474,34 +526,27 @@ class NewSessionPageScores(QWizardPage):
         return valid
 
     def clear_base_scores(self):
-        self.correct_score.setText('')
-        self.incorrect_score.setText('')
-        self.blank_score.setText('')
+        self.correct_score.setText("")
+        self.incorrect_score.setText("")
+        self.blank_score.setText("")
 
     def _update_combo(self, new_index):
         if new_index != self.current_mode:
             # Ask the user if changes to weights may be lost
-            if (self.current_mode == 2
-                and self.weights_table.model().changes):
-                if not self._show_warning_weights_reset():
-                    self.combo.setCurrentIndex(self.current_mode)
-                    return
+            if (
+                self.current_mode == 2
+                and self.weights_table.model().changes
+                and not self._show_warning_weights_reset()
+            ):
+                self.combo.setCurrentIndex(self.current_mode)
+                return
             self.button_reset.setEnabled(False)
             if new_index == 0:
-                for widget in self.base_score_widgets:
-                    widget.setEnabled(False)
-                for widget in self.weights_widgets:
-                    widget.setEnabled(False)
+                self._enable_weights_widgets(False, False)
             elif new_index == 1:
-                for widget in self.base_score_widgets:
-                    widget.setEnabled(True)
-                for widget in self.weights_widgets:
-                    widget.setEnabled(False)
+                self._enable_weights_widgets(True, False)
             else:
-                for widget in self.base_score_widgets:
-                    widget.setEnabled(True)
-                for widget in self.weights_widgets:
-                    widget.setEnabled(True)
+                self._enable_weights_widgets(True, True)
             # Reset the weights table
             if self.current_mode == 2:
                 self.weights_table.model().clear()
@@ -512,19 +557,23 @@ class NewSessionPageScores(QWizardPage):
                 self.clear_base_scores()
             self.current_mode = new_index
 
+    def _enable_weights_widgets(self, enable_base_scores, enable_weights):
+        for widget in self.base_score_widgets:
+            widget.setEnabled(enable_base_scores)
+        for widget in self.weights_widgets:
+            widget.setEnabled(enable_weights)
+
     def _reset_weights(self):
-        if (self.weights_table.model().changes
-            and self._show_warning_weights_reset()):
+        if self.weights_table.model().changes and self._show_warning_weights_reset():
             self.weights_table.model().data_reset()
 
     def _weights_changed(self, index_1, index_2):
         self.button_reset.setEnabled(self.weights_table.model().changes)
 
     def _compute_default_values(self):
-        if (self.current_mode == 2
-            and not self.weights_table.model().validate()):
-                self._show_error_weights()
-                return
+        if self.current_mode == 2 and not self.weights_table.model().validate():
+            self._show_error_weights()
+            return
         dialog = dialogs.DialogComputeScores(parent=self)
         score, penalize = dialog.exec_()
         if score is None:
@@ -538,7 +587,7 @@ class NewSessionPageScores(QWizardPage):
             # Weighted questions
             total_weight = self.weights_table.model().sum_weights[0]
         else:
-            raise NotImplementedError('Bad mode in scores wizard page')
+            raise NotImplementedError("Bad mode in scores wizard page")
         if config.num_questions and choices and choices > 1:
             c_score = score / total_weight
             if penalize:
@@ -549,14 +598,15 @@ class NewSessionPageScores(QWizardPage):
             scores = scoring.QuestionScores(c_score, i_score, b_score)
             self._set_score_fields(scores)
         else:
-             QMessageBox.critical(self, _('Error'),
-                                 _('Automatic scores cannot be computed for '
-                                   'this exam.'))
+            QMessageBox.critical(
+                self,
+                _("Error"),
+                _("Automatic scores cannot be computed for " "this exam."),
+            )
 
     def _set_score_fields(self, scores):
         self.correct_score.setText(scores.format_correct_score(signed=False))
-        self.incorrect_score.setText( \
-                                 scores.format_incorrect_score(signed=True))
+        self.incorrect_score.setText(scores.format_incorrect_score(signed=True))
         self.blank_score.setText(scores.format_blank_score(signed=True))
 
     def _consolidate_no_scores(self):
@@ -580,17 +630,23 @@ class NewSessionPageScores(QWizardPage):
             if i_score >= 0 and b_score >= 0:
                 base_scores = scoring.QuestionScores(c_score, i_score, b_score)
                 same_weights = True if self.current_mode == 1 else False
-                self.wizard().exam_config.set_base_scores(base_scores,
-                                                   same_weights=same_weights)
+                self.wizard().exam_config.set_base_scores(
+                    base_scores, same_weights=same_weights
+                )
                 valid = True
             else:
-                QMessageBox.critical(self, _('Error'),
-                                _('The score for incorrect and blank answers '
-                                  'cannot be greater than 0.'))
+                QMessageBox.critical(
+                    self,
+                    _("Error"),
+                    _(
+                        "The score for incorrect and blank answers "
+                        "cannot be greater than 0."
+                    ),
+                )
         else:
-            QMessageBox.critical(self, _('Error'),
-                                 _('You must enter the score for correct '
-                                   'answers.'))
+            QMessageBox.critical(
+                self, _("Error"), _("You must enter the score for correct " "answers.")
+            )
         return valid
 
     def _consolidate_weights(self):
@@ -600,21 +656,31 @@ class NewSessionPageScores(QWizardPage):
         return valid
 
     def _show_error_weights(self):
-        QMessageBox.critical(self, _('Error'),
-                             _('The weights must be the same '
-                               'in all the models, although they may '
-                               'be in a different order. '
-                               'You must fix this before computing '
-                               'default scores.'))
+        QMessageBox.critical(
+            self,
+            _("Error"),
+            _(
+                "The weights must be the same "
+                "in all the models, although they may "
+                "be in a different order. "
+                "You must fix this before computing "
+                "default scores."
+            ),
+        )
 
     def _show_warning_weights_reset(self):
-        result = QMessageBox.warning(self, _('Warning'),
-                             _('The changes you have done to the weights '
-                               'table will be lost. '
-                               'Are you sure you want to continue?'),
-                             QMessageBox.Yes | QMessageBox.No,
-                             QMessageBox.No)
-        return (result == QMessageBox.Yes)
+        result = QMessageBox.warning(
+            self,
+            _("Warning"),
+            _(
+                "The changes you have done to the weights "
+                "table will be lost. "
+                "Are you sure you want to continue?"
+            ),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        return result == QMessageBox.Yes
 
     def nextId(self):
         return -1
@@ -630,16 +696,17 @@ class WizardNewSession(QWizard):
     `config_filename`.
 
     """
+
     NUM_PAGES = 5
-    (PageInitial, PageExamParams, PageExamAnswers,
-     PageStudents, PageScores) = range(NUM_PAGES)
+    (PageInitial, PageExamParams, PageExamAnswers, PageStudents, PageScores) = range(
+        NUM_PAGES
+    )
 
     def __init__(self, parent, config_filename=None):
         super().__init__(parent)
         self.exam_config = None
-        self.setWindowTitle(_('Create a new session'))
-        self.page_initial = \
-                 self._create_page_initial(config_filename=config_filename)
+        self.setWindowTitle(_("Create a new session"))
+        self.page_initial = self._create_page_initial(config_filename=config_filename)
         self.page_students = self._create_page_students()
         self.page_exam_params = self._create_page_exam_file()
         self.page_exam_answers = self._create_page_exam_answers()
@@ -664,10 +731,10 @@ class WizardNewSession(QWizard):
 
     def values(self):
         values = {}
-        values['directory'] = self.get_directory()
-        values['config_file_path'] = self.get_config_file_path()
-        values['config'] = self.exam_config
-        values['student_listings'] = self.student_listings()
+        values["directory"] = self.get_directory()
+        values["config_file_path"] = self.get_config_file_path()
+        values["config"] = self.exam_config
+        values["student_listings"] = self.student_listings()
         return values
 
     def exam_config_reset(self):

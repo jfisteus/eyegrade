@@ -6,9 +6,10 @@ Eyegrade User Manual
 .. contents::
 .. section-numbering::
 
-This is the user manual for Eyegrade 0.8.
-Versions of this manual for earlier versions
+This is the user manual for Eyegrade 0.9.
+Versions of this manual for earlier releases
 are available:
+`0.8 <../user-manual-0.8>`_,
 `0.7 <../user-manual-0.7>`_,
 `0.6 <../user-manual-0.6>`_,
 `0.5 <../user-manual-0.5>`_,
@@ -62,15 +63,15 @@ or place the binaries inside a directory that is already in your `PATH`.
 For example, if you want to place the binaries
 inside `/usr/local/bin`, which is usually in your `PATH`::
 
-  tar xavf eyegrade-0.8-linux-bin.tgz
-  sudo cp eyegrade-0.8-linux-bin/eyegrade /usr/local/bin
-  sudo cp eyegrade-0.8-linux-bin/eyegrade-create /usr/local/bin
+  tar xavf eyegrade-0.9-linux-bin.tgz
+  sudo cp eyegrade-0.9-linux-bin/eyegrade /usr/local/bin
+  sudo cp eyegrade-0.9-linux-bin/eyegrade-create /usr/local/bin
 
 
 Installation through `pipx` within your user's account
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check that your Linux system has Python 3.6 or 3.7 installed
+Check that your Linux system has Python 3.6, 3.7 or 3.8 installed
 by running::
 
   python3 --version
@@ -167,19 +168,22 @@ in which to check and build an installer.
 Volunteers to support Eyegrade on Mac OS X are welcome.
 
 
-Upgrading from Eyegrade 0.7 to Eyegrade 0.8
+Upgrading from Eyegrade 0.8 to Eyegrade 0.9
 ......................................................................
 
-In Linux systems, just replace the binaries of Eyegrade 0.7
+In Linux systems, just replace the binaries of Eyegrade 0.8
 with the new ones.
-In Windows, you can uninstall Eyegrade 0.7
+In Windows, you can uninstall Eyegrade 0.8
 using the *Add/remove programs* feature.
 
-Eyegrade 0.8 is backwards-compatible with grading sessions
+Eyegrade 0.9 is backwards-compatible with grading sessions
 created with Eyegrade 0.3 and later versions.
 
 The main changes of the most recent versions are described in the following
 blog posts:
+
+- `Eyegrade 0.9 released
+  <http://www.eyegrade.org/blog/posts/eyegrade-09-released.html>`_
 
 - `Eyegrade 0.8 released
   <http://www.eyegrade.org/blog/posts/eyegrade-08-released.html>`_
@@ -1333,6 +1337,7 @@ and 20/3 incorrect answers, for a final score of 10 * 10 / 3 - 5 * 20 / 3 = 0.
 
 
 
+
 Editing the LaTeX template
 ...........................
 
@@ -1362,6 +1367,9 @@ exam:
 - `{{answer-table}}`: replaced by the table in which students mark out
   their answers.
 - `{{questions}}`: replaced by the questions of the exam.
+- `{{variation}}`: the exam variation selected for this exam.
+  Its value is "0" if no variation has been selected,
+  or "1", "2", etc. if a variation has been selected.
 
 Note that a template is highly reusable for different exams and
 subjects.
@@ -1466,7 +1474,7 @@ that provide a graphical installer,
 such as `ProText <https://www.tug.org/protext/>`_:
 
 #. Download the ProText installer
-   (be aware that the size of the download is about 1.7 GB).
+   (be aware that the size of the download is over 3 GB).
 
 #. From the installer, choose to install MiKTex.
    When you are offered a minimal or full installation,
@@ -1477,8 +1485,343 @@ such as `ProText <https://www.tug.org/protext/>`_:
 
 
 
+Advanced exam editing
+..........................
+
+
+Fixing the position of a choice
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choices can be prevented from being randomly ordered
+with the `eye:fix` attribute,
+which can take the values "first" (to fix a choice as the first one)
+and "last" (to fix a choice as the last one).
+For example::
+
+  <question>
+    <text>
+      What is Python?
+    </text>
+    <choices>
+      <correct>A programming language</correct>
+      <incorrect>A computer manufacturer</incorrect>
+      <incorrect>A kind of tree</incorrect>
+      <incorrect eye:fix="last">None of the options above is correct.</incorrect>
+    </choices>
+  </question>
+
+If more than one choice are fixed first or last,
+the choices fixed *first* will appear at the beginning,
+in the same order they are declared in the XML file,
+and the choices fixed *last* will appear at the end,
+also in the same order they are declared in the XML file.
+
+
+
+Question groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting from Eyegrade 0.9, you can group interdependent questions.
+Grouped questions will be shown always in the same order you defined them.
+That is, they won't be shuffled within their group,
+but the group itself will be shuffled with respect to other single questions
+and groups in the exam.
+
+In addition, groups allow you to define, optionally,
+a piece of text and a figure or a piece of code,
+which will be shown before the first question of the group.
+They are intended to show common information that applies to all
+the questions of the group.
+
+A question group is defined in your XML document
+by using the `<group>` tag where you would normally
+place just single questions.
+The questions that compose that group are defined
+in the usual way with `<question>` tags
+inside the `<group>` tag.
+The following example shows how to define a group::
+
+  <?xml version="1.0" encoding="UTF-8"?>
+
+  <exam xmlns="http://www.it.uc3m.es/jaf/eyegrade/ns/"
+        xmlns:eye="http://www.it.uc3m.es/jaf/eyegrade/ns/">
+
+    <subject>Set theory</subject>
+    (...)
+    <group>
+      <common>
+        <text>
+          Given the set $A = \{a, b, c, d\}$:
+        </text>
+      </common>
+      <question>
+        <text>
+          What's the cardinality of $A$?
+        </text>
+        <choices>
+          <correct>4</correct>
+          <incorrect>3</incorrect>
+          <incorrect>$\infty$</incorrect>
+        </choices>
+      </question>
+
+      <question>
+        <text>
+          What's the intersection of $A$ with $\{d, f, a\}$?
+        </text>
+        <choices>
+          <correct>$\{a, d\}$</correct>
+          <incorrect>$\{a, b, c, d, f\}$</incorrect>
+          <incorrect>$\{b, c\}$</incorrect>
+        </choices>
+      </question>
+
+      <question>
+        <text>
+          And the union of $A$ with $\{d, f, a\}$?
+        </text>
+        <choices>
+          <correct>$\{a, b, c, d, f\}$</correct>
+          <incorrect>$\{a, d\}$</incorrect>
+          <incorrect>$\{a, b, c, d, d, f, a\}$</incorrect>
+        </choices>
+      </question>
+    </group>
+
+    <question>
+      <text>
+        The powerset of a set $A$ is:
+      </text>
+      <choices>
+        <correct>
+          The set whose elements are all the possible subsets of $A$.
+        </correct>
+        <incorrect>
+          The cartesian product $A \times A$.
+        </incorrect>
+        <incorrect>
+          The set $A \cup A$.
+        </incorrect>
+      </choices>
+    </question>
+
+    (...)
+  </exam>
+
+In the example above, the first three questions will always
+appear in exactly that order.
+The fourth question, and other questions or groups you define,
+would be shuffled and appear before or after these three questions.
+A visual hint that these questions form a group will also be shown,
+so that students know where groups begin and end.
+Additionally,
+as you can see in the example above,
+you can set an optional common section
+for a question group,
+in which you can insert text, code or a picture
+the same way you would do in the statement of a normal question.
+They will be displayed in the exam before the first question
+of the exam.
+
+
+Questions with variations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes you may want slightly different variations of the same question
+to appear in different models of the exam.
+For example, a question that asks the student to solve a linear equation
+could be defined with two variations,
+each one with a slightly different equation to solve.
+
+There are two ways of defining question variations.
+The first one consists in
+writing the different variations as full questions,
+like shown below::
+
+  <question>
+    <variation>
+      <text>
+        Given the set $A = \{a, b, c, d\}$,
+        what's its cardinality?
+      </text>
+      <choices>
+        <correct>4</correct>
+        <incorrect>3</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </variation>
+    <variation>
+      <text>
+        Given the set $A = \{x, y, z\}$,
+        what's its cardinality?
+      </text>
+      <choices>
+        <correct>3</correct>
+        <incorrect>4</incorrect>
+        <incorrect>$\infty$</incorrect>
+      </choices>
+    </variation>
+  </question>
+
+The second one consists in writing a question template
+based on some parameters,
+and defining different values for those parameters in each variation::
+
+  <question>
+    <variation_params>
+      <variation>
+        <param eye:name="setA">\{a, b, c, d\}</param>
+        <param eye:name="correct">$\{a, d\}$</param>
+        <param eye:name="incorrect1">$\{a, b, c, d, f\}$</param>
+        <param eye:name="incorrect2">$\{f\}$</param>
+      </variation>
+      <variation>
+        <param eye:name="setA">\{b, d, e, f\}</param>
+        <param eye:name="correct">$\{d, f\}$</param>
+        <param eye:name="incorrect1">$\{a, b, d, e, f\}$</param>
+        <param eye:name="incorrect2">$\{a\}$</param>
+      </variation>
+    </variation_params>
+    <text>
+      What's the intersection of {{setA}} with $\{d, f, a\}$?
+    </text>
+    <choices>
+      <correct>{{correct}}</correct>
+      <incorrect>{{incorrect1}}</incorrect>
+      <incorrect>{{incorrect2}}</incorrect>
+    </choices>
+  </question>
+
+When a model of the exam is shuffled,
+a variation will be randomly and independently chosen
+for every question containing variations.
+This is the default behavior of the `eyegrade-create` command.
+
+Note that questions contained within groups are an exception:
+as explained below,
+the same variation will be chosen for all the questions in the same group.
+However, different variations might be chosen
+for questions in different groups of the same exam model.
+
+Alternatively to letting the system choose variations randomly,
+you can force a given variation number to be chosen
+for all the questions and groups in a given model.
+For example,
+the commands below choose the first variation of every question
+for models A and B,
+and the second variation for models C and D::
+
+  eyegrade-create -e exam-questions.xml -m AB template.tex -o exam --variation=1
+  eyegrade-create -e exam-questions.xml -m CD template.tex -o exam --variation=2
+
+If you use the `--variation` argument to choose a variation number,
+all the questions with variations
+are expected to contain at least that number of variations.
+For example, if you set `--variation=3` to choose the third variation,
+all the questions must either no variations
+or at least three variations.
+
+
+Question groups with variations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your questions belong to a group, you either define separate questions,
+each one defining its own variations,
+or define parameters at the group level,
+and use them through the questions of that group::
+
+  <group>
+    <variation_params>
+      <variation>
+        <param eye:name="equation">$2x + 3 = 7$</param>
+        <param eye:name="x">2</param>
+        <param eye:name="xIncorrect1">-2</param>
+        <param eye:name="xIncorrect2">0</param>
+        <param eye:name="equiv1">$2x - 4 = 0$</param>
+        <param eye:name="equiv2">$x + 3 = 3$</param>
+        <param eye:name="equiv3">$2x + 10 = 0$</param>
+      </variation>
+      <variation>
+        <param eye:name="equation">$3x + 2 = 11$</param>
+        <param eye:name="x">3</param>
+        <param eye:name="xIncorrect1">-3</param>
+        <param eye:name="xIncorrect2">0</param>
+        <param eye:name="equiv1">$3x - 9 = 0$</param>
+        <param eye:name="equiv2">$x + 2 = 2$</param>
+        <param eye:name="equiv3">$3x + 13 = 0$</param>
+      </variation>
+    </variation_params>
+    <common>
+      <text>
+        Consider the equation {{equation}}:
+      </text>
+    </common>
+    <question>
+      <text>
+        What's the solution to the equation?
+      </text>
+      <choices>
+        <correct>$x={{x}}$</correct>
+        <incorrect>$x={{xIncorrect1}}$</incorrect>
+        <incorrect>$x={{xIncorrect2}}$</incorrect>
+      </choices>
+    </question>
+    <question>
+      <text>
+        The equation is equivalent to:
+      </text>
+      <choices>
+        <correct>{{equiv1}}</correct>
+        <incorrect>{{equiv2}}</incorrect>
+        <incorrect>{{equiv3}}</incorrect>
+      </choices>
+    </question>
+  </group>
+
+Note that, for a given exam model,
+the same variation will be chosen for all the questions in the group.
+Because of that,
+all the questions belonging to the same group must contain either
+no variations or the same number of variations.
+For example, the group defined above contains questions with two variations.
+If you add more questions to the group,
+they must contain two variations or no variation at all.
+
+
+
 Advanced features
 -----------------
+
+Preserving the order of some questions when shuffling
+.......................................................
+
+*(New in Eyegrade 0.9)*
+
+When you use `eyegrade-create` to typeset an exam,
+all the questions of the exam get shuffled by default.
+However, you might want sometimes to keep the order
+of some questions that are related and form a logical sequence.
+In order to do that, just wrap those related questions
+with a `group` element in the XML file that defines the questions,
+such as in the following example:
+
+.. include:: ../sample-files/exam-questions-groups.xml
+   :literal:
+
+Every time the questions in the previous example get shuffled,
+the first three questions (Q1, Q2 and Q3) will be treated as a group,
+and their internal order will be preserved.
+That is, Q1, Q2 and Q3 will appear always together and in this order.
+The same will happen with the last two questions (Q6, Q7).
+Some possible orderings will be:
+
+- Q4, Q1, Q2, Q3, Q5, Q6, Q7
+
+- Q6, Q7, Q1, Q2, Q3, Q5, Q4
+
+- Q5, Q4, Q6, Q7, Q1, Q2, Q3
+
+
 
 Creating the exams in a word processor
 ........................................

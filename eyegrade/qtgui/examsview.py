@@ -1,5 +1,5 @@
 # Eyegrade: grading multiple choice questions with a webcam
-# Copyright (C) 2010-2018 Jesus Arias Fisteus
+# Copyright (C) 2010-2021 Jesus Arias Fisteus
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,11 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-from PyQt5.QtGui import (
-    QIcon,
-    QImage,
-    QPainter,
-)
+from PyQt5.QtGui import QIcon, QImage, QPainter
 
 from PyQt5.QtWidgets import (
     QListView,
@@ -30,14 +26,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from PyQt5.QtCore import (
-    QEvent,
-    QItemSelection,
-    QObject,
-    QSize,
-    pyqtSignal,
-    pyqtSlot,
-)
+from PyQt5.QtCore import QEvent, QItemSelection, QObject, QSize, pyqtSignal, pyqtSlot
 
 from .. import exams
 
@@ -65,7 +54,7 @@ class ThumbnailsViewItem(QListWidgetItem):
         if self.exam.decisions.student:
             label = self.exam.decisions.student.name_or_id
         else:
-            label = ''
+            label = ""
         return label
 
 
@@ -183,8 +172,9 @@ class CaptureView(QWidget):
         if index != self.selected_index:
             self.selected_index = index
             if index < len(self.exams):
-                self.selected_image = \
-                      ExamImage(self.exams[index]).scaledToHeight(self.height())
+                self.selected_image = ExamImage(self.exams[index]).scaledToHeight(
+                    self.height()
+                )
             else:
                 self.selected_image = None
             self.update()
@@ -203,8 +193,7 @@ class ExamsView(QWidget):
         self.capture_view = CaptureView((640, 300), self)
         layout.addWidget(self.capture_view)
         layout.addWidget(self.thumbnails_view)
-        self.thumbnails_view.selection_changed.connect(
-            self.capture_view.show_exam)
+        self.thumbnails_view.selection_changed.connect(self.capture_view.show_exam)
 
     def set_exams(self, exams):
         self.thumbnails_view.set_exams(exams)

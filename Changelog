@@ -1,3 +1,33 @@
+2022-01-17  Jesus Arias Fisteus  <jfisteus@gmail.com>
+	* Release 0.9
+
+	* Swap optparse by argparse.
+
+	* Refactor the exam creation module.
+
+	* Add question groups, to be shuffled as a group, keeping their
+	internal ordering.
+
+	* Add question variations, to present alternative questions
+	in different models, including parametric variations.
+
+	* Choices can be fixed to the first or last position of a question.
+
+	* Allow multiple correct answers.
+
+	* Change how captures are saved to file.
+
+	* Reactivate the survey mode.
+
+	* Allow users to flip the video of the webcam.
+
+	* Begin to use mypy for type checking (for just a module right now).
+	Add type hints at questions.py and parser.py.
+
+	* Use the black code formatter.
+
+	* Several bugfixes.
+
 2019-03-29  Jesus Arias Fisteus  <jfisteus@gmail.com>
 	* Release 0.8.1
 
@@ -8,9 +38,9 @@
 
 	* New import student list dialogues.
 
-	* Ability to import Excel (.xlst) lists of students.
+	* Ability to import Excel (.xlsx) lists of students.
 
-	* Ability to export grades in Excel (.xlst) files.
+	* Ability to export grades in Excel (.xlsx) files.
 
 	* Installer for Windows built with briefcase and the WiX toolset.
 
