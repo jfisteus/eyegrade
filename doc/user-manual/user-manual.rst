@@ -183,25 +183,25 @@ The main changes of the most recent versions are described in the following
 blog posts:
 
 - `Eyegrade 0.9 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-09-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-09-released/>`_
 
 - `Eyegrade 0.8 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-08-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-08-released/>`_
 
 - `Eyegrade 0.7 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-07-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-07-released/>`_
 
 - `Eyegrade 0.6 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-06-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-06-released/>`_
 
 - `Eyegrade 0.5 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-05-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-05-released/>`_
 
 - `Eyegrade 0.4 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-04-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-04-released/>`_
 
 - `Eyegrade 0.3 released
-  <http://www.eyegrade.org/blog/posts/eyegrade-03-released.html>`_
+  <http://www.eyegrade.org/blog/posts/eyegrade-03-released/>`_
 
 
 
