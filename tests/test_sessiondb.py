@@ -58,6 +58,7 @@ class TestSessionDB(unittest.TestCase):
             # Comparison would fail:
             session.exam_config.variations = {}
             self.assertEqual(session.exam_config, exam_config)
+            session.close()
 
     def test_exam_data_weights(self):
         exam_config = exams.ExamConfig(
@@ -77,6 +78,7 @@ class TestSessionDB(unittest.TestCase):
             # Comparison would fail:
             session.exam_config.variations = {}
             self.assertEqual(session.exam_config, exam_config)
+            session.close()
 
     def test_student_list(self):
         exam_config = exams.ExamConfig(filename=self._get_test_file_path("test.eye"))
@@ -104,3 +106,4 @@ class TestSessionDB(unittest.TestCase):
             ):
                 self.assertEqual(student_1.name, student_2.name)
                 self.assertEqual(student_1.student_id, student_2.student_id)
+            session.close()
