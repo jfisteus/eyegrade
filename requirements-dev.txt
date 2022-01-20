@@ -2,3 +2,4 @@ flake8
 black
 pyinstaller>=3.6
 mypy
+PyQt5-stubs
