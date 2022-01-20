@@ -50,7 +50,7 @@ from PyQt5.QtCore import (
 
 # Typing: pyqtProperty isn't supported by PyQt5-stubs as of Jan 20, 2022
 # https://github.com/python-qt-tools/PyQt5-stubs/pull/185
-from PyQt5.QtCore import pyqtProperty      # type: ignore
+from PyQt5.QtCore import pyqtProperty  # type: ignore
 
 from .. import utils
 from .. import scoring
