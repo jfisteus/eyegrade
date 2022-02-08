@@ -17,7 +17,7 @@
 #
 import gettext
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -48,7 +48,7 @@ class DialogExportGrades(QDialog):
 
     helper = eyegrade.export.GradesExportHelper(exam_config, student_groups)
     dialog = DialogExportGrades(parent, helper)
-    result = dialog.exec_()
+    result = dialog.exec()
     if result:
         # dialog accepted
     else:
@@ -93,7 +93,12 @@ class DialogExportGrades(QDialog):
             _("Add column headers"), self, checked=True
         )
         self.export_items = ExportItems(helper.survey_mode, len(student_groups), self)
-        buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
+        buttons = QDialogButtonBox(
+            (
+                QDialogButtonBox.StandardButton.Ok
+                | QDialogButtonBox.StandardButton.Cancel
+            )
+        )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout = QFormLayout(parent=self)
@@ -107,15 +112,15 @@ class DialogExportGrades(QDialog):
         layout.addRow(_("Export fields:"), self.export_items)
         layout.addRow(buttons)
 
-    def exec_(self):
+    def exec(self):
         """Shows the dialog and waits until it is closed.
 
         Returns True if the dialog gets accepted, or False otherwise.
 
         """
         result = False
-        dialog_result = super().exec_()
-        if dialog_result == QDialog.Accepted:
+        dialog_result = super().exec()
+        if dialog_result == QDialog.DialogCode.Accepted:
             if self.type_combo.currentIndex() == 0:
                 self.helper.file_format = export.FileFormat.XLSX
             elif self.type_combo.currentIndex() == 1:
@@ -155,12 +160,12 @@ class DialogExportGrades(QDialog):
         save_dialog = QFileDialog(
             parent=self, caption=_("Save listing as..."), filter=file_filter
         )
-        save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
+        save_dialog.setOptions(QFileDialog.Option.DontUseNativeDialog)
         save_dialog.setDefaultSuffix(extension)
-        save_dialog.setFileMode(QFileDialog.AnyFile)
-        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        save_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        save_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
         filename = None
-        if save_dialog.exec_():
+        if save_dialog.exec():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
                 filename = filename_list[0]

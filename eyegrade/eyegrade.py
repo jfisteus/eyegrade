@@ -880,8 +880,8 @@ def main():
     # the loading of the translations must be done here instead of the
     # gui module:
     #
-    from PyQt5.QtWidgets import QApplication
-    from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
+    from PyQt6.QtWidgets import QApplication
+    from PyQt6.QtCore import QTranslator, QLocale, QLibraryInfo
 
     app = QApplication(sys.argv)
     translator = QTranslator()
@@ -889,7 +889,7 @@ def main():
         QLocale.system(),
         "qt",
         "_",
-        QLibraryInfo.location(QLibraryInfo.TranslationsPath),
+        QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath),
     )
     if not success:
         success = translator.load(

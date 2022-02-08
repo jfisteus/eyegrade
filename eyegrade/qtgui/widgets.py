@@ -17,9 +17,9 @@
 #
 import gettext
 
-from PyQt5.QtGui import QIcon, QImage, QPainter, QPixmap, QRegExpValidator
+from PyQt6.QtGui import QIcon, QImage, QPainter, QPixmap, QRegularExpressionValidator
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
     QComboBox,
@@ -38,19 +38,20 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QAbstractListModel,
     QAbstractTableModel,
     QModelIndex,
-    QRegExp,
+    QRegularExpression,
     QSortFilterProxyModel,
     QVariant,
     Qt,
+    QMetaType,
 )
 
 # Typing: pyqtProperty isn't supported by PyQt5-stubs as of Jan 20, 2022
 # https://github.com/python-qt-tools/PyQt5-stubs/pull/185
-from PyQt5.QtCore import pyqtProperty  # type: ignore
+from PyQt6.QtCore import pyqtProperty  # type: ignore
 
 from .. import utils
 from .. import scoring
@@ -81,7 +82,7 @@ class CompletingComboBox(QComboBox):
         super().__init__(parent)
         self.setEditable(True)
         self.filter = QSortFilterProxyModel(self)
-        self.filter.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.filter.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.filter.setSourceModel(self.model())
         self.completer = QCompleter(self.filter, self)
         self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
@@ -186,9 +187,11 @@ class LabelledCheckBox(QWidget):
         self.checkbox = QCheckBox(parent=self)
         self.checkbox.setChecked(checked)
         self.checkbox.setEnabled(enabled)
-        layout.addWidget(self.checkbox, alignment=Qt.AlignLeft)
+        layout.addWidget(self.checkbox, alignment=Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(
-            QLabel(label_text, parent=self), stretch=1, alignment=Qt.AlignLeft
+            QLabel(label_text, parent=self),
+            stretch=1,
+            alignment=Qt.AlignmentFlag.AlignLeft,
         )
         self.setLayout(layout)
 
@@ -284,9 +287,9 @@ class OpenFileWidget(QWidget):
                 self.title,
                 "",
                 (
-                    QFileDialog.ShowDirsOnly
-                    | QFileDialog.DontResolveSymlinks
-                    | QFileDialog.DontUseNativeDialog
+                    QFileDialog.Option.ShowDirsOnly
+                    | QFileDialog.Option.DontResolveSymlinks
+                    | QFileDialog.Option.DontUseNativeDialog
                 ),
             )
         else:
@@ -296,7 +299,7 @@ class OpenFileWidget(QWidget):
                 "",
                 self.name_filter,
                 None,
-                QFileDialog.DontUseNativeDialog,
+                QFileDialog.Option.DontUseNativeDialog,
             )
         if filename:
             valid = self.check_value(filename=filename)
@@ -319,7 +322,7 @@ class InputScore(QLineEdit):
         regex = r"((\d*(\.\d+))|(\d+\/\d+))"
         if not is_positive:
             regex = "-?" + regex
-        validator = QRegExpValidator(QRegExp(regex), self)
+        validator = QRegularExpressionValidator(QRegularExpression(regex), self)
         self.setValidator(validator)
 
     def value(self, force_float=False):
@@ -391,7 +394,7 @@ class CamView(QWidget):
         data = cv_image.data
         height, width, nbytes = cv_image.shape
         self.image = QImage(
-            data, width, height, nbytes * width, QImage.Format_RGB888
+            data, width, height, nbytes * width, QImage.Format.Format_RGB888
         ).rgbSwapped()
         if self.logo is not None:
             painter = QPainter(self.image)
@@ -400,9 +403,9 @@ class CamView(QWidget):
 
     def display_wait_image(self):
         self.image = QImage(
-            self.image_size[0], self.image_size[1], QImage.Format_RGB888
+            self.image_size[0], self.image_size[1], QImage.Format.Format_RGB888
         )
-        self.image.fill(Qt.darkBlue)
+        self.image.fill(Qt.GlobalColor.darkBlue)
         self.update()
 
     def register_mouse_pressed_listener(self, listener):
@@ -415,7 +418,7 @@ class CamView(QWidget):
 
     def mousePressEvent(self, event):
         if self.mouse_listener:
-            self.mouse_listener((event.x(), event.y()))
+            self.mouse_listener((int(event.position().x()), int(event.position().y())))
 
 
 class InputCustomPattern(QLineEdit):
@@ -430,7 +433,7 @@ class InputCustomPattern(QLineEdit):
         if placeholder:
             self.setPlaceholderText(placeholder)
         self.setFixedWidth(fixed_size)
-        validator = QRegExpValidator(QRegExp(regex), self)
+        validator = QRegularExpressionValidator(QRegularExpression(regex), self)
         self.setValidator(validator)
 
 
@@ -592,9 +595,9 @@ class ScoreWeightsTableModel(QAbstractTableModel):
     def columnCount(self, parent=QModelIndex()):
         return len(self.models)
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
                 return "{0} {1}".format(_("Model"), self.models[section])
             else:
                 if section < self.exam_config.num_questions:
@@ -602,10 +605,10 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                 else:
                     return _("Total")
         else:
-            return QVariant(QVariant.Invalid)
+            return QVariant(QMetaType.Type.UnknownType)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             r = index.row()
             c = index.column()
             if r < self.exam_config.num_questions:
@@ -620,18 +623,18 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                 else:
                     value = self.sum_weights[0]
                 return scoring.format_number(value, short=True, no_fraction=True)
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
+            return Qt.AlignmentFlag.AlignCenter
         else:
-            return QVariant(QVariant.Invalid)
+            return QVariant(QMetaType.Type.UnknownType)
 
     def flags(self, index):
         if index.row() < self.exam_config.num_questions:
-            return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsEditable)
+            return Qt.ItemFlag(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable)
         else:
-            return Qt.ItemFlags(Qt.ItemIsEnabled)
+            return Qt.ItemFlag(Qt.ItemFlag.ItemIsEnabled)
 
-    def setData(self, index, value_qvar, role=Qt.EditRole):
+    def setData(self, index, value_qvar, role=Qt.ItemDataRole.EditRole):
         success = False
         r = index.row()
         c = index.column()
@@ -710,7 +713,7 @@ class CustomTableView(QTableView):
         # Maximum width:
         vwidth = self.verticalHeader().width()
         hwidth = self.horizontalHeader().length()
-        swidth = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
+        swidth = self.style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
         fwidth = self.frameWidth() * 2
         current_width = vwidth + hwidth + swidth + fwidth + 1
         # Minimum and maximum height:
@@ -776,12 +779,12 @@ class _CustomComboBoxModel(QAbstractListModel):
     def rowCount(self, parent=QModelIndex()):
         return len(self.items)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.items[index.row()]
 
     def flags(self, index):
         if self.enabled[index.row()]:
-            return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            return Qt.ItemFlag(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
         else:
-            return Qt.ItemFlags()
+            return Qt.ItemFlag()

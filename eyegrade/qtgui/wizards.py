@@ -18,7 +18,7 @@
 import gettext
 import os
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QButtonGroup,
     QFormLayout,
     QGroupBox,
@@ -35,7 +35,7 @@ from PyQt5.QtWidgets import (
     QWizardPage,
 )
 
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from . import students
 from . import widgets
@@ -428,7 +428,7 @@ class NewSessionPageScores(QWizardPage):
         table_widget.setLayout(table_layout)
         main_layout.addWidget(form_widget)
         main_layout.addWidget(table_widget)
-        main_layout.setAlignment(table_widget, Qt.AlignHCenter)
+        main_layout.setAlignment(table_widget, Qt.AlignmentFlag.AlignHCenter)
         self.combo = widgets.CustomComboBox(parent=self)
         self.combo.set_items(
             [
@@ -456,10 +456,10 @@ class NewSessionPageScores(QWizardPage):
         table_layout.addWidget(self.weights_table)
         table_layout.addWidget(self.button_reset)
         table_layout.addWidget(button_defaults)
-        table_layout.setAlignment(weights_table_label, Qt.AlignHCenter)
-        table_layout.setAlignment(self.weights_table, Qt.AlignHCenter)
-        table_layout.setAlignment(self.button_reset, Qt.AlignHCenter)
-        table_layout.setAlignment(button_defaults, Qt.AlignHCenter)
+        table_layout.setAlignment(weights_table_label, Qt.AlignmentFlag.AlignHCenter)
+        table_layout.setAlignment(self.weights_table, Qt.AlignmentFlag.AlignHCenter)
+        table_layout.setAlignment(self.button_reset, Qt.AlignmentFlag.AlignHCenter)
+        table_layout.setAlignment(button_defaults, Qt.AlignmentFlag.AlignHCenter)
         self.button_reset.clicked.connect(self._reset_weights)
         button_defaults.clicked.connect(self._compute_default_values)
         self.base_score_widgets = [
@@ -575,7 +575,7 @@ class NewSessionPageScores(QWizardPage):
             self._show_error_weights()
             return
         dialog = dialogs.DialogComputeScores(parent=self)
-        score, penalize = dialog.exec_()
+        score, penalize = dialog.exec()
         if score is None:
             return
         config = self.wizard().exam_config
@@ -677,10 +677,10 @@ class NewSessionPageScores(QWizardPage):
                 "table will be lost. "
                 "Are you sure you want to continue?"
             ),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
-        return result == QMessageBox.Yes
+        return result == QMessageBox.StandardButton.Yes
 
     def nextId(self):
         return -1

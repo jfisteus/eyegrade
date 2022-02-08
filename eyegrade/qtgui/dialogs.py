@@ -18,7 +18,7 @@
 import gettext
 import locale
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QCheckBox,
     QDialog,
     QDialogButtonBox,
@@ -33,7 +33,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
 )
 
-from PyQt5.QtCore import QTimer, Qt, pyqtSignal
+from PyQt6.QtCore import QTimer, Qt, pyqtSignal
 
 from . import widgets
 from .. import utils
@@ -49,7 +49,7 @@ class DialogComputeScores(QDialog):
     Example (replace `parent` by the parent widget):
 
     dialog = DialogComputeScores(parent)
-    max_score, penalize = dialog.exec_()
+    max_score, penalize = dialog.exec()
 
     """
 
@@ -60,14 +60,19 @@ class DialogComputeScores(QDialog):
         self.setLayout(layout)
         self.score = widgets.InputScore(parent=self)
         self.penalize = QCheckBox(_("Penalize incorrect answers"), self)
-        buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
+        buttons = QDialogButtonBox(
+            (
+                QDialogButtonBox.StandardButton.Ok
+                | QDialogButtonBox.StandardButton.Cancel
+            )
+        )
         layout.addRow(_("Maximum score"), self.score)
         layout.addRow(_("Penalizations"), self.penalize)
         layout.addRow(buttons)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
-    def exec_(self):
+    def exec(self):
         """Shows the dialog and waits until it is closed.
 
         Returns the tuple (max_score, penalize) or (None, None) if the
@@ -78,12 +83,12 @@ class DialogComputeScores(QDialog):
         score = None
         penalize = None
         while not success:
-            result = super().exec_()
-            if result == QDialog.Accepted:
+            result = super().exec()
+            if result == QDialog.DialogCode.Accepted:
                 if self.score.text():
                     score = self.score.value()
                     if score is not None and score > 0:
-                        penalize = self.penalize.checkState() == Qt.Checked
+                        penalize = self.penalize.checkState() == Qt.CheckState.Checked
                         success = True
                 if not success:
                     QMessageBox.critical(self, _("Error"), _("Enter a valid score."))
@@ -99,7 +104,7 @@ class DialogCameraSelection(QDialog):
     Example (replace `parent` by the parent widget):
 
     dialog = DialogNewSession(parent)
-    values = dialog.exec_()
+    values = dialog.exec()
 
     At the end of the dialog, the chosen camera is automatically
     set in the context object.
@@ -136,7 +141,7 @@ class DialogCameraSelection(QDialog):
             self, QLabel(_("Flip image")), self.flip_combo
         )
         self.button.clicked.connect(self._select_camera)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         self.flip_combo.currentIndexChanged.connect(self._flip_changed)
         layout.addWidget(self.camview)
@@ -144,7 +149,9 @@ class DialogCameraSelection(QDialog):
         layout.addWidget(container)
         layout.addWidget(flip_container)
         layout.addWidget(buttons)
-        self.camera_error.connect(self._show_camera_error, type=Qt.QueuedConnection)
+        self.camera_error.connect(
+            self._show_camera_error, type=Qt.ConnectionType.QueuedConnection
+        )
         self.timer = None
 
     def __del__(self):
@@ -152,7 +159,7 @@ class DialogCameraSelection(QDialog):
             self.timer.stop()
         self.capture_context.close_camera()
 
-    def exec_(self):
+    def exec(self):
         success = self.capture_context.open_camera()
         if success:
             self._update_camera_label()
@@ -163,7 +170,7 @@ class DialogCameraSelection(QDialog):
             self.timer.start()
         else:
             self.camera_error.emit()
-        return super().exec_()
+        return super().exec()
 
     def _show_camera_error(self):
         QMessageBox.critical(
@@ -241,7 +248,7 @@ class DialogAbout(QDialog):
     Example (replace `parent` by the parent widget):
 
     dialog = DialogAbout(parent)
-    values = dialog.exec_()
+    values = dialog.exec()
 
     """
 
@@ -252,7 +259,7 @@ class DialogAbout(QDialog):
         self.setWindowTitle(_("About"))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         tabs = QTabWidget(parent)
         tabs.setDocumentMode(True)
@@ -305,11 +312,11 @@ class DialogAbout(QDialog):
         label.setOpenExternalLinks(True)
         label.setTextInteractionFlags(
             (
-                Qt.LinksAccessibleByKeyboard
-                | Qt.LinksAccessibleByMouse
-                | Qt.TextBrowserInteraction
-                | Qt.TextSelectableByKeyboard
-                | Qt.TextSelectableByMouse
+                Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+                | Qt.TextInteractionFlag.LinksAccessibleByMouse
+                | Qt.TextInteractionFlag.TextBrowserInteraction
+                | Qt.TextInteractionFlag.TextSelectableByKeyboard
+                | Qt.TextInteractionFlag.TextSelectableByMouse
             )
         )
         return label
@@ -332,11 +339,11 @@ class DialogAbout(QDialog):
         label = QLabel(text)
         label.setTextInteractionFlags(
             (
-                Qt.LinksAccessibleByKeyboard
-                | Qt.LinksAccessibleByMouse
-                | Qt.TextBrowserInteraction
-                | Qt.TextSelectableByKeyboard
-                | Qt.TextSelectableByMouse
+                Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+                | Qt.TextInteractionFlag.LinksAccessibleByMouse
+                | Qt.TextInteractionFlag.TextBrowserInteraction
+                | Qt.TextInteractionFlag.TextSelectableByKeyboard
+                | Qt.TextInteractionFlag.TextSelectableByMouse
             )
         )
         scroll_area = QScrollArea(self.parent())
@@ -363,11 +370,11 @@ class DialogAbout(QDialog):
         label = QLabel(u"".join(parts))
         label.setTextInteractionFlags(
             (
-                Qt.LinksAccessibleByKeyboard
-                | Qt.LinksAccessibleByMouse
-                | Qt.TextBrowserInteraction
-                | Qt.TextSelectableByKeyboard
-                | Qt.TextSelectableByMouse
+                Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+                | Qt.TextInteractionFlag.LinksAccessibleByMouse
+                | Qt.TextInteractionFlag.TextBrowserInteraction
+                | Qt.TextInteractionFlag.TextSelectableByKeyboard
+                | Qt.TextInteractionFlag.TextSelectableByMouse
             )
         )
         scroll_area = QScrollArea(self.parent())
