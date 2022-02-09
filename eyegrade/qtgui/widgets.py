@@ -46,7 +46,6 @@ from PyQt6.QtCore import (
     QSortFilterProxyModel,
     QVariant,
     Qt,
-    QMetaType,
 )
 
 # Typing: pyqtProperty isn't supported by PyQt5-stubs as of Jan 20, 2022
@@ -605,7 +604,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                 else:
                     return _("Total")
         else:
-            return QVariant(QMetaType.Type.UnknownType)
+            return QVariant()
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole:
@@ -626,7 +625,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             return Qt.AlignmentFlag.AlignCenter
         else:
-            return QVariant(QMetaType.Type.UnknownType)
+            return QVariant()
 
     def flags(self, index):
         if index.row() < self.exam_config.num_questions:

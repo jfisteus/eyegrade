@@ -42,7 +42,6 @@ from PyQt6.QtCore import (
     QModelIndex,
     QVariant,
     QRegularExpression,
-    QMetaType,
 )
 
 from . import FileNameFilters
@@ -464,6 +463,7 @@ class StudentGroupsTabs(QWidget):
             if file_name:
                 with students.StudentReader.create(file_name) as reader:
                     student_list = list(reader.students())
+                    column_map = reader.column_map.normalize()
                 # Flag duplicate student ids:
                 warn_duplicates = False
                 for s in self.student_listings.find_duplicates(student_list):
@@ -478,10 +478,9 @@ class StudentGroupsTabs(QWidget):
                             "Remove them or cancel the import operation."
                         ),
                     )
-                column_map = reader.column_map.normalize()
                 preview_dialog = DialogPreviewStudents(self, student_list, column_map)
                 result = preview_dialog.exec()
-                if result == QMessageBox.Accepted:
+                if result == QMessageBox.DialogCode.Accepted:
                     self.tabs.widget(index).add_students(student_list)
         except Exception as e:
             QMessageBox.critical(
@@ -694,14 +693,14 @@ class StudentsTableModel(QAbstractTableModel):
         # Columns: sequence num, id, full name
         return len(self.column_map)
 
-    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+    def headerData(self, section, orientation, role):
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
                 return StudentsTableModel._headers[self.column_map[section]]
             else:
                 return QVariant()
         else:
-            return QVariant(QMetaType.Type.UnknownType)
+            return QVariant()
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         column = index.column()
@@ -714,9 +713,6 @@ class StudentsTableModel(QAbstractTableModel):
             if student.is_duplicate:
                 return QBrush(QColor(255, 165, 165))
             else:
-                return QVariant(QMetaType.Type.UnknownType)
+                return QVariant()
         else:
-            return QVariant(QMetaType.Type.UnknownType)
-
-    def flags(self, index):
-        return Qt.ItemFlag(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
+            return QVariant()

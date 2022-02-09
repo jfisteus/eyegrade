@@ -895,7 +895,7 @@ class Interface:
         """
         if not is_question:
             result = QMessageBox.warning(self.window, _("Warning"), message)
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
                 return True
             else:
                 return False
