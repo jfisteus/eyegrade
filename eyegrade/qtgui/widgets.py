@@ -48,8 +48,7 @@ from PyQt6.QtCore import (
     Qt,
 )
 
-# Typing: pyqtProperty isn't supported by PyQt5-stubs as of Jan 20, 2022
-# https://github.com/python-qt-tools/PyQt5-stubs/pull/185
+# Typing: it seems that pyqtProperty isn't supported by PyQt6 stubs (Feb 2022)
 from PyQt6.QtCore import pyqtProperty  # type: ignore
 
 from .. import utils
