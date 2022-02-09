@@ -19,10 +19,9 @@ import gettext
 
 from typing import List, Tuple, Optional
 
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt6.QtGui import QAction, QIcon, QKeySequence
 
-from PyQt5.QtWidgets import (
-    QAction,
+from PyQt6.QtWidgets import (
     QDialog,
     QFileDialog,
     QHBoxLayout,
@@ -37,7 +36,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, pyqtSignal
+from PyQt6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, pyqtSignal
 
 from .. import utils
 from . import examsview
@@ -103,28 +102,33 @@ class ActionsManager:
         ("start", "start.svg", _("&Start grading"), []),
         ("stop", "stop.svg", _("S&top grading"), []),
         ("back", "back.svg", _("&Back to session home"), []),
-        ("continue", "continue.svg", _("Continue to the &next exam"), [Qt.Key_Space]),
+        (
+            "continue",
+            "continue.svg",
+            _("Continue to the &next exam"),
+            [Qt.Key.Key_Space],
+        ),
         ("*separator*", None, None, []),
-        ("snapshot", "snapshot.svg", _("&Capture the current image"), [Qt.Key_C]),
+        ("snapshot", "snapshot.svg", _("&Capture the current image"), [Qt.Key.Key_C]),
         (
             "manual_detect",
             "manual_detect.svg",
             _("&Manual detection of answer tables"),
-            [Qt.Key_M],
+            [Qt.Key.Key_M],
         ),
-        ("edit_id", "edit_id.svg", _("&Edit student id"), [Qt.Key_I]),
+        ("edit_id", "edit_id.svg", _("&Edit student id"), [Qt.Key.Key_I]),
         (
             "discard",
             "discard.svg",
             _("&Discard exam"),
-            [Qt.Key_Delete, Qt.Key_Backspace],
+            [Qt.Key.Key_Delete, Qt.Key.Key_Backspace],
         ),
     ]
 
     _actions_session_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("new", "new.svg", _("&New session"), []),
         ("open", "open.svg", _("&Open session"), []),
-        ("close", "close.svg", _("&Close session"), [Qt.Key_Escape]),
+        ("close", "close.svg", _("&Close session"), [Qt.Key.Key_Escape]),
         ("*separator*", None, None, []),
         ("exit", "exit.svg", _("&Exit"), []),
     ]
@@ -544,7 +548,7 @@ class CenterView(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        policy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.setSizePolicy(policy)
         self.setStatusBar(widgets.StatusBar(self))
         self.center_view = CenterView()
@@ -566,8 +570,8 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         if (
             self.digit_key_listener
-            and event.key() >= Qt.Key_0
-            and event.key() <= Qt.Key_9
+            and event.key() >= Qt.Key.Key_0
+            and event.key() <= Qt.Key.Key_9
         ):
             self.digit_key_listener(event.text())
 
@@ -618,7 +622,7 @@ class Interface:
         self._configure_qt_style(preferred_styles)
 
     def run(self):
-        return self.app.exec_()
+        return self.app.exec()
 
     def set_manual_detect_enabled(self, enabled):
         self.manual_detect_enabled = enabled
@@ -784,8 +788,8 @@ class Interface:
 
         """
         dialog = wizards.WizardNewSession(self.window, config_filename=config_filename)
-        result = dialog.exec_()
-        if result == QDialog.Accepted:
+        result = dialog.exec()
+        if result == QDialog.DialogCode.Accepted:
             return dialog.values()
         else:
             return None
@@ -800,7 +804,7 @@ class Interface:
         dialog = students.DialogStudentId(
             self.window, ranked_students, student_listings
         )
-        return dialog.exec_()
+        return dialog.exec()
 
     def dialog_open_session(self):
         """Displays an open session dialog.
@@ -814,7 +818,7 @@ class Interface:
             "",
             FileNameFilters.session_db,
             None,
-            QFileDialog.DontUseNativeDialog,
+            QFileDialog.Option.DontUseNativeDialog,
         )
         return filename if filename else None
 
@@ -826,7 +830,7 @@ class Interface:
 
         """
         dialog = dialogs.DialogCameraSelection(capture_context, self.window)
-        return dialog.exec_()
+        return dialog.exec()
 
     def dialog_export_grades(self, helper):
         """Displays the dialog for exporting grades.
@@ -837,12 +841,12 @@ class Interface:
 
         """
         dialog = export.DialogExportGrades(self.window, helper)
-        return dialog.exec_()
+        return dialog.exec()
 
     def dialog_students(self, student_listings):
         """Displays the student list."""
         dialog = students.DialogStudents(self.window, student_listings)
-        return dialog.exec_()
+        return dialog.exec()
 
     def dialog_export_exam_config(self):
         """Displays the dialog for exporting the current exam configuration.
@@ -856,12 +860,12 @@ class Interface:
             caption=_("Save exam configration as..."),
             filter=_("Exam configuration (*.eye)"),
         )
-        save_dialog.setOptions(QFileDialog.DontUseNativeDialog)
+        save_dialog.setOptions(QFileDialog.Option.DontUseNativeDialog)
         save_dialog.setDefaultSuffix("eye")
-        save_dialog.setFileMode(QFileDialog.AnyFile)
-        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        save_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        save_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
         filename = None
-        if save_dialog.exec_():
+        if save_dialog.exec():
             filename_list = save_dialog.selectedFiles()
             if len(filename_list) == 1:
                 filename = filename_list[0]
@@ -891,7 +895,7 @@ class Interface:
         """
         if not is_question:
             result = QMessageBox.warning(self.window, _("Warning"), message)
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
                 return True
             else:
                 return False
@@ -900,10 +904,10 @@ class Interface:
                 self.window,
                 _("Warning"),
                 message,
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            if result == QMessageBox.Yes:
+            if result == QMessageBox.StandardButton.Yes:
                 return True
             else:
                 return False
@@ -921,7 +925,7 @@ class Interface:
 
     def show_about_dialog(self):
         dialog = dialogs.DialogAbout(self.window)
-        dialog.exec_()
+        dialog.exec()
 
     def _configure_qt_style(self, preferred_styles):
         if preferred_styles is not None:

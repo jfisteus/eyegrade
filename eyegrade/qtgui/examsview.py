@@ -16,9 +16,9 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-from PyQt5.QtGui import QIcon, QImage, QPainter
+from PyQt6.QtGui import QIcon, QImage, QPainter
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QListView,
     QListWidget,
     QListWidgetItem,
@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from PyQt5.QtCore import QEvent, QItemSelection, QObject, QSize, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QEvent, QItemSelection, QObject, QSize, pyqtSignal, pyqtSlot
 
 from .. import exams
 
@@ -64,10 +64,10 @@ class ThumbnailsView(QListWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.setIconSize(QSize(120, 80))
-        self.setViewMode(QListView.IconMode)
-        self.setMovement(QListView.Static)
+        self.setViewMode(QListView.ViewMode.IconMode)
+        self.setMovement(QListView.Movement.Static)
         self.setUniformItemSizes(True)
-        self.setResizeMode(QListView.Adjust)
+        self.setResizeMode(QListView.ResizeMode.Adjust)
         self.exams = []
         self.selectionModel().selectionChanged.connect(self.on_selection)
         self.keyboard_filter = KeyboardEventsFilter()
@@ -138,7 +138,7 @@ class KeyboardEventsFilter(QObject):
         self.blocking = blocking
 
     def eventFilter(self, widget, event):
-        if self.blocking and event.type() == QEvent.KeyPress:
+        if self.blocking and event.type() == QEvent.Type.KeyPress:
             return True
         else:
             return super().eventFilter(widget, event)

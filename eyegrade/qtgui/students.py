@@ -18,9 +18,9 @@
 
 import gettext
 
-from PyQt5.QtGui import QRegExpValidator, QIcon, QColor, QBrush
+from PyQt6.QtGui import QRegularExpressionValidator, QIcon, QColor, QBrush
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget,
     QDialog,
     QVBoxLayout,
@@ -36,7 +36,13 @@ from PyQt5.QtWidgets import (
     QLabel,
 )
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, QRegExp
+from PyQt6.QtCore import (
+    Qt,
+    QAbstractTableModel,
+    QModelIndex,
+    QVariant,
+    QRegularExpression,
+)
 
 from . import FileNameFilters
 from . import widgets
@@ -54,7 +60,7 @@ class DialogStudentId(QDialog):
     Example (replace `parent` by the parent widget):
 
     dialog = DialogStudentId(parent)
-    id = dialog.exec_()
+    id = dialog.exec()
 
     """
 
@@ -72,39 +78,46 @@ class DialogStudentId(QDialog):
             QIcon(utils.resource_path("new_id.svg")), _("New student"), parent=self
         )
         new_student_button.clicked.connect(self._new_student)
-        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
-        self.buttons.addButton(new_student_button, QDialogButtonBox.ActionRole)
+        self.buttons = QDialogButtonBox(
+            (
+                QDialogButtonBox.StandardButton.Ok
+                | QDialogButtonBox.StandardButton.Cancel
+            )
+        )
+        self.buttons.addButton(
+            new_student_button, QDialogButtonBox.ButtonRole.ActionRole
+        )
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
         layout.addRow(_("Student id:"), self.combo)
         layout.addRow(self.buttons)
 
-    def exec_(self):
+    def exec(self):
         """Shows the dialog and waits until it is closed.
 
         Returns a student object with the option selected by the user.
         The return value is None if the user cancels the dialog.
 
         """
-        result = super().exec_()
-        if result == QDialog.Accepted:
+        result = super().exec()
+        if result == QDialog.DialogCode.Accepted:
             return self.combo.current_student()
         else:
             return None
 
     def _new_student(self):
         dialog = NewStudentDialog(self.student_listings, parent=self)
-        student = dialog.exec_()
+        student = dialog.exec()
         if student is not None:
             self.combo.add_student(student, set_current=True)
-            self.buttons.button(QDialogButtonBox.Ok).setFocus()
-            self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
+            self.buttons.button(QDialogButtonBox.StandardButton.Ok).setFocus()
+            self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
 
     def _check_value(self, param):
         if self.combo.current_student() is not None:
-            self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
+            self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
         else:
-            self.buttons.button(QDialogButtonBox.Ok).setEnabled(False)
+            self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
 
 
 class NewStudentDialog(QDialog):
@@ -125,7 +138,9 @@ class NewStudentDialog(QDialog):
         layout = QFormLayout()
         self.setLayout(layout)
         self.id_field = QLineEdit(self)
-        self.id_field.setValidator(QRegExpValidator(QRegExp(r"\d+"), self))
+        self.id_field.setValidator(
+            QRegularExpressionValidator(QRegularExpression(r"\d+"), self)
+        )
         self.id_field.textEdited.connect(self._check_values)
         self.name_field = QLineEdit(self)
         self.surname_field = QLineEdit(self)
@@ -135,7 +150,7 @@ class NewStudentDialog(QDialog):
         self.full_name_label = QLabel(_("Full name"))
         self.email_field = QLineEdit(self)
         self.email_field.setValidator(
-            QRegExpValidator(QRegExp(students.re_email), self)
+            QRegularExpressionValidator(QRegularExpression(students.re_email), self)
         )
         self.email_field.textEdited.connect(self._check_values)
         self.combo = QComboBox(parent=self)
@@ -152,7 +167,12 @@ class NewStudentDialog(QDialog):
         layout.addRow(self.full_name_label, self.full_name_field)
         layout.addRow(_("Email"), self.email_field)
         layout.addRow(_("Group"), self.group_combo)
-        self.buttons = QDialogButtonBox((QDialogButtonBox.Ok | QDialogButtonBox.Cancel))
+        self.buttons = QDialogButtonBox(
+            (
+                QDialogButtonBox.StandardButton.Ok
+                | QDialogButtonBox.StandardButton.Cancel
+            )
+        )
         layout.addRow(self.buttons)
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
@@ -166,15 +186,15 @@ class NewStudentDialog(QDialog):
             self.group_combo.setEnabled(False)
         self._update_combo(NewStudentDialog._last_combo_value)
 
-    def exec_(self):
+    def exec(self):
         """Shows the dialog and waits until it is closed.
 
         Returns the text of the option selected by the user, or None if
         the dialog is cancelled.
 
         """
-        result = super().exec_()
-        if result == QDialog.Accepted:
+        result = super().exec()
+        if result == QDialog.DialogCode.Accepted:
             NewStudentDialog._last_combo_value = self.combo.currentIndex()
             listing = self.student_listings[self.group_combo.currentIndex() + 1]
             email = self.email_field.text()
@@ -219,9 +239,9 @@ class NewStudentDialog(QDialog):
         if self.id_field.hasAcceptableInput() and (
             not self.email_field.text() or self.email_field.hasAcceptableInput()
         ):
-            self.buttons.button(QDialogButtonBox.Ok).setEnabled(True)
+            self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
         else:
-            self.buttons.button(QDialogButtonBox.Ok).setEnabled(False)
+            self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
 
     def _update_combo(self, new_index):
         if new_index == 0:
@@ -253,14 +273,14 @@ class DialogStudents(QDialog):
         self.setLayout(main_layout)
         tabs = StudentGroupsTabs(self, student_listings=student_listings)
         main_layout.addWidget(tabs)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         main_layout.addWidget(buttons)
 
-    def exec_(self):
+    def exec(self):
         """Shows the dialog and waits until it is closed."""
-        result = super().exec_()
-        if result == QDialog.Accepted:
+        result = super().exec()
+        if result == QDialog.DialogCode.Accepted:
             return True
         else:
             return False
@@ -283,18 +303,20 @@ class DialogPreviewStudents(QDialog):
             _("Take last name as full name"), parent=self
         )
         self.button_remove = QPushButton(_("Remove duplicate students"), parent=self)
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.button_accept = buttons.button(QDialogButtonBox.Ok)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        self.button_accept = buttons.button(QDialogButtonBox.StandardButton.Ok)
         layout.addWidget(self.table)
         layout.addWidget(self.button_swap)
         layout.addWidget(self.button_take_first)
         layout.addWidget(self.button_take_last)
         layout.addWidget(self.button_remove)
         layout.addWidget(buttons)
-        layout.setAlignment(self.button_swap, Qt.AlignHCenter)
-        layout.setAlignment(self.button_take_first, Qt.AlignHCenter)
-        layout.setAlignment(self.button_take_last, Qt.AlignHCenter)
-        layout.setAlignment(self.button_remove, Qt.AlignHCenter)
+        layout.setAlignment(self.button_swap, Qt.AlignmentFlag.AlignHCenter)
+        layout.setAlignment(self.button_take_first, Qt.AlignmentFlag.AlignHCenter)
+        layout.setAlignment(self.button_take_last, Qt.AlignmentFlag.AlignHCenter)
+        layout.setAlignment(self.button_remove, Qt.AlignmentFlag.AlignHCenter)
         self.button_swap.clicked.connect(self.table.swap_names)
         self.button_take_first.clicked.connect(self._take_first_name)
         self.button_take_last.clicked.connect(self._take_last_name)
@@ -309,10 +331,10 @@ class DialogPreviewStudents(QDialog):
         else:
             self.button_remove.setEnabled(False)
 
-    def exec_(self):
+    def exec(self):
         """Shows the dialog and waits until it is closed."""
-        result = super().exec_()
-        if result == QDialog.Accepted:
+        result = super().exec()
+        if result == QDialog.DialogCode.Accepted:
             return True
         else:
             return False
@@ -360,8 +382,10 @@ class GroupNameDialog(QDialog):
         main_line = widgets.LineContainer(
             self, QLabel(_("Group name")), self._name_widget
         )
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self._button_ok = buttons.button(QDialogButtonBox.Ok)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        self._button_ok = buttons.button(QDialogButtonBox.StandardButton.Ok)
         layout.addWidget(QLabel(message))
         layout.addWidget(main_line)
         layout.addWidget(buttons)
@@ -369,9 +393,9 @@ class GroupNameDialog(QDialog):
         buttons.rejected.connect(self.reject)
         self._group_name_changed(group_name)
 
-    def exec_(self):
-        result = super().exec_()
-        if result == QDialog.Accepted:
+    def exec(self):
+        result = super().exec()
+        if result == QDialog.DialogCode.Accepted:
             return self._name_widget.text()
         else:
             return None
@@ -414,9 +438,9 @@ class StudentGroupsTabs(QWidget):
         layout.addWidget(button_load)
         layout.addWidget(button_new_student)
         layout.addWidget(button_remove)
-        layout.setAlignment(button_load, Qt.AlignHCenter)
-        layout.setAlignment(button_new_student, Qt.AlignHCenter)
-        layout.setAlignment(button_remove, Qt.AlignHCenter)
+        layout.setAlignment(button_load, Qt.AlignmentFlag.AlignHCenter)
+        layout.setAlignment(button_new_student, Qt.AlignmentFlag.AlignHCenter)
+        layout.setAlignment(button_remove, Qt.AlignmentFlag.AlignHCenter)
         self.tabs.setCurrentIndex(0)
         self._active_tab = 0
         self.tabs.currentChanged.connect(self._tab_changed)
@@ -433,12 +457,13 @@ class StudentGroupsTabs(QWidget):
             "",
             FileNameFilters.student_list,
             None,
-            QFileDialog.DontUseNativeDialog,
+            QFileDialog.Option.DontUseNativeDialog,
         )
         try:
             if file_name:
                 with students.StudentReader.create(file_name) as reader:
                     student_list = list(reader.students())
+                    column_map = reader.column_map.normalize()
                 # Flag duplicate student ids:
                 warn_duplicates = False
                 for s in self.student_listings.find_duplicates(student_list):
@@ -453,10 +478,9 @@ class StudentGroupsTabs(QWidget):
                             "Remove them or cancel the import operation."
                         ),
                     )
-                column_map = reader.column_map.normalize()
                 preview_dialog = DialogPreviewStudents(self, student_list, column_map)
-                result = preview_dialog.exec_()
-                if result == QMessageBox.Accepted:
+                result = preview_dialog.exec()
+                if result == QMessageBox.DialogCode.Accepted:
                     self.tabs.widget(index).add_students(student_list)
         except Exception as e:
             QMessageBox.critical(
@@ -466,7 +490,7 @@ class StudentGroupsTabs(QWidget):
     def _new_student(self):
         index = self.tabs.currentIndex()
         dialog = NewStudentDialog(self.student_listings, group_index=index, parent=self)
-        student = dialog.exec_()
+        student = dialog.exec()
         if student is not None:
             self.tabs.widget(index).listing_updated()
 
@@ -480,10 +504,10 @@ class StudentGroupsTabs(QWidget):
                     "This group and its students will be removed. "
                     "Are you sure you want to continue?"
                 ),
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            remove = result == QMessageBox.Yes
+            remove = result == QMessageBox.StandardButton.Yes
         else:
             remove = True
         if remove:
@@ -516,7 +540,7 @@ class StudentGroupsTabs(QWidget):
             self.tabs.setCurrentIndex(self.tabs.count() - 2)
 
     def _new_group(self):
-        group_name = GroupNameDialog(parent=self).exec_()
+        group_name = GroupNameDialog(parent=self).exec()
         if group_name is not None:
             group = students.StudentGroup(None, group_name)
             listing = self.student_listings.create_listing(group)
@@ -531,7 +555,7 @@ class StudentGroupsTabs(QWidget):
 
     def _rename_group(self, index):
         name = self.student_listings[index + 1].group.name
-        new_name = GroupNameDialog(group_name=name, parent=self).exec_()
+        new_name = GroupNameDialog(group_name=name, parent=self).exec()
         if new_name is not None and new_name != name:
             self.student_listings[index + 1].rename(new_name)
             self.tabs.setTabText(index, new_name)
@@ -564,8 +588,8 @@ class GroupWidget(QWidget):
         layout.addWidget(self.table)
         self.model = StudentsTableModel(listing, GroupWidget._COLUMN_MAP, self)
         self.table.setModel(self.model)
-        self.table.setSelectionBehavior(QTableView.SelectRows)
-        layout.setAlignment(self.table, Qt.AlignHCenter)
+        self.table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
+        layout.setAlignment(self.table, Qt.AlignmentFlag.AlignHCenter)
         self._resize_table()
 
     def add_students(self, student_list):
@@ -594,8 +618,8 @@ class PreviewWidget(QWidget):
         layout.addWidget(self.table)
         self.model = StudentsTableModel(self.listing, column_map, self)
         self.table.setModel(self.model)
-        self.table.setSelectionMode(QTableView.NoSelection)
-        layout.setAlignment(self.table, Qt.AlignHCenter)
+        self.table.setSelectionMode(QTableView.SelectionMode.NoSelection)
+        layout.setAlignment(self.table, Qt.AlignmentFlag.AlignHCenter)
         self._resize_table()
 
     def swap_names(self):
@@ -640,13 +664,13 @@ class StudentsTableModel(QAbstractTableModel):
     }
 
     _alignment = {
-        students.StudentColumn.SEQUENCE_NUM: Qt.AlignRight,
-        students.StudentColumn.ID: Qt.AlignRight,
-        students.StudentColumn.NAME: Qt.AlignLeft,
-        students.StudentColumn.FIRST_NAME: Qt.AlignLeft,
-        students.StudentColumn.LAST_NAME: Qt.AlignLeft,
-        students.StudentColumn.FULL_NAME: Qt.AlignLeft,
-        students.StudentColumn.EMAIL: Qt.AlignLeft,
+        students.StudentColumn.SEQUENCE_NUM: Qt.AlignmentFlag.AlignRight,
+        students.StudentColumn.ID: Qt.AlignmentFlag.AlignRight,
+        students.StudentColumn.NAME: Qt.AlignmentFlag.AlignLeft,
+        students.StudentColumn.FIRST_NAME: Qt.AlignmentFlag.AlignLeft,
+        students.StudentColumn.LAST_NAME: Qt.AlignmentFlag.AlignLeft,
+        students.StudentColumn.FULL_NAME: Qt.AlignmentFlag.AlignLeft,
+        students.StudentColumn.EMAIL: Qt.AlignmentFlag.AlignLeft,
     }
 
     def __init__(self, listing, column_map, parent=None):
@@ -669,29 +693,26 @@ class StudentsTableModel(QAbstractTableModel):
         # Columns: sequence num, id, full name
         return len(self.column_map)
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
+    def headerData(self, section, orientation, role):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
                 return StudentsTableModel._headers[self.column_map[section]]
             else:
                 return QVariant()
         else:
-            return QVariant(QVariant.Invalid)
+            return QVariant()
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         column = index.column()
         student = self.listing[index.row()]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.column_map.data(column, student)
-        elif role == Qt.TextAlignmentRole:
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
             return StudentsTableModel._alignment[self.column_map[column]]
-        elif role == Qt.BackgroundRole:
+        elif role == Qt.ItemDataRole.BackgroundRole:
             if student.is_duplicate:
                 return QBrush(QColor(255, 165, 165))
             else:
-                return QVariant(QVariant.Invalid)
+                return QVariant()
         else:
-            return QVariant(QVariant.Invalid)
-
-    def flags(self, index):
-        return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            return QVariant()
