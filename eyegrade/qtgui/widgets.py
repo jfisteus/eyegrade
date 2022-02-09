@@ -84,7 +84,9 @@ class CompletingComboBox(QComboBox):
         self.filter.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.filter.setSourceModel(self.model())
         self.completer = QCompleter(self.filter, self)
-        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        self.completer.setCompletionMode(
+            QCompleter.CompletionMode.UnfilteredPopupCompletion
+        )
         self.setCompleter(self.completer)
         self.lineEdit().textEdited.connect(self.filter.setFilterFixedString)
         self.currentIndexChanged.connect(self._index_changed)
