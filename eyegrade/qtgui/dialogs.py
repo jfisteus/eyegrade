@@ -271,7 +271,7 @@ class DialogAbout(QDialog):
 
     def _create_about_tab(self):
         text = _(
-            u"""
+            """
              <center>
              <p><img src='{0}' width='64'> <br>
              {1} {2} <br>
@@ -322,7 +322,7 @@ class DialogAbout(QDialog):
         return label
 
     def _create_developers_tab(self):
-        text = u"""<p><b>{0}:</b></p>
+        text = """<p><b>{0}:</b></p>
                    <ul><li>Jesús Arias Fisteus</li></ul>
                    <p><b>{1}:</b></p>
                    <ul><li>Jonathan Araneda Labarca</li></ul>
@@ -352,22 +352,22 @@ class DialogAbout(QDialog):
 
     def _create_translators_tab(self):
         translators = [
-            (_("Catalan"), [u"Jaume Barcelo"]),
+            (_("Catalan"), ["Jaume Barcelo"]),
             (_("German"), []),
-            (_("Galician"), [u"Jesús Arias Fisteus"]),
+            (_("Galician"), ["Jesús Arias Fisteus"]),
             (_("French"), []),
             (_("Portuguese"), []),
-            (_("Spanish"), [u"Jesús Arias Fisteus"]),
+            (_("Spanish"), ["Jesús Arias Fisteus"]),
         ]
         parts = []
         for language, names in sorted(translators, key=DialogAbout._tuple_strxfrm):
             if names:
-                parts.append(u"<p><b>{0}:</b></p>".format(language))
-                parts.append(u"<ul>")
+                parts.append("<p><b>{0}:</b></p>".format(language))
+                parts.append("<ul>")
                 for name in names:
-                    parts.append(u"<li>{0}</li>".format(name))
-                parts.append(u"</ul>")
-        label = QLabel(u"".join(parts))
+                    parts.append("<li>{0}</li>".format(name))
+                parts.append("</ul>")
+        label = QLabel("".join(parts))
         label.setTextInteractionFlags(
             (
                 Qt.TextInteractionFlag.LinksAccessibleByKeyboard

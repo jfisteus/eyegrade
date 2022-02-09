@@ -113,14 +113,14 @@ def _read_config():
     try:
         parser.read(
             [
-                os.path.join(home, u".eyegrade.cfg"),
-                os.path.join(home, u".camgrade.cfg"),
+                os.path.join(home, ".eyegrade.cfg"),
+                os.path.join(home, ".camgrade.cfg"),
                 resource_path("default.cfg"),
             ]
         )
     except EyegradeException:
         parser.read(
-            [os.path.join(home, u".eyegrade.cfg"), os.path.join(home, u".camgrade.cfg")]
+            [os.path.join(home, ".eyegrade.cfg"), os.path.join(home, ".camgrade.cfg")]
         )
     if "default" in parser.sections():
         for option in parser.options("default"):
@@ -343,7 +343,7 @@ def encode_model(model, num_tables, num_answers):
         raise Exception("Model is currently limited to A - H")
     model_num = ord(model) - 65
     num_bits = num_tables * num_answers
-    if model_num >= 2 ** num_bits:
+    if model_num >= 2**num_bits:
         raise Exception("Model number too big given the number of answers")
     seed = _int_to_bin(model_num, 3, True)
     seed[2] = not seed[2]

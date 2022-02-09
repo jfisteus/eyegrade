@@ -85,7 +85,7 @@ class DialogExportGrades(QDialog):
             self.groups_combo.addItem(_("All groups (one sheet)"))
             self.groups_combo.addItem(_("All groups (separate sheets)"))
             for group in student_groups:
-                label = u"{0} #{1.identifier} ({1.name})".format(_("Group"), group)
+                label = "{0} #{1.identifier} ({1.name})".format(_("Group"), group)
                 self.groups_combo.addItem(label)
         else:
             self.groups_combo = None
