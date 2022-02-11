@@ -17,7 +17,7 @@
 #
 import gettext
 
-from typing import List, Tuple, Optional
+from typing import Callable, Dict, List, Tuple, Optional
 
 from PyQt6.QtGui import QAction, QIcon, QKeySequence
 
@@ -39,6 +39,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, pyqtSignal
 
 from .. import utils
+from .. import scoring
 from . import examsview
 from . import widgets
 from . import wizards
@@ -471,7 +472,13 @@ class CenterView(QWidget):
         self.adjustSize()
         self.setFixedSize(self.sizeHint())
 
-    def update_status(self, score, model=None, seq_num=None, survey_mode=False):
+    def update_status(
+        self,
+        score: scoring.Score,
+        model: Optional[str] = None,
+        seq_num: Optional[int] = None,
+        survey_mode: bool = False,
+    ) -> None:
         parts = []
         if score is not None:
             if not survey_mode:
@@ -508,13 +515,13 @@ class CenterView(QWidget):
             ('<span style="white-space: pre">' + " ".join(parts) + "</span>")
         )
 
-    def update_text_up(self, text):
+    def update_text_up(self, text: str) -> None:
         self.label_up.setText(text)
 
-    def update_text_down(self, text):
+    def update_text_down(self, text: str) -> None:
         self.label_down.setText(text)
 
-    def display_capture(self, ipl_image):
+    def display_capture(self, ipl_image) -> None:
         """Displays a captured image in the window.
 
         The image is in the OpenCV IPL format.
@@ -522,11 +529,13 @@ class CenterView(QWidget):
         """
         self.camview.display_capture(ipl_image)
 
-    def display_wait_image(self):
+    def display_wait_image(self) -> None:
         """Displays the default image instead of a camera capture."""
         self.camview.display_wait_image()
 
-    def register_listener(self, key, listener):
+    def register_listener(
+        self, key: Tuple[str, str], listener: Callable[[int, int], None]
+    ) -> None:
         """Registers listeners for the center view.
 
         Available listeners are:
@@ -543,6 +552,9 @@ class CenterView(QWidget):
                 assert False, "Undefined listener key: {0}".format(key)
         else:
             assert False, "Undefined listener key: {0}".format(key)
+
+    def save_as_image(self, filename: str) -> bool:
+        return self.grab().save(filename)
 
 
 class MainWindow(QMainWindow):
@@ -690,29 +702,35 @@ class Interface:
         """
         self.actions_manager.enable_manual_detect(enabled)
 
-    def update_status(self, score, model=None, seq_num=None, survey_mode=False):
+    def update_status(
+        self,
+        score: scoring.Score,
+        model: Optional[str] = None,
+        seq_num: Optional[int] = None,
+        survey_mode: bool = False,
+    ) -> None:
         self.window.center_view.update_status(
             score, model=model, seq_num=seq_num, survey_mode=survey_mode
         )
 
-    def update_text_up(self, text):
+    def update_text_up(self, text: str) -> None:
         if text is None:
             text = ""
         self.window.center_view.update_text_up(text)
 
-    def update_text_down(self, text):
+    def update_text_down(self, text: str) -> None:
         if text is None:
             text = ""
         self.window.center_view.update_text_down(text)
 
-    def update_status_bar(self, text):
+    def update_status_bar(self, text: str) -> None:
         self.window.update_status_bar(text)
 
-    def update_text(self, text_up, text_down):
+    def update_text(self, text_up: str, text_down: str) -> None:
         self.window.center_view.update_text_up(text_up)
         self.window.center_view.update_text_down(text_down)
 
-    def register_listeners(self, listeners):
+    def register_listeners(self, listeners: Dict[Tuple[str, ...], Callable]) -> None:
         """Registers a dictionary of listeners for the events of the gui.
 
         The listeners are specified as a dictionary with pairs
@@ -723,7 +741,7 @@ class Interface:
         for key, listener in listeners.items():
             self.register_listener(key, listener)
 
-    def register_listener(self, key, listener):
+    def register_listener(self, key: Tuple[str, ...], listener: Callable) -> None:
         """Registers a single listener for the events of the gui.
 
         Keys are tuples of strings such as ('action', 'session',
@@ -767,9 +785,9 @@ class Interface:
         """
         self.window.center_view.display_capture(ipl_image)
 
-    def save_capture(self, filename):
+    def save_capture(self, filename: str) -> bool:
         """Saves the current capture and its annotations to the given file."""
-        self.window.center_view.grab().save(filename)
+        return self.window.center_view.save_as_image(filename)
 
     def display_wait_image(self):
         """Displays the default image instead of a camera capture."""
