@@ -484,7 +484,7 @@ class NewSessionPageScores(QWizardPage):
         self.weights_table.adjust_size()
         if (
             not self.correct_score.text()
-            and not self.correct_score.text()
+            and not self.incorrect_score.text()
             and not self.blank_score.text()
         ):
             # Change values only if they have not been set manually
