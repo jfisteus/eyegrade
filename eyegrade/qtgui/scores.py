@@ -47,7 +47,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
 
     changes: bool
     exam_config: exams.ExamConfig
-    models: list[str]
+    models: List[str]
     has_permutations: bool
     permutations: Dict[str, List[Tuple[int, List[int]]]]
     weights: List[List[int]]
