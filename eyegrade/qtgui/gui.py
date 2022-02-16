@@ -147,7 +147,6 @@ class ActionsManager:
         ("camera", "camera.svg", _("Select &camera"), []),
         ("export_exam_config", None, _("E&xport exam configuration"), []),
         ("edit_scores", None, _("Edit question &scores"), []),
-
     ]
 
     _actions_help_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
