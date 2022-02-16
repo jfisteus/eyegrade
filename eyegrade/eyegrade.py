@@ -523,6 +523,13 @@ class ProgramManager:
         self.detection_options = None
         self.interface.activate_no_session_mode()
 
+    def _edit_scores(self):
+        """Callback for opening the question scores dialog"""
+        if self.mode.in_grading() or self.mode.in_review_from_session():
+            self._stop_grading()
+        self.interface.activate_session_mode()
+        self.interface.dialog_edit_scores(self.exam_data)
+
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
         if self.mode.in_manual_detect():
@@ -859,6 +866,7 @@ class ProgramManager:
             ("actions", "grading", "edit_id"): self._action_edit_id,
             ("actions", "tools", "camera"): self._action_camera_selection,
             ("actions", "tools", "export_exam_config"): self._action_export_exam_config,
+            ("actions", "tools", "edit_scores"): self._edit_scores,
             ("actions", "tools", "lines"): self._action_debug_changed,
             ("actions", "tools", "processed"): self._action_debug_changed,
             ("actions", "tools", "show_status"): self._action_debug_changed,

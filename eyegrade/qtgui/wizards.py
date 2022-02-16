@@ -16,6 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 import gettext
+from json.tool import main
 import os
 
 from PyQt6.QtWidgets import (
@@ -40,6 +41,7 @@ from PyQt6.QtCore import Qt
 from . import students
 from . import widgets
 from . import dialogs
+from . import scores
 from . import FileNameFilters
 from .. import utils
 from .. import scoring
@@ -418,269 +420,29 @@ class NewSessionPageScores(QWizardPage):
                 "on them. Setting these scores is optional."
             )
         )
-        form_widget = QWidget(parent=self)
-        table_widget = QWidget(parent=self)
-        main_layout = QVBoxLayout(self)
-        form_layout = QFormLayout(form_widget)
-        table_layout = QVBoxLayout(table_widget)
-        self.setLayout(main_layout)
-        form_widget.setLayout(form_layout)
-        table_widget.setLayout(table_layout)
-        main_layout.addWidget(form_widget)
-        main_layout.addWidget(table_widget)
-        main_layout.setAlignment(table_widget, Qt.AlignmentFlag.AlignHCenter)
-        self.combo = widgets.CustomComboBox(parent=self)
-        self.combo.set_items(
-            [
-                _("No scores"),
-                _("Same score for all the questions"),
-                _("Base score plus per-question weight"),
-            ]
-        )
-        self.combo.currentIndexChanged.connect(self._update_combo)
-        self.correct_score = widgets.InputScore(is_positive=True)
-        correct_score_label = QLabel(_("Score for correct answers"))
-        incorrect_score_label = QLabel(_("Score for incorrect answers"))
-        blank_score_label = QLabel(_("Score for blank answers"))
-        self.incorrect_score = widgets.InputScore(is_positive=False)
-        self.blank_score = widgets.InputScore(is_positive=False)
-        self.button_reset = QPushButton(_("Reset question weights"))
-        button_defaults = QPushButton(_("Compute default scores"))
-        self.weights_table = widgets.CustomTableView()
-        weights_table_label = QLabel(_("Per-question score weights:"))
-        form_layout.addRow(self.combo)
-        form_layout.addRow(correct_score_label, self.correct_score)
-        form_layout.addRow(incorrect_score_label, self.incorrect_score)
-        form_layout.addRow(blank_score_label, self.blank_score)
-        table_layout.addWidget(weights_table_label)
-        table_layout.addWidget(self.weights_table)
-        table_layout.addWidget(self.button_reset)
-        table_layout.addWidget(button_defaults)
-        table_layout.setAlignment(weights_table_label, Qt.AlignmentFlag.AlignHCenter)
-        table_layout.setAlignment(self.weights_table, Qt.AlignmentFlag.AlignHCenter)
-        table_layout.setAlignment(self.button_reset, Qt.AlignmentFlag.AlignHCenter)
-        table_layout.setAlignment(button_defaults, Qt.AlignmentFlag.AlignHCenter)
-        self.button_reset.clicked.connect(self._reset_weights)
-        button_defaults.clicked.connect(self._compute_default_values)
-        self.base_score_widgets = [
-            self.correct_score,
-            correct_score_label,
-            self.incorrect_score,
-            incorrect_score_label,
-            self.blank_score,
-            blank_score_label,
-            button_defaults,
-        ]
-        self.weights_widgets = [self.weights_table, weights_table_label]
-        self.current_mode = None
+        self.scores_widget = None
 
     def initializePage(self):
         """Loads the values from the exam config, if any."""
-        exam_config = self.wizard().exam_config
-        self.weights_table.setModel(
-            widgets.ScoreWeightsTableModel(exam_config, parent=self)
+        self.scores_widget = scores.EditScoresWidget(
+            self.wizard().exam_config, parent=self
         )
-        self.weights_table.model().dataChanged.connect(self._weights_changed)
-        self.weights_table.adjust_size()
-        if (
-            not self.correct_score.text()
-            and not self.incorrect_score.text()
-            and not self.blank_score.text()
-        ):
-            # Change values only if they have not been set manually
-            scores = exam_config.base_scores
-            if scores is not None:
-                self._set_score_fields(scores)
-        # If the exam is a survey, disable all the controls
-        if exam_config.survey_mode:
-            self.combo.set_item_enabled(1, False)
-            self.combo.set_item_enabled(2, False)
-            initial_mode = 0
-            self.weights_table.model().clear()
-        else:
-            if not exam_config.scores or exam_config.all_weights_are_one():
-                self.combo.set_item_enabled(1, True)
-                self.combo.set_item_enabled(2, True)
-                initial_mode = 1
-                self.weights_table.model().clear()
-            else:
-                self.combo.set_item_enabled(1, True)
-                self.combo.set_item_enabled(2, True)
-                initial_mode = 2
-        self.combo.setCurrentIndex(initial_mode)
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(self.scores_widget)
+
+        self.scores_widget.initialize()
 
     def validatePage(self):
         """Called by QWizardPage to check the values of this page.
 
         Checks the values and consolidates them if valid.
+
         """
-        if self.current_mode == 0:
-            valid = self._consolidate_no_scores()
-        elif self._consolidate_base_scores():
-            if self.current_mode == 1:
-                valid = True
-            else:
-                valid = self._consolidate_weights()
-        else:
-            valid = False
-        return valid
+        return self.scores_widget.validate_and_consolidate()
 
     def clear_base_scores(self):
-        self.correct_score.setText("")
-        self.incorrect_score.setText("")
-        self.blank_score.setText("")
-
-    def _update_combo(self, new_index):
-        if new_index != self.current_mode:
-            # Ask the user if changes to weights may be lost
-            if (
-                self.current_mode == 2
-                and self.weights_table.model().changes
-                and not self._show_warning_weights_reset()
-            ):
-                self.combo.setCurrentIndex(self.current_mode)
-                return
-            self.button_reset.setEnabled(False)
-            if new_index == 0:
-                self._enable_weights_widgets(False, False)
-            elif new_index == 1:
-                self._enable_weights_widgets(True, False)
-            else:
-                self._enable_weights_widgets(True, True)
-            # Reset the weights table
-            if self.current_mode == 2:
-                self.weights_table.model().clear()
-            elif new_index == 2:
-                self.weights_table.model().data_reset()
-            # Reset the scores
-            if new_index == 0:
-                self.clear_base_scores()
-            self.current_mode = new_index
-
-    def _enable_weights_widgets(self, enable_base_scores, enable_weights):
-        for widget in self.base_score_widgets:
-            widget.setEnabled(enable_base_scores)
-        for widget in self.weights_widgets:
-            widget.setEnabled(enable_weights)
-
-    def _reset_weights(self):
-        if self.weights_table.model().changes and self._show_warning_weights_reset():
-            self.weights_table.model().data_reset()
-
-    def _weights_changed(self, index_1, index_2):
-        self.button_reset.setEnabled(self.weights_table.model().changes)
-
-    def _compute_default_values(self):
-        if self.current_mode == 2 and not self.weights_table.model().validate():
-            self._show_error_weights()
-            return
-        dialog = dialogs.DialogComputeScores(parent=self)
-        score, penalize = dialog.exec()
-        if score is None:
-            return
-        config = self.wizard().exam_config
-        choices = config.get_num_choices()
-        if self.current_mode == 1:
-            # All the questions have the same score
-            total_weight = config.num_questions
-        elif self.current_mode == 2:
-            # Weighted questions
-            total_weight = self.weights_table.model().sum_weights[0]
-        else:
-            raise NotImplementedError("Bad mode in scores wizard page")
-        if config.num_questions and choices and choices > 1:
-            c_score = score / total_weight
-            if penalize:
-                i_score = score / (choices - 1) / total_weight
-            else:
-                i_score = 0
-            b_score = 0
-            scores = scoring.QuestionScores(c_score, i_score, b_score)
-            self._set_score_fields(scores)
-        else:
-            QMessageBox.critical(
-                self,
-                _("Error"),
-                _("Automatic scores cannot be computed for " "this exam."),
-            )
-
-    def _set_score_fields(self, scores):
-        self.correct_score.setText(scores.format_correct_score(signed=False))
-        self.incorrect_score.setText(scores.format_incorrect_score(signed=True))
-        self.blank_score.setText(scores.format_blank_score(signed=True))
-
-    def _consolidate_no_scores(self):
-        self.wizard().exam_config.enter_score_mode_none()
-        return True
-
-    def _consolidate_base_scores(self):
-        valid = False
-        c_score = self.correct_score.value()
-        i_score = self.incorrect_score.value()
-        b_score = self.blank_score.value()
-        if c_score is not None and c_score > 0:
-            if i_score is None:
-                i_score = 0
-            else:
-                i_score = -i_score
-            if b_score is None:
-                b_score = 0
-            else:
-                b_score = -b_score
-            if i_score >= 0 and b_score >= 0:
-                base_scores = scoring.QuestionScores(c_score, i_score, b_score)
-                same_weights = True if self.current_mode == 1 else False
-                self.wizard().exam_config.set_base_scores(
-                    base_scores, same_weights=same_weights
-                )
-                valid = True
-            else:
-                QMessageBox.critical(
-                    self,
-                    _("Error"),
-                    _(
-                        "The score for incorrect and blank answers "
-                        "cannot be greater than 0."
-                    ),
-                )
-        else:
-            QMessageBox.critical(
-                self, _("Error"), _("You must enter the score for correct " "answers.")
-            )
-        return valid
-
-    def _consolidate_weights(self):
-        valid = self.weights_table.model().consolidate()
-        if not valid:
-            self._show_error_weights()
-        return valid
-
-    def _show_error_weights(self):
-        QMessageBox.critical(
-            self,
-            _("Error"),
-            _(
-                "The weights must be the same "
-                "in all the models, although they may "
-                "be in a different order. "
-                "You must fix this before computing "
-                "default scores."
-            ),
-        )
-
-    def _show_warning_weights_reset(self):
-        result = QMessageBox.warning(
-            self,
-            _("Warning"),
-            _(
-                "The changes you have done to the weights "
-                "table will be lost. "
-                "Are you sure you want to continue?"
-            ),
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-        return result == QMessageBox.StandardButton.Yes
+        if self.scores_widget is not None:
+            self.scores_widget.clear_base_scores()
 
     def nextId(self):
         return -1

@@ -38,6 +38,8 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, pyqtSignal
 
+from eyegrade import exams
+
 from .. import utils
 from .. import scoring
 from . import examsview
@@ -47,6 +49,7 @@ from . import dialogs
 from . import export
 from . import students
 from . import FileNameFilters
+from . import scores
 
 t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
@@ -143,6 +146,8 @@ class ActionsManager:
     _actions_tools_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
         ("camera", "camera.svg", _("Select &camera"), []),
         ("export_exam_config", None, _("E&xport exam configuration"), []),
+        ("edit_scores", None, _("Edit question &scores"), []),
+
     ]
 
     _actions_help_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
@@ -230,6 +235,7 @@ class ActionsManager:
         self.actions_session["exit"].setEnabled(True)
         self.actions_tools["camera"].setEnabled(False)
         self.actions_tools["export_exam_config"].setEnabled(True)
+        self.actions_tools["edit_scores"].setEnabled(True)
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(False)
         self.actions_exams["export"].setEnabled(False)
@@ -249,6 +255,7 @@ class ActionsManager:
         self.actions_session["exit"].setEnabled(True)
         self.actions_tools["camera"].setEnabled(False)
         self.actions_tools["export_exam_config"].setEnabled(True)
+        self.actions_tools["edit_scores"].setEnabled(True)
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(True)
         self.actions_exams["export"].setEnabled(True)
@@ -268,6 +275,7 @@ class ActionsManager:
         self.actions_session["exit"].setEnabled(True)
         self.actions_tools["camera"].setEnabled(True)
         self.actions_tools["export_exam_config"].setEnabled(True)
+        self.actions_tools["edit_scores"].setEnabled(True)
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(True)
         self.actions_exams["export"].setEnabled(True)
@@ -287,6 +295,7 @@ class ActionsManager:
         self.actions_session["exit"].setEnabled(True)
         self.actions_tools["camera"].setEnabled(True)
         self.actions_tools["export_exam_config"].setEnabled(True)
+        self.actions_tools["edit_scores"].setEnabled(True)
         self.actions_exams["search"].setEnabled(True)
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(True)
@@ -307,6 +316,7 @@ class ActionsManager:
         self.actions_session["exit"].setEnabled(True)
         self.actions_tools["camera"].setEnabled(False)
         self.actions_tools["export_exam_config"].setEnabled(True)
+        self.actions_tools["edit_scores"].setEnabled(False)
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(False)
         self.actions_exams["export"].setEnabled(False)
@@ -320,6 +330,7 @@ class ActionsManager:
         self.actions_session["exit"].setEnabled(True)
         self.actions_tools["camera"].setEnabled(True)
         self.actions_tools["export_exam_config"].setEnabled(False)
+        self.actions_tools["edit_scores"].setEnabled(False)
         for key in self.actions_exams:
             self.actions_exams[key].setEnabled(False)
 
@@ -839,6 +850,15 @@ class Interface:
             QFileDialog.Option.DontUseNativeDialog,
         )
         return filename if filename else None
+
+    def dialog_edit_scores(self, exam_config: exams.ExamConfig) -> bool:
+        """Displays a dialog to edit question scores.
+
+        Returns True if scores changed, or False otherwise.
+
+        """
+        dialog = scores.DialogEditScores(exam_config)
+        return dialog.exec()
 
     def dialog_camera_selection(self, capture_context):
         """Displays a camera selection dialog.
