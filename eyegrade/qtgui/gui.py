@@ -680,7 +680,7 @@ class Interface:
         self.actions_manager.set_no_session_mode()
         self.display_wait_image()
         self.update_text("", "")
-        self.update_status_bar(_("No session: open or create a session " "to start"))
+        self.update_status_bar(_("No session: open or create a session to start"))
         self.window.clear_exams_view()
 
     def add_exams(self, exams):

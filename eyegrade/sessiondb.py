@@ -234,6 +234,41 @@ class SessionDB:
         if store_captures:
             self.save_drawn_capture(exam_id, exam_capture, decisions.student)
 
+    def update_exam_config_scores(self, exam_data, commit=True):
+        # Store base scores
+        base_scores = _base_scores(exam_data)
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """UPDATE Session
+               SET
+               scores_mode=?,
+               base_score_correct=?,
+               base_score_incorrect=?,
+               base_score_blank=?
+            """,
+            (exam_data.scores_mode, base_scores[0], base_scores[1], base_scores[2]),
+        )
+        # Store question scores
+        for model in exam_data.models:
+            model_code = _Adapter.enc_model(model)
+            scores_c, scores_i, scores_b, weights = _question_scores(exam_data, model)
+            data = zip(scores_c, scores_i, scores_b, weights)
+            for i, scores in enumerate(data):
+                cursor.execute(
+                    """
+                        UPDATE Questions
+                        SET
+                        score_correct=?,
+                        score_incorrect=?,
+                        score_blank=?,
+                        score_weight=?
+                        WHERE model=? AND question=?
+                    """,
+                    (*scores, model_code, i),
+                )
+        if commit:
+            self.conn.commit()
+
     def update_student(self, exam_id, exam_capture, decisions, store_captures=True):
         new_student_db_id = self._student_db_id(decisions.student)
         old_student = self._read_student_by_exam(exam_id)
@@ -1065,7 +1100,7 @@ def _create_tables(conn):
     cursor.execute(SessionDB._index_student_id)
 
 
-def _save_exam_config(conn, exam_data):
+def _base_scores(exam_data):
     if exam_data.base_scores is None:
         base_scores = (None, None, None)
     else:
@@ -1074,6 +1109,29 @@ def _save_exam_config(conn, exam_data):
             exam_data.base_scores.format_incorrect_score(),
             exam_data.base_scores.format_blank_score(),
         )
+    return base_scores
+
+
+def _question_scores(exam_data, model):
+    all_none = exam_data.num_questions * [None]
+    if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
+        weights = all_none
+        scores_c = [s.format_correct_score() for s in exam_data.scores[model]]
+        scores_i = [s.format_incorrect_score() for s in exam_data.scores[model]]
+        scores_b = [s.format_blank_score() for s in exam_data.scores[model]]
+    else:
+        if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
+            weights = exam_data.get_question_weights(model, formatted=True)
+        else:
+            weights = all_none
+        scores_c = all_none
+        scores_i = all_none
+        scores_b = all_none
+    return scores_c, scores_i, scores_b, weights
+
+
+def _save_exam_config(conn, exam_data):
+    base_scores = _base_scores(exam_data)
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO Session "
@@ -1104,19 +1162,7 @@ def _save_exam_config(conn, exam_data):
         else:
             permutations = all_none
         variations = exam_data.get_variations(model)
-        if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
-            weights = all_none
-            scores_c = [s.format_correct_score() for s in exam_data.scores[model]]
-            scores_i = [s.format_incorrect_score() for s in exam_data.scores[model]]
-            scores_b = [s.format_blank_score() for s in exam_data.scores[model]]
-        else:
-            if exam_data.scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
-                weights = exam_data.get_question_weights(model, formatted=True)
-            else:
-                weights = all_none
-            scores_c = all_none
-            scores_i = all_none
-            scores_b = all_none
+        scores_c, scores_i, scores_b, weights = _question_scores(exam_data, model)
         data.extend(
             zip(
                 all_model,

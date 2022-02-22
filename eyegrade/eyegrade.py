@@ -528,7 +528,9 @@ class ProgramManager:
         if self.mode.in_grading() or self.mode.in_review_from_session():
             self._stop_grading()
         self.interface.activate_session_mode()
-        self.interface.dialog_edit_scores(self.exam_data)
+        modified = self.interface.dialog_edit_scores(self.exam_data)
+        if modified:
+            self.sessiondb.update_exam_config_scores(self.exam_data)
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
