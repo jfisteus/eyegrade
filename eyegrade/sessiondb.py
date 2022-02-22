@@ -17,6 +17,7 @@
 #
 import sqlite3
 import os
+from typing import Optional
 
 from . import utils
 from . import scoring
@@ -196,7 +197,7 @@ class SessionDB:
             (
                 exam_id,
                 student_db_id,
-                _Adapter.enc_model(decisions.model),
+                _enc_model(decisions.model),
                 score.correct,
                 score.incorrect,
                 score.blank,
@@ -250,7 +251,7 @@ class SessionDB:
         )
         # Store question scores
         for model in exam_data.models:
-            model_code = _Adapter.enc_model(model)
+            model_code = _enc_model(model)
             scores_c, scores_i, scores_b, weights = _question_scores(exam_data, model)
             data = zip(scores_c, scores_i, scores_b, weights)
             for i, scores in enumerate(data):
@@ -470,7 +471,7 @@ class SessionDB:
             "ORDER BY exam_id"
         ):
             exam = dict(row)
-            exam["model"] = _Adapter.dec_model(exam["model"])
+            exam["model"] = _dec_model(exam["model"])
             exam["answers"] = self.read_answers(exam["exam_id"])
             yield exam
 
@@ -524,7 +525,7 @@ class SessionDB:
             exam = {"student": student}
             for key in ("exam_id", "model", "correct", "incorrect", "score"):
                 exam[key] = row[key]
-            exam["model"] = _Adapter.dec_model(exam["model"])
+            exam["model"] = _dec_model(exam["model"])
             exam["answers"] = self.read_answers(exam["exam_id"])
             for key, value in exam.items():
                 if value is None:
@@ -737,11 +738,11 @@ class SessionDB:
             # Schema version < 3
             for row in cursor.execute("SELECT * FROM Solutions"):
                 self.exam_config.set_solutions(
-                    _Adapter.dec_model(row["model"]), row["solutions"]
+                    _dec_model(row["model"]), row["solutions"]
                 )
             for row in cursor.execute("SELECT * FROM Permutations"):
                 self.exam_config.set_permutations(
-                    _Adapter.dec_model(row["model"]), row["permutations"]
+                    _dec_model(row["model"]), row["permutations"]
                 )
             if base_scores is not None:
                 # This must be done after having set the solutions
@@ -787,7 +788,7 @@ class SessionDB:
                 )
                 model_scores.append(question_scores)
         for m in models:
-            model = _Adapter.dec_model(m)
+            model = _dec_model(m)
             solutions = self._load_solutions(m)
             if solutions[0] is not None:
                 self.exam_config.set_solutions(model, solutions)
@@ -968,7 +969,7 @@ class ExamFromDB(exams.Exam):
             student = None
         answers = sessiondb.read_answers(self.exam_id)
         self.decisions = ExamDecisionsFromDB(
-            answers, student, students_rank, _Adapter.dec_model(db_dict["model"])
+            answers, student, students_rank, _dec_model(db_dict["model"])
         )
         solutions = sessiondb.exam_config.get_solutions(self.decisions.model)
         if (
@@ -1029,24 +1030,22 @@ class StudentListingsFromDB(students.StudentListings):
             )
 
 
-class _Adapter:
-    @staticmethod
-    def enc_model(model_letter):
-        if model_letter == "0":
-            return 0
-        elif model_letter is None or model_letter == "?":
-            return -1
-        else:
-            return ord(model_letter) - 64
+def _enc_model(model_letter: str) -> int:
+    if model_letter == "0":
+        return 0
+    elif model_letter is None or model_letter == "?":
+        return -1
+    else:
+        return ord(model_letter) - 64
 
-    @staticmethod
-    def dec_model(model_number):
-        if model_number == 0:
-            return "0"
-        elif model_number == -1 or model_number is None:
-            return None
-        else:
-            return chr(64 + model_number)
+
+def _dec_model(model_number: int) -> Optional[str]:
+    if model_number == 0:
+        return "0"
+    elif model_number == -1 or model_number is None:
+        return None
+    else:
+        return chr(64 + model_number)
 
 
 def check_file_is_sqlite(filename):
@@ -1154,7 +1153,7 @@ def _save_exam_config(conn, exam_data):
     # Store the question permutations and scores
     data = []
     for model in exam_data.models:
-        all_model = exam_data.num_questions * [_Adapter.enc_model(model)]
+        all_model = exam_data.num_questions * [_enc_model(model)]
         all_none = exam_data.num_questions * [None]
         permutations = exam_data.get_permutations(model)
         if permutations:
@@ -1179,7 +1178,7 @@ def _save_exam_config(conn, exam_data):
     # Store question solutions
     data = []
     for model in exam_data.models:
-        encoded_model = _Adapter.enc_model(model)
+        encoded_model = _enc_model(model)
         solutions = exam_data.get_solutions(model)
         if solutions:
             for question, question_solutions in enumerate(solutions):
