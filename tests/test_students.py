@@ -209,6 +209,35 @@ class TestReadStudentsFromFile(unittest.TestCase):
         key = [(s[0], "", s[2], s[3], s[4]) for s in self.students]
         self.assertEqual(data, key)
 
+    def test_read_with_header_comma_name(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, "test_file")
+            with open(test_file, mode="w") as f:
+                f.write("id\tname\temail\n")
+                f.write(
+                    "\n".join(
+                        ["\t".join((s[0], "{}, {}".format(s[3], s[2]), s[4])) for s in self.students]
+                    )
+                )
+            student_list = students.read_students(test_file)
+        data = [_student_tuple(s) for s in student_list]
+        key = [(s[0], "{}, {}".format(s[3], s[2]), "", "", s[4]) for s in self.students]
+        self.assertEqual(data, key)
+
+    def test_read_without_header_comma_name(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            test_file = os.path.join(dir_name, "test_file")
+            with open(test_file, mode="w") as f:
+                f.write(
+                    "\n".join(
+                        ["\t".join((s[0], "{}, {}".format(s[3], s[2]), s[4])) for s in self.students]
+                    )
+                )
+            student_list = students.read_students(test_file)
+        data = [_student_tuple(s) for s in student_list]
+        key = [(s[0], "{}, {}".format(s[3], s[2]), "", "", s[4]) for s in self.students]
+        self.assertEqual(data, key)
+
     def test_errors(self):
         with tempfile.TemporaryDirectory() as dir_name:
             test_file = os.path.join(dir_name, "test_file")

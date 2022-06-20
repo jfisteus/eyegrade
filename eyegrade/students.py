@@ -324,10 +324,16 @@ class CSVStudentReader(StudentReader):
 
     def __enter__(self):
         self.file = open(self.file_name, newline="")
-        try:
-            dialect = csv.Sniffer().sniff(self.file.read(1024))
-        except csv.Error:
+        file_sample = self.file.read(1024)
+        if '\t' in file_sample:
+            # The sniffer doesn't guess correctly when a TSV file
+            # contains names wirth commas
             dialect = csv.excel_tab
+        else:
+            try:
+                dialect = csv.Sniffer().sniff(file_sample)
+            except csv.Error:
+                dialect = csv.excel_tab
         self.file.seek(0)
         self.iterator = csv.reader(self.file, dialect=dialect)
         return self
