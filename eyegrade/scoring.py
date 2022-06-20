@@ -186,6 +186,11 @@ class Score:
             self.score = None
             self.max_score = None
 
+    def update_question_scores(self, question_scores):
+        self.question_scores = question_scores
+        if self.answers and self.solutions:
+            self.update()
+
 
 class AutomaticScore:
     def __init__(self, max_score, penalize):

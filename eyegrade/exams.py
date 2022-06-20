@@ -55,8 +55,8 @@ class Exam:
             self.decisions.set_student(rank[0])
         self.sessiondb = sessiondb
 
-    def update_grade(self):
-        self.score.update()
+    def update_question_scores(self, question_scores):
+        self.score.update_question_scores(question_scores)
 
     def reset_image(self):
         self.capture.reset_image()

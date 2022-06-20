@@ -567,6 +567,18 @@ class CenterView(QWidget):
         return self.grab().save(filename)
 
 
+class OfflineCaptureSaver:
+    def __init__(self, exam: exams.Exam, survey_mode: bool):
+        self.view = CenterView()
+        self.view.display_capture(exam.capture.image_drawn)
+        self.view.update_status(
+            exam.score, exam.decisions.model, exam.exam_id, survey_mode
+        )
+
+    def save(self, filename: str) -> None:
+        self.view.grab().save(filename)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -703,6 +715,9 @@ class Interface:
 
     def clear_selected_exam(self):
         return self.window.exams_view.clear_selected_exam()
+
+    def get_exams(self):
+        return list(self.window.exams_view.exams)
 
     def enable_manual_detect(self, enabled):
         """Enables or disables the manual detection mode.
