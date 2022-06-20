@@ -325,7 +325,7 @@ class CSVStudentReader(StudentReader):
     def __enter__(self):
         self.file = open(self.file_name, newline="")
         file_sample = self.file.read(1024)
-        if '\t' in file_sample:
+        if "\t" in file_sample:
             # The sniffer doesn't guess correctly when a TSV file
             # contains names wirth commas
             dialect = csv.excel_tab

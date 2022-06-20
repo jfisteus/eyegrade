@@ -216,7 +216,10 @@ class TestReadStudentsFromFile(unittest.TestCase):
                 f.write("id\tname\temail\n")
                 f.write(
                     "\n".join(
-                        ["\t".join((s[0], "{}, {}".format(s[3], s[2]), s[4])) for s in self.students]
+                        [
+                            "\t".join((s[0], "{}, {}".format(s[3], s[2]), s[4]))
+                            for s in self.students
+                        ]
                     )
                 )
             student_list = students.read_students(test_file)
@@ -230,7 +233,10 @@ class TestReadStudentsFromFile(unittest.TestCase):
             with open(test_file, mode="w") as f:
                 f.write(
                     "\n".join(
-                        ["\t".join((s[0], "{}, {}".format(s[3], s[2]), s[4])) for s in self.students]
+                        [
+                            "\t".join((s[0], "{}, {}".format(s[3], s[2]), s[4]))
+                            for s in self.students
+                        ]
                     )
                 )
             student_list = students.read_students(test_file)
