@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
+    QProgressDialog,
     QSizePolicy,
     QStackedLayout,
     QStyleFactory,
@@ -579,6 +580,19 @@ class OfflineCaptureSaver:
         self.view.grab().save(filename)
 
 
+class ModalProgressDialog:
+    def __init__(self, labelText, maximum, parent=None):
+        self.progress_dialog = QProgressDialog(
+            labelText, None, 0, maximum, parent=parent
+        )
+        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self.value = 0
+
+    def count_step(self):
+        self.value += 1
+        self.progress_dialog.setValue(self.value)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -963,6 +977,17 @@ class Interface:
                 return True
             else:
                 return False
+
+    def show_progress_dialog(
+        self, label_text: str, max_steps: int
+    ) -> ModalProgressDialog:
+        """Shows a modal progress dialog from 0 to `max_steps`
+
+        It returns a ModalProgressDialog object in order for the caller
+        to be able to update progress in steps of 1 unit.
+
+        """
+        return ModalProgressDialog(label_text, max_steps, parent=self.window)
 
     def run_worker(self, task, callback):
         """Runs a task in another thread.

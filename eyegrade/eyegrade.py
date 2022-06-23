@@ -535,7 +535,11 @@ class ProgramManager:
         self.interface.activate_session_mode()
         modified = self.interface.dialog_edit_scores(self.exam_data)
         if modified:
-            for exam in self.interface.get_exams():
+            exams = self.interface.get_exams()
+            progress = self.interface.show_progress_dialog(
+                _("Updating the scores of already graded exams"), len(exams)
+            )
+            for exam in exams:
                 exam.update_question_scores(self.exam_data.scores[exam.decisions.model])
                 exam.load_capture()
                 exam.reset_image()
@@ -548,9 +552,10 @@ class ProgramManager:
                     gui.OfflineCaptureSaver(exam, self.exam_data.survey_mode),
                 )
                 self.interface.update_exam(exam)
+                progress.count_step()
             self.sessiondb.update_exam_config_scores(self.exam_data, commit=True)
             self.interface.show_information(
-                _("The scores of the exams have been updated."),
+                _("The scores of the already graded exams have been updated."),
                 title=_("Scores updated"),
             )
 
