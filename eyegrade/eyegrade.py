@@ -22,6 +22,7 @@ import os
 import locale
 import sys
 import time
+from typing import Optional
 import webbrowser
 import gettext
 
@@ -32,6 +33,7 @@ from . import exams
 from .qtgui import gui
 from . import sessiondb
 from . import export
+from eyegrade import qtgui
 
 if (
     not os.getenv("LANG")
@@ -196,6 +198,9 @@ class ProgramMode:
 
 class ProgramManager:
     """Manages a grading session."""
+
+    interface: gui.Interface
+    sessiondb: Optional[sessiondb.SessionDB]
 
     def __init__(self, interface, session_file=None):
         self.interface = interface
@@ -530,7 +535,24 @@ class ProgramManager:
         self.interface.activate_session_mode()
         modified = self.interface.dialog_edit_scores(self.exam_data)
         if modified:
-            self.sessiondb.update_exam_config_scores(self.exam_data)
+            for exam in self.interface.get_exams():
+                exam.update_question_scores(self.exam_data.scores[exam.decisions.model])
+                exam.load_capture()
+                exam.reset_image()
+                exam.draw_answers()
+                self.sessiondb.update_score(exam, commit=False)
+                self.sessiondb.save_drawn_capture(
+                    exam.exam_id,
+                    exam.capture,
+                    exam.decisions.student,
+                    gui.OfflineCaptureSaver(exam, self.exam_data.survey_mode),
+                )
+                self.interface.update_exam(exam)
+            self.sessiondb.update_exam_config_scores(self.exam_data, commit=True)
+            self.interface.show_information(
+                _("The scores of the exams have been updated."),
+                title=_("Scores updated"),
+            )
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""

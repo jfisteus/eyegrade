@@ -235,6 +235,9 @@ class SessionDB:
         if store_captures:
             self.save_drawn_capture(exam_id, exam_capture, decisions.student)
 
+    def update_score(self, exam: exams.Exam, commit: bool = True):
+        self._update_score(exam.exam_id, exam.score, commit=commit)
+
     def update_exam_config_scores(self, exam_data, commit=True):
         # Store base scores
         base_scores = _base_scores(exam_data)
@@ -591,10 +594,12 @@ class SessionDB:
             cells.append(_create_cell_from_row(row, is_id_cell=True))
         return cells
 
-    def save_drawn_capture(self, exam_id, exam_capture, student):
+    def save_drawn_capture(self, exam_id, exam_capture, student, image_saver=None):
         name = utils.capture_name(self.exam_config.capture_pattern, exam_id, student)
         drawn_name = os.path.join(self.session_dir, "captures", name)
-        if self.capture_save_func:
+        if image_saver is not None:
+            image_saver.save(drawn_name)
+        elif self.capture_save_func is not None:
             self.capture_save_func(drawn_name)
         else:
             exam_capture.save_image_drawn(drawn_name)
