@@ -367,19 +367,17 @@ class NewSessionPageExamAnswers(QWizardPage):
             self.radioGroups[chr(97 + x).upper()] = radioGroupList
             self.tabs.addTab(mygroupbox, _("Model ") + chr(97 + x).upper())
 
-    def _get_values(self, formated=False):
+    def _get_values(self):
         response = dict()
         for k, v in self.radioGroups.items():
-            answer = dict()
-            for ak, av in v.items():
-                answer[ak] = set({abs(int(av.checkedId())) - 1})
-            if formated:
-                answer = list(answer.values())
+            answer = []
+            for _, av in v.items():
+                answer.append(set({abs(int(av.checkedId())) - 1}))
             response[k] = answer
         return response
 
     def _check_count_answers(self):
-        local_radioGroups = self._get_values(formated=True)
+        local_radioGroups = self._get_values()
         local_total_answers = 0
         for v in local_radioGroups.values():
             for a in v:
@@ -398,7 +396,7 @@ class NewSessionPageExamAnswers(QWizardPage):
         else:
             valid = True
             # Add solutions to the exam's configuration:
-            current_solutions = self._get_values(formated=True)
+            current_solutions = self._get_values()
             for model, solutions in current_solutions.items():
                 self.wizard().exam_config.set_solutions(model, solutions)
         return valid
