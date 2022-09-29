@@ -20,6 +20,7 @@ import random
 
 from typing import Dict, List, Set, Optional, Iterator, Tuple, Union, TYPE_CHECKING
 
+from . import words
 from .. import utils
 
 if TYPE_CHECKING:
@@ -48,6 +49,7 @@ class ExamQuestions:
     shuffled_questions: Dict[str, List["Question"]]
     permutations: Dict[str, List[int]]
     scores: Optional[Union["scoring.QuestionScores", "scoring.AutomaticScore"]]
+    points_words: Optional[words.PointsWords]
     _student_id_length: int
 
     def __init__(self):
@@ -63,6 +65,7 @@ class ExamQuestions:
         self.shuffled_questions = {}
         self.permutations = {}
         self.scores = None
+        self.points_words = None
 
     @property
     def student_id_length(self) -> int:

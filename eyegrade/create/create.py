@@ -360,6 +360,7 @@ def create_exam():
         id_box_width=args.id_box_width,
         force_config_overwrite=args.force_config_overwrite,
         scores=scores,
+        points_words=exam.points_words,
         left_to_right_numbering=args.left_to_right_numbering,
         survey_mode=args.survey_mode,
     )

@@ -96,6 +96,7 @@ class ExamMaker:
         id_box_width=None,
         force_config_overwrite=False,
         scores=None,
+        points_words=None,
         left_to_right_numbering=False,
         survey_mode=False,
     ):
@@ -161,6 +162,13 @@ class ExamMaker:
             variables["score_incorrect"] = scores.format_incorrect_score()
             if self.exam_config is not None:
                 self.exam_config.set_base_scores(scores)
+        if points_words is not None:
+            variables[
+                "score_correct"
+            ] += f" {points_words.for_score(scores.correct_score)}"
+            variables[
+                "score_incorrect"
+            ] += f" {points_words.for_score(scores.incorrect_score)}"
         self._load_replacements(variables, id_label)
         self.empty_variables = []
 

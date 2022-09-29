@@ -1334,8 +1334,21 @@ wrong answers would get a penalization of 5 points.
 A student that answers randomly would be an average of 10/3 correct answers
 and 20/3 incorrect answers, for a final score of 10 * 10 / 3 - 5 * 20 / 3 = 0.
 
+You can inject these scores into your LaTeX template
+(see `Injecting scores into your LaTeX template`_).
+In addition,
+if you want those scores to be followed
+by the *point* or *points* words
+depending on whether the score is 1 or a different value
+(e.g. *1 point* or *1/2 points*),
+you can include in your exam questions file
+the `pointsWords` element with the word
+for the singular *point* and the plural *points*
+in the language of your exam,
+as in the following example::
 
-
+  <scores eye:maxScore="10" eye:penalize="true" />
+  <pointsWords eye:singular="point" eye:plural="points" />
 
 
 Editing the LaTeX template
@@ -1345,6 +1358,11 @@ In addition to the questions of the exam,
 you'll need a LaTeX template.
 It allows you to design the front page of the exam
 and other aspects (fonts, margins, etc.)
+
+
+The LaTeX template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 This is an example:
 
 .. include:: ../sample-files/template.tex
@@ -1364,6 +1382,10 @@ exam:
   the questions.
 - `{{model}}`: a letter representing the model of the exam. Each model
   has a different ordering for questions and choices within questions.
+- `{{score_correct}}` and `{{score_incorrect}}`:
+  score for correct answers
+  and penalization for incorrect answers.
+  The latter is printed as a positive number.
 - `{{answer-table}}`: replaced by the table in which students mark out
   their answers.
 - `{{questions}}`: replaced by the questions of the exam.
@@ -1372,7 +1394,30 @@ exam:
   or "1", "2", etc. if a variation has been selected.
 
 Note that a template is highly reusable for different exams and
-subjects.
+subjects because of the use of these marks
+to inject these pieces of data
+that usually change from exam to exam.
+
+
+Injecting scores into your LaTeX template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As explained above,
+the `{{score_correct}}` and `{{score_incorrect}}` marks
+are replaced by the scores of correct and incorrect answers
+(see also `Configuring scores`_).
+
+If you want your template to say something
+like *1 point* and *2 points*
+(note the use of the singular and plural forms of the word *point*),
+just insert these words in the XML file that contains the questions
+with the `pointsWords` element as explained at
+`Configuring scores`_.
+The *point* or *points* words
+(or those words that you configured in the XML file for your language)
+will be appended automatically to the score
+in that case.
+
 
 
 Creating the PDF files

@@ -25,6 +25,7 @@ from .. import utils
 from .. import scoring
 from . import questions
 from . import parametric
+from . import words
 
 if TYPE_CHECKING:
     import xml.dom
@@ -86,6 +87,9 @@ EyegradeException.register_error(
 )
 EyegradeException.register_error(
     "duplicate_score_element", "At most one score element can be provided."
+)
+EyegradeException.register_error(
+    "duplicate_points_words_element", "At most one pointsWords element can be provided."
 )
 EyegradeException.register_error(
     "empty_score_element",
@@ -160,6 +164,7 @@ def _parse_tree(dom_tree: xml.dom.minidom.Element) -> questions.ExamQuestions:
             exam.scores = scores.compute(exam.num_questions(), exam.num_choices())
         else:
             exam.scores = scores
+        exam.points_words = parse_points_words(root)
     else:
         raise EyegradeException(
             "Bad root element: " + printable_name(root), key="exam_root_element"
@@ -220,6 +225,27 @@ def parse_scores(
     elif len(element_list) > 1:
         raise EyegradeException("", key="duplicate_score_element")
     return scores
+
+
+def parse_points_words(root: xml.dom.minidom.Element) -> Optional[words.PointsWords]:
+    element_list = get_children_by_tag_name(root, EYEGRADE_NAMESPACE, "pointsWords")
+    if len(element_list) == 1:
+        element = element_list[0]
+        singular_word = get_attribute_text(element, "singular")
+        plural_word = get_attribute_text(element, "plural")
+        if singular_word is not None and plural_word is not None:
+            pointsWords = words.PointsWords(singular_word, plural_word)
+        elif singular_word is not None:
+            pointsWords = words.PointsWords(singular_word)
+        elif plural_word is not None:
+            pointsWords = words.PointsWords(plural_word)
+        else:
+            pointsWords = None
+    elif not element_list:
+        pointsWords = None
+    else:
+        raise EyegradeException("", key="duplicate_points_words_element")
+    return pointsWords
 
 
 def parse_question(question_node: xml.dom.minidom.Element) -> questions.Question:
