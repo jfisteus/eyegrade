@@ -17,14 +17,14 @@
 #
 
 import fractions
-from typing import Union
+from typing import Union, Optional
 
 
 class PointsWords:
     singular_word: str
     plural_word: str
 
-    def __init__(self, word_1: str, word_2: str = None):
+    def __init__(self, word_1: str, word_2: Optional[str] = None):
         """Set the singular and plural words for "point".
 
         `word_1` is the singular form and `word_2` is the plural form.

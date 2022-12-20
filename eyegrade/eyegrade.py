@@ -574,7 +574,7 @@ class ProgramManager:
             exit_ = True
         else:
             exit_ = True
-        if exit and self.sessiondb is not None:
+        if exit_ and self.sessiondb is not None:
             self.sessiondb.save_legacy_answers()
             self.sessiondb.close()
         return exit_

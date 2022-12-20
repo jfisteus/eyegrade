@@ -370,18 +370,22 @@ class NewSessionPageExamAnswers(QWizardPage):
     def _get_values(self):
         response = dict()
         for k, v in self.radioGroups.items():
-            answer = []
+            answers = []
             for _, av in v.items():
-                answer.append(set({abs(int(av.checkedId())) - 1}))
-            response[k] = answer
+                answer = abs(int(av.checkedId())) - 1
+                if answer > 0:
+                    answers.append({answer})
+                else:
+                    answers.append({})
+            response[k] = answers
         return response
 
     def _check_count_answers(self):
-        local_radioGroups = self._get_values()
+        local_radio_groups = self._get_values()
         local_total_answers = 0
-        for v in local_radioGroups.values():
-            for a in v:
-                if a != 0:
+        for model_answers in local_radio_groups.values():
+            for question_answer in model_answers:
+                if len(question_answer) > 0:
                     local_total_answers += 1
         return self.total_answers == local_total_answers
 
