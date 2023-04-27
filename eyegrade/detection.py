@@ -60,7 +60,6 @@ param_error_image_pattern = "error-%s.png"
 
 
 class ExamDetector:
-
     default_options = {
         "infobits": True,
         "left-to-right-numbering": False,

@@ -568,7 +568,6 @@ class StudentGroupsTabs(QWidget):
 
 
 class GroupWidget(QWidget):
-
     _COLUMN_MAP = students.StudentColumnMap(
         columns=[
             students.StudentColumn.SEQUENCE_NUM,

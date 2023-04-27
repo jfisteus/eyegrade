@@ -27,6 +27,7 @@ import statistics
 #          or two points p1 and p2 in the line.
 #
 
+
 # Functions on points
 #
 def distance(p1, p2):
