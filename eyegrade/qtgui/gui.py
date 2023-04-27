@@ -260,6 +260,26 @@ class ActionsManager:
         self.actions_exams["students"].setEnabled(True)
         self.actions_exams["export"].setEnabled(True)
 
+    def set_before_review_from_grading_mode(self):
+        self.actions_grading["start"].setEnabled(False)
+        self.actions_grading["stop"].setEnabled(False)
+        self.actions_grading["back"].setEnabled(False)
+        self.actions_grading["snapshot"].setEnabled(False)
+        self.actions_grading["manual_detect"].setEnabled(False)
+        self.actions_grading["edit_id"].setEnabled(False)
+        self.actions_grading["continue"].setEnabled(False)
+        self.actions_grading["discard"].setEnabled(False)
+        self.actions_session["new"].setEnabled(False)
+        self.actions_session["open"].setEnabled(False)
+        self.actions_session["close"].setEnabled(False)
+        self.actions_session["exit"].setEnabled(True)
+        self.actions_tools["camera"].setEnabled(False)
+        self.actions_tools["export_exam_config"].setEnabled(False)
+        self.actions_tools["edit_scores"].setEnabled(False)
+        self.actions_exams["search"].setEnabled(False)
+        self.actions_exams["students"].setEnabled(False)
+        self.actions_exams["export"].setEnabled(False)
+
     def set_review_from_session_mode(self):
         self.actions_grading["start"].setEnabled(True)
         self.actions_grading["stop"].setEnabled(False)
@@ -689,6 +709,9 @@ class Interface:
         else:
             self.actions_manager.set_review_from_session_mode()
             self.update_status_bar(_("Session open - Reviewing exam"))
+
+    def activate_before_review_from_grading_mode(self):
+        self.actions_manager.set_before_review_from_grading_mode()
 
     def activate_manual_detect_mode(self):
         self.actions_manager.set_manual_detect_mode()

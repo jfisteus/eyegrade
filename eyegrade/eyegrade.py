@@ -138,6 +138,7 @@ class ProgramMode:
     review_from_session = 3
     review_from_grading = 4
     manual_detect = 5
+    before_review_from_grading = 6
 
     def __init__(self):
         self.mode = ProgramMode.no_session
@@ -169,9 +170,15 @@ class ProgramMode:
     def in_manual_detect(self):
         return self.mode == ProgramMode.manual_detect
 
+    def in_before_review_from_grading(self):
+        return self.mode == ProgramMode.before_review_from_grading
+
     def in_grading(self):
         return (
-            self.in_search() or self.in_review_from_grading() or self.in_manual_detect()
+            self.in_search()
+            or self.in_review_from_grading()
+            or self.in_manual_detect()
+            or self.in_before_review_from_grading()
         )
 
     def enter_mode(self, mode):
@@ -194,6 +201,27 @@ class ProgramMode:
 
     def enter_manual_detect(self):
         self.mode = ProgramMode.manual_detect
+
+    def enter_before_review_from_grading(self):
+        self.mode = ProgramMode.before_review_from_grading
+
+    def __str__(self):
+        if self.mode == ProgramMode.no_session:
+            return "no_session"
+        elif self.mode == ProgramMode.session:
+            return "session"
+        elif self.mode == ProgramMode.search:
+            return "search"
+        elif self.mode == ProgramMode.review_from_session:
+            return "review_from_session"
+        elif self.mode == ProgramMode.review_from_grading:
+            return "review_from_grading"
+        elif self.mode == ProgramMode.manual_detect:
+            return "manual_detect"
+        elif self.mode == ProgramMode.before_review_from_grading:
+            return "before_review_from_grading"
+        else:
+            return f"unknown({self.mode})"
 
 
 class ProgramManager:
@@ -264,8 +292,14 @@ class ProgramManager:
             if self.interface.is_action_checked(("tools", "auto_change")):
                 self._start_auto_change_detection()
             self.drop_next_capture = False
-        self.mode.enter_review()
-        self.interface.activate_review_mode(self.mode.in_review_from_grading())
+            # Because _store_capture_and_add is called with run_later (see below),
+            # we have a temporary mode in which all actions are disabled.
+            # This prevents, for example, trying to remove the exam before
+            # it is saved and displayed.
+            self.mode.enter_before_review_from_grading()
+        else:
+            self.mode.enter_review()
+            self.interface.activate_review_mode(False)
         self.interface.display_capture(self.exam.get_image_drawn())
         self.interface.update_text_up(self.exam.get_student_id_and_name())
         if self.exam.score is not None:
@@ -281,7 +315,8 @@ class ProgramManager:
             self.interface.enable_manual_detect(True)
         if self.mode.in_grading():
             # Run later so that the widget gets fully painted before being
-            # grabbed and saved:
+            # grabbed and saved.
+            # The review_mode will be activated by _store_capture_and_add.
             self.interface.run_later(self._store_capture_and_add, delay=0)
 
     def _start_auto_change_detection(self):
@@ -864,6 +899,9 @@ class ProgramManager:
     def _store_capture_and_add(self):
         self._store_capture(self.exam)
         self.interface.add_exam(self.exam)
+        # Now that the exam is fully processed, we can enter review mode:
+        self.mode.enter_review()
+        self.interface.activate_review_mode(True)
 
     def _store_capture_and_update(self):
         self._store_capture(self.exam)
