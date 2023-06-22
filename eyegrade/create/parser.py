@@ -290,8 +290,9 @@ def parse_question_variation(
         incorrect_choices.append(parse_question_component(node, True))
         read_fix_attr(node, fix_first, fix_last, counter)
         counter += 1
+    tags = get_element_content(variation_node, EYEGRADE_NAMESPACE, "tags")
     return questions.QuestionVariation(
-        text, correct_choices, incorrect_choices, fix_first, fix_last
+        text, correct_choices, incorrect_choices, fix_first, fix_last, tags=tags
     )
 
 

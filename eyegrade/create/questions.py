@@ -417,6 +417,12 @@ class Question:
         return self.variations[0].num_correct_choices
 
     @property
+    def tags(self) -> Optional[str]:
+        if not self.variations:
+            raise ValueError("At least one question variation needed")
+        return self.variations[0].tags
+
+    @property
     def num_variations(self) -> int:
         return len(self.variations)
 
@@ -470,6 +476,10 @@ class FixedQuestion(Question):
         super().__init__()
         self.add_variation(variation)
 
+    @property
+    def tags(self) -> Optional[str]:
+        return self.variations[0].tags
+
     def text(self, model: str) -> "QuestionComponent":
         return self.variations[0].text
 
@@ -496,6 +506,7 @@ class QuestionVariation:
     incorrect_choices: List["QuestionComponent"]
     fix_first: List[int]
     fix_last: List[int]
+    tags: Optional[str]
 
     def __init__(
         self,
@@ -504,12 +515,14 @@ class QuestionVariation:
         incorrect_choices: List["QuestionComponent"],
         fix_first: List[int],
         fix_last: List[int],
+        tags: Optional[str] = None,
     ):
         self.text = text
         self.correct_choices = correct_choices
         self.incorrect_choices = incorrect_choices
         self.fix_first = fix_first
         self.fix_last = fix_last
+        self.tags = tags
 
     @property
     def num_choices(self) -> int:
