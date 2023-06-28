@@ -452,7 +452,7 @@ def get_question_text_content(
     if len(node_list) == 1:
         for node in node_list[0].childNodes:
             if node.nodeType == node.TEXT_NODE:
-                parts.append(("text", node.data))
+                parts.append(("text", node.data.strip()))
             #                parts.append(('text', text_norm_re.sub(' ', node.data)))
             elif node.nodeType == node.ELEMENT_NODE:
                 if node.namespaceURI == namespace and node.localName == "code":
@@ -546,7 +546,7 @@ def get_text(
         text = "".join(data)
         if normalize:
             return text_norm_re.sub(" ", text.strip())
-        return text
+        return text.strip()
     return None
 
 
