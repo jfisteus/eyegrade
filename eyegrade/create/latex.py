@@ -178,7 +178,13 @@ class ExamMaker:
         self.exam_questions = exam
 
     def create_exam(
-        self, model, shuffle, variation=None, with_solution=False, produce_pdf=False
+        self,
+        model,
+        shuffle,
+        variation=None,
+        with_solution=False,
+        produce_pdf=False,
+        keep_question_order=False,
     ):
         """Creates a new exam.
 
@@ -220,7 +226,11 @@ class ExamMaker:
                     or model not in self.exam_config.permutations
                     or (model in self.exam_config.permutations and shuffle)
                 ):
-                    self.exam_questions.shuffle(model, variation=variation)
+                    self.exam_questions.shuffle(
+                        model,
+                        variation=variation,
+                        keep_question_order=keep_question_order,
+                    )
                     if self.exam_config is not None:
                         (
                             solutions,

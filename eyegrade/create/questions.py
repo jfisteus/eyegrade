@@ -107,9 +107,18 @@ class ExamQuestions:
             return min(num) == max(num)
         return None
 
-    def shuffle(self, model: str, variation: Optional[int] = None) -> None:
+    def shuffle(
+        self, model: str, variation: Optional[int] = None, keep_question_order=False
+    ) -> None:
         """Shuffles questions and options within questions for the given model."""
-        shuffled_groups, shuffled_questions, permutations = self.questions.shuffle()
+        if not keep_question_order:
+            shuffled_groups, shuffled_questions, permutations = self.questions.shuffle()
+        else:
+            (
+                shuffled_groups,
+                shuffled_questions,
+                permutations,
+            ) = self.questions.dont_shuffle()
         self.shuffled_groups[model] = shuffled_groups
         self.shuffled_questions[model] = shuffled_questions
         self.permutations[model] = permutations
@@ -228,8 +237,6 @@ class QuestionsContainer:
         question. That is, question shuffled[i] was in the original list in
         permutations[i] position.
 
-        It returns just a list of questions, without groupings.
-
         """
         to_sort = [(random.random(), item) for item in self.groups]
         groups = []
@@ -239,6 +246,25 @@ class QuestionsContainer:
             groups.append(group)
             questions.extend(group.questions)
             permutations.extend(self._positions(group))
+        return groups, questions, permutations
+
+    def dont_shuffle(
+        self,
+    ) -> Tuple[List["QuestionsGroup"], List["Question"], List[int]]:
+        """Returns a tuple (list of questions, permutations) with data not shuffled.
+
+        Permutations is another list with the original position of each
+        question. That is, question shuffled[i] was in the original list in
+        permutations[i] position.
+
+        """
+        groups = []
+        questions = []
+        permutations = []
+        for group in self.groups:
+            groups.append(group)
+            questions.extend(group.questions)
+        permutations = list(range(len(questions)))
         return groups, questions, permutations
 
     def shuffle_variations(self, model: str) -> None:

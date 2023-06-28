@@ -112,6 +112,13 @@ def read_cmd_options():
         help="don't shuffle already shuffled models",
     )
     arg_parser.add_argument(
+        "--keep-question-order",
+        action="store_true",
+        dest="keep_question_order",
+        default=False,
+        help="keep the original order of the questions (shuffle choices only)",
+    )
+    arg_parser.add_argument(
         "-b",
         "--table-dimensions",
         dest="dimensions",
@@ -381,6 +388,7 @@ def create_exam():
                 not args.dont_shuffle_again,
                 variation=variation,
                 produce_pdf=produce_pdf,
+                keep_question_order=args.keep_question_order,
             )
             if produced_filename is not None:
                 print("Created file:", produced_filename, file=sys.stderr)
@@ -393,6 +401,7 @@ def create_exam():
                     with_solution=True,
                     variation=variation,
                     produce_pdf=produce_pdf,
+                    keep_question_order=args.keep_question_order,
                 )
                 print("Created file:", produced_filename, file=sys.stderr)
     else:
@@ -401,6 +410,7 @@ def create_exam():
             not args.dont_shuffle_again,
             variation=variation,
             produce_pdf=produce_pdf,
+            keep_question_order=args.keep_question_order,
         )
         print("Created file:", produced_filename, file=sys.stderr)
     if config_filename is not None:
