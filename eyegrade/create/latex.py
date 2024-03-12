@@ -817,9 +817,16 @@ def _right_block_selected(question_component):
 def _start_right_block(question_component):
     width_right = question_component.annex_width + PARAM_TABLE_SEP
     width_left = 1 - width_right - PARAM_TABLE_MARGIN
+    if question_component.annex_separation:
+        separation = "|"
+    else:
+        separation = ""
     return (
-        "\\hspace{-0.2cm}\\begin{tabular}[l]{p{%f\\textwidth}p{%f\\textwidth}}\n"
-    ) % (width_left, width_right)
+        "\\hspace{-0.2cm}"
+        f"\\begin{{tabular}}[l]{{p{{{width_left}\\textwidth}}"
+        f"{separation}"
+        f"p{{{width_right}\\textwidth}}}}\n"
+    )
 
 
 def _end_right_block(question_component):

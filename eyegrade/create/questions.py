@@ -600,6 +600,7 @@ class QuestionComponent:
     figure: Optional[str]
     annex_width: Optional[float]
     annex_pos: Optional[str]
+    annex_separation: bool
 
     def __init__(self, in_choice: bool, text: Optional[str] = None):
         self.in_choice = in_choice

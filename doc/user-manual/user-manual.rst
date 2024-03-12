@@ -1203,6 +1203,13 @@ This is an example::
     </choices>
   </question>
 
+A vertical separation line between the text of the question
+and the picture
+will be inserted
+with the `eye:separation="line"` attribute::
+
+  <figure eye:width="0.16" eye:position="right" eye:separation="line">sample-logo.eps</figure>
+
 Pictures can also be used inside a choice.
 It that case, the choice can only contain the picture
 and the `eye:position` attribute must not be used::
@@ -1242,6 +1249,14 @@ It takes the following configuration attributes:
 This is an example::
 
     <code eye:position="right" eye:width="0.4">for letter in ['a', 'b', 'c']:
+        print letter</code>
+
+A vertical separation line between the text of the question
+and the block of code
+will be inserted
+with the `eye:separation="line"` attribute::
+
+    <code eye:position="right" eye:width="0.4" eye:separation="line">for letter in ['a', 'b', 'c']:
         print letter</code>
 
 Blocks of code can also be used inside a choice.

@@ -390,10 +390,10 @@ def parse_question_component(
     else:
         component.text = get_element_content_node(parent_node)
     component.code, code_atts = get_element_content_with_attrs(
-        parent_node, EYEGRADE_NAMESPACE, "code", ["width", "position"]
+        parent_node, EYEGRADE_NAMESPACE, "code", ["width", "position", "separation"]
     )
     component.figure, figure_atts = get_element_content_with_attrs(
-        parent_node, EYEGRADE_NAMESPACE, "figure", ["width", "position"]
+        parent_node, EYEGRADE_NAMESPACE, "figure", ["width", "position", "separation"]
     )
     if component.code is not None:
         if code_atts[1] is None:
@@ -407,6 +407,10 @@ def parse_question_component(
         else:
             component.annex_width = None
         component.annex_pos = code_atts[1]
+        if code_atts[2] and code_atts[2] == "line":
+            component.annex_separation = True
+        else:
+            component.annex_separation = False
     if component.figure is not None:
         if figure_atts[1] is None:
             figure_atts[1] = "center"
@@ -416,6 +420,10 @@ def parse_question_component(
             raise EyegradeException("", key="missing_width_fig")
         component.annex_width = float(figure_atts[0])
         component.annex_pos = figure_atts[1]
+        if code_atts[2] and code_atts[2] == "line":
+            component.annex_separation = True
+        else:
+            component.annex_separation = False
     component.check_is_valid()
     return component
 
