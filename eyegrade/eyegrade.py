@@ -744,9 +744,9 @@ class ProgramManager:
             self.detection_options["show-lines"] = self.interface.is_action_checked(
                 ("tools", "lines")
             )
-            self.detection_options[
-                "show-image-proc"
-            ] = self.interface.is_action_checked(("tools", "processed"))
+            self.detection_options["show-image-proc"] = (
+                self.interface.is_action_checked(("tools", "processed"))
+            )
             self.detection_options["show-status"] = self.interface.is_action_checked(
                 ("tools", "show_status")
             )
@@ -876,9 +876,9 @@ class ProgramManager:
         if exam_data.id_num_digits and exam_data.id_num_digits > 0:
             self.detection_options["read-id"] = True
             self.detection_options["id-num-digits"] = exam_data.id_num_digits
-        self.detection_options[
-            "left-to-right-numbering"
-        ] = exam_data.left_to_right_numbering
+        self.detection_options["left-to-right-numbering"] = (
+            exam_data.left_to_right_numbering
+        )
         # Set the debug options in detection_options:
         self._action_debug_changed()
         self.detection_context.open_camera()
