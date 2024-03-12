@@ -137,7 +137,7 @@ def parse_exam(exam_filename: str) -> questions.ExamQuestions:
     return _parse_tree(dom_tree)
 
 
-def _parse_tree(dom_tree: xml.dom.minidom.Element) -> questions.ExamQuestions:
+def _parse_tree(dom_tree: xml.dom.minidom.Document) -> questions.ExamQuestions:
     assert dom_tree.nodeType == xml.dom.minidom.Node.DOCUMENT_NODE
     root = dom_tree.childNodes[0]
     if get_full_name(root) == (EYEGRADE_NAMESPACE, "exam"):
