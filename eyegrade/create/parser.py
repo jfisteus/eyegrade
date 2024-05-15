@@ -420,7 +420,7 @@ def parse_question_component(
             raise EyegradeException("", key="missing_width_fig")
         component.annex_width = float(figure_atts[0])
         component.annex_pos = figure_atts[1]
-        if code_atts[2] and code_atts[2] == "line":
+        if figure_atts[2] and figure_atts[2] == "line":
             component.annex_separation = True
         else:
             component.annex_separation = False
