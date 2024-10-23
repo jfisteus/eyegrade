@@ -389,38 +389,38 @@ def parse_question_component(
         component.text = get_question_text_content(parent_node, EYEGRADE_NAMESPACE)
     else:
         component.text = get_element_content_node(parent_node)
-    component.code, code_atts = get_element_content_with_attrs(
+    component.code, code_attrs = get_element_content_with_attrs(
         parent_node, EYEGRADE_NAMESPACE, "code", ["width", "position", "separation"]
     )
-    component.figure, figure_atts = get_element_content_with_attrs(
+    component.figure, figure_attrs = get_element_content_with_attrs(
         parent_node, EYEGRADE_NAMESPACE, "figure", ["width", "position", "separation"]
     )
     if component.code is not None:
-        if code_atts[1] is None:
-            code_atts[1] = "center"
-        elif code_atts[1] != "center" and code_atts[1] != "right":
+        if code_attrs[1] is None:
+            code_attrs[1] = "center"
+        elif code_attrs[1] != "center" and code_attrs[1] != "right":
             raise EyegradeException("", key="bad_position_value")
-        if code_atts[0] is None and code_atts[1] == "right":
+        if code_attrs[0] is None and code_attrs[1] == "right":
             raise EyegradeException("", key="missing_width_code")
-        if code_atts[0] is not None:
-            component.annex_width = float(code_atts[0])
+        if code_attrs[0] is not None:
+            component.annex_width = float(code_attrs[0])
         else:
             component.annex_width = None
-        component.annex_pos = code_atts[1]
-        if code_atts[2] and code_atts[2] == "line":
+        component.annex_pos = code_attrs[1]
+        if code_attrs[2] and code_attrs[2] == "line":
             component.annex_separation = True
         else:
             component.annex_separation = False
     if component.figure is not None:
-        if figure_atts[1] is None:
-            figure_atts[1] = "center"
-        elif figure_atts[1] != "center" and figure_atts[1] != "right":
+        if figure_attrs[1] is None:
+            figure_attrs[1] = "center"
+        elif figure_attrs[1] != "center" and figure_attrs[1] != "right":
             raise EyegradeException("", key="bad_position_value")
-        if figure_atts[0] is None:
+        if figure_attrs[0] is None:
             raise EyegradeException("", key="missing_width_fig")
-        component.annex_width = float(figure_atts[0])
-        component.annex_pos = figure_atts[1]
-        if figure_atts[2] and figure_atts[2] == "line":
+        component.annex_width = float(figure_attrs[0])
+        component.annex_pos = figure_attrs[1]
+        if figure_attrs[2] and figure_attrs[2] == "line":
             component.annex_separation = True
         else:
             component.annex_separation = False
