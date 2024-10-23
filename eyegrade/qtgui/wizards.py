@@ -26,7 +26,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
-    QPushButton,
     QRadioButton,
     QScrollArea,
     QTabWidget,
@@ -36,15 +35,12 @@ from PyQt6.QtWidgets import (
     QWizardPage,
 )
 
-from PyQt6.QtCore import Qt
 
 from . import students
 from . import widgets
-from . import dialogs
 from . import scores
 from . import FileNameFilters
 from .. import utils
-from .. import scoring
 from .. import exams
 
 t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
