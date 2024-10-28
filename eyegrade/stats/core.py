@@ -18,6 +18,7 @@
 
 
 from dataclasses import dataclass
+from typing import Iterator
 
 
 @dataclass(frozen=True)
@@ -107,22 +108,19 @@ class ExamStats:
         self,
         num_questions: int,
         num_choices: int,
-        correct_choices_dict: dict[str, list[list[int]]],
+        correct_choices_dict: dict[str, list[set[int]]],
         permutations: ExamPermutations | None,
     ) -> None:
         self.question_stats = []
-        correct_choices_list = self._unwind_correct_choices(
-            num_questions, correct_choices_dict
-        )
         if permutations is not None:
-            if len(correct_choices_dict) > 1:
-                raise ValueError("Correct choices must be defined for a single model")
-            if permutations.reference_model not in correct_choices_dict:
-                raise ValueError(
-                    "Correct choices must be defined for the reference model"
-                )
             self.question_permutations = permutations.get_question_permutations()
             choice_permutations_list = permutations.unwind_choice_permutations()
+            correct_choices_dict = self._correct_choices_for_reference_model(
+                correct_choices_dict, choice_permutations_list
+            )
+            correct_choices_list = self._unwind_correct_choices(
+                num_questions, correct_choices_dict
+            )
             self.question_stats = [
                 QuestionStats(num_choices, correct_choices, permutations)
                 for correct_choices, permutations in zip(
@@ -131,10 +129,31 @@ class ExamStats:
             ]
         else:
             self.question_permutations = None
+            correct_choices_list = self._unwind_correct_choices(
+                num_questions, correct_choices_dict
+            )
             self.question_stats = [
                 QuestionStats(num_choices, correct_choices, None)
                 for correct_choices in correct_choices_list
             ]
+
+    @property
+    def models(self) -> list[str]:
+        if self.question_permutations is not None:
+            return sorted(
+                [key for key in self.question_permutations.question_permutations]
+            )
+        elif self.question_stats:
+            return self.question_stats[0].models
+        else:
+            raise ValueError("No models have been defined")
+
+    @property
+    def reference_model(self) -> str | None:
+        if self.question_permutations is not None:
+            return self.question_permutations.reference_model
+        else:
+            return None
 
     def count_answer(self, answer: int, question: int, model: str) -> None:
         # Question numbers are 1-based
@@ -151,27 +170,63 @@ class ExamStats:
             self.count_answer(answer, question + 1, model)
 
     def get_answer_counts(self, model: str) -> list[list[int]]:
-        return [q.get_answer_counts(model) for q in self.question_stats]
+        return [q.get_answer_counts(model) for q in self._reorder_question_stats(model)]
+
+    def _reorder_question_stats(self, model: str) -> list["QuestionStats"]:
+        if self.question_permutations is not None and model != self.reference_model:
+            return [
+                self.question_stats[q - 1]
+                for q in self.question_permutations.question_permutations[model]
+            ]
+        else:
+            return list(self.question_stats)
 
     @staticmethod
     def _unwind_correct_choices(
-        num_questions: int, correct_choices: dict[str, list[list[int]]]
-    ) -> list[dict[str, list[int]]]:
+        num_questions: int, correct_choices: dict[str, list[set[int]]]
+    ) -> list[dict[str, set[int]]]:
         return [
             {model: correct_choices[model][i] for model in correct_choices.keys()}
             for i in range(num_questions)
         ]
 
+    def _correct_choices_for_reference_model(
+        self,
+        correct_choices_dict: dict[str, list[set[int]]],
+        choice_permutations_list: list[ChoicePermutations],
+    ) -> dict[str, list[set[int]]]:
+        if self.question_permutations is None:
+            raise ValueError("No question permutations have been defined")
+        if not correct_choices_dict:
+            raise ValueError("No correct choices have been defined for any model")
+        reference_model = self.question_permutations.reference_model
+        if reference_model in correct_choices_dict:
+            correct_choices = {reference_model: correct_choices_dict[reference_model]}
+        else:
+            model = next(iter(correct_choices_dict))
+            correct_choices = {
+                reference_model: [
+                    set() for _ in range(len(correct_choices_dict[model]))
+                ]
+            }
+            for i, choices in enumerate(correct_choices_dict[model]):
+                question = self.question_permutations.unwind_question(i + 1, model)
+                correct_choices[reference_model][question] = {
+                    choice_permutations_list[question].unwind_choice(choice, model)
+                    for choice in choices
+                }
+        return correct_choices
+
 
 class QuestionStats:
-    correct_choices: dict[str, list[int]]
+    correct_choices: dict[str, set[int]]
     permutations: ChoicePermutations | None
     answer_counts: dict[str, list[int]]
 
     def __init__(
         self,
         num_choices,
-        correct_choices: dict[str, list[int]],
+        correct_choices: dict[str, set[int]],
         permutations: ChoicePermutations | None,
     ) -> None:
         self.correct_choices = correct_choices
@@ -180,6 +235,10 @@ class QuestionStats:
             model: [0] * (num_choices + 1)  # pos. 0 is for blank answers
             for model in correct_choices
         }
+
+    @property
+    def models(self) -> list[str]:
+        return sorted([key for key in self.answer_counts])
 
     def count_answer(self, answer: int, model: str) -> None:
         if self.permutations is not None:

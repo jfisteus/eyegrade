@@ -113,6 +113,15 @@ class TestExamStats(unittest.TestCase):
                 [0, 5, 1, 0],
             ],
         )
+        self.assertEqual(
+            stats.get_answer_counts("A"),
+            [
+                [0, 3, 1, 2],
+                [0, 0, 1, 5],
+                [1, 0, 3, 2],
+                [1, 1, 2, 2],
+            ],
+        )
 
     def testExamStatsWithoutPermutations(self):
         answers = [

@@ -154,20 +154,25 @@ class SessionDB:
     _index_student_id = """
         CREATE UNIQUE INDEX idx_student_id ON Students(student_id)"""
 
-    def __init__(self, session_file):
+    def __init__(self, session_file, open=True):
         """Opens a session database.
 
         For opening an existing session, just pass as `session_file` the
-        session DB file name or the sesion's directory name.
+        session DB file name or the session's directory name.
 
         """
         if os.path.isdir(session_file):
-            db_file = os.path.join(session_file, "session.eyedb")
             self.session_dir = session_file
         else:
-            db_file = session_file
-            self.session_dir = os.path.dirname(db_file)
+            self.session_dir = os.path.dirname(session_file)
         self._check_session_directory()
+        if open:
+            self._open()
+        else:
+            self.conn = None
+
+    def _open(self):
+        db_file = os.path.join(self.session_dir, "session.eyedb")
         self.conn = sqlite3.connect(db_file)
         self.conn.row_factory = sqlite3.Row
         self._enable_foreign_key_constrains()
@@ -188,6 +193,14 @@ class SessionDB:
 
     def close(self):
         self.conn.close()
+
+    def __enter__(self):
+        if self.conn is None:
+            self._open()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     def store_exam(self, exam_id, exam_capture, decisions, score, store_captures=True):
         student_db_id = self._student_db_id(decisions.student)

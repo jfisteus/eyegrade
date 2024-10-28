@@ -16,5 +16,40 @@
 # <https://www.gnu.org/licenses/>.
 #
 
+import pathlib
+
+from .. import exams
+from .. import sessiondb
+from . import core
 
 
+def compute_stats(
+    exam_config: exams.ExamConfig, exams: list[exams.Exam]
+) -> core.ExamStats:
+    import pdb
+
+    pdb.set_trace()
+    num_choices = max(exam_config.num_options)
+    if exam_config.permutations:
+        permutations = core.ExamPermutations(
+            exam_config.num_questions,
+            num_choices,
+            "0",
+            exam_config.permutations,
+        )
+    else:
+        permutations = None
+    stats = core.ExamStats(
+        exam_config.num_questions,
+        num_choices,
+        exam_config.solutions,
+        permutations,
+    )
+    for exam in exams:
+        stats.count_answers(exam.decisions.answers, exam.decisions.model)
+    return stats
+
+
+def compute_stats_from_session(session_path: pathlib.Path) -> core.ExamStats:
+    with sessiondb.SessionDB(session_path, open=False) as session:
+        return compute_stats(session.exam_config, session.read_exams())
