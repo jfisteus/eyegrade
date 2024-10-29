@@ -18,7 +18,7 @@
 
 
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Optional
 
 
 @dataclass(frozen=True)
@@ -101,7 +101,7 @@ class ExamPermutations:
 
 
 class ExamStats:
-    question_permutations: QuestionPermutations | None
+    question_permutations: Optional[QuestionPermutations]
     question_stats: list["QuestionStats"]
 
     def __init__(
@@ -109,7 +109,7 @@ class ExamStats:
         num_questions: int,
         num_choices: int,
         correct_choices_dict: dict[str, list[set[int]]],
-        permutations: ExamPermutations | None,
+        permutations: Optional[ExamPermutations],
     ) -> None:
         self.question_stats = []
         if permutations is not None:
@@ -149,7 +149,7 @@ class ExamStats:
             raise ValueError("No models have been defined")
 
     @property
-    def reference_model(self) -> str | None:
+    def reference_model(self) -> Optional[str]:
         if self.question_permutations is not None:
             return self.question_permutations.reference_model
         else:
@@ -220,14 +220,14 @@ class ExamStats:
 
 class QuestionStats:
     correct_choices: dict[str, set[int]]
-    permutations: ChoicePermutations | None
+    permutations: Optional[ChoicePermutations]
     answer_counts: dict[str, list[int]]
 
     def __init__(
         self,
         num_choices,
         correct_choices: dict[str, set[int]],
-        permutations: ChoicePermutations | None,
+        permutations: Optional[ChoicePermutations],
     ) -> None:
         self.correct_choices = correct_choices
         self.permutations = permutations
