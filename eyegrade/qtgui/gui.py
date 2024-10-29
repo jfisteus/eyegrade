@@ -51,6 +51,7 @@ from . import export
 from . import students
 from . import FileNameFilters
 from . import scores
+from . import show_stats
 
 t = gettext.translation("eyegrade", utils.locale_dir(), fallback=True)
 _ = t.gettext
@@ -142,6 +143,7 @@ class ActionsManager:
         ("search", "search.svg", _("&Search"), []),
         ("students", None, _("S&tudents"), []),
         ("export", "export.svg", _("&Export grades listing"), []),
+        ("statistics", None, _("Show &question by question statistics"), []),
     ]
 
     _actions_tools_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
@@ -239,6 +241,7 @@ class ActionsManager:
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(False)
         self.actions_exams["export"].setEnabled(False)
+        self.actions_exams["statistics"].setEnabled(False)
 
     def set_review_from_grading_mode(self):
         self.actions_grading["start"].setEnabled(False)
@@ -259,6 +262,7 @@ class ActionsManager:
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(True)
         self.actions_exams["export"].setEnabled(True)
+        self.actions_exams["statistics"].setEnabled(True)
 
     def set_before_review_from_grading_mode(self):
         self.actions_grading["start"].setEnabled(False)
@@ -279,6 +283,7 @@ class ActionsManager:
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(False)
         self.actions_exams["export"].setEnabled(False)
+        self.actions_exams["statistics"].setEnabled(False)
 
     def set_review_from_session_mode(self):
         self.actions_grading["start"].setEnabled(True)
@@ -299,6 +304,7 @@ class ActionsManager:
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(True)
         self.actions_exams["export"].setEnabled(True)
+        self.actions_exams["statistics"].setEnabled(True)
 
     def set_session_mode(self):
         self.actions_grading["start"].setEnabled(True)
@@ -320,6 +326,7 @@ class ActionsManager:
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(True)
         self.actions_exams["export"].setEnabled(True)
+        self.actions_exams["statistics"].setEnabled(True)
 
     def set_manual_detect_mode(self):
         self.actions_grading["start"].setEnabled(False)
@@ -340,6 +347,7 @@ class ActionsManager:
         self.actions_exams["search"].setEnabled(False)
         self.actions_exams["students"].setEnabled(False)
         self.actions_exams["export"].setEnabled(False)
+        self.actions_exams["statistics"].setEnabled(False)
 
     def set_no_session_mode(self):
         for key in self.actions_grading:
@@ -931,6 +939,15 @@ class Interface:
         """
         dialog = export.DialogExportGrades(self.window, helper)
         return dialog.exec()
+
+    def dialog_show_statistics(self, exam_stats):
+        """Displays the dialog for showing question by question statistics.
+
+        `exam_stats` is a `eyegrade.statistics.core.ExamStats object.
+
+        """
+        dialog = show_stats.DialogShowStats(self.window, exam_stats)
+        dialog.exec()
 
     def dialog_students(self, student_listings):
         """Displays the student list."""

@@ -20,15 +20,15 @@ import pathlib
 
 from .. import exams
 from .. import sessiondb
-from . import core
+from . import stats_core
 
 
-def compute_stats(
+def stats(
     exam_config: exams.ExamConfig, exams: list[exams.Exam]
-) -> core.ExamStats:
+) -> stats_core.ExamStats:
     num_choices = max(exam_config.num_options)
     if exam_config.permutations:
-        permutations = core.ExamPermutations(
+        permutations = stats_core.ExamPermutations(
             exam_config.num_questions,
             num_choices,
             "0",
@@ -36,7 +36,7 @@ def compute_stats(
         )
     else:
         permutations = None
-    stats = core.ExamStats(
+    stats = stats_core.ExamStats(
         exam_config.num_questions,
         num_choices,
         exam_config.solutions,
@@ -47,6 +47,10 @@ def compute_stats(
     return stats
 
 
-def compute_stats_from_session(session_path: pathlib.Path) -> core.ExamStats:
+def stats_from_session_path(session_path: pathlib.Path) -> stats_core.ExamStats:
     with sessiondb.SessionDB(session_path, open=False) as session:
-        return compute_stats(session.exam_config, session.read_exams())
+        return stats_from_session(session)
+
+
+def stats_from_session(session: sessiondb.SessionDB) -> stats_core.ExamStats:
+    return stats(session.exam_config, session.read_exams())

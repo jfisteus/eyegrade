@@ -18,7 +18,7 @@
 
 
 from dataclasses import dataclass
-from typing import Iterator, Optional
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -103,6 +103,8 @@ class ExamPermutations:
 class ExamStats:
     question_permutations: Optional[QuestionPermutations]
     question_stats: list["QuestionStats"]
+    num_questions: int
+    num_choices: int
 
     def __init__(
         self,
@@ -111,6 +113,8 @@ class ExamStats:
         correct_choices_dict: dict[str, list[set[int]]],
         permutations: Optional[ExamPermutations],
     ) -> None:
+        self.num_questions = num_questions
+        self.num_choices = num_choices
         self.question_stats = []
         if permutations is not None:
             self.question_permutations = permutations.get_question_permutations()
