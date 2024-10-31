@@ -48,6 +48,12 @@ class TestQuestionStats(unittest.TestCase):
         self.assertEqual(stats.get_answer_counts("0"), [1, 1, 1, 0, 3])
         self.assertEqual(stats.get_answer_counts("A"), [1, 1, 3, 1, 0])
         self.assertEqual(stats.get_answer_counts("B"), [1, 0, 1, 3, 1])
+        self.assertTrue(stats.is_correct(4, "0"))
+        self.assertTrue(stats.is_correct(2, "A"))
+        self.assertTrue(stats.is_correct(3, "B"))
+        self.assertFalse(stats.is_correct(2, "0"))
+        self.assertFalse(stats.is_correct(1, "A"))
+        self.assertFalse(stats.is_correct(4, "B"))
 
     def testQuestionStatsWithoutPermutations(self):
         answers = [
@@ -67,6 +73,10 @@ class TestQuestionStats(unittest.TestCase):
             stats.count_answer(answer, model)
         self.assertEqual(stats.get_answer_counts("A"), [1, 1, 1, 0, 0])
         self.assertEqual(stats.get_answer_counts("B"), [0, 0, 1, 2, 0])
+        self.assertTrue(stats.is_correct(3, "A"))
+        self.assertTrue(stats.is_correct(2, "B"))
+        self.assertFalse(stats.is_correct(1, "A"))
+        self.assertFalse(stats.is_correct(3, "B"))
 
 
 class TestExamStats(unittest.TestCase):
@@ -122,6 +132,18 @@ class TestExamStats(unittest.TestCase):
                 [1, 1, 2, 2],
             ],
         )
+        self.assertTrue(stats.is_correct(1, 1, "0"))
+        self.assertTrue(stats.is_correct(3, 2, "0"))
+        self.assertTrue(stats.is_correct(2, 3, "0"))
+        self.assertTrue(stats.is_correct(3, 4, "0"))
+        self.assertFalse(stats.is_correct(3, 1, "0"))
+        self.assertFalse(stats.is_correct(2, 2, "0"))
+        self.assertFalse(stats.is_correct(1, 3, "0"))
+        self.assertFalse(stats.is_correct(1, 4, "0"))
+        self.assertTrue(stats.is_correct(1, 2, "A"))
+        self.assertTrue(stats.is_correct(3, 4, "B"))
+        self.assertFalse(stats.is_correct(2, 2, "A"))
+        self.assertFalse(stats.is_correct(1, 4, "B"))
 
     def testExamStatsWithoutPermutations(self):
         answers = [

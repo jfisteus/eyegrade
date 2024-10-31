@@ -187,6 +187,16 @@ class ExamStats:
     def get_answer_counts(self, model: str) -> list[list[int]]:
         return [q.get_answer_counts(model) for q in self._reorder_question_stats(model)]
 
+    def is_correct(self, answer: int, question: int, model: str) -> bool:
+        # Question numbers are 1-based
+        if self.question_permutations is not None:
+            reference_question = self.question_permutations.unwind_question(
+                question, model
+            )
+        else:
+            reference_question = question - 1
+        return self.question_stats[reference_question].is_correct(answer, model)
+
     def _reorder_question_stats(self, model: str) -> list["QuestionStats"]:
         if self.question_permutations is not None and model != self.reference_model:
             return [
@@ -279,3 +289,12 @@ class QuestionStats:
 
     def get_answer_percentages(self, model: str) -> list[float]:
         return [ratio * 100 for ratio in self.get_answer_ratios(model)]
+
+    def is_correct(self, answer: int, model: str) -> bool:
+        if self.permutations is not None:
+            reference_choice = self.permutations.unwind_choice(answer, model)
+            return reference_choice in self.correct_choices[self.permutations.reference_model]
+        elif model in self.correct_choices:
+            return answer in self.correct_choices[model]
+        else:
+            raise ValueError(f"Model {model} not defined in correct choices")

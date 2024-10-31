@@ -30,6 +30,8 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, Qt, QVariant
 
+from PyQt6.QtGui import QBrush, QColor
+
 from . import widgets
 from ..stats import stats_core
 from .. import utils
@@ -85,6 +87,7 @@ class DialogShowStats(QDialog):
 class ExamStatsTableModel(QAbstractTableModel):
     exam_stats: stats_core.ExamStats
     answer_counts: list[list[int]]
+    model: str
 
     def __init__(
         self, exam_stats: stats_core.ExamStats, model: str, parent=None
@@ -92,6 +95,7 @@ class ExamStatsTableModel(QAbstractTableModel):
         super().__init__(parent=parent)
         self.exam_stats = exam_stats
         self.answer_counts = self.exam_stats.get_answer_counts(model)
+        self.model = model
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return self.exam_stats.num_questions
@@ -128,6 +132,15 @@ class ExamStatsTableModel(QAbstractTableModel):
                 return str(self.answer_counts[r][0])
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             return Qt.AlignmentFlag.AlignRight
+        elif role == Qt.ItemDataRole.BackgroundRole:
+            r = index.row()
+            c = index.column()
+            if c < self.exam_stats.num_choices and self.exam_stats.is_correct(
+                c + 1, r + 1, self.model
+            ):
+                return QVariant(QBrush(QColor(205, 255, 212)))
+            else:
+                return QVariant()
         else:
             return QVariant()
 
