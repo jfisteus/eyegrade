@@ -159,6 +159,17 @@ class ExamStats:
         else:
             return None
 
+    @property
+    def all_models(self) -> list[str]:
+        models = self.models
+        if (
+            self.question_permutations is not None
+            and self.question_permutations.reference_model not in models
+        ):
+            return [self.question_permutations.reference_model] + models
+        else:
+            return models
+
     def count_answer(self, answer: int, question: int, model: str) -> None:
         # Question numbers are 1-based
         if self.question_permutations is not None:

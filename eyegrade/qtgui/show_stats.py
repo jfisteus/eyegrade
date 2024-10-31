@@ -24,6 +24,8 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QTabWidget,
     QTableView,
+    QSizePolicy,
+    QWidget,
 )
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, Qt, QVariant
@@ -58,14 +60,23 @@ class DialogShowStats(QDialog):
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         tabs = QTabWidget(parent)
-        for model in self.exam_stats.models:
-            table = self._create_table(model)
-            tabs.addTab(table, _("Model: ") + model)
+        tabs.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        for model in self.exam_stats.all_models:
+            widget = QWidget(tabs)
+            tab_layout = QVBoxLayout(widget)
+            widget.setLayout(tab_layout)
+            table = self._create_table(model, widget)
+            tab_layout.addWidget(table, Qt.AlignmentFlag.AlignCenter)
+            tab_layout.setAlignment(table, Qt.AlignmentFlag.AlignHCenter)
+            tabs.addTab(widget, _("Model ") + model)
         layout.addWidget(tabs)
         layout.addWidget(buttons)
+        self.adjustSize()
 
-    def _create_table(self, model: str) -> QTableView:
-        table = widgets.CustomTableView(self)
+    def _create_table(self, model: str, parent) -> QTableView:
+        table = widgets.CustomTableView(
+            parent=parent, maximum_width=750, maximum_height=500
+        )
         table.setModel(ExamStatsTableModel(self.exam_stats, model))
         table.adjust_size()
         return table
@@ -97,7 +108,7 @@ class ExamStatsTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
                 if index < self.exam_stats.num_choices:
-                    return chr(65 + index)
+                    return "{} {}".format(_("Answer"), chr(65 + index))
                 else:
                     return _("Blank")
             else:
