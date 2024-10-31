@@ -18,12 +18,12 @@
 
 import unittest
 
-import eyegrade.stats.core as core
+import eyegrade.stats.stats_core as stats_core
 
 
 class TestQuestionStats(unittest.TestCase):
     def testQuestionStatsWithPermutations(self):
-        permutations = core.ChoicePermutations(
+        permutations = stats_core.ChoicePermutations(
             num_choices=4,
             reference_model="0",
             choice_permutations={
@@ -42,12 +42,18 @@ class TestQuestionStats(unittest.TestCase):
         correct_choices = {
             "0": [4],
         }
-        stats = core.QuestionStats(4, correct_choices, permutations)
+        stats = stats_core.QuestionStats(4, correct_choices, permutations)
         for model, answer in answers:
             stats.count_answer(answer, model)
         self.assertEqual(stats.get_answer_counts("0"), [1, 1, 1, 0, 3])
         self.assertEqual(stats.get_answer_counts("A"), [1, 1, 3, 1, 0])
         self.assertEqual(stats.get_answer_counts("B"), [1, 0, 1, 3, 1])
+        self.assertTrue(stats.is_correct(4, "0"))
+        self.assertTrue(stats.is_correct(2, "A"))
+        self.assertTrue(stats.is_correct(3, "B"))
+        self.assertFalse(stats.is_correct(2, "0"))
+        self.assertFalse(stats.is_correct(1, "A"))
+        self.assertFalse(stats.is_correct(4, "B"))
 
     def testQuestionStatsWithoutPermutations(self):
         answers = [
@@ -62,16 +68,20 @@ class TestQuestionStats(unittest.TestCase):
             "A": [3],
             "B": [2],
         }
-        stats = core.QuestionStats(4, correct_choices, None)
+        stats = stats_core.QuestionStats(4, correct_choices, None)
         for model, answer in answers:
             stats.count_answer(answer, model)
         self.assertEqual(stats.get_answer_counts("A"), [1, 1, 1, 0, 0])
         self.assertEqual(stats.get_answer_counts("B"), [0, 0, 1, 2, 0])
+        self.assertTrue(stats.is_correct(3, "A"))
+        self.assertTrue(stats.is_correct(2, "B"))
+        self.assertFalse(stats.is_correct(1, "A"))
+        self.assertFalse(stats.is_correct(3, "B"))
 
 
 class TestExamStats(unittest.TestCase):
     def testExamStatsWithPermutations(self):
-        permutations = core.ExamPermutations(
+        permutations = stats_core.ExamPermutations(
             num_questions=4,
             num_choices=3,
             reference_model="0",
@@ -101,7 +111,7 @@ class TestExamStats(unittest.TestCase):
         correct_choices = {
             "0": [[1], [3], [2], [3]],
         }
-        stats = core.ExamStats(4, 3, correct_choices, permutations)
+        stats = stats_core.ExamStats(4, 3, correct_choices, permutations)
         for model, answers in answers:
             stats.count_answers(answers, model)
         self.assertEqual(
@@ -122,6 +132,18 @@ class TestExamStats(unittest.TestCase):
                 [1, 1, 2, 2],
             ],
         )
+        self.assertTrue(stats.is_correct(1, 1, "0"))
+        self.assertTrue(stats.is_correct(3, 2, "0"))
+        self.assertTrue(stats.is_correct(2, 3, "0"))
+        self.assertTrue(stats.is_correct(3, 4, "0"))
+        self.assertFalse(stats.is_correct(3, 1, "0"))
+        self.assertFalse(stats.is_correct(2, 2, "0"))
+        self.assertFalse(stats.is_correct(1, 3, "0"))
+        self.assertFalse(stats.is_correct(1, 4, "0"))
+        self.assertTrue(stats.is_correct(1, 2, "A"))
+        self.assertTrue(stats.is_correct(3, 4, "B"))
+        self.assertFalse(stats.is_correct(2, 2, "A"))
+        self.assertFalse(stats.is_correct(1, 4, "B"))
 
     def testExamStatsWithoutPermutations(self):
         answers = [
@@ -136,7 +158,7 @@ class TestExamStats(unittest.TestCase):
             "A": [[1], [3], [2], [3]],
             "B": [[2], [1], [1], [3]],
         }
-        stats = core.ExamStats(4, 3, correct_choices, None)
+        stats = stats_core.ExamStats(4, 3, correct_choices, None)
         for model, answers in answers:
             stats.count_answers(answers, model)
         self.assertEqual(

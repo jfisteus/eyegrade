@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-from . import compute
+from . import compute_stats
 
 import argparse
 
@@ -48,7 +48,7 @@ def _cmd_options():
 
 def main():
     args = _cmd_options()
-    stats = compute.compute_stats_from_session(args.session)
+    stats = compute_stats.stats_from_session_path(args.session)
     reference_model = stats.reference_model
     if reference_model is not None:
         print_answer_counts(stats.get_answer_counts(reference_model))

@@ -33,7 +33,7 @@ from . import exams
 from .qtgui import gui
 from . import sessiondb
 from . import export
-from eyegrade import qtgui
+from .stats import compute_stats
 
 if (
     not os.getenv("LANG")
@@ -228,13 +228,13 @@ class ProgramManager:
     """Manages a grading session."""
 
     interface: gui.Interface
-    sessiondb: Optional[sessiondb.SessionDB]
+    session: Optional[sessiondb.SessionDB]
 
     def __init__(self, interface, session_file=None):
         self.interface = interface
         self.mode = ProgramMode()
         self.config = utils.config
-        self.sessiondb = None
+        self.session = None
         self.detection_context = self._get_detection_context()
         self.detection_options = None
         self.drop_next_capture = False
@@ -470,10 +470,10 @@ class ProgramManager:
                         detector.capture,
                         detector.decisions,
                         self.exam_data.get_solutions(model),
-                        self.sessiondb.student_listings,
+                        self.session.student_listings,
                         self.exam_id,
                         scores,
-                        sessiondb=self.sessiondb,
+                        sessiondb=self.session,
                     )
                     self.latest_graded_exam = exam
                 elif model not in self.exam_data.solutions:
@@ -491,8 +491,8 @@ class ProgramManager:
                 sessiondb.create_session_directory(
                     values["directory"], self.exam_data, values["student_listings"]
                 )
-                self.sessiondb = sessiondb.SessionDB(values["directory"])
-                self.sessiondb.capture_save_func = self.interface.save_capture
+                self.session = sessiondb.SessionDB(values["directory"])
+                self.session.capture_save_func = self.interface.save_capture
             except IOError as e:
                 self.interface.show_error(_("Input/output error:") + " " + str(e))
             except utils.EyegradeException as e:
@@ -525,18 +525,18 @@ class ProgramManager:
 
         """
         try:
-            self.sessiondb = sessiondb.SessionDB(filename)
-            self.exam_data = self.sessiondb.exam_config
-            self.sessiondb.capture_save_func = self.interface.save_capture
+            self.session = sessiondb.SessionDB(filename)
+            self.exam_data = self.session.exam_config
+            self.session.capture_save_func = self.interface.save_capture
             success = True
             message = ""
         except utils.EyegradeException as e:
-            self.sessiondb = None
+            self.session = None
             self.exam_data = None
             success = False
             message = _("Error loading the session") + ": " + str(e)
         except IOError as e:
-            self.sessiondb = None
+            self.session = None
             self.exam_data = None
             success = False
             message = _("Error loading the session") + ": " + str(e)
@@ -555,10 +555,10 @@ class ProgramManager:
                 return
         if self.mode.in_grading() or self.mode.in_review_from_session():
             self._stop_grading()
-        self.sessiondb.save_legacy_answers()
-        self.sessiondb.close()
+        self.session.save_legacy_answers()
+        self.session.close()
         self.mode.enter_no_session()
-        self.sessiondb = None
+        self.session = None
         self.exam_data = None
         self.detection_options = None
         self.interface.activate_no_session_mode()
@@ -579,8 +579,8 @@ class ProgramManager:
                 exam.load_capture()
                 exam.reset_image()
                 exam.draw_answers()
-                self.sessiondb.update_score(exam, commit=False)
-                self.sessiondb.save_drawn_capture(
+                self.session.update_score(exam, commit=False)
+                self.session.save_drawn_capture(
                     exam.exam_id,
                     exam.capture,
                     exam.decisions.student,
@@ -588,7 +588,7 @@ class ProgramManager:
                 )
                 self.interface.update_exam(exam)
                 progress.count_step()
-            self.sessiondb.update_exam_config_scores(self.exam_data, commit=True)
+            self.session.update_exam_config_scores(self.exam_data, commit=True)
             self.interface.show_information(
                 _("The scores of the already graded exams have been updated."),
                 title=_("Scores updated"),
@@ -609,9 +609,9 @@ class ProgramManager:
             exit_ = True
         else:
             exit_ = True
-        if exit_ and self.sessiondb is not None:
-            self.sessiondb.save_legacy_answers()
-            self.sessiondb.close()
+        if exit_ and self.session is not None:
+            self.session.save_legacy_answers()
+            self.session.close()
         return exit_
 
     def _action_start(self):
@@ -638,10 +638,10 @@ class ProgramManager:
                 detector.capture,
                 detector.decisions,
                 [],
-                self.sessiondb.student_listings,
+                self.session.student_listings,
                 self.exam_id,
                 None,
-                sessiondb=self.sessiondb,
+                sessiondb=self.session,
             )
             self.exam.reset_image()
             enable_manual_detection = True
@@ -656,7 +656,7 @@ class ProgramManager:
     def _action_discard(self):
         """Callback for cancelling/removing the current capture."""
         if self.mode.in_review_from_grading():
-            self.sessiondb.remove_exam(self.exam.exam_id)
+            self.session.remove_exam(self.exam.exam_id)
             self.interface.remove_exam(self.exam)
             self._start_search_mode()
         elif self.mode.in_manual_detect():
@@ -666,7 +666,7 @@ class ProgramManager:
                 _("The selected exam will be removed. Are you sure?"), is_question=True
             )
             if remove:
-                self.sessiondb.remove_exam(self.exam.exam_id)
+                self.session.remove_exam(self.exam.exam_id)
                 self.interface.remove_exam(self.exam)
                 exam = self.interface.selected_exam()
                 if exam is not None:
@@ -691,10 +691,10 @@ class ProgramManager:
                 self.latest_detector.capture,
                 self.latest_detector.decisions,
                 [],
-                self.sessiondb.student_listings,
+                self.session.student_listings,
                 self.exam_id,
                 None,
-                sessiondb=self.sessiondb,
+                sessiondb=self.session,
             )
             # Store the exam in order to emulate entering this mode
             # from review mode.
@@ -709,12 +709,12 @@ class ProgramManager:
             return
         students = self.exam.ranked_student_ids()
         student = self.interface.dialog_student_id(
-            students, self.sessiondb.student_listings
+            students, self.session.student_listings
         )
         if student is not None:
             self.exam.update_student_id(student)
             self.interface.update_text_up(self.exam.get_student_id_and_name())
-            self.sessiondb.update_student(
+            self.session.update_student(
                 self.exam.exam_id,
                 self.exam.capture,
                 self.exam.decisions,
@@ -759,12 +759,12 @@ class ProgramManager:
     def _action_export_grades(self):
         """Action for exporting the list of grades."""
         helper = export.GradesExportHelper(
-            self.exam_data, self.sessiondb.get_student_groups()
+            self.exam_data, self.session.get_student_groups()
         )
         result = self.interface.dialog_export_grades(helper)
         if result:
             try:
-                self.sessiondb.export_grades(helper)
+                self.session.export_grades(helper)
             except IOError as e:
                 msg = _("Input/output error: {0}").format(e.strerror)
                 self.interface.show_error(msg)
@@ -773,8 +773,14 @@ class ProgramManager:
                     _("The file has been saved."), title=_("File saved")
                 )
 
+    def _action_show_statistics(self):
+        """Action for displaying a dialog with question by question statistics."""
+        self.interface.dialog_show_statistics(
+            compute_stats.stats_from_session(self.session)
+        )
+
     def _action_students(self):
-        student_listings = self.sessiondb.student_listings
+        student_listings = self.session.student_listings
         self.interface.dialog_students(student_listings)
 
     def _action_export_exam_config(self):
@@ -810,7 +816,7 @@ class ProgramManager:
                     self.exam.exam_id,
                     survey_mode=self.exam_data.survey_mode,
                 )
-                self.sessiondb.update_answer(
+                self.session.update_answer(
                     self.exam.exam_id,
                     question,
                     self.exam.capture,
@@ -836,7 +842,7 @@ class ProgramManager:
                     success = False
             # Remove the exam that was saved previously,
             # before having started the manual review mode:
-            self.sessiondb.remove_exam(self.exam.exam_id)
+            self.session.remove_exam(self.exam.exam_id)
             self.interface.remove_exam(self.exam)
             if not success:
                 self.exam.reset_image()
@@ -860,7 +866,7 @@ class ProgramManager:
 
     def _start_session(self):
         """Starts a session (either a new one or one that has been loaded)."""
-        self.interface.add_exams(self.sessiondb.read_exams())
+        self.interface.add_exams(self.session.read_exams())
         self._activate_session_mode()
 
     def _activate_session_mode(self):
@@ -887,7 +893,7 @@ class ProgramManager:
                 _("No camera found. Connect a camera and " "start the session again.")
             )
             return
-        self.exam_id = self.sessiondb.next_exam_id()
+        self.exam_id = self.session.next_exam_id()
         self.interface.clear_selected_exam()
         self._start_search_mode()
 
@@ -908,13 +914,13 @@ class ProgramManager:
         self.interface.update_exam(self.exam)
 
     def _store_exam(self, exam):
-        self.sessiondb.store_exam(
+        self.session.store_exam(
             exam.exam_id, exam.capture, exam.decisions, exam.score, store_captures=False
         )
-        self.sessiondb.save_raw_capture(exam.exam_id, exam.capture)
+        self.session.save_raw_capture(exam.exam_id, exam.capture)
 
     def _store_capture(self, exam):
-        self.sessiondb.save_drawn_capture(
+        self.session.save_drawn_capture(
             exam.exam_id, exam.capture, exam.decisions.student
         )
 
@@ -939,6 +945,7 @@ class ProgramManager:
             ("actions", "tools", "show_status"): self._action_debug_changed,
             ("actions", "tools", "auto_change"): self._action_auto_change_changed,
             ("actions", "exams", "export"): self._action_export_grades,
+            ("actions", "exams", "statistics"): self._action_show_statistics,
             ("actions", "exams", "students"): self._action_students,
             ("actions", "help", "help"): self._action_help,
             ("actions", "help", "website"): self._action_website,
