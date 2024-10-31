@@ -87,6 +87,7 @@ class DialogShowStats(QDialog):
 class ExamStatsTableModel(QAbstractTableModel):
     exam_stats: stats_core.ExamStats
     answer_counts: list[list[int]]
+    answer_percentages: list[list[float]]
     model: str
 
     def __init__(
@@ -95,6 +96,7 @@ class ExamStatsTableModel(QAbstractTableModel):
         super().__init__(parent=parent)
         self.exam_stats = exam_stats
         self.answer_counts = self.exam_stats.get_answer_counts(model)
+        self.answer_percentages = self.exam_stats.get_answer_percentages(model)
         self.model = model
 
     def rowCount(self, parent=QModelIndex()) -> int:
@@ -130,6 +132,13 @@ class ExamStatsTableModel(QAbstractTableModel):
                 return str(self.answer_counts[r][c + 1])
             else:
                 return str(self.answer_counts[r][0])
+        elif role == Qt.ItemDataRole.ToolTipRole:
+            r = index.row()
+            c = index.column()
+            if c < self.exam_stats.num_choices:
+                return f"{self.answer_percentages[r][c + 1]:.1f}%"
+            else:
+                return f"{self.answer_percentages[r][0]:.1f}%"
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             return Qt.AlignmentFlag.AlignRight
         elif role == Qt.ItemDataRole.BackgroundRole:

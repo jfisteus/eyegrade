@@ -187,6 +187,12 @@ class ExamStats:
     def get_answer_counts(self, model: str) -> list[list[int]]:
         return [q.get_answer_counts(model) for q in self._reorder_question_stats(model)]
 
+    def get_answer_ratios(self, model: str) -> list[list[float]]:
+        return [q.get_answer_ratios(model) for q in self._reorder_question_stats(model)]
+
+    def get_answer_percentages(self, model: str) -> list[list[float]]:
+        return [q.get_answer_percentages(model) for q in self._reorder_question_stats(model)]
+
     def is_correct(self, answer: int, question: int, model: str) -> bool:
         # Question numbers are 1-based
         if self.question_permutations is not None:
