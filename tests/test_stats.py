@@ -111,7 +111,7 @@ class TestExamStats(unittest.TestCase):
         correct_choices = {
             "0": [[1], [3], [2], [3]],
         }
-        stats = stats_core.ExamStats(4, 3, correct_choices, permutations)
+        stats = stats_core.QByQStats(4, 3, correct_choices, permutations)
         for model, answers in answers:
             stats.count_answers(answers, model)
         self.assertEqual(
@@ -158,7 +158,7 @@ class TestExamStats(unittest.TestCase):
             "A": [[1], [3], [2], [3]],
             "B": [[2], [1], [1], [3]],
         }
-        stats = stats_core.ExamStats(4, 3, correct_choices, None)
+        stats = stats_core.QByQStats(4, 3, correct_choices, None)
         for model, answers in answers:
             stats.count_answers(answers, model)
         self.assertEqual(

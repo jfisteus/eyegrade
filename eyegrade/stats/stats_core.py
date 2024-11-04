@@ -18,7 +18,11 @@
 
 
 from dataclasses import dataclass
-from typing import Optional
+import enum
+from typing import Optional, Union, Sequence
+import statistics
+
+from .. import exams
 
 
 @dataclass(frozen=True)
@@ -100,7 +104,77 @@ class ExamPermutations:
         ]
 
 
-class ExamStats:
+class StatsType(enum.Enum):
+    CORRECT = enum.auto()
+    INCORRECT = enum.auto()
+    BLANK = enum.auto()
+    SCORE = enum.auto()
+
+
+@dataclass
+class AbstractStats:
+    stats_type: StatsType
+    average: float
+    median: Union[float, int]
+    min: Union[float, int]
+    max: Union[float, int]
+
+
+@dataclass
+class Stats:
+    overall: dict[StatsType, AbstractStats]
+    q_by_q: "QByQStats"
+
+
+class OverallStats:
+    correct_answers: list[int]
+    wrong_answers: list[int]
+    blank_answers: list[int]
+    scores: list[float]
+
+    def __init__(self) -> None:
+        self.correct_answers = []
+        self.wrong_answers = []
+        self.blank_answers = []
+        self.scores = []
+
+    def count_answers(self, exam: exams.Exam) -> None:
+        if exam.score is not None:
+            self.correct_answers.append(exam.score.correct)
+            self.wrong_answers.append(exam.score.incorrect)
+            self.blank_answers.append(exam.score.blank)
+            self.scores.append(exam.score.score)
+
+    def get_stats(self, stats_type: StatsType) -> AbstractStats:
+        data: Sequence[Union[float, int]]
+        if stats_type == StatsType.CORRECT:
+            data = self.correct_answers
+        elif stats_type == StatsType.INCORRECT:
+            data = self.wrong_answers
+        elif stats_type == StatsType.BLANK:
+            data = self.blank_answers
+        elif stats_type == StatsType.SCORE:
+            data = self.scores
+        else:
+            raise ValueError(f"Invalid stats type: {stats_type}")
+        return self._compute_stats(data, stats_type)
+
+    def get_all_stats(self) -> dict[StatsType, AbstractStats]:
+        return {stats_type: self.get_stats(stats_type) for stats_type in StatsType}
+
+    def _compute_stats(
+        self, data: Sequence[Union[float, int]], stats_type: StatsType
+    ) -> AbstractStats:
+        return AbstractStats(
+            stats_type=stats_type,
+            average=statistics.fmean(data),
+            median=statistics.median_high(data),
+            min=min(data),
+            max=max(data),
+        )
+
+
+class QByQStats:
     question_permutations: Optional[QuestionPermutations]
     question_stats: list["QuestionStats"]
     num_questions: int

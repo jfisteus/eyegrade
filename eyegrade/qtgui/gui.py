@@ -43,6 +43,7 @@ from eyegrade import exams
 
 from .. import utils
 from .. import scoring
+from ..stats import stats_core
 from . import examsview
 from . import widgets
 from . import wizards
@@ -143,7 +144,7 @@ class ActionsManager:
         ("search", "search.svg", _("&Search"), []),
         ("students", None, _("S&tudents"), []),
         ("export", "export.svg", _("&Export grades listing"), []),
-        ("statistics", None, _("Show &question by question statistics"), []),
+        ("statistics", None, _("S&how statistics"), []),
     ]
 
     _actions_tools_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
@@ -940,13 +941,9 @@ class Interface:
         dialog = export.DialogExportGrades(self.window, helper)
         return dialog.exec()
 
-    def dialog_show_statistics(self, exam_stats):
-        """Displays the dialog for showing question by question statistics.
-
-        `exam_stats` is a `eyegrade.statistics.core.ExamStats object.
-
-        """
-        dialog = show_stats.DialogShowStats(self.window, exam_stats)
+    def dialog_show_statistics(self, stats: stats_core.Stats):
+        """Displays the dialog for showing statistics."""
+        dialog = show_stats.DialogShowStats(self.window, stats)
         dialog.exec()
 
     def dialog_students(self, student_listings):
