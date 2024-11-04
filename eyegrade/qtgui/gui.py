@@ -143,7 +143,7 @@ class ActionsManager:
         ("search", "search.svg", _("&Search"), []),
         ("students", None, _("S&tudents"), []),
         ("export", "export.svg", _("&Export grades listing"), []),
-        ("statistics", None, _("Show &question by question statistics"), []),
+        ("statistics", None, _("S&how statistics"), []),
     ]
 
     _actions_tools_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [

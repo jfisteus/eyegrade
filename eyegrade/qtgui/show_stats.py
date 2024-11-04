@@ -51,59 +51,68 @@ class DialogShowStats(QDialog):
 
     """
 
-    exam_stats: stats_core.ExamStats
-
-    def __init__(self, parent, exam_stats: stats_core.ExamStats) -> None:
+    def __init__(self, parent, q_by_q_stats: stats_core.QByQStats) -> None:
         super().__init__(parent)
-        self.exam_stats = exam_stats
         self.setWindowTitle(_("Exam statistics"))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
-        tabs = QTabWidget(parent)
-        tabs.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-        for model in self.exam_stats.all_models:
-            widget = QWidget(tabs)
+        tabs = QTabWidget(self)
+        q_by_q_stats_widget = QByQStatsWidget(self, q_by_q_stats)
+        tabs.addTab(q_by_q_stats_widget, _("Question by question"))
+        layout.addWidget(tabs)
+        layout.addWidget(buttons)
+        self.adjustSize()
+        self.setModal(True)
+
+
+class QByQStatsWidget(QTabWidget):
+
+    q_by_q_stats: stats_core.QByQStats
+
+    def __init__(self, parent, q_by_q_stats: stats_core.QByQStats) -> None:
+        super().__init__(parent)
+        self.q_by_q_stats = q_by_q_stats
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        for model in self.q_by_q_stats.all_models:
+            widget = QWidget(self)
             tab_layout = QVBoxLayout(widget)
             widget.setLayout(tab_layout)
             table = self._create_table(model, widget)
             tab_layout.addWidget(table, Qt.AlignmentFlag.AlignCenter)
             tab_layout.setAlignment(table, Qt.AlignmentFlag.AlignHCenter)
-            tabs.addTab(widget, _("Model ") + model)
-        layout.addWidget(tabs)
-        layout.addWidget(buttons)
-        self.adjustSize()
+            self.addTab(widget, _("Model ") + model)
 
     def _create_table(self, model: str, parent) -> QTableView:
         table = widgets.CustomTableView(
             parent=parent, maximum_width=750, maximum_height=500
         )
-        table.setModel(ExamStatsTableModel(self.exam_stats, model))
+        table.setModel(QByQStatsTableModel(self.q_by_q_stats, model))
         table.adjust_size()
         return table
 
 
-class ExamStatsTableModel(QAbstractTableModel):
-    exam_stats: stats_core.ExamStats
+class QByQStatsTableModel(QAbstractTableModel):
+    q_by_q_stats: stats_core.QByQStats
     answer_counts: list[list[int]]
     answer_percentages: list[list[float]]
     model: str
 
     def __init__(
-        self, exam_stats: stats_core.ExamStats, model: str, parent=None
+        self, q_by_q_stats: stats_core.QByQStats, model: str, parent=None
     ) -> None:
         super().__init__(parent=parent)
-        self.exam_stats = exam_stats
-        self.answer_counts = self.exam_stats.get_answer_counts(model)
-        self.answer_percentages = self.exam_stats.get_answer_percentages(model)
+        self.q_by_q_stats = q_by_q_stats
+        self.answer_counts = self.q_by_q_stats.get_answer_counts(model)
+        self.answer_percentages = self.q_by_q_stats.get_answer_percentages(model)
         self.model = model
 
     def rowCount(self, parent=QModelIndex()) -> int:
-        return self.exam_stats.num_questions
+        return self.q_by_q_stats.num_questions
 
     def columnCount(self, parent=QModelIndex()) -> int:
-        return self.exam_stats.num_choices + 1
+        return self.q_by_q_stats.num_choices + 1
 
     def headerData(
         self,
@@ -113,7 +122,7 @@ class ExamStatsTableModel(QAbstractTableModel):
     ) -> Union[str, QVariant]:
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
-                if index < self.exam_stats.num_choices:
+                if index < self.q_by_q_stats.num_choices:
                     return "{} {}".format(_("Answer"), chr(65 + index))
                 else:
                     return _("Blank")
@@ -128,14 +137,14 @@ class ExamStatsTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DisplayRole:
             r = index.row()
             c = index.column()
-            if c < self.exam_stats.num_choices:
+            if c < self.q_by_q_stats.num_choices:
                 return str(self.answer_counts[r][c + 1])
             else:
                 return str(self.answer_counts[r][0])
         elif role == Qt.ItemDataRole.ToolTipRole:
             r = index.row()
             c = index.column()
-            if c < self.exam_stats.num_choices:
+            if c < self.q_by_q_stats.num_choices:
                 return f"{self.answer_percentages[r][c + 1]:.1f}%"
             else:
                 return f"{self.answer_percentages[r][0]:.1f}%"
@@ -144,7 +153,7 @@ class ExamStatsTableModel(QAbstractTableModel):
         elif role == Qt.ItemDataRole.BackgroundRole:
             r = index.row()
             c = index.column()
-            if c < self.exam_stats.num_choices and self.exam_stats.is_correct(
+            if c < self.q_by_q_stats.num_choices and self.q_by_q_stats.is_correct(
                 c + 1, r + 1, self.model
             ):
                 return QVariant(QBrush(QColor(205, 255, 212)))

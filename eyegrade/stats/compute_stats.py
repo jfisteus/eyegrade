@@ -25,7 +25,7 @@ from . import stats_core
 
 def stats(
     exam_config: exams.ExamConfig, exams: list[exams.Exam]
-) -> stats_core.ExamStats:
+) -> stats_core.QByQStats:
     num_choices = max(exam_config.num_options)
     if exam_config.permutations:
         permutations = stats_core.ExamPermutations(
@@ -36,7 +36,7 @@ def stats(
         )
     else:
         permutations = None
-    stats = stats_core.ExamStats(
+    stats = stats_core.QByQStats(
         exam_config.num_questions,
         num_choices,
         exam_config.solutions,
@@ -47,10 +47,10 @@ def stats(
     return stats
 
 
-def stats_from_session_path(session_path: pathlib.Path) -> stats_core.ExamStats:
+def stats_from_session_path(session_path: pathlib.Path) -> stats_core.QByQStats:
     with sessiondb.SessionDB(session_path, open=False) as session:
         return stats_from_session(session)
 
 
-def stats_from_session(session: sessiondb.SessionDB) -> stats_core.ExamStats:
+def stats_from_session(session: sessiondb.SessionDB) -> stats_core.QByQStats:
     return stats(session.exam_config, session.read_exams())

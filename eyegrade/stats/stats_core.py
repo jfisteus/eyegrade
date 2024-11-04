@@ -100,7 +100,7 @@ class ExamPermutations:
         ]
 
 
-class ExamStats:
+class QByQStats:
     question_permutations: Optional[QuestionPermutations]
     question_stats: list["QuestionStats"]
     num_questions: int
