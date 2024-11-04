@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 
 import gettext
-from typing import Union
+from typing import Optional, Union
 
 from PyQt6.QtWidgets import (
     QDialog,
@@ -51,7 +51,7 @@ class DialogShowStats(QDialog):
 
     """
 
-    def __init__(self, parent, stats: stats_core.Stats) -> None:
+    def __init__(self, parent: QWidget, stats: stats_core.Stats) -> None:
         super().__init__(parent)
         self.setWindowTitle(_("Exam statistics"))
         layout = QVBoxLayout(self)
@@ -74,7 +74,7 @@ class OverallStatsWidget(QWidget):
 
     def __init__(
         self,
-        parent,
+        parent: QWidget,
         overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats],
     ) -> None:
         super().__init__(parent)
@@ -98,7 +98,7 @@ class OverallStatsWidget(QWidget):
 class QByQStatsWidget(QTabWidget):
     q_by_q_stats: stats_core.QByQStats
 
-    def __init__(self, parent, q_by_q_stats: stats_core.QByQStats) -> None:
+    def __init__(self, parent: QWidget, q_by_q_stats: stats_core.QByQStats) -> None:
         super().__init__(parent)
         self.q_by_q_stats = q_by_q_stats
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
@@ -139,7 +139,7 @@ class OverallStatsTableModel(QAbstractTableModel):
     def __init__(
         self,
         overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats],
-        parent=None,
+        parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent=parent)
         self.overall_stats = overall_stats
@@ -204,7 +204,10 @@ class QByQStatsTableModel(QAbstractTableModel):
     model: str
 
     def __init__(
-        self, q_by_q_stats: stats_core.QByQStats, model: str, parent=None
+        self,
+        q_by_q_stats: stats_core.QByQStats,
+        model: str,
+        parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent=parent)
         self.q_by_q_stats = q_by_q_stats
