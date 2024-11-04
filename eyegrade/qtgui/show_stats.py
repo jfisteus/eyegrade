@@ -51,7 +51,7 @@ class DialogShowStats(QDialog):
 
     """
 
-    def __init__(self, parent, q_by_q_stats: stats_core.QByQStats) -> None:
+    def __init__(self, parent, stats: stats_core.Stats) -> None:
         super().__init__(parent)
         self.setWindowTitle(_("Exam statistics"))
         layout = QVBoxLayout(self)
@@ -59,7 +59,9 @@ class DialogShowStats(QDialog):
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         tabs = QTabWidget(self)
-        q_by_q_stats_widget = QByQStatsWidget(self, q_by_q_stats)
+        overall_stats_widget = OverallStatsWidget(self, stats.overall)
+        q_by_q_stats_widget = QByQStatsWidget(self, stats.q_by_q)
+        tabs.addTab(overall_stats_widget, _("Overall"))
         tabs.addTab(q_by_q_stats_widget, _("Question by question"))
         layout.addWidget(tabs)
         layout.addWidget(buttons)
@@ -67,8 +69,33 @@ class DialogShowStats(QDialog):
         self.setModal(True)
 
 
-class QByQStatsWidget(QTabWidget):
+class OverallStatsWidget(QWidget):
+    overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats]
 
+    def __init__(
+        self,
+        parent,
+        overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats],
+    ) -> None:
+        super().__init__(parent)
+        self.overall_stats = overall_stats
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        table = self._create_table(self)
+        layout.addWidget(table)
+        layout.setAlignment(table, Qt.AlignmentFlag.AlignHCenter)
+
+    def _create_table(self, parent) -> QTableView:
+        table = widgets.CustomTableView(
+            parent=parent, maximum_width=750, maximum_height=500
+        )
+        table.setModel(OverallStatsTableModel(self.overall_stats))
+        table.adjust_size()
+        return table
+
+
+class QByQStatsWidget(QTabWidget):
     q_by_q_stats: stats_core.QByQStats
 
     def __init__(self, parent, q_by_q_stats: stats_core.QByQStats) -> None:
@@ -91,6 +118,83 @@ class QByQStatsWidget(QTabWidget):
         table.setModel(QByQStatsTableModel(self.q_by_q_stats, model))
         table.adjust_size()
         return table
+
+
+class OverallStatsTableModel(QAbstractTableModel):
+    overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats]
+    row_headers = [
+        _("Correct answers"),
+        _("Incorrect answers"),
+        _("Blank answers"),
+        _("Score"),
+    ]
+    column_headers = [_("Average"), _("Median"), _("Min."), _("Max.")]
+    row_types = [
+        stats_core.StatsType.CORRECT,
+        stats_core.StatsType.INCORRECT,
+        stats_core.StatsType.BLANK,
+        stats_core.StatsType.SCORE,
+    ]
+
+    def __init__(
+        self,
+        overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats],
+        parent=None,
+    ) -> None:
+        super().__init__(parent=parent)
+        self.overall_stats = overall_stats
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        return 4
+
+    def columnCount(self, parent=QModelIndex()) -> int:
+        return 4
+
+    def headerData(
+        self,
+        index: int,
+        orientation: Qt.Orientation,
+        role: int = Qt.ItemDataRole.DisplayRole,
+    ) -> Union[str, QVariant]:
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
+                headers = self.column_headers
+            else:
+                headers = self.row_headers
+            return headers[index]
+        else:
+            return QVariant()
+
+    def data(
+        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
+    ) -> Union[str, Qt.AlignmentFlag, QVariant]:
+        if role == Qt.ItemDataRole.DisplayRole:
+            r = index.row()
+            c = index.column()
+            stats_data = self.overall_stats[self.row_types[r]]
+            if c == 0:
+                return self._fmt(stats_data.average)
+            elif c == 1:
+                return self._fmt(stats_data.median)
+            elif c == 2:
+                return self._fmt(stats_data.min)
+            elif c == 3:
+                return self._fmt(stats_data.max)
+            else:
+                return QVariant()
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
+            return Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        else:
+            return QVariant()
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
+        return Qt.ItemFlag(Qt.ItemFlag.ItemIsEnabled)
+
+    def _fmt(self, value: Union[int, float]) -> str:
+        if isinstance(value, int):
+            return str(value)
+        else:
+            return f"{value:.2f}"
 
 
 class QByQStatsTableModel(QAbstractTableModel):
@@ -149,7 +253,7 @@ class QByQStatsTableModel(QAbstractTableModel):
             else:
                 return f"{self.answer_percentages[r][0]:.1f}%"
         elif role == Qt.ItemDataRole.TextAlignmentRole:
-            return Qt.AlignmentFlag.AlignRight
+            return Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         elif role == Qt.ItemDataRole.BackgroundRole:
             r = index.row()
             c = index.column()
