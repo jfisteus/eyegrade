@@ -391,15 +391,30 @@ class EditScoresWidget(QWidget):
             initial_mode = 0
             model.clear()
         else:
+            self.combo.set_item_enabled(1, True)
+            self.combo.set_item_enabled(2, True)
             if not self.exam_config.scores or self.exam_config.all_weights_are_one():
-                self.combo.set_item_enabled(1, True)
-                self.combo.set_item_enabled(2, True)
-                initial_mode = 1
                 model.clear()
-            else:
-                self.combo.set_item_enabled(1, True)
-                self.combo.set_item_enabled(2, True)
-                initial_mode = 2
+            if self.exam_config.scores_mode == exams.ExamConfig.SCORES_MODE_NONE:
+                initial_mode = 0
+            elif self.exam_config.scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
+                if self.exam_config.all_weights_are_one():
+                    initial_mode = 1
+                else:
+                    initial_mode = 2
+            elif (
+                self.exam_config.scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL
+            ):
+                # This mode cannot be edited in this dialog
+                initial_mode = 0
+        self.button_reset.setEnabled(False)
+        if initial_mode == 0:
+            self._enable_weights_widgets(False, False)
+        elif initial_mode == 1:
+            self._enable_weights_widgets(True, False)
+        else:
+            self._enable_weights_widgets(True, True)
+        self.current_mode = initial_mode
         self.combo.setCurrentIndex(initial_mode)
 
     def validate_and_consolidate(self) -> bool:
