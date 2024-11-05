@@ -114,6 +114,7 @@ class StatsType(enum.Enum):
 @dataclass
 class AbstractStats:
     stats_type: StatsType
+    num_exams: int
     average: float
     median: Union[float, int]
     min: Union[float, int]
@@ -122,7 +123,7 @@ class AbstractStats:
 
 @dataclass
 class Stats:
-    overall: dict[StatsType, AbstractStats]
+    overall: dict[StatsType, Optional[AbstractStats]]
     q_by_q: "QByQStats"
 
 
@@ -139,13 +140,13 @@ class OverallStats:
         self.scores = []
 
     def count_answers(self, exam: exams.Exam) -> None:
-        if exam.score is not None:
-            self.correct_answers.append(exam.score.correct)
-            self.wrong_answers.append(exam.score.incorrect)
-            self.blank_answers.append(exam.score.blank)
+        self.correct_answers.append(exam.score.correct)
+        self.wrong_answers.append(exam.score.incorrect)
+        self.blank_answers.append(exam.score.blank)
+        if exam.score.score is not None:
             self.scores.append(exam.score.score)
 
-    def get_stats(self, stats_type: StatsType) -> AbstractStats:
+    def get_stats(self, stats_type: StatsType) -> Optional[AbstractStats]:
         data: Sequence[Union[float, int]]
         if stats_type == StatsType.CORRECT:
             data = self.correct_answers
@@ -157,16 +158,22 @@ class OverallStats:
             data = self.scores
         else:
             raise ValueError(f"Invalid stats type: {stats_type}")
-        return self._compute_stats(data, stats_type)
+        if data:
+            return self._compute_stats(data, stats_type)
+        else:
+            return None
 
-    def get_all_stats(self) -> dict[StatsType, AbstractStats]:
+    def get_all_stats(self) -> dict[StatsType, Optional[AbstractStats]]:
         return {stats_type: self.get_stats(stats_type) for stats_type in StatsType}
 
     def _compute_stats(
         self, data: Sequence[Union[float, int]], stats_type: StatsType
     ) -> AbstractStats:
+        if not data:
+            raise ValueError("No data to compute stats")
         return AbstractStats(
             stats_type=stats_type,
+            num_exams=len(data),
             average=statistics.fmean(data),
             median=statistics.median_high(data),
             min=min(data),
@@ -367,7 +374,10 @@ class QuestionStats:
     def get_answer_ratios(self, model: str) -> list[float]:
         counts = self.get_answer_counts(model)
         total = sum(counts)
-        return [count / total for count in counts]
+        if total > 0:
+            return [count / total for count in counts]
+        else:
+            return [0.0] * len(counts)
 
     def get_answer_percentages(self, model: str) -> list[float]:
         return [ratio * 100 for ratio in self.get_answer_ratios(model)]

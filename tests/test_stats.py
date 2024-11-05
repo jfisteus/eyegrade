@@ -179,3 +179,55 @@ class TestExamStats(unittest.TestCase):
                 [0, 2, 0, 1],
             ],
         )
+
+    def testExamStatsNoExams(self):
+        permutations = stats_core.ExamPermutations(
+            num_questions=4,
+            num_choices=3,
+            reference_model="0",
+            exam_permutations={
+                "A": [
+                    (1, [1, 2, 3]),
+                    (4, [3, 2, 1]),
+                    (3, [2, 1, 3]),
+                    (2, [3, 1, 2]),
+                ],
+                "B": [
+                    (2, [1, 3, 2]),
+                    (3, [2, 3, 1]),
+                    (4, [1, 2, 3]),
+                    (1, [3, 2, 1]),
+                ],
+            },
+        )
+        correct_choices = {
+            "0": [[1], [3], [2], [3]],
+        }
+        stats = stats_core.QByQStats(4, 3, correct_choices, permutations)
+        self.assertEqual(
+            stats.get_answer_counts("0"),
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+            ],
+        )
+        self.assertEqual(
+            stats.get_answer_ratios("0"),
+            [
+                [0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+            ],
+        )
+        self.assertEqual(
+            stats.get_answer_counts("A"),
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+            ],
+        )

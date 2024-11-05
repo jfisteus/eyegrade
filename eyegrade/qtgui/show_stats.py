@@ -70,12 +70,12 @@ class DialogShowStats(QDialog):
 
 
 class OverallStatsWidget(QWidget):
-    overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats]
+    overall_stats: dict[stats_core.StatsType, Optional[stats_core.AbstractStats]]
 
     def __init__(
         self,
         parent: QWidget,
-        overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats],
+        overall_stats: dict[stats_core.StatsType, Optional[stats_core.AbstractStats]],
     ) -> None:
         super().__init__(parent)
         self.overall_stats = overall_stats
@@ -121,14 +121,14 @@ class QByQStatsWidget(QTabWidget):
 
 
 class OverallStatsTableModel(QAbstractTableModel):
-    overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats]
+    overall_stats: dict[stats_core.StatsType, Optional[stats_core.AbstractStats]]
     row_headers = [
         _("Correct answers"),
         _("Incorrect answers"),
         _("Blank answers"),
         _("Score"),
     ]
-    column_headers = [_("Average"), _("Median"), _("Min."), _("Max.")]
+    column_headers = [_("# exams"), _("Average"), _("Median"), _("Min."), _("Max.")]
     row_types = [
         stats_core.StatsType.CORRECT,
         stats_core.StatsType.INCORRECT,
@@ -138,7 +138,7 @@ class OverallStatsTableModel(QAbstractTableModel):
 
     def __init__(
         self,
-        overall_stats: dict[stats_core.StatsType, stats_core.AbstractStats],
+        overall_stats: dict[stats_core.StatsType, Optional[stats_core.AbstractStats]],
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -148,7 +148,7 @@ class OverallStatsTableModel(QAbstractTableModel):
         return 4
 
     def columnCount(self, parent=QModelIndex()) -> int:
-        return 4
+        return 5
 
     def headerData(
         self,
@@ -172,16 +172,21 @@ class OverallStatsTableModel(QAbstractTableModel):
             r = index.row()
             c = index.column()
             stats_data = self.overall_stats[self.row_types[r]]
-            if c == 0:
-                return self._fmt(stats_data.average)
-            elif c == 1:
-                return self._fmt(stats_data.median)
-            elif c == 2:
-                return self._fmt(stats_data.min)
-            elif c == 3:
-                return self._fmt(stats_data.max)
+            if stats_data is not None:
+                if c == 0:
+                    return str(stats_data.num_exams)
+                elif c == 1:
+                    return self._fmt(stats_data.average)
+                elif c == 2:
+                    return self._fmt(stats_data.median)
+                elif c == 3:
+                    return self._fmt(stats_data.min)
+                elif c == 4:
+                    return self._fmt(stats_data.max)
+                else:
+                    return QVariant()
             else:
-                return QVariant()
+                return "-"
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             return Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         else:
