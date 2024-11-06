@@ -16,14 +16,12 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-from PyQt6.QtGui import QIcon, QImage, QPainter
+from PyQt6.QtGui import QIcon, QImage
 
 from PyQt6.QtWidgets import (
     QListView,
     QListWidget,
     QListWidgetItem,
-    QVBoxLayout,
-    QWidget,
 )
 
 from PyQt6.QtCore import QEvent, QItemSelection, QObject, QSize, pyqtSignal, pyqtSlot
@@ -142,59 +140,3 @@ class KeyboardEventsFilter(QObject):
             return True
         else:
             return super().eventFilter(widget, event)
-
-
-class CaptureView(QWidget):
-    def __init__(self, size, parent):
-        super().__init__(parent)
-        self.setFixedSize(*size)
-        self.exams = []
-        self.icons = []
-        self.selected_index = None
-        self.selected_image = None
-
-    def set_exams(self, exams):
-        self.exams = exams
-        self.selected_index = 0
-
-    def clear(self):
-        self.exams = []
-        self.selected_index = None
-        self.selected_image = None
-        self.update()
-
-    def paintEvent(self, event):
-        if self.selected_image is not None:
-            painter = QPainter(self)
-            painter.drawImage(0, 0, self.selected_image)
-
-    def _set_selected_exam(self, index):
-        if index != self.selected_index:
-            self.selected_index = index
-            if index < len(self.exams):
-                self.selected_image = ExamImage(self.exams[index]).scaledToHeight(
-                    self.height()
-                )
-            else:
-                self.selected_image = None
-            self.update()
-
-    @pyqtSlot(int)
-    def show_exam(self, index):
-        self._set_selected_exam(index)
-
-
-class ExamsView(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        self.thumbnails_view = ThumbnailsView(self)
-        self.capture_view = CaptureView((640, 300), self)
-        layout.addWidget(self.capture_view)
-        layout.addWidget(self.thumbnails_view)
-        self.thumbnails_view.selection_changed.connect(self.capture_view.show_exam)
-
-    def set_exams(self, exams):
-        self.thumbnails_view.set_exams(exams)
-        self.capture_view.set_exams(exams)
