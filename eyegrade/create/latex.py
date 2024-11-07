@@ -77,6 +77,16 @@ utils.EyegradeException.register_error(
     "Install LaTeX and make sure it is in your system's PATH variable.",
     "The command pdflatex was not found.",
 )
+utils.EyegradeException.register_error(
+    "latex_compile_error",
+    (
+        "LaTeX failed to compile the exam.\n"
+        "Check the error message above or the log for details.\n"
+        "LaTeX source files (.tex extension) will not be removed\n"
+        "so that you can inspect them."
+    ),
+    "LaTeX failed to compile the exam.",
+)
 
 
 class ExamMaker:
@@ -278,7 +288,7 @@ class ExamMaker:
                     produced_filename, remove_tex=True
                 )
                 if not success:
-                    raise utils.EyegradeException(output)
+                    raise utils.EyegradeException(output, key="latex_compile_error")
         return produced_filename
 
     def save_exam_config(self):
@@ -413,7 +423,9 @@ def compile_latex(latex_file, remove_tex=False):
     with utils.change_dir(directory):
         try:
             output = subprocess.check_output(
-                ["pdflatex", "-interaction=nonstopmode", name], stderr=subprocess.STDOUT
+                ["pdflatex", "-interaction=nonstopmode", name],
+                stderr=subprocess.STDOUT,
+                text=True,
             )
         except subprocess.CalledProcessError as exc:
             output = exc.output
