@@ -229,6 +229,7 @@ class ProgramManager:
 
     interface: gui.Interface
     session: Optional[sessiondb.SessionDB]
+    exam: Optional[exams.Exam]
 
     def __init__(self, interface, session_file=None):
         self.interface = interface
@@ -242,6 +243,7 @@ class ProgramManager:
         self._register_listeners()
         self.from_manual_detection = False
         self.manual_detect_manager = None
+        self.exam = None
         if session_file is not None:
             self._try_session_file(session_file)
 
@@ -563,8 +565,9 @@ class ProgramManager:
         self.detection_options = None
         self.interface.activate_no_session_mode()
 
-    def _edit_scores(self):
+    def _action_edit_scores(self):
         """Callback for opening the question scores dialog"""
+        current_exam = self.exam
         if self.mode.in_grading() or self.mode.in_review_from_session():
             self._stop_grading()
         self.interface.activate_session_mode()
@@ -598,6 +601,8 @@ class ProgramManager:
                     title=_("Scores updated"),
                 )
             self.session.update_exam_config_scores(self.exam_data, commit=True)
+        if current_exam is not None:
+            self._exam_selected(current_exam)
 
     def _exit_application(self):
         """Callback for when the user wants to exit the application."""
@@ -944,7 +949,7 @@ class ProgramManager:
             ("actions", "grading", "edit_id"): self._action_edit_id,
             ("actions", "tools", "camera"): self._action_camera_selection,
             ("actions", "tools", "export_exam_config"): self._action_export_exam_config,
-            ("actions", "tools", "edit_scores"): self._edit_scores,
+            ("actions", "tools", "edit_scores"): self._action_edit_scores,
             ("actions", "tools", "lines"): self._action_debug_changed,
             ("actions", "tools", "processed"): self._action_debug_changed,
             ("actions", "tools", "show_status"): self._action_debug_changed,
