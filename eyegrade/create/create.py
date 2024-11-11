@@ -224,6 +224,13 @@ def read_cmd_options():
         help="select the same variation for all questions (set 1 for the first variation)",
         default=None,
     )
+    arg_parser.add_argument(
+        "--keep-tex",
+        dest="keep_tex",
+        action="store_true",
+        default=False,
+        help="don't remove the .tex files after compilation",
+    )
     args = arg_parser.parse_args()
     args.models = args.models.upper()
     # Either -e is specified, or -q and -c are used
@@ -389,6 +396,7 @@ def create_exam():
                 variation=variation,
                 produce_pdf=produce_pdf,
                 keep_question_order=args.keep_question_order,
+                keep_tex=args.keep_tex,
             )
             if produced_filename is not None:
                 print("Created file:", produced_filename, file=sys.stderr)
@@ -402,6 +410,7 @@ def create_exam():
                     variation=variation,
                     produce_pdf=produce_pdf,
                     keep_question_order=args.keep_question_order,
+                    keep_tex=args.keep_tex,
                 )
                 print("Created file:", produced_filename, file=sys.stderr)
     else:
@@ -411,6 +420,7 @@ def create_exam():
             variation=variation,
             produce_pdf=produce_pdf,
             keep_question_order=args.keep_question_order,
+            keep_tex=args.keep_tex,
         )
         print("Created file:", produced_filename, file=sys.stderr)
     if config_filename is not None:

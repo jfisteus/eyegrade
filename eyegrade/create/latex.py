@@ -195,6 +195,7 @@ class ExamMaker:
         with_solution=False,
         produce_pdf=False,
         keep_question_order=False,
+        keep_tex=False,
     ):
         """Creates a new exam.
 
@@ -285,7 +286,7 @@ class ExamMaker:
             utils.write_file(produced_filename, exam_text)
             if produce_pdf:
                 success, output, produced_filename = compile_latex(
-                    produced_filename, remove_tex=True
+                    produced_filename, keep_tex=keep_tex
                 )
                 if not success:
                     raise utils.EyegradeException(output, key="latex_compile_error")
@@ -417,7 +418,7 @@ def check_latex():
     return success
 
 
-def compile_latex(latex_file, remove_tex=False):
+def compile_latex(latex_file, keep_tex=False):
     directory, name = os.path.split(latex_file)
     base_name = os.path.splitext(name)[0]
     with utils.change_dir(directory):
@@ -441,7 +442,7 @@ def compile_latex(latex_file, remove_tex=False):
             to_remove = [base_name + ".aux"]
             if success:
                 to_remove.append(base_name + ".log")
-                if remove_tex:
+                if not keep_tex:
                     to_remove.append(name)
             for filename in to_remove:
                 if os.path.isfile(filename):
