@@ -185,7 +185,8 @@ class ExamConfig:
             self.dimensions = []
             self.num_options = []
             self.permutations = {}
-            self.variations = {}
+            self.model_variations = {}
+            self.question_variations = {}
             self.models = []
             self.scores = {}
             self.base_scores = None
@@ -211,7 +212,8 @@ class ExamConfig:
             self.id_num_digits,
             self.dimensions,
             self.permutations,
-            self.get_all_variations(),
+            self.model_variations,
+            self.get_all_question_variations(),
             self.models,
             self.scores,
             self.base_scores,
@@ -284,27 +286,32 @@ class ExamConfig:
         else:
             return None
 
-    def set_variations(self, model, variations):
+    def set_question_variations(self, model, variations):
         if not isinstance(variations, list):
             variations = self._parse_variations(variations)
         if len(variations) != self.num_questions:
             raise ValueError("Variations with incorrect number of questions")
-        self.variations[model] = variations
+        self.question_variations[model] = variations
         self.add_model(model)
 
-    def get_variations(self, model):
+    def get_model_variation(self, model):
+        """Returns the general variation for the given model or None if not set."""
+        if self.model_variations:
+            return self.model_variations.get(model, None)
+
+    def get_question_variations(self, model):
         """Returns the variations for the given model.
 
         If there are no variations for this model, it returns the default
         ones instead of None.
 
         """
-        if model in self.variations:
-            return self.variations[model]
+        if model in self.question_variations:
+            return self.question_variations[model]
         else:
             return [0] * self.num_questions
 
-    def get_all_variations(self):
+    def get_all_question_variations(self):
         """Returns variations for all the registered models.
 
         The difference with respect to just accessing the variations attribute
@@ -314,7 +321,7 @@ class ExamConfig:
         """
         variations = {}
         for model in self.models:
-            variations[model] = self.get_variations(model)
+            variations[model] = self.get_question_variations(model)
         return variations
 
     def set_dimensions(self, dimensions):
@@ -481,10 +488,12 @@ class ExamConfig:
         self.set_dimensions(exam_data.get("exam", "dimensions"))
         has_solutions = exam_data.has_section("solutions")
         has_permutations = exam_data.has_section("permutations")
-        has_variations = exam_data.has_section("variations")
+        has_model_variations = exam_data.has_section("model-variations")
+        has_question_variations = exam_data.has_section("variations")
         self.solutions = {}
         self.permutations = {}
-        self.variations = {}
+        self.model_variations = {}
+        self.question_variations = {}
         self.models = []
         if has_solutions:
             for key, value in exam_data.items("solutions"):
@@ -499,10 +508,14 @@ class ExamConfig:
                     key = "permutations-" + model
                     value = exam_data.get("permutations", key)
                     self.set_permutations(model, value)
-                if has_variations:
+                if has_model_variations:
+                    key = "model-variation-" + model
+                    value = exam_data.get("model-variations", key)
+                    self.model_variations[model] = int(value)
+                if has_question_variations:
                     key = "variations-" + model
                     value = exam_data.get("variations", key)
-                    self.set_variations(model, value)
+                    self.set_question_variations(model, value)
         has_correct_weight = exam_data.has_option("exam", "correct-weight")
         has_incorrect_weight = exam_data.has_option("exam", "incorrect-weight")
         has_blank_weight = exam_data.has_option("exam", "blank-weight")
@@ -584,7 +597,16 @@ class ExamConfig:
                         model, self.format_permutations(model)
                     )
                 )
-        if self.variations:
+        if self.model_variations:
+            data.append("")
+            data.append("[model-variations]")
+            for model in sorted(self.models):
+                data.append(
+                    "model-variation-{0}: {1}".format(
+                        model, self.model_variations.get(model, 0)
+                    )
+                )
+        if self.question_variations:
             data.append("")
             data.append("[variations]")
             for model in sorted(self.models):
@@ -626,7 +648,9 @@ class ExamConfig:
         return "%d{%s}" % (num_question, ",".join([str(n) for n in options]))
 
     def format_variations(self, model):
-        return "/".join([str(variation) for variation in self.get_variations(model)])
+        return "/".join(
+            [str(variation) for variation in self.get_question_variations(model)]
+        )
 
     def format_weights(self, model):
         return ",".join([s.format_weight() for s in self.scores[model]])

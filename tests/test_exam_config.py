@@ -31,5 +31,12 @@ class TestExamConfig(unittest.TestCase):
         exam_config = exams.ExamConfig(
             filename=self._get_test_file_path("test-variations.eye")
         )
-        self.assertEqual(exam_config.variations["A"], [0, 0, 0, 0, 0])
-        self.assertEqual(exam_config.variations["B"], [2, 1, 1, 2, 0])
+        self.assertEqual(exam_config.question_variations["A"], [0, 0, 0, 0, 0])
+        self.assertEqual(exam_config.question_variations["B"], [2, 1, 1, 2, 0])
+
+    def test_model_variations(self):
+        exam_config = exams.ExamConfig(
+            filename=self._get_test_file_path("test-model-variations.eye")
+        )
+        self.assertEqual(exam_config.model_variations["A"], 0)
+        self.assertEqual(exam_config.model_variations["B"], 1)

@@ -56,7 +56,27 @@ class TestSessionDB(unittest.TestCase):
             # Loading a session always sets variations to a list of zeroes
             # instead of the default empty dictionary.
             # Comparison would fail:
-            session.exam_config.variations = {}
+            session.exam_config.question_variations = {}
+            self.assertEqual(session.exam_config, exam_config)
+            session.close()
+
+    def test_exam_data_model_variations(self):
+        exam_config = exams.ExamConfig(
+            filename=self._get_test_file_path("test-model-variations.eye")
+        )
+        exam_config.capture_pattern = "exam-{student-id}-{seq-number}.png"
+        listing = students.GroupListing(students.StudentGroup(1, "G"), [])
+        listing.add_students(self.students)
+        listings = students.StudentListings()
+        listings.add_listing(listing)
+        with tempfile.TemporaryDirectory() as dir_name:
+            session_dir = os.path.join(dir_name, "test_session")
+            sessiondb.create_session_directory(session_dir, exam_config, listings)
+            session = sessiondb.SessionDB(session_dir)
+            # Loading a session always sets variations to a list of zeroes
+            # instead of the default empty dictionary.
+            # Comparison would fail:
+            session.exam_config.question_variations = {}
             self.assertEqual(session.exam_config, exam_config)
             session.close()
 
@@ -76,7 +96,7 @@ class TestSessionDB(unittest.TestCase):
             # Loading a session always sets variations to a list of zeroes
             # instead of the default empty dictionary.
             # Comparison would fail:
-            session.exam_config.variations = {}
+            session.exam_config.question_variations = {}
             self.assertEqual(session.exam_config, exam_config)
             session.close()
 

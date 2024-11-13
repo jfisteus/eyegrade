@@ -230,6 +230,10 @@ class ExamMaker:
                 self.exam_config.dimensions = self.dimensions
             if model != "0" and model not in self.exam_config.models:
                 self.exam_config.models.append(model)
+        if variation is not None:
+            self.exam_config.model_variations[model] = variation
+        else:
+            variation = self.exam_config.get_model_variation(model)
         if self.exam_questions is not None:
             if model != "0" and not self.survey_mode:
                 if (
@@ -249,14 +253,14 @@ class ExamMaker:
                         ) = self.exam_questions.solutions_and_permutations(model)
                         self.exam_config.solutions[model] = solutions
                         self.exam_config.permutations[model] = permutations
-                        self.exam_config.variations[model] = (
+                        self.exam_config.question_variations[model] = (
                             self.exam_questions.selected_variations(model)
                         )
                 else:
                     permutations = self.exam_config.permutations[model]
                     self.exam_questions.set_permutation(model, permutations)
-                    if model in self.exam_config.variations:
-                        variations = self.exam_config.variations[model]
+                    if model in self.exam_config.question_variations:
+                        variations = self.exam_config.question_variations[model]
                         self.exam_questions.select_variations(model, variations)
             replacements["questions"] = format_questions(
                 self.exam_questions, model, with_solution
@@ -266,9 +270,8 @@ class ExamMaker:
         replacements["declarations"] = latex_declarations(with_solution)
         replacements["variation"] = "0"
         if model != "0":
-            selected_variation = self.exam_questions.selected_variation(model)
-            if selected_variation is not None:
-                replacements["variation"] = str(selected_variation + 1)
+            if variation is not None:
+                replacements["variation"] = str(variation + 1)
 
         # Replacement keys are in odd positions of self.parts
         replaced = len(self.parts) * [None]

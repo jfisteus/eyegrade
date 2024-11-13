@@ -35,8 +35,8 @@ class SessionDB:
 
     """
 
-    DB_SCHEMA_VERSION = 5
-    COMPATIBLE_SCHEMAS = (1, 2, 3, 4, 5)
+    DB_SCHEMA_VERSION = 6
+    COMPATIBLE_SCHEMAS = (1, 2, 3, 4, 5, 6)
 
     GRADING_MODE_ONE_CORRECT = 1
     GRADING_MODE_MULTI_CORRECT = 2
@@ -77,6 +77,12 @@ class SessionDB:
             question INTEGER NOT NULL,
             solution INTEGER
         )"""
+
+    _table_models = """
+        CREATE TABLE Models (
+            model INTEGER NOT NULL,
+            model_variation INTEGER
+    )"""
 
     _table_exams = """
         CREATE TABLE Exams (
@@ -765,6 +771,8 @@ class SessionDB:
             if base_scores is not None:
                 # This must be done after having set the solutions
                 self.exam_config.set_base_scores(base_scores, same_weights=True)
+        if self.schema_version >= 6:
+            self._load_model_variations()
         return self.exam_config
 
     def _load_solutions_permutations_scores(self):
@@ -813,7 +821,7 @@ class SessionDB:
             if permutations[m][0] is not None:
                 self.exam_config.set_permutations(model, permutations[m])
             if m in variations:
-                self.exam_config.set_variations(model, variations[m])
+                self.exam_config.set_question_variations(model, variations[m])
             if scores_mode == exams.ExamConfig.SCORES_MODE_WEIGHTS:
                 self.exam_config.set_question_weights(model, weights[m])
             elif scores_mode == exams.ExamConfig.SCORES_MODE_INDIVIDUAL:
@@ -839,6 +847,15 @@ class SessionDB:
         # Swap empty solutions by None:
         solutions = [s if s else None for s in solutions]
         return solutions
+
+    def _load_model_variations(self):
+        cursor = self.conn.cursor()
+        variations = {}
+        for row in cursor.execute("SELECT * FROM Models"):
+            model = _dec_model(row["model"])
+            variations[model] = row["model_variation"]
+        if variations:
+            self.exam_config.model_variations = variations
 
     def _update_answer(self, exam_id, question, new_answer, commit=True):
         cursor = self.conn.cursor()
@@ -1108,6 +1125,7 @@ def _create_tables(conn):
     cursor.execute(SessionDB._table_session)
     cursor.execute(SessionDB._table_questions)
     cursor.execute(SessionDB._table_solutions)
+    cursor.execute(SessionDB._table_models)
     cursor.execute(SessionDB._table_exams)
     cursor.execute(SessionDB._table_students)
     cursor.execute(SessionDB._table_student_groups)
@@ -1168,6 +1186,12 @@ def _save_exam_config(conn, exam_data):
             exam_data.capture_pattern,
         ),
     )
+    # Store the model variations
+    if exam_data.model_variations:
+        data = []
+        for model, variation in exam_data.model_variations.items():
+            data.append((_enc_model(model), variation))
+        cursor.executemany("INSERT INTO Models VALUES (?, ?)", data)
     # Store the question permutations and scores
     data = []
     for model in exam_data.models:
@@ -1178,14 +1202,14 @@ def _save_exam_config(conn, exam_data):
             permutations = [exam_data.format_permutation(p) for p in permutations]
         else:
             permutations = all_none
-        variations = exam_data.get_variations(model)
+        question_variations = exam_data.get_question_variations(model)
         scores_c, scores_i, scores_b, weights = _question_scores(exam_data, model)
         data.extend(
             zip(
                 all_model,
                 range(exam_data.num_questions),
                 permutations,
-                variations,
+                question_variations,
                 scores_c,
                 scores_i,
                 scores_b,
