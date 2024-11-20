@@ -247,7 +247,9 @@ class StudentListings:
         return False
 
     def __str__(self):
-        return "Studentlistings({} groups)".format(len(self.listings))
+        return "StudentListings({} groups: {})".format(
+            len(self.listings), [len(listing) for listing in self.listings]
+        )
 
 
 def _duplicate_student_ids(students):

@@ -87,7 +87,6 @@ class Exam:
             rank = [
                 (self._id_rank(s, self.decisions.id_scores), s)
                 for s in self.student_listings.iter_students()
-                if s.group_id > 0
             ]
             students_rank = [student for score, student in sorted(rank, reverse=True)]
             if not students_rank:
