@@ -1118,6 +1118,7 @@ def _create_session_db(db_file, exam_data, student_listings):
     _save_exam_config(conn, exam_data)
     _save_student_listings(conn, student_listings)
     conn.commit()
+    conn.close()
 
 
 def _create_tables(conn):
