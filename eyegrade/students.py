@@ -182,8 +182,8 @@ class GroupListing:
     def __len__(self) -> int:
         return len(self.students)
 
-    def __getitem__(self, key: str) -> Student:
-        return self._students_dict[key]
+    def __getitem__(self, key: int) -> Student:
+        return self.students[key]
 
     def __iter__(self) -> Iterator[Student]:
         return iter(self.students)
