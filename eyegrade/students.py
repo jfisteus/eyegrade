@@ -394,7 +394,6 @@ class XLSXStudentReader(StudentReader):
     def __init__(self, file_name: str) -> None:
         super().__init__(file_name)
         self.workbook = None
-        self.iterator = None
 
     def __enter__(self) -> StudentReader:
         self.workbook = openpyxl.load_workbook(self.file_name, read_only=True)
