@@ -87,6 +87,12 @@ utils.EyegradeException.register_error(
     ),
     "LaTeX failed to compile the exam.",
 )
+utils.EyegradeException.register_error(
+    "no_exam_config_variations",
+    "Setting an output file name is mandatory "
+    "when a variation number is explicitly set. "
+    "Use the -o option if calling this from the command line.",
+)
 
 
 class ExamMaker:
@@ -231,8 +237,11 @@ class ExamMaker:
             if model != "0" and model not in self.exam_config.models:
                 self.exam_config.models.append(model)
         if variation is not None:
-            self.exam_config.model_variations[model] = variation
-        else:
+            if self.exam_config is not None:
+                self.exam_config.model_variations[model] = variation
+            else:
+                raise utils.EyegradeException("", key="no_exam_config_variations")
+        elif self.exam_config is not None:
             variation = self.exam_config.get_model_variation(model)
         if self.exam_questions is not None:
             if model != "0" and not self.survey_mode:
