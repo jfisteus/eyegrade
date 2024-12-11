@@ -422,7 +422,7 @@ class ProgramManager:
         ):
             return
         exam_removed = False
-        if image.try_to_detect:
+        if image.try_to_detect():
             period = capture_change_period
             self.change_failures = 0
         else:

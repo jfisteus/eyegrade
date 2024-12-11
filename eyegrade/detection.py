@@ -263,6 +263,8 @@ class ExamDetector:
         probable. Right now, it just checks that the proper axes are
         detected.
 
+        Returns `self.exam_detected`.
+
         """
         self.exam_detected = False
         lines = detect_lines(self.image_proc, self.context.get_hough_threshold())
@@ -270,6 +272,7 @@ class ExamDetector:
             axes = detect_boxes(lines, self.dimensions)
             if axes is not None:
                 self.exam_detected = True
+        return self.exam_detected
 
     def _write_error_trace(self, exc_type, exc_value, exc_traceback):
         import datetime
