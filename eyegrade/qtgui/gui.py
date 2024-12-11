@@ -151,6 +151,7 @@ class ActionsManager:
         ("camera", "camera.svg", _("Select &camera"), []),
         ("export_exam_config", None, _("E&xport exam configuration"), []),
         ("edit_scores", None, _("Edit question &scores"), []),
+        ("+auto_change", None, _("Continue on exam &removal"), []),
     ]
 
     _actions_help_data: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
@@ -166,9 +167,9 @@ class ActionsManager:
         ("+processed", None, _("Show &processed image"), []),
     ]
 
-    _actions_experimental: List[Tuple[str, Optional[str], Optional[str], List[int]]] = [
-        ("+auto_change", None, _("Continue on exam &removal"), [])
-    ]
+    _actions_experimental: List[Tuple[str, Optional[str], Optional[str], List[int]]] = (
+        []
+    )
 
     def __init__(self, window):
         """Creates a manager for the given toolbar object."""
@@ -475,15 +476,16 @@ class ActionsManager:
         self.menus["tools"].addMenu(menu)
 
     def _add_experimental_actions(self):
-        actions_list = []
-        for key, icon, text, shortcuts in ActionsManager._actions_experimental:
-            self._add_action(
-                key, icon, text, shortcuts, self.actions_tools, actions_list
-            )
-        menu = QMenu(_("&Experimental"), self.menus["tools"])
-        for action in actions_list:
-            menu.addAction(action)
-        self.menus["tools"].addMenu(menu)
+        if ActionsManager._actions_experimental:
+            actions_list = []
+            for key, icon, text, shortcuts in ActionsManager._actions_experimental:
+                self._add_action(
+                    key, icon, text, shortcuts, self.actions_tools, actions_list
+                )
+            menu = QMenu(_("&Experimental"), self.menus["tools"])
+            for action in actions_list:
+                menu.addAction(action)
+            self.menus["tools"].addMenu(menu)
 
 
 class CenterView(QWidget):
