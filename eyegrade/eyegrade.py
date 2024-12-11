@@ -410,9 +410,9 @@ class ProgramManager:
         whether the exam has been removed.
 
         """
-        image = self.current_detector
+        detector = self.current_detector
         self.current_detector = None
-        if image is None:
+        if detector is None:
             # This needs to be investigated: this case should never
             # happen, but I saw it happen...
             return
@@ -422,7 +422,7 @@ class ProgramManager:
         ):
             return
         exam_removed = False
-        if image.try_to_detect:
+        if detector.exam_detected:
             period = capture_change_period
             self.change_failures = 0
         else:
