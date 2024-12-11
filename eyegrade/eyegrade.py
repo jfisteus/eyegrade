@@ -77,10 +77,10 @@ utils.EyegradeException.register_error(
     ),
 )
 
-param_fps = 8
+param_fps = 16
 capture_period = 1.0 / param_fps
-capture_change_period = 1.0
-capture_change_period_failure = 0.3
+capture_change_period = 0.3
+capture_change_period_failure = 0.2
 after_removal_delay = 1.0
 
 
@@ -285,7 +285,7 @@ class ProgramManager:
         self.manual_detect_manager = None
         self.interface.register_timer(50, self._next_search)
         self.detection_context.dump_buffer(1.0)
-        self.next_capture = time.time() + 0.05
+        self.next_capture = time.monotonic() + 0.05
 
     def _start_review_mode(self):
         if self.mode.in_grading():
@@ -444,12 +444,12 @@ class ProgramManager:
         in review mode if automatic exam removal detection is active.
 
         """
-        current_time = time.time()
+        current_time = time.monotonic()
         self.next_capture += period
         if current_time > self.next_capture:
             self.detection_context.dump_buffer((current_time - self.next_capture))
             wait = 0.010
-            self.next_capture = time.time() + 0.010
+            self.next_capture = time.monotonic() + 0.010
         else:
             wait = self.next_capture - current_time
         self.interface.register_timer(int(wait * 1000), function)
