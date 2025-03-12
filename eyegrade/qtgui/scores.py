@@ -17,6 +17,8 @@
 #
 import gettext
 import copy
+import decimal
+import fractions
 from typing import Optional, Union, Dict, List, Tuple, cast
 
 from PyQt6.QtWidgets import (
@@ -50,8 +52,8 @@ class ScoreWeightsTableModel(QAbstractTableModel):
     models: List[str]
     has_permutations: bool
     permutations: Dict[str, List[Tuple[int, List[int]]]]
-    weights: List[List[int]]
-    sum_weights: List[int]
+    weights: List[List[Union[int, float, decimal.Decimal, fractions.Fraction]]]
+    sum_weights: List[Union[int, float, decimal.Decimal, fractions.Fraction]]
 
     def __init__(self, exam_config: exams.ExamConfig, parent=None):
         super().__init__(parent=parent)
@@ -78,6 +80,7 @@ class ScoreWeightsTableModel(QAbstractTableModel):
                 if not self.weights[i]:
                     self.weights[i] = [1] * self.exam_config.num_questions
         else:
+            weights_0: list[Union[int, float, decimal.Decimal, fractions.Fraction]]
             weights_0 = [1] * self.exam_config.num_questions
             weights_m = self.exam_config.get_question_weights(self.models[1])
             if weights_m:

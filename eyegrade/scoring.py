@@ -18,6 +18,8 @@
 
 import fractions
 import re
+import decimal
+import typing
 
 from . import utils
 
@@ -25,12 +27,27 @@ from . import utils
 class QuestionScores(utils.ComparableMixin):
     """Compute the score of a question."""
 
+    correct_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
+    incorrect_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
+    blank_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
+    weight: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
+
     CORRECT = 1
     INCORRECT = 2
     BLANK = 3
     VOID = 4
 
-    def __init__(self, correct_score, incorrect_score, blank_score, weight=1):
+    def __init__(
+        self,
+        correct_score: typing.Union[
+            str, int, float, decimal.Decimal, fractions.Fraction
+        ],
+        incorrect_score: typing.Union[
+            str, int, float, decimal.Decimal, fractions.Fraction
+        ],
+        blank_score: typing.Union[str, int, float, decimal.Decimal, fractions.Fraction],
+        weight: typing.Union[str, int, float, decimal.Decimal, fractions.Fraction] = 1,
+    ):
         if isinstance(correct_score, str):
             self.correct_score = self._parse_score(correct_score)
         else:
@@ -62,7 +79,7 @@ class QuestionScores(utils.ComparableMixin):
         else:
             raise Exception("Bad answer_type value in QuestionScore")
 
-    def format_all(self):
+    def format_all(self) -> str:
         data = (
             self._format_score(self.correct_score),
             self._format_score(self.incorrect_score),
@@ -70,10 +87,10 @@ class QuestionScores(utils.ComparableMixin):
         )
         return ";".join(data)
 
-    def format_weight(self):
+    def format_weight(self) -> str:
         return self._format_score(self.weight)
 
-    def format_score(self, answer_type, signed=False):
+    def format_score(self, answer_type, signed: bool = False) -> str:
         if answer_type == QuestionScores.CORRECT:
             return self._format_score(self.correct_score, signed=False)
         elif answer_type == QuestionScores.INCORRECT:
@@ -83,16 +100,21 @@ class QuestionScores(utils.ComparableMixin):
         else:
             raise ValueError("Bad answer_type value in QuestionScore")
 
-    def format_correct_score(self, signed=False):
+    def format_correct_score(self, signed: bool = False):
         return self._format_score(self.correct_score, signed=False)
 
-    def format_incorrect_score(self, signed=False):
+    def format_incorrect_score(self, signed: bool = False):
         return self._format_score(self.incorrect_score, signed=signed)
 
-    def format_blank_score(self, signed=False):
+    def format_blank_score(self, signed: bool = False):
         return self._format_score(self.blank_score, signed=signed)
 
-    def clone(self, new_weight=None):
+    def clone(
+        self,
+        new_weight: typing.Union[
+            int, float, decimal.Decimal, fractions.Fraction, None
+        ] = None,
+    ) -> "QuestionScores":
         if new_weight is not None:
             weight = new_weight
         else:
@@ -101,27 +123,35 @@ class QuestionScores(utils.ComparableMixin):
             self.correct_score, self.incorrect_score, self.blank_score, weight=weight
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "({0}) * {1}".format(self.format_all(), self.format_weight())
 
-    def _parse_score(self, score_str, invert_negatives=False):
+    def _parse_score(
+        self, score_str, invert_negatives=False
+    ) -> typing.Union[int, float, decimal.Decimal, fractions.Fraction]:
         score = parse_number(score_str, allow_negatives=invert_negatives)
         if score < 0:
             score = -score
         return score
 
-    def _parse_weight(self, score_str):
+    def _parse_weight(
+        self, score_str: str
+    ) -> typing.Union[int, float, decimal.Decimal, fractions.Fraction]:
         score = parse_number(score_str)
         if score < 0:
             raise ValueError("Negative weights are forbidden: {}".format(score_str))
         return score
 
-    def _format_score(self, score, signed=False):
+    def _format_score(
+        self,
+        score: typing.Union[int, float, decimal.Decimal, fractions.Fraction],
+        signed: bool = False,
+    ):
         if signed:
             score = -score
         return format_number(score)
 
-    def _cmpkey(self):
+    def _cmpkey(self) -> tuple:
         return (self.correct_score, self.incorrect_score, self.blank_score, self.weight)
 
 
@@ -209,7 +239,11 @@ class AutomaticScore:
         return QuestionScores(correct_score, incorrect_score, 0)
 
 
-def format_number(number, short=False, no_fraction=False):
+def format_number(
+    number: typing.Union[int, float, decimal.Decimal, fractions.Fraction, None],
+    short: bool = False,
+    no_fraction: bool = False,
+) -> typing.Union[str, None]:
     if number is None:
         return None
     elif no_fraction and type(number) == fractions.Fraction:
@@ -226,15 +260,19 @@ def format_number(number, short=False, no_fraction=False):
         else:
             return "{0:.16f}".format(number)
     else:
+        # e.g. decimal.Decimal
         return str(number)
 
 
-# A score is a float number or a fraction, e.g.: '0.8' or '4/5'
+# A score is a decimal.Decimal, float or a fraction, e.g.: '0.8' or '4/5'
 _re_number = re.compile(r"^(-?)\s*((\d+(\.\d+)?)|((\d+)\s*\/\s*(\d+)))\s*$")
 # score_re = re.compile(r'^(-?)((\d*(\.\d+))|((\d+)(\/(\d+))?))$')
 
 
-def parse_number(score_str, force_float=False, allow_negatives=False):
+def parse_number(
+    score_str: str, force_float: bool = False, allow_negatives: bool = False
+) -> typing.Union[int, float, decimal.Decimal, fractions.Fraction]:
+    value: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
     match = _re_number.match(score_str)
     if match is None:
         raise ValueError("Syntax error in score: " + score_str)
@@ -244,7 +282,10 @@ def parse_number(score_str, force_float=False, allow_negatives=False):
         raise ValueError("The number cannot be negative: " + score_str)
     if groups[2] is not None:
         if groups[3] is not None:
-            value = sign * float(groups[2])
+            if force_float:
+                value = sign * float(groups[2])
+            else:
+                value = sign * decimal.Decimal(groups[2])
             numerator = None
         else:
             numerator = int(groups[2])

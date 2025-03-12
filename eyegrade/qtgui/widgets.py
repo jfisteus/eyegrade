@@ -324,7 +324,7 @@ class InputScore(QLineEdit):
         self.setValidator(validator)
 
     def value(self, force_float=False):
-        """Returns the value as a fractions.Fraction or a float.
+        """Returns the value as a fractions.Fraction, a decimal.Decimal or a float.
 
         Returns None if the field is empty or the value is not
         correct.  If `force_float` a float is returned always.

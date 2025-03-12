@@ -17,6 +17,7 @@
 #
 import unittest
 import fractions
+import decimal
 
 import eyegrade.scoring as scoring
 import eyegrade.exams as exams
@@ -28,6 +29,42 @@ class TestQuestionScores(unittest.TestCase):
         key_1 = "1.0000000000000000"
         key_2 = "0.5000000000000000"
         key_3 = "0.0000000000000000"
+        self.assertEqual(score.format_all(), ";".join((key_1, key_2, key_3)))
+        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), key_1)
+        self.assertEqual(score.format_correct_score(), key_1)
+        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), key_2)
+        self.assertEqual(score.format_incorrect_score(), key_2)
+        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), key_3)
+        self.assertEqual(score.format_blank_score(), key_3)
+        self.assertEqual(score.score(scoring.QuestionScores.CORRECT), 1.0)
+        self.assertEqual(score.score(scoring.QuestionScores.INCORRECT), -0.5)
+        self.assertEqual(score.score(scoring.QuestionScores.BLANK), 0.0)
+        self.assertEqual(score.format_weight(), "1")
+
+    def testDecimal(self):
+        score = scoring.QuestionScores(
+            decimal.Decimal("1.0"), decimal.Decimal("0.5"), decimal.Decimal("0.0")
+        )
+        key_1 = "1.0"
+        key_2 = "0.5"
+        key_3 = "0.0"
+        self.assertEqual(score.format_all(), ";".join((key_1, key_2, key_3)))
+        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), key_1)
+        self.assertEqual(score.format_correct_score(), key_1)
+        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), key_2)
+        self.assertEqual(score.format_incorrect_score(), key_2)
+        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), key_3)
+        self.assertEqual(score.format_blank_score(), key_3)
+        self.assertEqual(score.score(scoring.QuestionScores.CORRECT), 1.0)
+        self.assertEqual(score.score(scoring.QuestionScores.INCORRECT), -0.5)
+        self.assertEqual(score.score(scoring.QuestionScores.BLANK), 0.0)
+        self.assertEqual(score.format_weight(), "1")
+
+    def testDecimal2(self):
+        score = scoring.QuestionScores("1.0", "0.5", "0.0")
+        key_1 = "1.0"
+        key_2 = "0.5"
+        key_3 = "0.0"
         self.assertEqual(score.format_all(), ";".join((key_1, key_2, key_3)))
         self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), key_1)
         self.assertEqual(score.format_correct_score(), key_1)
@@ -69,11 +106,11 @@ class TestQuestionScores(unittest.TestCase):
         self.assertEqual(result, "-1/6")
         score = scoring.QuestionScores("1.0", "0.5", "0.25")
         result = score.format_score(scoring.QuestionScores.CORRECT, signed=True)
-        self.assertEqual(result, "1.0000000000000000")
+        self.assertEqual(result, "1.0")
         result = score.format_score(scoring.QuestionScores.INCORRECT, signed=True)
-        self.assertEqual(result, "-0.5000000000000000")
+        self.assertEqual(result, "-0.5")
         result = score.format_score(scoring.QuestionScores.BLANK, signed=True)
-        self.assertEqual(result, "-0.2500000000000000")
+        self.assertEqual(result, "-0.25")
 
     def testWeight(self):
         score = scoring.QuestionScores("1", "1/3", "1/6", weight="3/2")
