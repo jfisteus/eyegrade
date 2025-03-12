@@ -20,8 +20,16 @@ import fractions
 import re
 import decimal
 import typing
+import enum
 
 from . import utils
+
+
+class AnswerStatus(enum.Enum):
+    CORRECT = 1
+    INCORRECT = 2
+    BLANK = 3
+    VOID = 4
 
 
 class QuestionScores(utils.ComparableMixin):
@@ -31,11 +39,6 @@ class QuestionScores(utils.ComparableMixin):
     incorrect_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
     blank_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
     weight: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
-
-    CORRECT = 1
-    INCORRECT = 2
-    BLANK = 3
-    VOID = 4
 
     def __init__(
         self,
@@ -68,13 +71,13 @@ class QuestionScores(utils.ComparableMixin):
             self.weight = weight
 
     def score(self, answer_type):
-        if answer_type == QuestionScores.CORRECT:
+        if answer_type == AnswerStatus.CORRECT:
             return self.weight * self.correct_score
-        elif answer_type == QuestionScores.INCORRECT:
+        elif answer_type == AnswerStatus.INCORRECT:
             return -self.weight * self.incorrect_score
-        elif answer_type == QuestionScores.BLANK:
+        elif answer_type == AnswerStatus.BLANK:
             return -self.weight * self.blank_score
-        elif answer_type == QuestionScores.VOID:
+        elif answer_type == AnswerStatus.VOID:
             return 0
         else:
             raise Exception("Bad answer_type value in QuestionScore")
@@ -90,12 +93,12 @@ class QuestionScores(utils.ComparableMixin):
     def format_weight(self) -> str:
         return self._format_score(self.weight)
 
-    def format_score(self, answer_type, signed: bool = False) -> str:
-        if answer_type == QuestionScores.CORRECT:
+    def format_score(self, answer_type: AnswerStatus, signed: bool = False) -> str:
+        if answer_type == AnswerStatus.CORRECT:
             return self._format_score(self.correct_score, signed=False)
-        elif answer_type == QuestionScores.INCORRECT:
+        elif answer_type == AnswerStatus.INCORRECT:
             return self._format_score(self.incorrect_score, signed=signed)
-        elif answer_type == QuestionScores.BLANK:
+        elif answer_type == AnswerStatus.BLANK:
             return self._format_score(self.blank_score, signed=signed)
         else:
             raise ValueError("Bad answer_type value in QuestionScore")
@@ -190,16 +193,16 @@ class Score:
             has_scores = True
         for answer, solution, q in zip(self.answers, self.solutions, question_scores):
             if q is not None and q.weight == 0:
-                self.answer_status.append(QuestionScores.VOID)
+                self.answer_status.append(AnswerStatus.VOID)
             elif answer == 0:
                 self.blank += 1
-                self.answer_status.append(QuestionScores.BLANK)
+                self.answer_status.append(AnswerStatus.BLANK)
             elif answer in solution:
                 self.correct += 1
-                self.answer_status.append(QuestionScores.CORRECT)
+                self.answer_status.append(AnswerStatus.CORRECT)
             else:
                 self.incorrect += 1
-                self.answer_status.append(QuestionScores.INCORRECT)
+                self.answer_status.append(AnswerStatus.INCORRECT)
         if has_scores:
             self.score = float(
                 sum(
@@ -210,7 +213,7 @@ class Score:
                 )
             )
             self.max_score = float(
-                sum([q.score(QuestionScores.CORRECT) for q in self.question_scores])
+                sum([q.score(AnswerStatus.CORRECT) for q in self.question_scores])
             )
         else:
             self.score = None

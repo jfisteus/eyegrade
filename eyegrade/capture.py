@@ -183,16 +183,16 @@ class ExamCapture:
         for answer, question_solutions, status, cells in zip(
             score.answers, score.solutions, score.answer_status, self.answer_cells
         ):
-            if status == scoring.QuestionScores.CORRECT:
+            if status == scoring.AnswerStatus.CORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_good)
-            elif status == scoring.QuestionScores.INCORRECT:
+            elif status == scoring.AnswerStatus.INCORRECT:
                 self._draw_cell_circle(cells[answer - 1], _color_bad)
                 for solution in question_solutions:
                     self._draw_cell_center(cells[solution - 1], _color_dot_bad)
-            elif status == scoring.QuestionScores.BLANK:
+            elif status == scoring.AnswerStatus.BLANK:
                 for solution in question_solutions:
                     self._draw_cell_center(cells[solution - 1], _color_dot_blank)
-            elif status == scoring.QuestionScores.VOID:
+            elif status == scoring.AnswerStatus.VOID:
                 self._draw_void_question(cells)
 
     def _draw_answers_no_solutions(self, score):

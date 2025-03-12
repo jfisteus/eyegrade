@@ -30,15 +30,15 @@ class TestQuestionScores(unittest.TestCase):
         key_2 = "0.5000000000000000"
         key_3 = "0.0000000000000000"
         self.assertEqual(score.format_all(), ";".join((key_1, key_2, key_3)))
-        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), key_1)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.CORRECT), key_1)
         self.assertEqual(score.format_correct_score(), key_1)
-        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), key_2)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.INCORRECT), key_2)
         self.assertEqual(score.format_incorrect_score(), key_2)
-        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), key_3)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.BLANK), key_3)
         self.assertEqual(score.format_blank_score(), key_3)
-        self.assertEqual(score.score(scoring.QuestionScores.CORRECT), 1.0)
-        self.assertEqual(score.score(scoring.QuestionScores.INCORRECT), -0.5)
-        self.assertEqual(score.score(scoring.QuestionScores.BLANK), 0.0)
+        self.assertEqual(score.score(scoring.AnswerStatus.CORRECT), 1.0)
+        self.assertEqual(score.score(scoring.AnswerStatus.INCORRECT), -0.5)
+        self.assertEqual(score.score(scoring.AnswerStatus.BLANK), 0.0)
         self.assertEqual(score.format_weight(), "1")
 
     def testDecimal(self):
@@ -49,15 +49,15 @@ class TestQuestionScores(unittest.TestCase):
         key_2 = "0.5"
         key_3 = "0.0"
         self.assertEqual(score.format_all(), ";".join((key_1, key_2, key_3)))
-        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), key_1)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.CORRECT), key_1)
         self.assertEqual(score.format_correct_score(), key_1)
-        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), key_2)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.INCORRECT), key_2)
         self.assertEqual(score.format_incorrect_score(), key_2)
-        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), key_3)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.BLANK), key_3)
         self.assertEqual(score.format_blank_score(), key_3)
-        self.assertEqual(score.score(scoring.QuestionScores.CORRECT), 1.0)
-        self.assertEqual(score.score(scoring.QuestionScores.INCORRECT), -0.5)
-        self.assertEqual(score.score(scoring.QuestionScores.BLANK), 0.0)
+        self.assertEqual(score.score(scoring.AnswerStatus.CORRECT), 1.0)
+        self.assertEqual(score.score(scoring.AnswerStatus.INCORRECT), -0.5)
+        self.assertEqual(score.score(scoring.AnswerStatus.BLANK), 0.0)
         self.assertEqual(score.format_weight(), "1")
 
     def testDecimal2(self):
@@ -66,37 +66,37 @@ class TestQuestionScores(unittest.TestCase):
         key_2 = "0.5"
         key_3 = "0.0"
         self.assertEqual(score.format_all(), ";".join((key_1, key_2, key_3)))
-        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), key_1)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.CORRECT), key_1)
         self.assertEqual(score.format_correct_score(), key_1)
-        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), key_2)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.INCORRECT), key_2)
         self.assertEqual(score.format_incorrect_score(), key_2)
-        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), key_3)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.BLANK), key_3)
         self.assertEqual(score.format_blank_score(), key_3)
-        self.assertEqual(score.score(scoring.QuestionScores.CORRECT), 1.0)
-        self.assertEqual(score.score(scoring.QuestionScores.INCORRECT), -0.5)
-        self.assertEqual(score.score(scoring.QuestionScores.BLANK), 0.0)
+        self.assertEqual(score.score(scoring.AnswerStatus.CORRECT), 1.0)
+        self.assertEqual(score.score(scoring.AnswerStatus.INCORRECT), -0.5)
+        self.assertEqual(score.score(scoring.AnswerStatus.BLANK), 0.0)
         self.assertEqual(score.format_weight(), "1")
 
     def testFractionAndInt(self):
         score = scoring.QuestionScores("1", "1/3", "0")
         self.assertEqual(score.format_all(), "1;1/3;0")
-        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), "1")
-        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), "1/3")
-        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), "0")
-        self.assertEqual(score.score(scoring.QuestionScores.CORRECT), 1)
+        self.assertEqual(score.format_score(scoring.AnswerStatus.CORRECT), "1")
+        self.assertEqual(score.format_score(scoring.AnswerStatus.INCORRECT), "1/3")
+        self.assertEqual(score.format_score(scoring.AnswerStatus.BLANK), "0")
+        self.assertEqual(score.score(scoring.AnswerStatus.CORRECT), 1)
         self.assertEqual(
-            score.score(scoring.QuestionScores.INCORRECT), fractions.Fraction(-1, 3)
+            score.score(scoring.AnswerStatus.INCORRECT), fractions.Fraction(-1, 3)
         )
-        self.assertEqual(score.score(scoring.QuestionScores.BLANK), 0)
+        self.assertEqual(score.score(scoring.AnswerStatus.BLANK), 0)
         self.assertEqual(score.format_weight(), "1")
 
     def testSignedFormat(self):
         score = scoring.QuestionScores("1", "1/3", "1/6")
-        result = score.format_score(scoring.QuestionScores.CORRECT, signed=True)
+        result = score.format_score(scoring.AnswerStatus.CORRECT, signed=True)
         self.assertEqual(result, "1")
-        result = score.format_score(scoring.QuestionScores.INCORRECT, signed=True)
+        result = score.format_score(scoring.AnswerStatus.INCORRECT, signed=True)
         self.assertEqual(result, "-1/3")
-        result = score.format_score(scoring.QuestionScores.BLANK, signed=True)
+        result = score.format_score(scoring.AnswerStatus.BLANK, signed=True)
         self.assertEqual(result, "-1/6")
         result = score.format_correct_score(signed=True)
         self.assertEqual(result, "1")
@@ -105,27 +105,27 @@ class TestQuestionScores(unittest.TestCase):
         result = score.format_blank_score(signed=True)
         self.assertEqual(result, "-1/6")
         score = scoring.QuestionScores("1.0", "0.5", "0.25")
-        result = score.format_score(scoring.QuestionScores.CORRECT, signed=True)
+        result = score.format_score(scoring.AnswerStatus.CORRECT, signed=True)
         self.assertEqual(result, "1.0")
-        result = score.format_score(scoring.QuestionScores.INCORRECT, signed=True)
+        result = score.format_score(scoring.AnswerStatus.INCORRECT, signed=True)
         self.assertEqual(result, "-0.5")
-        result = score.format_score(scoring.QuestionScores.BLANK, signed=True)
+        result = score.format_score(scoring.AnswerStatus.BLANK, signed=True)
         self.assertEqual(result, "-0.25")
 
     def testWeight(self):
         score = scoring.QuestionScores("1", "1/3", "1/6", weight="3/2")
         self.assertEqual(score.format_all(), "1;1/3;1/6")
-        self.assertEqual(score.format_score(scoring.QuestionScores.CORRECT), "1")
-        self.assertEqual(score.format_score(scoring.QuestionScores.INCORRECT), "1/3")
-        self.assertEqual(score.format_score(scoring.QuestionScores.BLANK), "1/6")
+        self.assertEqual(score.format_score(scoring.AnswerStatus.CORRECT), "1")
+        self.assertEqual(score.format_score(scoring.AnswerStatus.INCORRECT), "1/3")
+        self.assertEqual(score.format_score(scoring.AnswerStatus.BLANK), "1/6")
         self.assertEqual(
-            score.score(scoring.QuestionScores.CORRECT), fractions.Fraction(3, 2)
+            score.score(scoring.AnswerStatus.CORRECT), fractions.Fraction(3, 2)
         )
         self.assertEqual(
-            score.score(scoring.QuestionScores.INCORRECT), fractions.Fraction(-1, 2)
+            score.score(scoring.AnswerStatus.INCORRECT), fractions.Fraction(-1, 2)
         )
         self.assertEqual(
-            score.score(scoring.QuestionScores.BLANK), fractions.Fraction(-1, 4)
+            score.score(scoring.AnswerStatus.BLANK), fractions.Fraction(-1, 4)
         )
         self.assertEqual(score.format_weight(), "3/2")
 
@@ -133,23 +133,23 @@ class TestQuestionScores(unittest.TestCase):
         self.assertRaises(ValueError, scoring.QuestionScores, "-1/3", "1/6", "0")
         score = scoring.QuestionScores("1", "-1/3", "1/6")
         self.assertEqual(
-            score.score(scoring.QuestionScores.CORRECT), fractions.Fraction(1, 1)
+            score.score(scoring.AnswerStatus.CORRECT), fractions.Fraction(1, 1)
         )
         self.assertEqual(
-            score.score(scoring.QuestionScores.INCORRECT), fractions.Fraction(-1, 3)
+            score.score(scoring.AnswerStatus.INCORRECT), fractions.Fraction(-1, 3)
         )
         self.assertEqual(
-            score.score(scoring.QuestionScores.BLANK), fractions.Fraction(-1, 6)
+            score.score(scoring.AnswerStatus.BLANK), fractions.Fraction(-1, 6)
         )
         score = scoring.QuestionScores("1", "1/3", "-1/6")
         self.assertEqual(
-            score.score(scoring.QuestionScores.CORRECT), fractions.Fraction(1, 1)
+            score.score(scoring.AnswerStatus.CORRECT), fractions.Fraction(1, 1)
         )
         self.assertEqual(
-            score.score(scoring.QuestionScores.INCORRECT), fractions.Fraction(-1, 3)
+            score.score(scoring.AnswerStatus.INCORRECT), fractions.Fraction(-1, 3)
         )
         self.assertEqual(
-            score.score(scoring.QuestionScores.BLANK), fractions.Fraction(-1, 6)
+            score.score(scoring.AnswerStatus.BLANK), fractions.Fraction(-1, 6)
         )
 
     def testNegativeWeights(self):
