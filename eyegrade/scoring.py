@@ -19,8 +19,9 @@
 import fractions
 import re
 import decimal
-import typing
 import enum
+
+from typing import Union, Optional, Sequence
 
 from . import utils
 
@@ -35,25 +36,21 @@ class AnswerStatus(enum.Enum):
 class QuestionScores(utils.ComparableMixin):
     """Compute the score of a question."""
 
-    correct_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
-    incorrect_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
-    blank_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
-    weight: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
-    _correct_score_internal: typing.Union[int, float, fractions.Fraction]
-    _incorrect_score_internal: typing.Union[int, float, fractions.Fraction]
-    _blank_score_internal: typing.Union[int, float, fractions.Fraction]
-    _weight_internal: typing.Union[int, float, fractions.Fraction]
+    correct_score: Union[int, float, decimal.Decimal, fractions.Fraction]
+    incorrect_score: Union[int, float, decimal.Decimal, fractions.Fraction]
+    blank_score: Union[int, float, decimal.Decimal, fractions.Fraction]
+    weight: Union[int, float, decimal.Decimal, fractions.Fraction]
+    _correct_score_internal: Union[int, float, fractions.Fraction]
+    _incorrect_score_internal: Union[int, float, fractions.Fraction]
+    _blank_score_internal: Union[int, float, fractions.Fraction]
+    _weight_internal: Union[int, float, fractions.Fraction]
 
     def __init__(
         self,
-        correct_score: typing.Union[
-            str, int, float, decimal.Decimal, fractions.Fraction
-        ],
-        incorrect_score: typing.Union[
-            str, int, float, decimal.Decimal, fractions.Fraction
-        ],
-        blank_score: typing.Union[str, int, float, decimal.Decimal, fractions.Fraction],
-        weight: typing.Union[str, int, float, decimal.Decimal, fractions.Fraction] = 1,
+        correct_score: Union[str, int, float, decimal.Decimal, fractions.Fraction],
+        incorrect_score: Union[str, int, float, decimal.Decimal, fractions.Fraction],
+        blank_score: Union[str, int, float, decimal.Decimal, fractions.Fraction],
+        weight: Union[str, int, float, decimal.Decimal, fractions.Fraction] = 1,
     ):
         if isinstance(correct_score, str):
             self.correct_score = self._parse_score(correct_score)
@@ -78,7 +75,7 @@ class QuestionScores(utils.ComparableMixin):
         self._blank_score_internal = _value_for_computations(self.blank_score)
         self._weight_internal = _value_for_computations(self.weight)
 
-    def score(self, answer_type: AnswerStatus) -> typing.Union[int, float, fractions.Fraction]:
+    def score(self, answer_type: AnswerStatus) -> Union[int, float, fractions.Fraction]:
         if answer_type == AnswerStatus.CORRECT:
             return self._weight_internal * self._correct_score_internal
         elif answer_type == AnswerStatus.INCORRECT:
@@ -122,9 +119,7 @@ class QuestionScores(utils.ComparableMixin):
 
     def clone(
         self,
-        new_weight: typing.Union[
-            int, float, decimal.Decimal, fractions.Fraction, None
-        ] = None,
+        new_weight: Union[int, float, decimal.Decimal, fractions.Fraction, None] = None,
     ) -> "QuestionScores":
         if new_weight is not None:
             weight = new_weight
@@ -139,7 +134,7 @@ class QuestionScores(utils.ComparableMixin):
 
     def _parse_score(
         self, score_str, invert_negatives=False
-    ) -> typing.Union[int, float, decimal.Decimal, fractions.Fraction]:
+    ) -> Union[int, float, decimal.Decimal, fractions.Fraction]:
         score = parse_number(score_str, allow_negatives=invert_negatives)
         if score < 0:
             score = -score
@@ -147,7 +142,7 @@ class QuestionScores(utils.ComparableMixin):
 
     def _parse_weight(
         self, score_str: str
-    ) -> typing.Union[int, float, decimal.Decimal, fractions.Fraction]:
+    ) -> Union[int, float, decimal.Decimal, fractions.Fraction]:
         score = parse_number(score_str)
         if score < 0:
             raise ValueError("Negative weights are forbidden: {}".format(score_str))
@@ -155,7 +150,7 @@ class QuestionScores(utils.ComparableMixin):
 
     def _format_score(
         self,
-        score: typing.Union[int, float, decimal.Decimal, fractions.Fraction],
+        score: Union[int, float, decimal.Decimal, fractions.Fraction],
         signed: bool = False,
     ):
         if signed:
@@ -167,7 +162,22 @@ class QuestionScores(utils.ComparableMixin):
 
 
 class Score:
-    def __init__(self, answers, solutions, question_scores):
+    correct: Optional[int]
+    incorrect: Optional[int]
+    blank: Optional[int]
+    score: Optional[float]
+    max_score: Optional[float]
+    answer_status: Optional[list[AnswerStatus]]
+    answers: Optional[list[int]]
+    solutions: Optional[list[set[int]]]
+    question_scores: Optional[list[QuestionScores]]
+
+    def __init__(
+        self,
+        answers: Optional[list[int]],
+        solutions: Optional[list[set[int]]],
+        question_scores: Optional[list[QuestionScores]],
+    ) -> None:
         if answers is not None and solutions and len(answers) != len(solutions):
             raise ValueError("Parameters must have the same length in Score")
         if (
@@ -185,21 +195,21 @@ class Score:
         self.answers = answers
         self.solutions = solutions
         self.question_scores = question_scores
-        if answers and solutions:
-            self.update()
+        self.update()
 
-    def update(self):
+    def update(self) -> None:
+        if not self.answers or not self.solutions:
+            return
         self.correct = 0
         self.incorrect = 0
         self.blank = 0
         self.answer_status = []
-        question_scores = self.question_scores
-        if question_scores is None:
-            question_scores = [None] * len(self.answers)
-            has_scores = False
+        internal_scores: Sequence[Optional[QuestionScores]]
+        if self.question_scores is not None:
+            internal_scores = self.question_scores
         else:
-            has_scores = True
-        for answer, solution, q in zip(self.answers, self.solutions, question_scores):
+            internal_scores = [None] * len(self.answers)
+        for answer, solution, q in zip(self.answers, self.solutions, internal_scores):
             if q is not None and q.weight == 0:
                 self.answer_status.append(AnswerStatus.VOID)
             elif answer == 0:
@@ -211,12 +221,12 @@ class Score:
             else:
                 self.incorrect += 1
                 self.answer_status.append(AnswerStatus.INCORRECT)
-        if has_scores:
+        if self.question_scores:
             self.score = float(
                 sum(
                     [
                         q.score(status)
-                        for q, status in zip(question_scores, self.answer_status)
+                        for q, status in zip(self.question_scores, self.answer_status)
                     ]
                 )
             )
@@ -227,21 +237,27 @@ class Score:
             self.score = None
             self.max_score = None
 
-    def update_question_scores(self, question_scores):
+    def update_question_scores(self, question_scores: list[QuestionScores]) -> None:
         self.question_scores = question_scores
-        if self.answers and self.solutions:
-            self.update()
+        self.update()
 
 
 class AutomaticScore:
-    def __init__(self, max_score, penalize):
+    max_score: Union[int, float, decimal.Decimal, fractions.Fraction]
+    penalize: bool
+
+    def __init__(
+        self,
+        max_score: Union[str, int, float, decimal.Decimal, fractions.Fraction],
+        penalize: bool,
+    ) -> None:
         if isinstance(max_score, str):
             self.max_score = parse_number(max_score)
         else:
             self.max_score = max_score
         self.penalize = penalize
 
-    def compute(self, num_questions, num_choices):
+    def compute(self, num_questions: int, num_choices: int) -> QuestionScores:
         correct_score = self.max_score / num_questions
         if self.penalize:
             incorrect_score = self.max_score / (num_choices - 1) / num_questions
@@ -251,10 +267,10 @@ class AutomaticScore:
 
 
 def format_number(
-    number: typing.Union[int, float, decimal.Decimal, fractions.Fraction, None],
+    number: Union[int, float, decimal.Decimal, fractions.Fraction, None],
     short: bool = False,
     no_fraction: bool = False,
-) -> typing.Union[str, None]:
+) -> Union[str, None]:
     if number is None:
         return None
     elif no_fraction and type(number) == fractions.Fraction:
@@ -271,7 +287,7 @@ def format_number(
         else:
             return "{0:.16f}".format(number)
     else:
-        # e.g. decimal.Decimal
+        # e.g. decimal.Decimal or int
         return str(number)
 
 
@@ -282,8 +298,8 @@ _re_number = re.compile(r"^(-?)\s*((\d+(\.\d+)?)|((\d+)\s*\/\s*(\d+)))\s*$")
 
 def parse_number(
     score_str: str, force_float: bool = False, allow_negatives: bool = False
-) -> typing.Union[int, float, decimal.Decimal, fractions.Fraction]:
-    value: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
+) -> Union[int, float, decimal.Decimal, fractions.Fraction]:
+    value: Union[int, float, decimal.Decimal, fractions.Fraction]
     match = _re_number.match(score_str)
     if match is None:
         raise ValueError("Syntax error in score: " + score_str)
@@ -312,8 +328,8 @@ def parse_number(
 
 
 def _value_for_computations(
-    value: typing.Union[int, float, decimal.Decimal, fractions.Fraction],
-) -> typing.Union[int, float, fractions.Fraction]:
+    value: Union[int, float, decimal.Decimal, fractions.Fraction],
+) -> Union[int, float, fractions.Fraction]:
     if isinstance(value, decimal.Decimal):
         return float(value)
     else:
