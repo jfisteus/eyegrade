@@ -39,6 +39,10 @@ class QuestionScores(utils.ComparableMixin):
     incorrect_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
     blank_score: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
     weight: typing.Union[int, float, decimal.Decimal, fractions.Fraction]
+    _correct_score_internal: typing.Union[int, float, fractions.Fraction]
+    _incorrect_score_internal: typing.Union[int, float, fractions.Fraction]
+    _blank_score_internal: typing.Union[int, float, fractions.Fraction]
+    _weight_internal: typing.Union[int, float, fractions.Fraction]
 
     def __init__(
         self,
@@ -69,14 +73,18 @@ class QuestionScores(utils.ComparableMixin):
             self.weight = self._parse_weight(weight)
         else:
             self.weight = weight
+        self._correct_score_internal = _value_for_computations(self.correct_score)
+        self._incorrect_score_internal = _value_for_computations(self.incorrect_score)
+        self._blank_score_internal = _value_for_computations(self.blank_score)
+        self._weight_internal = _value_for_computations(self.weight)
 
-    def score(self, answer_type):
+    def score(self, answer_type: AnswerStatus) -> typing.Union[int, float, fractions.Fraction]:
         if answer_type == AnswerStatus.CORRECT:
-            return self.weight * self.correct_score
+            return self._weight_internal * self._correct_score_internal
         elif answer_type == AnswerStatus.INCORRECT:
-            return -self.weight * self.incorrect_score
+            return -self._weight_internal * self._incorrect_score_internal
         elif answer_type == AnswerStatus.BLANK:
-            return -self.weight * self.blank_score
+            return -self._weight_internal * self._blank_score_internal
         elif answer_type == AnswerStatus.VOID:
             return 0
         else:
@@ -301,3 +309,12 @@ def parse_number(
         if force_float:
             value = float(value)
     return value
+
+
+def _value_for_computations(
+    value: typing.Union[int, float, decimal.Decimal, fractions.Fraction],
+) -> typing.Union[int, float, fractions.Fraction]:
+    if isinstance(value, decimal.Decimal):
+        return float(value)
+    else:
+        return value
