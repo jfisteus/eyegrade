@@ -257,10 +257,15 @@ class AutomaticScore:
             self.max_score = max_score
         self.penalize = penalize
 
-    def compute(self, num_questions: int, num_choices: int) -> QuestionScores:
+    def compute(self, num_questions: int, num_choices: Optional[int]) -> QuestionScores:
         correct_score = self.max_score / num_questions
         if self.penalize:
-            incorrect_score = self.max_score / (num_choices - 1) / num_questions
+            if num_choices is not None:
+                incorrect_score = self.max_score / (num_choices - 1) / num_questions
+            else:
+                raise ValueError(
+                    "num_choices must be provided when penalizing (null received)"
+                )
         else:
             incorrect_score = 0
         return QuestionScores(correct_score, incorrect_score, 0)
