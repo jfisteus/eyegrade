@@ -407,6 +407,37 @@ class TestScore(unittest.TestCase):
         self.assertEqual(score.score, 5.0)
         self.assertEqual(score.max_score, 6.0)
 
+    def testDecimalScores(self):
+        answers = [1, 1]
+        solutions = [{1}, {3}]
+        question_scores = [
+            scoring.QuestionScores("2.75", "1.25", "0"),
+            scoring.QuestionScores("2.75", "1.25", "0"),
+        ]
+        self.assertTrue(isinstance(question_scores[0].correct_score, decimal.Decimal))
+        score = scoring.Score(answers, solutions, question_scores)
+        self.assertEqual(score.correct, 1)
+        self.assertEqual(score.incorrect, 1)
+        self.assertEqual(score.blank, 0)
+        self.assertAlmostEqual(score.score, 1.5)
+        self.assertAlmostEqual(score.max_score, 5.5)
+
+
+class TestAutomaticScore(unittest.TestCase):
+    def testAutomaticScoreDecimals(self):
+        automatic_score = scoring.AutomaticScore("2.5", True)
+        question_scores = automatic_score.compute(10, 3)
+        self.assertEqual(question_scores.correct_score, decimal.Decimal("0.25"))
+        self.assertEqual(question_scores.incorrect_score, decimal.Decimal("0.125"))
+        self.assertEqual(question_scores.blank_score, 0)
+
+    def testAutomaticScoreFractions(self):
+        automatic_score = scoring.AutomaticScore("5/2", True)
+        question_scores = automatic_score.compute(10, 3)
+        self.assertEqual(question_scores.correct_score, fractions.Fraction(1, 4))
+        self.assertEqual(question_scores.incorrect_score, fractions.Fraction(1, 8))
+        self.assertEqual(question_scores.blank_score, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
