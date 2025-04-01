@@ -336,6 +336,6 @@ def _value_for_computations(
     value: Union[int, float, decimal.Decimal, fractions.Fraction],
 ) -> Union[int, float, fractions.Fraction]:
     if isinstance(value, decimal.Decimal):
-        return float(value)
+        return fractions.Fraction(value)
     else:
         return value
