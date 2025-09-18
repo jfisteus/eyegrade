@@ -140,7 +140,10 @@ def parse_exam(exam_filename: str) -> questions.ExamQuestions:
 def _parse_tree(dom_tree: xml.dom.minidom.Document) -> questions.ExamQuestions:
     assert dom_tree.nodeType == xml.dom.minidom.Node.DOCUMENT_NODE
     root = dom_tree.childNodes[0]
-    if get_full_name(root) == (EYEGRADE_NAMESPACE, "exam"):
+    if isinstance(root, xml.dom.minidom.Element) and get_full_name(root) == (
+        EYEGRADE_NAMESPACE,
+        "exam",
+    ):
         exam = questions.ExamQuestions()
         exam.subject = get_element_content(root, EYEGRADE_NAMESPACE, "subject")
         exam.degree = get_element_content(root, EYEGRADE_NAMESPACE, "degree")
@@ -166,9 +169,7 @@ def _parse_tree(dom_tree: xml.dom.minidom.Document) -> questions.ExamQuestions:
             exam.scores = scores
         exam.points_words = parse_points_words(root)
     else:
-        raise EyegradeException(
-            "Bad root element: " + printable_name(root), key="exam_root_element"
-        )
+        raise EyegradeException("Bad root element", key="exam_root_element")
     return exam
 
 
@@ -351,7 +352,7 @@ def parse_group(group_node: xml.dom.minidom.Element) -> questions.QuestionsGroup
 def _parse_group_common(
     group_node: xml.dom.minidom.Element, parameter_sets: List[parametric.ParameterSet]
 ) -> Optional[questions.GroupCommonComponent]:
-    common_text: Optional[questions.GroupCommonComponent]
+    common_text: Optional[questions.GroupCommonComponent] = None
     element_list = get_children_by_tag_name(group_node, EYEGRADE_NAMESPACE, "common")
     if len(element_list) == 1:
         common_node = element_list[0]
@@ -374,8 +375,6 @@ def _parse_group_common(
             common_text = questions.FixedGroupCommonComponent(
                 parse_question_component(common_node, False)
             )
-    elif not element_list:
-        common_text = None
     elif len(element_list) > 1:
         raise EyegradeException("", key="duplicate_text")
     return common_text
@@ -464,7 +463,8 @@ def get_question_text_content(
             #                parts.append(('text', text_norm_re.sub(' ', node.data)))
             elif node.nodeType == node.ELEMENT_NODE:
                 if node.namespaceURI == namespace and node.localName == "code":
-                    parts.append(("code", get_text(node.childNodes, False)))
+                    text = get_text(node.childNodes, False)
+                    parts.append(("code", text if text is not None else ""))
                 else:
                     raise EyegradeException("Unknown element: " + node.localName)
     elif not node_list:
@@ -509,7 +509,7 @@ def get_element_content_with_attrs(
         att_vals = []
         for att in attr_names:
             att_vals.append(get_attribute_text(node_list[0], att))
-    elif len(node_list) > 1:
+    else:
         raise EyegradeException("Duplicate element: " + local_name)
     return content, att_vals
 

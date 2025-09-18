@@ -35,10 +35,10 @@ _re_student_id = re.compile(r"^[0-9]+$")
 
 class Student:
     student_id: str
-    full_name: str
-    first_name: str
-    last_name: str
-    email: str
+    full_name: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
+    email: Optional[str]
     db_id: Optional[int]
     group_id: Optional[int]
     sequence_num: Optional[int]
@@ -47,10 +47,10 @@ class Student:
     def __init__(
         self,
         student_id: str,
-        full_name: str,
-        first_name: str,
-        last_name: str,
-        email: str,
+        full_name: Optional[str],
+        first_name: Optional[str],
+        last_name: Optional[str],
+        email: Optional[str],
         db_id: Optional[int] = None,
         group_id: Optional[int] = None,
         sequence_num: Optional[int] = None,
