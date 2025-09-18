@@ -88,13 +88,15 @@ class Exam:
                 (self._id_rank(s, self.decisions.id_scores), s)
                 for s in self.student_listings.iter_students()
             ]
-            students_rank = [student for score, student in sorted(rank, reverse=True)]
+            # Only the top-5 students are passed to the rest of the program
+            students_rank = [student for _, student in sorted(rank, reverse=True)[:5]]
             if not students_rank:
                 students_rank = [
                     students.Student(self.decisions.detected_id, None, None, None, None)
                 ]
         else:
-            students_rank = list(self.student_listings.iter_students())
+            # Take the first student as the default one
+            students_rank = next(self.student_listings.iter_students())
         return students_rank
 
     def get_student_id_and_name(self):

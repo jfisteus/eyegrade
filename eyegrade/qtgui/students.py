@@ -71,7 +71,7 @@ class DialogStudentId(QDialog):
         layout = QFormLayout()
         self.setLayout(layout)
         self.combo = widgets.StudentComboBox(parent=self)
-        self.combo.add_students(ranked_students)
+        self.combo.add_students(self._combine_ranked_students(ranked_students))
         self.combo.editTextChanged.connect(self._check_value)
         self.combo.currentIndexChanged.connect(self._check_value)
         new_student_button = QPushButton(
@@ -118,6 +118,19 @@ class DialogStudentId(QDialog):
             self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
         else:
             self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+
+    def _combine_ranked_students(self, ranked_students):
+        """Combine the ranked students with the rest of students.
+
+        The ranked students are shown first in the combo box.
+
+        """
+        combined = list(ranked_students)
+        seen_ids = set(student.student_id for student in ranked_students)
+        for student in self.student_listings.iter_students():
+            if student.student_id not in seen_ids:
+                combined.append(student)
+        return combined
 
 
 class NewStudentDialog(QDialog):
@@ -231,6 +244,7 @@ class NewStudentDialog(QDialog):
                         "a student with the same id is already in the list"
                     ),
                 )
+                student = None
         else:
             student = None
         return student
