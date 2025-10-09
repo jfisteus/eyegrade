@@ -96,7 +96,7 @@ class Exam:
                 ]
         else:
             # Take the first student as the default one
-            students_rank = next(self.student_listings.iter_students())
+            students_rank = [next(self.student_listings.iter_students())]
         return students_rank
 
     def get_student_id_and_name(self):
