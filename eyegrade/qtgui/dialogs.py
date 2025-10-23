@@ -17,6 +17,7 @@
 #
 import gettext
 import locale
+import platform
 
 from PyQt6.QtWidgets import (
     QCheckBox,
@@ -33,7 +34,10 @@ from PyQt6.QtWidgets import (
     QComboBox,
 )
 
-from PyQt6.QtCore import QTimer, Qt, pyqtSignal
+from PyQt6.QtCore import QTimer, Qt, pyqtSignal, QT_VERSION_STR, PYQT_VERSION_STR
+
+import cv2
+import numpy as np
 
 from . import widgets
 from .. import utils
@@ -266,6 +270,7 @@ class DialogAbout(QDialog):
         tabs.addTab(self._create_about_tab(), _("About"))
         tabs.addTab(self._create_developers_tab(), _("Developers"))
         tabs.addTab(self._create_translators_tab(), _("Translators"))
+        tabs.addTab(self._create_versions_tab(), _("Software versions"))
         layout.addWidget(tabs)
         layout.addWidget(buttons)
 
@@ -380,3 +385,29 @@ class DialogAbout(QDialog):
         scroll_area = QScrollArea(self.parent())
         scroll_area.setWidget(label)
         return scroll_area
+
+    def _create_versions_tab(self):
+        align = "style='text-align: right'"
+        text = f"""
+            <center>
+            <table>
+            <tr><td>{utils.program_name}</td><td {align}>{utils.version}</td></tr>
+            <tr><td>Python</td><td {align}>{platform.python_version()}</td></tr>
+            <tr><td>Qt</td><td {align}>{QT_VERSION_STR}</td></tr>
+            <tr><td>PyQt</td><td {align}>{PYQT_VERSION_STR}</td></tr>
+            <tr><td>OpenCV</td><td {align}>{cv2.version.opencv_version}</td></tr>
+            <tr><td>NumPy</td><td {align}>{np.__version__}</td></tr>
+            </table>
+            </center>
+             """
+        label = QLabel(text)
+        label.setTextInteractionFlags(
+            (
+                Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+                | Qt.TextInteractionFlag.LinksAccessibleByMouse
+                | Qt.TextInteractionFlag.TextBrowserInteraction
+                | Qt.TextInteractionFlag.TextSelectableByKeyboard
+                | Qt.TextInteractionFlag.TextSelectableByMouse
+            )
+        )
+        return label
