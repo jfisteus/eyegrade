@@ -1,9 +1,7 @@
 Building the EXE files with PyInstaller and the installer with NSIS
 ---------------------------------------------------------------------
 
-You need to install pyinstaller through pip, and NSIS version 2.X.
-
-Use a 32-bit version of python 3.x for maximum portability of the produced files.
+You need to install pyinstaller through pip, and NSIS version 3.X.
 
 Create the files from the main eyegrade directory with:
 

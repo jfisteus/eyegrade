@@ -3,8 +3,14 @@ import platform
 import os.path
 import glob
 
+# In Windows machines, there seems to be a problem to locate cv2
+pathex = ['.']
+if platform.system() == 'Windows':
+    pathex.append('venv/Lib/site-packages/cv2')
+
 a = Analysis(['eyegrade-launcher.py'],
-             pathex=['.'],
+             hiddenimports=['cv2'],
+             pathex=pathex,
              hookspath=None,
              runtime_hooks=None)
 a.datas += Tree('eyegrade/data', prefix='data')
