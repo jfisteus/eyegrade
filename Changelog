@@ -1,3 +1,49 @@
+2025-XX-XX  Jesus Arias Fisteus  <jfisteus@gmail.com>
+	* Release 1.0
+
+	* Edit question scores and grades in already created sessions,
+	including recalculation of grades if exams have already been graded
+	and saving captures again.
+
+	* Dialog to show grading statistics.
+
+	* Accelerate detection periods for detection and exam change. Current
+	hardware allows us to process more frames per second.
+
+	* Better handling of decimal numbers and fractions in score weights
+	and calculations.
+
+	* Improve how CSV/TSV files are guessed.
+
+	* Fix issue #172: Unable to change exam ID to newly added student id.
+
+	* Split model variations and question variations. Model variations
+	can now be used in non-MCQ questions.
+
+	* Inject the "point(s)" word in templates, using singular or plural
+	depending on the score.
+
+	* Report software versions in the about dialog.
+
+	* Port to PyQt6.
+
+	* Parse tags from XML questions.
+
+	* Option for keeping question ordering (shuffle choices only).
+
+	* Optional vertical line between question and right-placed annex.
+
+	* Improve the format of LaTeX compilation errors.
+
+	* Command line option to keep tex files after exam creation.
+
+	* Other minor improvements.
+
+	* Numerous bugfixes.
+
+	* Declare compatibility with Python 3.10 to 3.14.
+
+
 2022-01-17  Jesus Arias Fisteus  <jfisteus@gmail.com>
 	* Release 0.9
 
