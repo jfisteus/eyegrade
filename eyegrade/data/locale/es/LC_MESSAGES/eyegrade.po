@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eyegrade\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-23 13:20+0200\n"
+"POT-Creation-Date: 2025-11-25 13:01+0100\n"
 "PO-Revision-Date: 2025-10-23 13:20+0200\n"
 "Last-Translator: Jesus Arias Fisteus\n"
 "Language-Team: \n"
@@ -320,7 +320,7 @@ msgid "Exam configuration (*.eye)"
 msgstr "Configuración de examen (*.eye)"
 
 #: eyegrade/qtgui/gui.py:1002 eyegrade/qtgui/gui.py:1010
-#: eyegrade/qtgui/students.py:516
+#: eyegrade/qtgui/students.py:516 eyegrade/qtgui/scores.py:491
 msgid "Warning"
 msgstr "Aviso"
 
@@ -440,7 +440,7 @@ msgstr "Número de respuestas correctas"
 msgid "Number of incorrect answers"
 msgstr "Número de respuestas incorrectas"
 
-#: eyegrade/qtgui/export.py:246
+#: eyegrade/qtgui/export.py:246 eyegrade/qtgui/show_stats.py:129
 msgid "Score"
 msgstr "Nota"
 
@@ -448,7 +448,7 @@ msgstr "Nota"
 msgid "List of answers"
 msgstr "Lista de respuestas"
 
-#: eyegrade/qtgui/dialogs.py:62
+#: eyegrade/qtgui/dialogs.py:62 eyegrade/qtgui/scores.py:350
 msgid "Compute default scores"
 msgstr "Calcular notas por defecto"
 
@@ -466,6 +466,8 @@ msgstr "Penalizaciones"
 
 #: eyegrade/qtgui/dialogs.py:98 eyegrade/qtgui/widgets.py:276
 #: eyegrade/qtgui/wizards.py:393 eyegrade/qtgui/students.py:542
+#: eyegrade/qtgui/scores.py:484 eyegrade/qtgui/scores.py:505
+#: eyegrade/qtgui/scores.py:582 eyegrade/qtgui/scores.py:590
 msgid "Error"
 msgstr "Error"
 
@@ -788,7 +790,7 @@ msgstr "Selección de las respuestas correctas"
 msgid "Select the correct answers for each exam model"
 msgstr "Seleccione las respuestas correctas de cada modelo de examen"
 
-#: eyegrade/qtgui/wizards.py:364
+#: eyegrade/qtgui/wizards.py:364 eyegrade/qtgui/show_stats.py:112
 msgid "Model "
 msgstr "Modelo "
 
@@ -987,61 +989,135 @@ msgstr "Nombre"
 msgid "First name"
 msgstr "Nombre"
 
-#~ msgid "Model"
-#~ msgstr "Modelo"
+#: eyegrade/qtgui/scores.py:162
+msgid "Model"
+msgstr "Modelo"
 
-#~ msgid "Question"
-#~ msgstr "Pregunta"
+#: eyegrade/qtgui/scores.py:165 eyegrade/qtgui/show_stats.py:242
+msgid "Question"
+msgstr "Pregunta"
 
-#~ msgid "Total"
-#~ msgstr "Total"
+#: eyegrade/qtgui/scores.py:167
+msgid "Total"
+msgstr "Total"
 
-#~ msgid "No scores"
-#~ msgstr "Sin notas"
+#: eyegrade/qtgui/scores.py:268
+msgid "Edit question scores"
+msgstr "Editar pesos de preguntas"
 
-#~ msgid "Same score for all the questions"
-#~ msgstr "Misma nota para todas las preguntas"
+#: eyegrade/qtgui/scores.py:336
+msgid "No scores"
+msgstr "Sin notas"
 
-#~ msgid "Base score plus per-question weight"
-#~ msgstr "Nota base y un peso por pregunta"
+#: eyegrade/qtgui/scores.py:337
+msgid "Same score for all the questions"
+msgstr "Misma nota para todas las preguntas"
 
-#~ msgid "Score for correct answers"
-#~ msgstr "Nota para respuestas correctas"
+#: eyegrade/qtgui/scores.py:338
+msgid "Base score plus per-question weight"
+msgstr "Nota base y un peso por pregunta"
 
-#~ msgid "Score for incorrect answers"
-#~ msgstr "Nota para respuestas incorrectas"
+#: eyegrade/qtgui/scores.py:344
+msgid "Score for correct answers"
+msgstr "Nota para respuestas correctas"
 
-#~ msgid "Score for blank answers"
-#~ msgstr "Nota para respuestas en blanco"
+#: eyegrade/qtgui/scores.py:345
+msgid "Score for incorrect answers"
+msgstr "Nota para respuestas incorrectas"
 
-#~ msgid "Reset question weights"
-#~ msgstr "Restablecer los pesos de las preguntas"
+#: eyegrade/qtgui/scores.py:346
+msgid "Score for blank answers"
+msgstr "Nota para respuestas en blanco"
 
-#~ msgid "Automatic scores cannot be computed for this exam."
-#~ msgstr "No se pueden calcular notas automáticamente para este examen."
+#: eyegrade/qtgui/scores.py:349
+msgid "Reset question weights"
+msgstr "Restablecer los pesos de las preguntas"
 
-#~ msgid "The score for incorrect and blank answers cannot be greater than 0."
-#~ msgstr ""
-#~ "La nota de las respuestas incorrectas y en blanco no puede ser mayor que "
-#~ "0."
+#: eyegrade/qtgui/scores.py:352
+msgid "Per-question score weights:"
+msgstr "Pesos por preguntas:"
 
-#~ msgid "You must enter the score for correct answers."
-#~ msgstr "Debe introducir la puntuación de las respuestas correctas."
+#: eyegrade/qtgui/scores.py:485
+msgid "Automatic scores cannot be computed for this exam."
+msgstr "No se pueden calcular notas automáticamente para este examen."
 
-#~ msgid ""
-#~ "The weights must be the same in all the models, although they may be in a "
-#~ "different order. You must fix this before computing default scores."
-#~ msgstr ""
-#~ "Los pesos deben ser iguales en todos los modelos, aunque pueden estar en "
-#~ "distinto orden. Debe arreglar este problema antes de calcular las notas "
-#~ "por defecto."
+#: eyegrade/qtgui/scores.py:493
+msgid ""
+"The changes you have done to the weights table will be lost. Are you sure "
+"you want to continue?"
+msgstr ""
+"Se perderán los cambios realizados en la tabla de pesos. ¿Seguro que quiere "
+"continuar?"
 
-#~ msgid ""
-#~ "The changes you have done to the weights table will be lost. Are you sure "
-#~ "you want to continue?"
-#~ msgstr ""
-#~ "Se perderán los cambios realizados en la tabla de pesos. ¿Seguro que "
-#~ "quiere continuar?"
+#: eyegrade/qtgui/scores.py:507
+msgid ""
+"The weights must be the same in all the models, although they may be in a "
+"different order. You must fix this before computing default scores."
+msgstr ""
+"Los pesos deben ser iguales en todos los modelos, aunque pueden estar en "
+"distinto orden. Debe arreglar este problema antes de calcular las notas por "
+"defecto."
+
+#: eyegrade/qtgui/scores.py:584
+msgid "The score for incorrect and blank answers cannot be greater than 0."
+msgstr ""
+"La nota de las respuestas incorrectas y en blanco no puede ser mayor que 0."
+
+#: eyegrade/qtgui/scores.py:590
+msgid "You must enter the score for correct answers."
+msgstr "Debe introducir la puntuación de las respuestas correctas."
+
+#: eyegrade/qtgui/show_stats.py:56
+msgid "Exam statistics"
+msgstr "Estadísticas de exámenes"
+
+#: eyegrade/qtgui/show_stats.py:64
+msgid "Overall"
+msgstr "Globales"
+
+#: eyegrade/qtgui/show_stats.py:65
+msgid "Question by question"
+msgstr "Pregunta a pregunta"
+
+#: eyegrade/qtgui/show_stats.py:126
+msgid "Correct answers"
+msgstr "Respuestas correctas"
+
+#: eyegrade/qtgui/show_stats.py:127
+msgid "Incorrect answers"
+msgstr "Respuestas incorrectas"
+
+#: eyegrade/qtgui/show_stats.py:128
+msgid "Blank answers"
+msgstr "Respuestas en blanco"
+
+#: eyegrade/qtgui/show_stats.py:131
+msgid "# exams"
+msgstr "Nª exám."
+
+#: eyegrade/qtgui/show_stats.py:131
+msgid "Average"
+msgstr "Media"
+
+#: eyegrade/qtgui/show_stats.py:131
+msgid "Median"
+msgstr "Mediana"
+
+#: eyegrade/qtgui/show_stats.py:131
+msgid "Min."
+msgstr "Mín."
+
+#: eyegrade/qtgui/show_stats.py:131
+msgid "Max."
+msgstr "Máx."
+
+#: eyegrade/qtgui/show_stats.py:238
+msgid "Answer"
+msgstr "Resp."
+
+#: eyegrade/qtgui/show_stats.py:240
+msgid "Blank"
+msgstr "Blanco"
 
 #~ msgid "Add files"
 #~ msgstr "Añadir ficheros"
