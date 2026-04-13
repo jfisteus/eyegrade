@@ -916,8 +916,9 @@ class ProgramManager:
         self._store_capture(self.exam)
         self.interface.add_exam(self.exam)
         # Now that the exam is fully processed, we can enter review mode:
-        self.mode.enter_review()
-        self.interface.activate_review_mode(True)
+        if not self.mode.in_manual_detect():
+            self.mode.enter_review()
+            self.interface.activate_review_mode(True)
 
     def _store_capture_and_update(self):
         self._store_capture(self.exam)
